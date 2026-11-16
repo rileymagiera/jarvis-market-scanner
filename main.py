@@ -1,4 +1,7 @@
 import os
+import json
+import hmac
+from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from typing import Optional
@@ -7,7 +10,8 @@ import numpy as np
 import pandas as pd
 import requests
 import yfinance as yf
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Header, HTTPException
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
@@ -505,6 +509,67 @@ def home():
         "features": ["stock momentum", "crypto momentum", "relative volume", "breakout detection", "news headlines", "illustrative risk levels"],
         "endpoints": ["/health", "/scan", "/scan/stocks", "/scan/crypto", "/symbols"],
     }
+
+
+
+HISTORY_SNAPSHOT = Path("/tmp/jarvis_history_snapshot.json")
+
+
+@app.get("/history", response_class=HTMLResponse)
+def history_page():
+    return HTMLResponse("""<!doctype html>
+<html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jarvis History</title><style>
+body{font:16px system-ui,sans-serif;margin:0;background:#10151d;color:#edf2f7}
+main{max-width:960px;margin:auto;padding:22px}h1{margin-bottom:4px}
+.muted{color:#aab6c5}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:20px 0}
+.card{background:#1b2633;border:1px solid #344354;border-radius:12px;padding:14px}
+.value{font-size:25px;font-weight:700}.section{margin-top:26px}
+table{width:100%;border-collapse:collapse;background:#1b2633;border-radius:10px;overflow:hidden}
+th,td{text-align:left;padding:10px;border-bottom:1px solid #344354;font-size:14px}
+th{color:#aab6c5} .pos{color:#69d69b}.neg{color:#ff8989}
+@media(max-width:600px){main{padding:15px}th,td{padding:8px 5px;font-size:12px}}
+</style></head><body><main>
+<h1>Jarvis History</h1><div class="muted" id="updated">Loading saved paper-tracking history…</div>
+<div class="cards" id="stats"></div>
+<div class="section"><h2>Tracked candidates</h2><div class="muted">Rolling detailed history (up to 365 days). Returns are measured from first detection, not trade fills.</div>
+<div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Asset</th><th>First seen</th><th>Latest return</th><th>Best</th><th>Worst</th><th>Age</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+<div class="section"><h2>Lifetime checkpoints</h2><div style="overflow-x:auto"><table><thead><tr><th>Checkpoint</th><th>Observations</th><th>Wins</th><th>Losses</th><th>Average return</th></tr></thead><tbody id="checks"></tbody></table></div></div>
+<p class="muted">Research tracking only. Candidate discovery is not the same as an emailed actionable alert. No trades are placed. Price observations may be delayed or incomplete.</p>
+</main><script>
+const fmt=(v)=>Number(v||0).toFixed(2)+'%';
+const cls=(v)=>Number(v)>0?'pos':Number(v)<0?'neg':'';
+fetch('/history/data').then(r=>r.json()).then(d=>{
+ const t=d.paper_tracker||{}, l=d.lifetime||{}, vals=Object.values(t);
+ document.getElementById('updated').textContent='Last synced: '+(d.synced_at||'Not yet synced');
+ const cps=l.checkpoints||{};
+ const obs=Object.values(cps).reduce((n,x)=>n+Number(x.observations||0),0);
+ document.getElementById('stats').innerHTML=[
+ ['Tracked now',vals.length],['Lifetime records',l.recommendations||0],['Checkpoint observations',obs],['Lifetime wins',Object.values(cps).reduce((n,x)=>n+Number(x.wins||0),0)]
+ ].map(x=>'<div class="card"><div class="muted">'+x[0]+'</div><div class="value">'+x[1]+'</div></div>').join('');
+ document.getElementById('rows').innerHTML=vals.sort((a,b)=>(b.last_seen||'').localeCompare(a.last_seen||'')).map(x=>'<tr><td>'+x.asset_type.toUpperCase()+' '+x.symbol+'</td><td>'+new Date(x.first_seen).toLocaleDateString()+'</td><td class="'+cls(x.return_pct)+'">'+fmt(x.return_pct)+'</td><td class="pos">'+fmt(x.max_gain_pct)+'</td><td class="neg">'+fmt(x.max_drawdown_pct)+'</td><td>'+Number(x.age_days||0).toFixed(1)+'d</td></tr>').join('')||'<tr><td colspan="6">No paper history has synced yet. It will populate after the next successful hourly workflow.</td></tr>';
+ document.getElementById('checks').innerHTML=Object.entries(cps).sort((a,b)=>Number(a[0])-Number(b[0])).map(([h,x])=>'<tr><td>'+h+' calendar days</td><td>'+x.observations+'</td><td>'+x.wins+'</td><td>'+x.losses+'</td><td>'+fmt(x.observations?x.total_return_pct/x.observations:0)+'</td></tr>').join('')||'<tr><td colspan="5">Checkpoint results will appear as records mature.</td></tr>';
+}).catch(()=>document.getElementById('updated').textContent='History is temporarily unavailable. Try again after the next scan.');
+</script></body></html>""")
+
+
+@app.get("/history/data")
+def history_data():
+    try:
+        return json.loads(HISTORY_SNAPSHOT.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {"synced_at": None, "paper_tracker": {}, "lifetime": {}}
+
+
+@app.post("/history/sync")
+def history_sync(payload: dict, x_jarvis_history_token: Optional[str] = Header(None)):
+    expected = os.getenv("JARVIS_HISTORY_SYNC_TOKEN", "")
+    if not expected or not x_jarvis_history_token or not hmac.compare_digest(expected, x_jarvis_history_token):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    if not isinstance(payload.get("paper_tracker"), dict) or not isinstance(payload.get("lifetime"), dict):
+        raise HTTPException(status_code=400, detail="Invalid history payload")
+    HISTORY_SNAPSHOT.write_text(json.dumps(payload, separators=(",", ":")), encoding="utf-8")
+    return {"status": "synced", "records": len(payload["paper_tracker"])}
 
 
 @app.get("/health")
