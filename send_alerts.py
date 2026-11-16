@@ -71,7 +71,7 @@ def main():
         generated = str(payload.get("timestamp", now.isoformat()))
         candidates = payload.get("candidates_found", len(payload["candidates"]))
         errors = payload.get("errors") or []
-        body = "\\n".join([
+        body = "\n".join([
             "JARVIS DAILY MARKET STATUS",
             "Generated: " + generated,
             "",
