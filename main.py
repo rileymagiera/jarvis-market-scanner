@@ -145,6 +145,69 @@ def levels(price: float, atr: float, support: float) -> dict:
     }
 
 
+SEC_HEADERS = {
+    "User-Agent": "JarvisMarketScanner/2.0 (rileymagiera51@gmail.com)",
+    "Accept-Encoding": "gzip, deflate",
+}
+SEC_TICKER_MAP = None
+
+
+def sec_recent_filings(symbol: str, days: int = 14) -> list[dict]:
+    """Fetch recent material SEC filing metadata; filing contents remain for user review."""
+    global SEC_TICKER_MAP
+    try:
+        if SEC_TICKER_MAP is None:
+            mapping_response = HTTP.get("https://www.sec.gov/files/company_tickers.json", headers=SEC_HEADERS, timeout=15)
+            mapping_response.raise_for_status()
+            mapping = mapping_response.json()
+            SEC_TICKER_MAP = {
+                str(item.get("ticker", "")).upper(): str(item.get("cik_str", "")).zfill(10)
+                for item in mapping.values()
+                if item.get("ticker") and item.get("cik_str")
+            }
+        cik = SEC_TICKER_MAP.get(symbol.upper())
+        if not cik:
+            return []
+        response = HTTP.get(
+            f"https://data.sec.gov/submissions/CIK{cik}.json",
+            headers=SEC_HEADERS,
+            timeout=15,
+        )
+        response.raise_for_status()
+        recent = (response.json().get("filings", {}).get("recent") or {})
+        forms = recent.get("form", [])
+        dates = recent.get("filingDate", [])
+        accessions = recent.get("accessionNumber", [])
+        documents = recent.get("primaryDocument", [])
+        descriptions = recent.get("primaryDocDescription", [])
+        cutoff = datetime.now(timezone.utc).date().toordinal() - days
+        material_forms = {"8-K", "S-1", "S-3", "424B1", "424B3", "424B5", "10-Q", "10-K", "13D", "13G"}
+        results = []
+        for form, filing_date, accession, document, description in zip(forms, dates, accessions, documents, descriptions):
+            try:
+                filing_ordinal = datetime.strptime(filing_date, "%Y-%m-%d").date().toordinal()
+            except (TypeError, ValueError):
+                continue
+            if form not in material_forms or filing_ordinal < cutoff:
+                continue
+            accession_path = str(accession).replace("-", "")
+            cik_path = str(int(cik))
+            results.append({
+                "title": f"SEC {form} filed {filing_date}" + (f" — {description}" if description else ""),
+                "publisher": "SEC EDGAR",
+                "url": f"https://www.sec.gov/Archives/edgar/data/{cik_path}/{accession_path}/{document}",
+                "published_at": filing_date,
+                "source_type": "SEC filing",
+                "form": form,
+            })
+            if len(results) >= 3:
+                break
+        return results
+    except Exception:
+        # SEC enrichment is additive and must not interrupt price scanning.
+        return []
+
+
 def stock_news(symbol: str) -> list[dict]:
     try:
         items = yf.Ticker(symbol).news or []
@@ -162,9 +225,9 @@ def stock_news(symbol: str) -> list[dict]:
                 "url": canonical.get("url") if isinstance(canonical, dict) else None,
                 "published_at": node.get("pubDate"),
             })
-        return headlines[:3]
+        return (headlines[:3] + sec_recent_filings(symbol))[:6]
     except Exception:
-        return []
+        return sec_recent_filings(symbol)
 
 
 def scan_stock(symbol: str) -> Optional[dict]:
