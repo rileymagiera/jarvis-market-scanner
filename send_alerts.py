@@ -34,7 +34,33 @@ def update_paper_tracker(candidates, now):
     try:
         lifetime = json.loads(PAPER_LIFETIME_STATE.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
-        lifetime = {"recommendations": 0, "by_asset": {}, "checkpoints": {}}
+        # Seed lifetime totals from existing detailed records when introducing this file.
+        lifetime = {"recommendations": len(tracker), "by_asset": {}, "checkpoints": {}}
+        for old_record in tracker.values():
+            old_asset = old_record.get("asset_type", "asset")
+            old_asset_stats = lifetime["by_asset"].setdefault(old_asset, {"recommendations": 0, "checkpoints": {}})
+            old_asset_stats["recommendations"] += 1
+            for horizon, raw_return in (old_record.get("milestones") or {}).items():
+                try:
+                    old_return = float(raw_return)
+                except (TypeError, ValueError):
+                    continue
+                old_global = lifetime["checkpoints"].setdefault(
+                    str(horizon), {"observations": 0, "wins": 0, "losses": 0, "flat": 0, "total_return_pct": 0.0}
+                )
+                old_global["observations"] += 1
+                old_global["wins"] += int(old_return > 0)
+                old_global["losses"] += int(old_return < 0)
+                old_global["flat"] += int(old_return == 0)
+                old_global["total_return_pct"] = round(old_global["total_return_pct"] + old_return, 2)
+                old_asset_checkpoint = old_asset_stats["checkpoints"].setdefault(
+                    str(horizon), {"observations": 0, "wins": 0, "losses": 0, "flat": 0, "total_return_pct": 0.0}
+                )
+                old_asset_checkpoint["observations"] += 1
+                old_asset_checkpoint["wins"] += int(old_return > 0)
+                old_asset_checkpoint["losses"] += int(old_return < 0)
+                old_asset_checkpoint["flat"] += int(old_return == 0)
+                old_asset_checkpoint["total_return_pct"] = round(old_asset_checkpoint["total_return_pct"] + old_return, 2)
 
     summaries = {}
     for item in candidates:
