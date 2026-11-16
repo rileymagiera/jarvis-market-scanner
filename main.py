@@ -10,7 +10,8 @@ import numpy as np
 import pandas as pd
 import requests
 import yfinance as yf
-from fastapi import FastAPI, Query, Header, HTTPException
+from fastapi import FastAPI, Query, Header, HTTPException, Depends
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -18,7 +19,22 @@ app = FastAPI(
     title="Jarvis Market Scanner",
     description="Public-data stock and crypto momentum scanner. Signals are research watchlists, not trade execution.",
     version="2.0.0",
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None,
 )
+
+site_security = HTTPBasic()
+
+def require_site_login(credentials: HTTPBasicCredentials = Depends(site_security)):
+    expected_user = os.getenv("JARVIS_SITE_USERNAME", "")
+    expected_password = os.getenv("JARVIS_SITE_PASSWORD", "")
+    valid_user = hmac.compare_digest(credentials.username, expected_user) if expected_user else False
+    valid_password = hmac.compare_digest(credentials.password, expected_password) if expected_password else False
+    if not (valid_user and valid_password):
+        raise HTTPException(status_code=401, detail="Authentication required", headers={"WWW-Authenticate": "Basic"})
+    return credentials.username
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -500,7 +516,7 @@ def response_payload(asset: str, symbols: list[str], results: list, errors: list
     }
 
 
-@app.get("/")
+@app.get("/", dependencies=[Depends(require_site_login)])
 def home():
     return {
         "name": "Jarvis Market Scanner",
@@ -516,7 +532,7 @@ PAPER_STATE = Path("paper_tracker.json")
 PAPER_LIFETIME_STATE = Path("paper_tracker_lifetime.json")
 
 
-@app.get("/history", response_class=HTMLResponse)
+@app.get("/history", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
 def history_page():
     return HTMLResponse("""<!doctype html>
 <html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -554,7 +570,7 @@ fetch('/history/data').then(r=>r.json()).then(d=>{
 </script></body></html>""")
 
 
-@app.get("/history/data")
+@app.get("/history/data", dependencies=[Depends(require_site_login)])
 def history_data():
     def read_state(path):
         try:
@@ -589,7 +605,7 @@ def health():
     return {"status": "healthy", "timestamp": now_iso()}
 
 
-@app.get("/symbols")
+@app.get("/symbols", dependencies=[Depends(require_site_login)])
 def symbols():
     return {
         "stocks": stock_universe(),
@@ -597,21 +613,21 @@ def symbols():
     }
 
 
-@app.get("/scan/stocks")
+@app.get("/scan/stocks", dependencies=[Depends(require_site_login)])
 def scan_stocks(limit: int = Query(30, ge=1, le=100)):
     universe = stock_universe()[:limit]
     results, errors = run_parallel(universe, scan_stock)
     return response_payload("stocks", universe, results, errors)
 
 
-@app.get("/scan/crypto")
+@app.get("/scan/crypto", dependencies=[Depends(require_site_login)])
 def scan_cryptocurrencies(limit: int = Query(25, ge=1, le=100)):
     universe = crypto_universe()[:limit]
     results, errors = run_parallel(universe, scan_crypto)
     return response_payload("crypto", universe, results, errors)
 
 
-@app.get("/scan")
+@app.get("/scan", dependencies=[Depends(require_site_login)])
 def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
     stock_symbols = stock_universe()
     crypto_symbols = crypto_universe()
