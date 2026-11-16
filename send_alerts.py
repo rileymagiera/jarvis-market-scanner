@@ -3,6 +3,7 @@ import os
 import smtplib
 import sys
 from datetime import datetime, timezone, timedelta
+from zoneinfo import ZoneInfo
 from email.message import EmailMessage
 from pathlib import Path
 from urllib.request import Request, urlopen
@@ -149,6 +150,7 @@ def main():
         state = {}
 
     now = datetime.now(timezone.utc)
+    local_now = now.astimezone(ZoneInfo("America/Detroit"))
     paper, paper_lifetime = update_paper_tracker(payload["candidates"], now)
     market = payload.get("market_conditions") or {}
     selected, updates = [], {}
@@ -174,9 +176,18 @@ def main():
             selected.append(item)
             updates[key] = {"score": score, "alerted_at": now.isoformat()}
 
+    # Continue scanning and updating paper performance around the clock, but
+    # send email only during the preferred Eastern Time notification windows.
+    weekday = local_now.weekday()  # Monday=0, Sunday=6
+    local_hour = local_now.hour
+    notification_window = ((weekday <= 4 and 7 <= local_hour < 21) or (weekday == 6 and 9 <= local_hour < 20))
+    if not notification_window:
+        print(f"Outside notification window ({local_now.isoformat()}); scan and paper tracking saved without email.")
+        return
+
     if not selected:
-        # Send one heartbeat per UTC day when there are no new qualifying setups.
-        daily_key = now.date().isoformat()
+        # Send one heartbeat per local Eastern calendar day.
+        daily_key = local_now.date().isoformat()
         if state.get("daily_status_date") == daily_key:
             print("No new qualifying setups; daily status email already sent today.")
             return
