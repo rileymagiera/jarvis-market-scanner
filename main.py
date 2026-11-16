@@ -168,7 +168,8 @@ def stock_news(symbol: str) -> list[dict]:
 
 
 def scan_stock(symbol: str) -> Optional[dict]:
-    frame = yf.Ticker(symbol).history(period="3mo", interval="1d", auto_adjust=True)
+    ticker = yf.Ticker(symbol)
+    frame = ticker.history(period="3mo", interval="1d", auto_adjust=True)
     if frame.empty or len(frame) < 22:
         return None
     frame = frame.dropna(subset=["Close", "Volume"])
@@ -195,6 +196,27 @@ def scan_stock(symbol: str) -> Optional[dict]:
     atr = safe_float(high_low.tail(14).mean(), price * 0.03)
     support = safe_float(frame["Low"].tail(10).min(), price * 0.95)
 
+    # Intraday bars add earlier momentum and pre/post-market context.
+    intraday_change = 0.0
+    intraday_relative_volume = 0.0
+    intraday_breakout = False
+    try:
+        intraday = ticker.history(period="5d", interval="15m", prepost=True, auto_adjust=True)
+        if not intraday.empty and len(intraday) >= 8:
+            intraday_close = intraday["Close"].astype(float).dropna()
+            intraday_volume = intraday["Volume"].astype(float).fillna(0)
+            intraday_high = intraday["High"].astype(float).dropna()
+            if len(intraday_close) >= 5:
+                intraday_change = (safe_float(intraday_close.iloc[-1]) / safe_float(intraday_close.iloc[-5]) - 1) * 100
+            baseline_volume = safe_float(intraday_volume.iloc[-21:-1].median()) if len(intraday_volume) >= 21 else 0
+            current_intraday_volume = safe_float(intraday_volume.iloc[-1])
+            intraday_relative_volume = current_intraday_volume / baseline_volume if baseline_volume > 0 else 0
+            if len(intraday_high) >= 21:
+                intraday_breakout = safe_float(intraday_close.iloc[-1]) > safe_float(intraday_high.iloc[-21:-1].max())
+    except Exception:
+        # Keep the daily scan usable if intraday data is unavailable.
+        pass
+
     score = 0
     score += 15 if daily_change >= 2 else 8 if daily_change >= 0.5 else 0
     score += 15 if five_day_change >= 5 else 8 if five_day_change >= 2 else 0
@@ -202,6 +224,10 @@ def scan_stock(symbol: str) -> Optional[dict]:
     score += 20 if breakout else 0
     score += 15 if trend_up else 0
     score += 15 if daily_change > 0 and relative_volume >= 1.5 else 0
+    score += 10 if intraday_change >= 2 else 5 if intraday_change >= 0.75 else 0
+    score += 10 if intraday_relative_volume >= 3 else 5 if intraday_relative_volume >= 2 else 0
+    score += 5 if intraday_breakout else 0
+    score = min(score, 100)
 
     if score < 25:
         return None
@@ -212,13 +238,16 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "daily_change_pct": round(daily_change, 2),
         "five_day_change_pct": round(five_day_change, 2),
         "relative_volume": round(relative_volume, 2),
+        "intraday_change_pct": round(intraday_change, 2),
+        "intraday_relative_volume": round(intraday_relative_volume, 2),
+        "intraday_breakout": bool(intraday_breakout),
         "breakout_20d": bool(breakout),
         "above_20d_average": bool(trend_up),
         "score": score,
         "signal": "HIGH INTEREST" if score >= 75 else "WATCH" if score >= 50 else "EARLY WATCH",
         "levels": levels(price, atr, support),
         "news": stock_news(symbol),
-        "data_source": "Yahoo Finance",
+        "data_source": "Yahoo Finance daily + 15m intraday (pre/post-market when available)",
     }
 
 
