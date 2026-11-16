@@ -26,6 +26,27 @@ def email(subject, body):
         smtp.send_message(msg)
 
 
+def sync_history_to_site(paper, lifetime, now):
+    token = os.getenv("JARVIS_HISTORY_SYNC_TOKEN", "")
+    if not token:
+        print("History sync skipped: JARVIS_HISTORY_SYNC_TOKEN is not configured.")
+        return
+    body = json.dumps({
+        "synced_at": now.isoformat(),
+        "paper_tracker": paper,
+        "lifetime": lifetime,
+    }).encode("utf-8")
+    req = Request(
+        BASE_URL + "/history/sync",
+        data=body,
+        headers={"Content-Type": "application/json", "X-Jarvis-History-Token": token},
+        method="POST",
+    )
+    with urlopen(req, timeout=30) as response:
+        result = json.loads(response.read().decode("utf-8"))
+    print(f"History synced to website: {result.get('records', 0)} records.")
+
+
 def update_paper_tracker(candidates, now):
     """Track recommendations with 365-day detail and cumulative lifetime checkpoint stats."""
     try:
@@ -152,6 +173,7 @@ def main():
     now = datetime.now(timezone.utc)
     local_now = now.astimezone(ZoneInfo("America/Detroit"))
     paper, paper_lifetime = update_paper_tracker(payload["candidates"], now)
+    sync_history_to_site(paper, paper_lifetime, now)
     market = payload.get("market_conditions") or {}
     selected, updates = [], {}
     for item in payload["candidates"]:
