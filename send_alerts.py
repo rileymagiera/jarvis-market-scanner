@@ -63,7 +63,30 @@ def main():
             updates[key] = {"score": score, "alerted_at": now.isoformat()}
 
     if not selected:
-        print("No new qualifying setups; no email sent.")
+        # Send one heartbeat per UTC day when there are no new qualifying setups.
+        daily_key = now.date().isoformat()
+        if state.get("daily_status_date") == daily_key:
+            print("No new qualifying setups; daily status email already sent today.")
+            return
+        generated = str(payload.get("timestamp", now.isoformat()))
+        candidates = payload.get("candidates_found", len(payload["candidates"]))
+        errors = payload.get("errors") or []
+        body = "\\n".join([
+            "JARVIS DAILY MARKET STATUS",
+            "Generated: " + generated,
+            "",
+            "Jarvis completed its scheduled stock and crypto scan.",
+            "No new setups met the current alert criteria today.",
+            f"Candidates returned: {candidates}",
+            f"Scanner errors reported: {len(errors)}",
+            "",
+            "This is a monitoring update, not a buy or sell instruction.",
+            "Jarvis is recommendation-only and never places trades.",
+        ])
+        email("Jarvis daily status: no new setups", body)
+        state["daily_status_date"] = daily_key
+        STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+        print("Daily no-new-setups status email sent.")
         return
 
     lines = [
