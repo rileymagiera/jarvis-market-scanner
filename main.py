@@ -134,6 +134,63 @@ def safe_float(value, default=0.0) -> float:
         return default
 
 
+def market_conditions() -> dict:
+    """Broad risk appetite snapshot; missing benchmark data is reported, never guessed."""
+    benchmarks = {}
+    for symbol in ("SPY", "QQQ", "IWM", "BTC-USD"):
+        try:
+            hist = yf.Ticker(symbol).history(period="2mo", interval="1d", auto_adjust=True)
+            closes = hist["Close"].dropna().astype(float)
+            if len(closes) < 21:
+                continue
+            last = safe_float(closes.iloc[-1])
+            ma20 = safe_float(closes.tail(20).mean())
+            change5 = (last / safe_float(closes.iloc[-6]) - 1) * 100 if len(closes) >= 6 else 0
+            benchmarks[symbol] = {
+                "above_20d_average": bool(last > ma20),
+                "five_day_change_pct": round(change5, 2),
+            }
+        except Exception:
+            continue
+    equity_keys = [k for k in ("SPY", "QQQ", "IWM") if k in benchmarks]
+    equity_positive = sum(1 for k in equity_keys if benchmarks[k]["above_20d_average"])
+    btc_positive = benchmarks.get("BTC-USD", {}).get("above_20d_average")
+    if len(equity_keys) >= 2 and equity_positive >= 2 and btc_positive is not False:
+        regime, adjustment = "RISK-ON", 4
+    elif len(equity_keys) >= 2 and equity_positive <= 1:
+        regime, adjustment = "RISK-OFF", -8
+    else:
+        regime, adjustment = "MIXED / INCOMPLETE", 0
+    return {
+        "regime": regime,
+        "score_adjustment": adjustment,
+        "benchmarks": benchmarks,
+        "note": "Benchmark context is a caution/confirmation input, not a standalone buy or sell signal.",
+    }
+
+
+def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
+    raw_score = int(item.get("score") or 0)
+    adjusted = max(0, min(100, raw_score + adjustment))
+    item["raw_score"] = raw_score
+    item["score"] = adjusted
+    item["market_regime"] = regime["regime"]
+    item["market_score_adjustment"] = adjustment
+    has_confirmation = (
+        float(item.get("relative_volume") or 0) >= 1.5
+        or float(item.get("intraday_relative_volume") or 0) >= 2
+        or bool(item.get("breakout_20d") or item.get("breakout_24h") or item.get("intraday_breakout"))
+    )
+    if adjusted >= 75 and has_confirmation and regime["regime"] != "RISK-OFF":
+        stage = "ACTIONABLE SETUP"
+    elif adjusted >= 55 and has_confirmation:
+        stage = "CONFIRMATION"
+    else:
+        stage = "EARLY WATCH"
+    item["stage"] = stage
+    item["signal"] = stage
+
+
 def levels(price: float, atr: float, support: float) -> dict:
     # Illustrative planning levels only; not personalized trade instructions.
     risk_unit = max(atr, price * 0.02)
@@ -489,8 +546,13 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
         crypto_results, crypto_errors = run_parallel(crypto_symbols, scan_crypto)
     results = sorted(stock_results + crypto_results, key=lambda item: item["score"], reverse=True)
     errors = stock_errors + crypto_errors
+    regime = market_conditions()
+    for item in results:
+        classify_setup(item, regime["score_adjustment"], regime)
+    results.sort(key=lambda item: item["score"], reverse=True)
     return {
         **response_payload(asset, stock_symbols + crypto_symbols, results, errors),
+        "market_conditions": regime,
         "stock_candidates": len(stock_results),
         "crypto_candidates": len(crypto_results),
     }
