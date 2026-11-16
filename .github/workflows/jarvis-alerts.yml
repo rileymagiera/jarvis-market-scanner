@@ -34,6 +34,7 @@ jobs:
           JARVIS_GMAIL_USER: ${{ secrets.JARVIS_GMAIL_USER }}
           JARVIS_GMAIL_APP_PASSWORD: ${{ secrets.JARVIS_GMAIL_APP_PASSWORD }}
           JARVIS_ALERT_TO: ${{ secrets.JARVIS_ALERT_TO }}
+          JARVIS_HISTORY_SYNC_TOKEN: ${{ secrets.JARVIS_HISTORY_SYNC_TOKEN }}
           JARVIS_SCANNER_URL: https://jarvis-market-scanner.onrender.com
           SEND_TEST_EMAIL: ${{ inputs.send_test_email }}
         run: |
