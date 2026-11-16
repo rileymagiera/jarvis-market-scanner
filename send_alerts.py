@@ -71,7 +71,7 @@ def update_paper_tracker(candidates, now):
         key: value for key, value in tracker.items()
         if datetime.fromisoformat(value.get("last_seen", value.get("first_seen"))) >= cutoff
     }
-    PAPER_STATE.write_text(json.dumps(tracker, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+    PAPER_STATE.write_text(json.dumps(tracker, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return summaries
 
 
