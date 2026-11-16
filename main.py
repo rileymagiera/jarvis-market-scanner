@@ -319,6 +319,29 @@ def scan_stock(symbol: str) -> Optional[dict]:
     }
 
 
+def crypto_news(symbol: str) -> list[dict]:
+    try:
+        yahoo_symbol = symbol[:-4] + "-USD" if symbol.endswith("USDT") else symbol
+        items = yf.Ticker(yahoo_symbol).news or []
+        headlines = []
+        for item in items[:3]:
+            node = item.get("content", item)
+            title = node.get("title") or item.get("title")
+            if not title:
+                continue
+            provider = node.get("provider") or {}
+            canonical = node.get("canonicalUrl") or {}
+            headlines.append({
+                "title": title,
+                "publisher": provider.get("displayName") if isinstance(provider, dict) else None,
+                "url": canonical.get("url") if isinstance(canonical, dict) else None,
+                "published_at": node.get("pubDate"),
+            })
+        return headlines
+    except Exception:
+        return []
+
+
 def scan_crypto(symbol: str) -> Optional[dict]:
     ticker_response = HTTP.get(
         f"{BINANCE}/api/v3/ticker/24hr",
@@ -381,8 +404,8 @@ def scan_crypto(symbol: str) -> Optional[dict]:
         "score": score,
         "signal": "HIGH INTEREST" if score >= 75 else "WATCH" if score >= 50 else "EARLY WATCH",
         "levels": levels(price, atr, support),
-        "news": [],
-        "data_source": "Binance public market data",
+        "news": crypto_news(symbol),
+        "data_source": "Binance public market data + Yahoo Finance headlines",
     }
 
 
