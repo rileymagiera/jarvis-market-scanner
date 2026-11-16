@@ -45,8 +45,10 @@ def main():
     for item in payload["candidates"]:
         score = int(item.get("score") or 0)
         volume = float(item.get("relative_volume") or 0)
+        intraday_volume = float(item.get("intraday_relative_volume") or 0)
         breakout = bool(item.get("breakout_20d") or item.get("breakout_24h"))
-        if score < 60 or not (volume >= 1.5 or breakout):
+        intraday_breakout = bool(item.get("intraday_breakout"))
+        if score < 60 or not (volume >= 1.5 or breakout or intraday_volume >= 2 or intraday_breakout):
             continue
         key = f'{item.get("asset_type", "asset")}:{item.get("symbol", "unknown")}'
         previous = state.get(key, {})
@@ -101,6 +103,7 @@ def main():
         lines += [
             f'{item.get("asset_type", "asset").upper()} {item.get("symbol", "")} | Score {item.get("score", "n/a")}/100 | {item.get("signal", "WATCH")}',
             f'Price: {item.get("price", "n/a")} | Daily/24h change: {item.get("daily_change_pct", "n/a")}% | Relative volume: {item.get("relative_volume", "n/a")}x',
+            f'Intraday 15m change: {item.get("intraday_change_pct", "n/a")}% | Intraday relative volume: {item.get("intraday_relative_volume", "n/a")}x | Intraday breakout: {item.get("intraday_breakout", False)}',
             f'Breakout: {item.get("breakout_20d", item.get("breakout_24h", False))} | Source: {item.get("data_source", "n/a")}',
         ]
         levels = item.get("levels") or {}
