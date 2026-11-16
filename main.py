@@ -294,6 +294,10 @@ def scan_stock(symbol: str) -> Optional[dict]:
 
     if score < 25:
         return None
+    news = stock_news(symbol)
+    risk_flags = []
+    if any(item.get("form") in {"S-1", "S-3", "424B1", "424B3", "424B5"} for item in news):
+        risk_flags.append("Potential offering/registration filing detected; review the SEC document")
     return {
         "symbol": symbol,
         "asset_type": "stock",
@@ -309,7 +313,8 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "score": score,
         "signal": "HIGH INTEREST" if score >= 75 else "WATCH" if score >= 50 else "EARLY WATCH",
         "levels": levels(price, atr, support),
-        "news": stock_news(symbol),
+        "news": news,
+        "risk_flags": risk_flags,
         "data_source": "Yahoo Finance daily + 15m intraday (pre/post-market when available)",
     }
 
