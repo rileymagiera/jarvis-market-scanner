@@ -9,6 +9,7 @@ from urllib.request import Request, urlopen
 
 STATE = Path("alert_state.json")
 PAPER_STATE = Path("paper_tracker.json")
+PAPER_LIFETIME_STATE = Path("paper_tracker_lifetime.json")
 BASE_URL = os.getenv("JARVIS_SCANNER_URL", "https://jarvis-market-scanner.onrender.com").rstrip("/")
 SENDER = os.environ["JARVIS_GMAIL_USER"]
 PASSWORD = os.environ["JARVIS_GMAIL_APP_PASSWORD"].replace(" ", "")
@@ -25,28 +26,35 @@ def email(subject, body):
 
 
 def update_paper_tracker(candidates, now):
-    """Track every returned candidate from first detection; this is paper-only, never an order."""
+    """Track recommendations with 365-day detail and cumulative lifetime checkpoint stats."""
     try:
         tracker = json.loads(PAPER_STATE.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         tracker = {}
+    try:
+        lifetime = json.loads(PAPER_LIFETIME_STATE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        lifetime = {"recommendations": 0, "by_asset": {}, "checkpoints": {}}
+
     summaries = {}
     for item in candidates:
-        key = f'{item.get("asset_type", "asset")}:{item.get("symbol", "unknown")}'
+        asset_type = item.get("asset_type", "asset")
+        symbol = item.get("symbol", "unknown")
+        key = f"{asset_type}:{symbol}"
         price = float(item.get("price") or 0)
         if price <= 0:
             continue
         record = tracker.get(key)
         if not record:
             record = {
-                "asset_type": item.get("asset_type"),
-                "symbol": item.get("symbol"),
-                "first_seen": now.isoformat(),
-                "initial_price": price,
-                "peak_price": price,
-                "trough_price": price,
-                "milestones": {},
+                "asset_type": asset_type, "symbol": symbol,
+                "first_seen": now.isoformat(), "initial_price": price,
+                "peak_price": price, "trough_price": price, "milestones": {},
             }
+            lifetime["recommendations"] = int(lifetime.get("recommendations", 0)) + 1
+            asset_stats = lifetime.setdefault("by_asset", {}).setdefault(asset_type, {"recommendations": 0})
+            asset_stats["recommendations"] += 1
+
         initial = float(record.get("initial_price") or price)
         record["latest_price"] = price
         record["peak_price"] = max(float(record.get("peak_price") or price), price)
@@ -60,19 +68,41 @@ def update_paper_tracker(candidates, now):
         for horizon in (1, 3, 5, 20):
             milestone = str(horizon)
             if age_days >= horizon and milestone not in record["milestones"]:
-                record["milestones"][milestone] = record["return_pct"]
+                checkpoint_return = record["return_pct"]
+                record["milestones"][milestone] = checkpoint_return
+                stats = lifetime.setdefault("checkpoints", {}).setdefault(
+                    milestone, {"observations": 0, "wins": 0, "losses": 0, "flat": 0, "total_return_pct": 0.0}
+                )
+                stats["observations"] += 1
+                stats["wins"] += int(checkpoint_return > 0)
+                stats["losses"] += int(checkpoint_return < 0)
+                stats["flat"] += int(checkpoint_return == 0)
+                stats["total_return_pct"] = round(float(stats["total_return_pct"]) + checkpoint_return, 2)
+                asset_checkpoints = lifetime.setdefault("by_asset", {}).setdefault(
+                    asset_type, {"recommendations": 0}
+                ).setdefault("checkpoints", {})
+                asset_stats = asset_checkpoints.setdefault(
+                    milestone, {"observations": 0, "wins": 0, "losses": 0, "flat": 0, "total_return_pct": 0.0}
+                )
+                asset_stats["observations"] += 1
+                asset_stats["wins"] += int(checkpoint_return > 0)
+                asset_stats["losses"] += int(checkpoint_return < 0)
+                asset_stats["flat"] += int(checkpoint_return == 0)
+                asset_stats["total_return_pct"] = round(float(asset_stats["total_return_pct"]) + checkpoint_return, 2)
         record["last_seen"] = now.isoformat()
         record["last_stage"] = item.get("stage", item.get("signal", "WATCH"))
         tracker[key] = record
         summaries[key] = record
-    # Keep a rolling 120-day paper history to bound the state file.
-    cutoff = now - timedelta(days=120)
+
+    # Keep one year of detailed recommendations; lifetime aggregates remain cumulative.
+    cutoff = now - timedelta(days=365)
     tracker = {
         key: value for key, value in tracker.items()
         if datetime.fromisoformat(value.get("last_seen", value.get("first_seen"))) >= cutoff
     }
     PAPER_STATE.write_text(json.dumps(tracker, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return summaries
+    PAPER_LIFETIME_STATE.write_text(json.dumps(lifetime, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return summaries, lifetime
 
 
 def main():
@@ -93,7 +123,7 @@ def main():
         state = {}
 
     now = datetime.now(timezone.utc)
-    paper = update_paper_tracker(payload["candidates"], now)
+    paper, paper_lifetime = update_paper_tracker(payload["candidates"], now)
     market = payload.get("market_conditions") or {}
     selected, updates = [], {}
     for item in payload["candidates"]:
