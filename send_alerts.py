@@ -109,9 +109,12 @@ def main():
         levels = item.get("levels") or {}
         if levels:
             lines.append(f'Watch range: {levels.get("watch_entry_low", "n/a")}–{levels.get("watch_entry_high", "n/a")} | Illustrative invalidation: {levels.get("invalidation_level", "n/a")}')
-        for news in (item.get("news") or [])[:2]:
+        for news in (item.get("news") or [])[:4]:
             if news.get("title"):
-                lines.append("Headline: " + news["title"] + ((" — " + news["url"]) if news.get("url") else ""))
+                source = (" [" + news["publisher"] + "]") if news.get("publisher") else ""
+                lines.append("Catalyst: " + news["title"] + source + ((" — " + news["url"]) if news.get("url") else ""))
+        for flag in (item.get("risk_flags") or []):
+            lines.append("RISK REVIEW: " + flag)
         lines.append("")
     lines += [f'Scan candidates: {payload.get("candidates_found", "n/a")}', f'Scan errors: {len(payload.get("errors") or [])}']
     email(f"Jarvis: {len(selected)} new market setup(s)", "\n".join(lines))
