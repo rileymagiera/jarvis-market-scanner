@@ -85,7 +85,7 @@ def main():
         ])
         email("Jarvis daily status: no new setups", body)
         state["daily_status_date"] = daily_key
-        STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+        STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         print("Daily no-new-setups status email sent.")
         return
 
