@@ -512,7 +512,8 @@ def home():
 
 
 
-HISTORY_SNAPSHOT = Path("/tmp/jarvis_history_snapshot.json")
+PAPER_STATE = Path("paper_tracker.json")
+PAPER_LIFETIME_STATE = Path("paper_tracker_lifetime.json")
 
 
 @app.get("/history", response_class=HTMLResponse)
@@ -555,10 +556,21 @@ fetch('/history/data').then(r=>r.json()).then(d=>{
 
 @app.get("/history/data")
 def history_data():
-    try:
-        return json.loads(HISTORY_SNAPSHOT.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return {"synced_at": None, "paper_tracker": {}, "lifetime": {}}
+    def read_state(path):
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return {}
+
+    paper = read_state(PAPER_STATE)
+    lifetime = read_state(PAPER_LIFETIME_STATE)
+    timestamps = [
+        path.stat().st_mtime
+        for path in (PAPER_STATE, PAPER_LIFETIME_STATE)
+        if path.exists()
+    ]
+    synced_at = datetime.fromtimestamp(max(timestamps), timezone.utc).isoformat() if timestamps else None
+    return {"synced_at": synced_at, "paper_tracker": paper, "lifetime": lifetime}
 
 
 @app.post("/history/sync")
