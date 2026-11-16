@@ -48,10 +48,10 @@ jobs:
       - name: Save alert deduplication state
         if: ${{ success() && inputs.send_test_email != true }}
         run: |
-          if [ -n "$(git status --porcelain alert_state.json)" ]; then
+          if [ -n "$(git status --porcelain alert_state.json paper_tracker.json)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add alert_state.json
+            git add alert_state.json paper_tracker.json
             git commit -m "Update Jarvis alert state"
             git push
           fi
