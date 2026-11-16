@@ -50,6 +50,81 @@ def configured_symbols(env_name: str, defaults: list[str]) -> list[str]:
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
+def discover_stock_symbols(limit: int = 35) -> list[str]:
+    """Discover additional small/mid-cap movers from Yahoo's public screener."""
+    found = {}
+    for screen in ("day_gainers", "most_actives"):
+        try:
+            response = HTTP.get(
+                "https://query1.finance.yahoo.com/v1/finance/screener/predefined/saved",
+                params={"formatted": "false", "scrIds": screen, "count": 100, "start": 0},
+                timeout=15,
+            )
+            response.raise_for_status()
+            results = (response.json().get("finance", {}).get("result") or [])
+            quotes = results[0].get("quotes", []) if results else []
+            for quote in quotes:
+                symbol = str(quote.get("symbol") or "").upper()
+                market_cap = safe_float(quote.get("marketCap"))
+                price = safe_float(quote.get("regularMarketPrice"))
+                volume = safe_float(quote.get("regularMarketVolume"))
+                average_volume = safe_float(quote.get("averageDailyVolume3Month"))
+                change = safe_float(quote.get("regularMarketChangePercent"))
+                if not symbol or market_cap < 20_000_000 or market_cap > 15_000_000_000:
+                    continue
+                if price < 0.50 or volume < 100_000:
+                    continue
+                relative_volume = volume / average_volume if average_volume else 0
+                if change < 2 and relative_volume < 1.5:
+                    continue
+                rank = change + min(relative_volume, 10) * 2
+                found[symbol] = max(rank, found.get(symbol, float("-inf")))
+        except Exception:
+            # Dynamic discovery is additive; a provider outage must not stop the core scan.
+            continue
+    ranked = sorted(found, key=found.get, reverse=True)
+    return ranked[:limit]
+
+
+def discover_crypto_symbols(limit: int = 25) -> list[str]:
+    """Find liquid, actively moving USDT spot pairs beyond the fixed watchlist."""
+    excluded_bases = {"USDC", "FDUSD", "USDT", "TUSD", "USDP", "DAI", "EUR", "TRY", "BRL"}
+    leveraged_suffixes = ("UP", "DOWN", "BULL", "BEAR")
+    try:
+        response = HTTP.get(f"{BINANCE}/api/v3/ticker/24hr", timeout=20)
+        response.raise_for_status()
+        tickers = response.json()
+    except Exception:
+        return []
+    ranked = []
+    for ticker in tickers:
+        symbol = str(ticker.get("symbol") or "").upper()
+        if not symbol.endswith("USDT"):
+            continue
+        base = symbol[:-4]
+        if base in excluded_bases or base.endswith(leveraged_suffixes):
+            continue
+        quote_volume = safe_float(ticker.get("quoteVolume"))
+        change = safe_float(ticker.get("priceChangePercent"))
+        if quote_volume < 2_000_000 or change < 2 or change > 100:
+            continue
+        rank = change + min(np.log10(max(quote_volume, 1)), 9) * 2
+        ranked.append((rank, symbol))
+    ranked.sort(reverse=True)
+    return [symbol for _, symbol in ranked[:limit]]
+
+
+def stock_universe() -> list[str]:
+    defaults = configured_symbols("SCAN_STOCKS", DEFAULT_STOCKS)
+    dynamic = discover_stock_symbols()
+    return list(dict.fromkeys(defaults + dynamic))
+
+
+def crypto_universe() -> list[str]:
+    defaults = configured_symbols("SCAN_CRYPTO", DEFAULT_CRYPTO)
+    dynamic = discover_crypto_symbols()
+    return list(dict.fromkeys(defaults + dynamic))
+
 
 def safe_float(value, default=0.0) -> float:
     try:
@@ -263,29 +338,29 @@ def health():
 @app.get("/symbols")
 def symbols():
     return {
-        "stocks": configured_symbols("SCAN_STOCKS", DEFAULT_STOCKS),
-        "crypto": configured_symbols("SCAN_CRYPTO", DEFAULT_CRYPTO),
+        "stocks": stock_universe(),
+        "crypto": crypto_universe(),
     }
 
 
 @app.get("/scan/stocks")
 def scan_stocks(limit: int = Query(30, ge=1, le=100)):
-    universe = configured_symbols("SCAN_STOCKS", DEFAULT_STOCKS)[:limit]
+    universe = stock_universe()[:limit]
     results, errors = run_parallel(universe, scan_stock)
     return response_payload("stocks", universe, results, errors)
 
 
 @app.get("/scan/crypto")
 def scan_cryptocurrencies(limit: int = Query(25, ge=1, le=100)):
-    universe = configured_symbols("SCAN_CRYPTO", DEFAULT_CRYPTO)[:limit]
+    universe = crypto_universe()[:limit]
     results, errors = run_parallel(universe, scan_crypto)
     return response_payload("crypto", universe, results, errors)
 
 
 @app.get("/scan")
 def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
-    stock_symbols = configured_symbols("SCAN_STOCKS", DEFAULT_STOCKS)
-    crypto_symbols = configured_symbols("SCAN_CRYPTO", DEFAULT_CRYPTO)
+    stock_symbols = stock_universe()
+    crypto_symbols = crypto_universe()
     stock_results, stock_errors = ([], [])
     crypto_results, crypto_errors = ([], [])
     if asset in ("all", "stocks"):
