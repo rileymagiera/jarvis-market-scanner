@@ -166,6 +166,8 @@ def main():
             "Market regime: " + str(market.get("regime", "unavailable")),
             f"Candidates returned: {candidates}",
             f"Paper-tracked candidates: {len(paper)}",
+            f"Lifetime recommendations recorded: {paper_lifetime.get('recommendations', 0)}",
+            "Lifetime checkpoint wins/observations: " + str({h: (v.get('wins', 0), v.get('observations', 0)) for h, v in paper_lifetime.get('checkpoints', {}).items()}),
             f"Scanner errors reported: {len(errors)}",
             "",
             "This is a monitoring update, not a buy or sell instruction.",
@@ -182,6 +184,9 @@ def main():
         "Generated: " + str(payload.get("timestamp", now.isoformat())),
         "",
         "Research watchlist only. Not personalized financial advice. No trades are placed.",
+        "Detailed paper history: rolling 365 days; lifetime checkpoint totals are retained.",
+        f"Lifetime recommendations recorded: {paper_lifetime.get('recommendations', 0)}",
+        "Lifetime checkpoint wins/observations: " + str({h: (v.get('wins', 0), v.get('observations', 0)) for h, v in paper_lifetime.get('checkpoints', {}).items()}),
         "Verify current price, liquidity, news and risk before making any decision.",
         "",
     ]
