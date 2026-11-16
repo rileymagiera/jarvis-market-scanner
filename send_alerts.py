@@ -8,6 +8,7 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 
 STATE = Path("alert_state.json")
+PAPER_STATE = Path("paper_tracker.json")
 BASE_URL = os.getenv("JARVIS_SCANNER_URL", "https://jarvis-market-scanner.onrender.com").rstrip("/")
 SENDER = os.environ["JARVIS_GMAIL_USER"]
 PASSWORD = os.environ["JARVIS_GMAIL_APP_PASSWORD"].replace(" ", "")
@@ -21,6 +22,57 @@ def email(subject, body):
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=30) as smtp:
         smtp.login(SENDER, PASSWORD)
         smtp.send_message(msg)
+
+
+def update_paper_tracker(candidates, now):
+    """Track every returned candidate from first detection; this is paper-only, never an order."""
+    try:
+        tracker = json.loads(PAPER_STATE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        tracker = {}
+    summaries = {}
+    for item in candidates:
+        key = f'{item.get("asset_type", "asset")}:{item.get("symbol", "unknown")}'
+        price = float(item.get("price") or 0)
+        if price <= 0:
+            continue
+        record = tracker.get(key)
+        if not record:
+            record = {
+                "asset_type": item.get("asset_type"),
+                "symbol": item.get("symbol"),
+                "first_seen": now.isoformat(),
+                "initial_price": price,
+                "peak_price": price,
+                "trough_price": price,
+                "milestones": {},
+            }
+        initial = float(record.get("initial_price") or price)
+        record["latest_price"] = price
+        record["peak_price"] = max(float(record.get("peak_price") or price), price)
+        record["trough_price"] = min(float(record.get("trough_price") or price), price)
+        first_seen = datetime.fromisoformat(record["first_seen"])
+        age_days = max(0, (now - first_seen).total_seconds() / 86400)
+        record["age_days"] = round(age_days, 2)
+        record["return_pct"] = round((price / initial - 1) * 100, 2)
+        record["max_gain_pct"] = round((float(record["peak_price"]) / initial - 1) * 100, 2)
+        record["max_drawdown_pct"] = round((float(record["trough_price"]) / initial - 1) * 100, 2)
+        for horizon in (1, 3, 5, 20):
+            milestone = str(horizon)
+            if age_days >= horizon and milestone not in record["milestones"]:
+                record["milestones"][milestone] = record["return_pct"]
+        record["last_seen"] = now.isoformat()
+        record["last_stage"] = item.get("stage", item.get("signal", "WATCH"))
+        tracker[key] = record
+        summaries[key] = record
+    # Keep a rolling 120-day paper history to bound the state file.
+    cutoff = now - timedelta(days=120)
+    tracker = {
+        key: value for key, value in tracker.items()
+        if datetime.fromisoformat(value.get("last_seen", value.get("first_seen"))) >= cutoff
+    }
+    PAPER_STATE.write_text(json.dumps(tracker, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+    return summaries
 
 
 def main():
@@ -41,6 +93,8 @@ def main():
         state = {}
 
     now = datetime.now(timezone.utc)
+    paper = update_paper_tracker(payload["candidates"], now)
+    market = payload.get("market_conditions") or {}
     selected, updates = [], {}
     for item in payload["candidates"]:
         score = int(item.get("score") or 0)
@@ -79,7 +133,9 @@ def main():
             "",
             "Jarvis completed its scheduled stock and crypto scan.",
             "No new setups met the current alert criteria today.",
+            "Market regime: " + str(market.get("regime", "unavailable")),
             f"Candidates returned: {candidates}",
+            f"Paper-tracked candidates: {len(paper)}",
             f"Scanner errors reported: {len(errors)}",
             "",
             "This is a monitoring update, not a buy or sell instruction.",
@@ -101,7 +157,8 @@ def main():
     ]
     for item in sorted(selected, key=lambda x: int(x.get("score") or 0), reverse=True):
         lines += [
-            f'{item.get("asset_type", "asset").upper()} {item.get("symbol", "")} | Score {item.get("score", "n/a")}/100 | {item.get("signal", "WATCH")}',
+            f'{item.get("asset_type", "asset").upper()} {item.get("symbol", "")} | Score {item.get("score", "n/a")}/100 | {item.get("stage", item.get("signal", "WATCH"))}',
+            f'Market regime: {item.get("market_regime", market.get("regime", "unavailable"))} | Raw score: {item.get("raw_score", item.get("score", "n/a"))} | Regime adjustment: {item.get("market_score_adjustment", 0)}',
             f'Price: {item.get("price", "n/a")} | Daily/24h change: {item.get("daily_change_pct", "n/a")}% | Relative volume: {item.get("relative_volume", "n/a")}x',
             f'Intraday 15m change: {item.get("intraday_change_pct", "n/a")}% | Intraday relative volume: {item.get("intraday_relative_volume", "n/a")}x | Intraday breakout: {item.get("intraday_breakout", False)}',
             f'Breakout: {item.get("breakout_20d", item.get("breakout_24h", False))} | Source: {item.get("data_source", "n/a")}',
@@ -109,6 +166,13 @@ def main():
         levels = item.get("levels") or {}
         if levels:
             lines.append(f'Watch range: {levels.get("watch_entry_low", "n/a")}–{levels.get("watch_entry_high", "n/a")} | Illustrative invalidation: {levels.get("invalidation_level", "n/a")}')
+        tracked = paper.get(f'{item.get("asset_type", "asset")}:{item.get("symbol", "unknown")}')
+        if tracked:
+            lines.append(
+                f'PAPER TRACKER: first seen {tracked.get("first_seen")} | return {tracked.get("return_pct")}% | '
+                f'best move {tracked.get("max_gain_pct")}% | worst move {tracked.get("max_drawdown_pct")}% | '
+                f'age {tracked.get("age_days")} days | 1/3/5/20d checkpoints {tracked.get("milestones", {})}'
+            )
         for news in (item.get("news") or [])[:4]:
             if news.get("title"):
                 source = (" [" + news["publisher"] + "]") if news.get("publisher") else ""
