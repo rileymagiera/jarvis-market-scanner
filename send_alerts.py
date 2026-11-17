@@ -240,8 +240,8 @@ def update_paper_tracker(candidates, now):
     return summaries, lifetime
 
 
-def update_buy_signal_history(candidates, now):
-    """Persist distinct BUY events and measure forward returns from their signal prices."""
+def update_buy_signal_history(candidates, now, scan_errors=None):
+    """Persist BUY events, sampled stop/target observations, and forward returns."""
     try:
         state = json.loads(BUY_SIGNAL_STATE.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
@@ -250,10 +250,12 @@ def update_buy_signal_history(candidates, now):
     active = state.setdefault("active_by_key", {})
     by_id = {x.get("signal_id"): x for x in signals if x.get("signal_id")}
     horizons = {"1h": 3600, "4h": 14400, "1d": 86400, "3d": 259200, "7d": 604800}
+    present_keys = set()
 
     for item in candidates:
         asset, symbol = item.get("asset_type", "asset"), item.get("symbol", "unknown")
         key = f"{asset}:{symbol}"
+        present_keys.add(key)
         stage = item.get("stage", item.get("signal", "WATCH"))
         price = float(item.get("price") or 0)
         price_ok = price > 0 and not (asset == "stock" and not item.get("price_validation_passed", False))
@@ -309,12 +311,48 @@ def update_buy_signal_history(candidates, now):
         record["latest_return_pct"] = round(change, 3)
         record["max_favorable_pct"] = round(max(float(record.get("max_favorable_pct") or 0), change), 3)
         record["max_adverse_pct"] = round(min(float(record.get("max_adverse_pct") or 0), change), 3)
+        # Prices are sampled scan observations, not guaranteed intrabar fills.
+        # Record first observed crossings without claiming an exact execution.
+        record.setdefault("level_observations", {})
+        stop = safe_float(record.get("stop_loss"))
+        target_1 = safe_float(record.get("target_1"))
+        target_2 = safe_float(record.get("target_2"))
+        if stop > 0 and price <= stop and "stop_observed" not in record["level_observations"]:
+            record["level_observations"]["stop_observed"] = {
+                "at": now.isoformat(), "observed_price": price
+            }
+        if target_1 > 0 and price >= target_1 and "target_1_observed" not in record["level_observations"]:
+            record["level_observations"]["target_1_observed"] = {
+                "at": now.isoformat(), "observed_price": price
+            }
+        if target_2 > 0 and price >= target_2 and "target_2_observed" not in record["level_observations"]:
+            record["level_observations"]["target_2_observed"] = {
+                "at": now.isoformat(), "observed_price": price
+            }
+        record["clean_scans_missing"] = 0
         for horizon, seconds in horizons.items():
             if age >= seconds and horizon not in record["outcomes"]:
                 record["outcomes"][horizon] = {
                     "at": now.isoformat(), "elapsed_seconds": int(age),
                     "price": price, "return_pct": round(change, 3),
                 }
+
+    # If a previously active BUY disappears from six consecutive clean scans,
+    # close it as stale. Any scan errors pause this rule to avoid false closures.
+    if not scan_errors:
+        for key, signal_id in list(active.items()):
+            if key in present_keys:
+                continue
+            record = by_id.get(signal_id)
+            if not record or record.get("status") != "active":
+                active.pop(key, None)
+                continue
+            record["clean_scans_missing"] = int(record.get("clean_scans_missing") or 0) + 1
+            if record["clean_scans_missing"] >= 6:
+                record["status"] = "stale"
+                record["closed_at"] = now.isoformat()
+                record["closure_reason"] = "Absent from six consecutive completed scans"
+                active.pop(key, None)
 
     signals.sort(key=lambda x: x.get("at", ""), reverse=True)
     state["signals"] = signals[:500]
@@ -360,7 +398,7 @@ def main():
     now = datetime.now(timezone.utc)
     local_now = now.astimezone(ZoneInfo("America/Detroit"))
     paper, paper_lifetime = update_paper_tracker(payload["candidates"], now)
-    buy_signals = update_buy_signal_history(payload["candidates"], now)
+    buy_signals = update_buy_signal_history(payload["candidates"], now, payload.get("errors") or [])
     # The GitHub workflow commits the tracker files after this run.
     # Render reads those committed files directly; no ephemeral website sync.
     # The history page reads the tracker JSON files committed by the workflow.
@@ -457,10 +495,10 @@ def main():
         levels = item.get("levels") or {}
         if levels and item.get("stage") == "BUY":
             lines.append(f'ENTRY RANGE: {levels.get("watch_entry_low", "n/a")}–{levels.get("watch_entry_high", "n/a")}')
-            lines.append(f'STOP-LOSS: {levels.get("stop_loss", levels.get("invalidation_level", "n/a"))} | Estimated downside from signal price: {levels.get("risk_pct", "n/a")}%')
+            lines.append(f'STOP-LOSS: {levels.get("stop_loss", levels.get("invalidation_level", "n/a"))} | Estimated risk from upper entry reference: {levels.get("risk_pct", "n/a")}%')
             lines.append(f'POTENTIAL SELL: {levels.get("target_1", "n/a")} (+{levels.get("target_1_pct", "n/a")}%) | Stretch target: {levels.get("target_2", "n/a")} (+{levels.get("target_2_pct", "n/a")}%)')
             lines.append(f'REWARD/RISK: {levels.get("reward_risk_ratio", "n/a")}:1 to first target | {levels.get("target_2_reward_risk_ratio", "n/a")}:1 to stretch target')
-            lines.append("Levels are illustrative, based on the scan price and current ATR/support; reassess if the price moves before entry.")
+            lines.append("Levels are illustrative; risk and targets use the upper entry reference. Stop/target events are recorded only when a scan observes a crossing, not as confirmed fills.")
         elif levels:
             lines.append(f'Entry reference: {levels.get("watch_entry_low", "n/a")}–{levels.get("watch_entry_high", "n/a")} | Illustrative invalidation: {levels.get("invalidation_level", "n/a")}')
         if item.get("stage") == "BUY":
