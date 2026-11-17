@@ -4,7 +4,7 @@ import hmac
 import threading
 import time
 from pathlib import Path
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError as FutureTimeoutError
 from datetime import datetime, timezone, timedelta
 from zoneinfo import ZoneInfo
 from typing import Optional
@@ -342,6 +342,19 @@ def record_scan_metric(name: str, elapsed: float, outcome: str = "success") -> N
         metric["failures"] += int(outcome != "success")
         metric["total_seconds"] += max(0.0, float(elapsed))
         metric["max_seconds"] = max(metric["max_seconds"], float(elapsed))
+
+
+ENRICHMENT_EXECUTOR = ThreadPoolExecutor(max_workers=4, thread_name_prefix="jarvis-enrichment")
+
+
+def bounded_enrichment_call(callable_, timeout_seconds: float = 8.0):
+    """Keep optional news/profile enrichment from holding a stock scan indefinitely."""
+    future = ENRICHMENT_EXECUTOR.submit(callable_)
+    try:
+        return future.result(timeout=timeout_seconds)
+    except FutureTimeoutError as exc:
+        future.cancel()
+        raise TimeoutError(f"Optional provider enrichment exceeded {timeout_seconds:.0f}s budget") from exc
 
 
 def scan_metrics_snapshot() -> dict:
@@ -744,7 +757,7 @@ def stock_news(symbol: str) -> list[dict]:
     started = time.monotonic()
     outcome = "failure"
     try:
-        items = yf.Ticker(symbol).news or []
+        items = bounded_enrichment_call(lambda: yf.Ticker(symbol).news, timeout_seconds=8) or []
         headlines = []
         for item in items[:5]:
             node = item.get("content", item)
@@ -771,7 +784,7 @@ def stock_fundamental_snapshot(ticker) -> dict:
     started = time.monotonic()
     outcome = "failure"
     try:
-        info = ticker.get_info() or {}
+        info = bounded_enrichment_call(ticker.get_info, timeout_seconds=8) or {}
         fields = {
             "market_cap": info.get("marketCap"),
             "float_shares": info.get("floatShares"),
