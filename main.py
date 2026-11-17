@@ -311,6 +311,31 @@ def stock_news(symbol: str) -> list[dict]:
         return sec_recent_filings(symbol)
 
 
+
+def stock_fundamental_snapshot(ticker) -> dict:
+    """Best-effort public company snapshot; missing fields stay null, never inferred."""
+    try:
+        info = ticker.get_info() or {}
+    except Exception:
+        return {"status": "unavailable", "note": "Fundamental provider did not return a usable profile."}
+    fields = {
+        "market_cap": info.get("marketCap"),
+        "float_shares": info.get("floatShares"),
+        "shares_outstanding": info.get("sharesOutstanding"),
+        "short_percent_float": info.get("shortPercentOfFloat"),
+        "revenue_growth": info.get("revenueGrowth"),
+        "profit_margin": info.get("profitMargins"),
+        "operating_cashflow": info.get("operatingCashflow"),
+        "total_cash": info.get("totalCash"),
+        "total_debt": info.get("totalDebt"),
+        "next_earnings_timestamp": info.get("earningsTimestamp"),
+        "sector": info.get("sector"),
+        "industry": info.get("industry"),
+    }
+    available = {k: v for k, v in fields.items() if v is not None}
+    return {"status": "partial" if available else "unavailable", "fields": available,
+            "note": "Yahoo Finance company-profile fields; verify against filings because coverage and freshness vary."}
+
 def scan_stock(symbol: str) -> Optional[dict]:
     ticker = yf.Ticker(symbol)
     frame = ticker.history(period="3mo", interval="1d", auto_adjust=True)
@@ -376,6 +401,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
     if score < 15:
         return None
     news = stock_news(symbol)
+    fundamentals = stock_fundamental_snapshot(ticker) if score >= 35 else {"status": "not_fetched_for_low_score"}
     risk_flags = []
     if any(item.get("form") in {"S-1", "S-3", "424B1", "424B3", "424B5"} for item in news):
         risk_flags.append("Potential offering/registration filing detected; review the SEC document")
@@ -396,6 +422,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "levels": levels(price, atr, support),
         "news": news,
         "risk_flags": risk_flags,
+        "fundamentals": fundamentals,
         "research_notes": [
             "Review latest SEC filings for financing, dilution, debt and material events.",
             "Confirm headline timing and catalyst with a second independent source before acting.",
