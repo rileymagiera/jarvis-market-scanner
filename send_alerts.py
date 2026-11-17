@@ -145,7 +145,8 @@ def update_paper_tracker(candidates, now):
             record["max_drawdown_pct"] = 0.0
             record["price_validation_status"] = "verified"
             record["price_validation_note"] = "Baseline reset after independent price verification"
-        if not record:            record = {
+        if not record:
+            record = {
                 "asset_type": asset_type, "symbol": symbol,
                 "first_seen": now.isoformat(), "initial_price": price,
                 "peak_price": price, "trough_price": price, "milestones": {},
