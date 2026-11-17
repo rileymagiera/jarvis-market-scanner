@@ -44,5 +44,50 @@
     "alerted_stage": "DEVELOPING SETUP",
     "score": 78
   },
-  "daily_status_date": "2026-11-16"
+  "daily_status_date": "2026-11-16",
+  "stock:FIGR": {
+    "alerted_at": "2026-11-17T15:24:43.538715+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 67
+  },
+  "stock:KLAR": {
+    "alerted_at": "2026-11-17T15:24:43.538715+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 62
+  },
+  "stock:LUCK": {
+    "alerted_at": "2026-11-17T15:24:43.538715+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 63
+  },
+  "stock:MNSO": {
+    "alerted_at": "2026-11-17T15:24:43.538715+00:00",
+    "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
+    "score": 60
+  },
+  "stock:PVL": {
+    "alerted_at": "2026-11-17T15:24:43.538715+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 85
+  },
+  "stock:TIMB": {
+    "alerted_at": "2026-11-17T15:24:43.538715+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 60
+  },
+  "stock:TTEC": {
+    "alerted_at": "2026-11-17T15:24:43.538715+00:00",
+    "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
+    "score": 85
+  },
+  "stock:VIV": {
+    "alerted_at": "2026-11-17T15:24:43.538715+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 62
+  },
+  "stock:YALA": {
+    "alerted_at": "2026-11-17T15:24:43.538715+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 87
+  }
 }
