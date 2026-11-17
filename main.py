@@ -499,12 +499,31 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
 
 def levels(price: float, atr: float, support: float) -> dict:
     # Illustrative planning levels only; not personalized trade instructions.
-    risk_unit = max(atr, price * 0.02)
+    # Use a volatility-aware stop, tightened to nearby support when appropriate.
+    # Cap initial risk distance at 10% to avoid unusably distant stop levels.
+    risk_unit = max(safe_float(atr), price * 0.02)
+    risk_distance = min(1.5 * risk_unit, price * 0.10)
+    atr_stop = price - risk_distance
+    support_value = safe_float(support)
+    support_stop = support_value - 0.15 * risk_unit if 0 < support_value < price else 0.0
+    usable_support_stop = support_stop if 0 < support_stop < price and (price - support_stop) <= price * 0.10 else 0.0
+    stop_loss = max(atr_stop, usable_support_stop, price * 0.01)
+    risk_per_unit = max(0.0, price - stop_loss)
+    target_1 = price + 2.0 * risk_per_unit
+    target_2 = price + 3.0 * risk_per_unit
     return {
         "watch_entry_low": round(price, 6),
         "watch_entry_high": round(price + risk_unit * 0.25, 6),
-        "invalidation_level": round(max(0.0, min(support, price - risk_unit)), 6),
-        "method": "ATR/support reference; confirm liquidity and price action before any decision",
+        "invalidation_level": round(stop_loss, 6),
+        "stop_loss": round(stop_loss, 6),
+        "target_1": round(target_1, 6),
+        "target_2": round(target_2, 6),
+        "risk_pct": round(risk_per_unit / price * 100, 2) if price > 0 else None,
+        "target_1_pct": round((target_1 / price - 1) * 100, 2) if price > 0 else None,
+        "target_2_pct": round((target_2 / price - 1) * 100, 2) if price > 0 else None,
+        "reward_risk_ratio": 2.0,
+        "target_2_reward_risk_ratio": 3.0,
+        "method": "ATR-based stop, tightened to nearby support when appropriate; targets at 2R and 3R. Reassess if price/volatility changes.",
     }
 
 
@@ -1287,7 +1306,7 @@ const verifiedCount=surfaced.filter(x=>x.price_validation_status!=='unverified')
 document.getElementById('radar-stats').innerHTML=[[''+activeBuys.length,'ACTIVE BUY SIGNALS'],[''+surfaced.length,'ON RADAR'],[''+earlyCount,'EARLY / DEVELOPING'],[''+actionableCount,'ACTIONABLE SETUPS'],[''+verifiedCount,'PRICE VERIFIED']].map(x=>'<div class="radar-stat"><strong>'+e(x[0])+'</strong><span>'+x[1]+'</span></div>').join('');
 document.getElementById('buy-summary').textContent=activeBuys.length+' active · '+buySignals.length+' total logged';
 const recentBuys=[...buySignals].sort((a,b)=>new Date(b.at)-new Date(a.at)).slice(0,4);
-document.getElementById('buy-signals').innerHTML=recentBuys.length?recentBuys.map(x=>{const ret=x.latest_return_pct==null?'Awaiting update':pct(x.latest_return_pct);const reason=(x.reasons||[]).slice(0,2).join(' · ');return '<article class="buy-card"><div class="buy-card-top"><div><div class="buy-tag">'+(x.status==='active'?'BUY · ACTIVE':'BUY · HISTORICAL')+'</div><div class="buy-symbol">'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'</div></div><div class="buy-return '+cl(x.latest_return_pct)+'">'+e(ret)+'</div></div><div class="buy-detail">Signal price: '+e(x.entry_price)+' · Score: '+e(x.score)+'/100<br>Entry zone: '+e((x.entry_low??'—')+' – '+(x.entry_high??'—'))+' · Invalidation: '+e(x.invalidation??'—')+'</div><div class="buy-meta">'+date(x.at)+' · '+e(reason)+'</div></article>'}).join(''):'<div class="op-empty">No BUY signals recorded yet. Jarvis will keep watching rather than manufacture a trade.</div>';
+document.getElementById('buy-signals').innerHTML=recentBuys.length?recentBuys.map(x=>{const ret=x.latest_return_pct==null?'Awaiting update':pct(x.latest_return_pct);const reason=(x.reasons||[]).slice(0,2).join(' · ');return '<article class="buy-card"><div class="buy-card-top"><div><div class="buy-tag">'+(x.status==='active'?'BUY · ACTIVE':'BUY · HISTORICAL')+'</div><div class="buy-symbol">'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'</div></div><div class="buy-return '+cl(x.latest_return_pct)+'">'+e(ret)+'</div></div><div class="buy-detail">Signal price: '+e(x.entry_price)+' · Score: '+e(x.score)+'/100<br>Entry zone: '+e((x.entry_low??'—')+' – '+(x.entry_high??'—'))+'<br>Stop-loss: '+e(x.stop_loss??x.invalidation??'—')+' ('+e(x.risk_pct==null?'—':x.risk_pct+'% risk')+')<br>Potential sell: '+e(x.target_1??'—')+' ('+e(x.target_1_pct==null?'—':'+'+x.target_1_pct+'%')+') · Stretch target: '+e(x.target_2??'—')+' ('+e(x.target_2_pct==null?'—':'+'+x.target_2_pct+'%')+')<br>Reward/risk: '+e(x.reward_risk_ratio==null?'—':x.reward_risk_ratio+':1')+'</div><div class="buy-meta">'+date(x.at)+' · '+e(reason)+'</div></article>'}).join(''):'<div class="op-empty">No BUY signals recorded yet. Jarvis will keep watching rather than manufacture a trade.</div>';
 const candidates=surfaced.sort((a,b)=>(stageRank[b.last_stage]??0)-(stageRank[a.last_stage]??0)||n(b.daily_change_pct)-n(a.daily_change_pct)).slice(0,9);
 document.getElementById('opportunities').innerHTML=candidates.length?candidates.map((x,i)=>{
  const stage=x.last_stage||'WATCHLIST',s=String(stage),kind=s.includes('ACTIONABLE')?'action':s.includes('LATE RUNNER')?'late':'';
