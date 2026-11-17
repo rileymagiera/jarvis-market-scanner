@@ -1,0 +1,11 @@
+{
+  "last_scan_started_at": "2026-11-17T06:42:41.119375+00:00",
+  "last_attempt_status": "completed",
+  "run_id": "44033212408",
+  "run_number": "18",
+  "commit_sha": "81db9653e91d418e7b8d76439391c7f6fbcbff15",
+  "last_scan_completed_at": "2026-11-17T06:43:00.422224+00:00",
+  "last_attempt_error": null,
+  "scan_duration_seconds": 19.12,
+  "scan_errors": 0
+}
