@@ -249,7 +249,6 @@ def safe_float(value, default=0.0) -> float:
         return result if np.isfinite(result) else default
     except (TypeError, ValueError):        return default
 
-
 def stooq_daily_history(symbol: str) -> pd.DataFrame:
     """Free backup daily OHLCV history from Stooq; data may be delayed."""
     stooq_symbol = f"{symbol.lower()}.us"
@@ -497,8 +496,7 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
         if item.get("above_session_vwap") or tech.get("ema_9_above_ema_20"):
             early_signals.append("price positioning: VWAP or short-term EMA trend positive")
         technical_confirmations = [
-            bool(tech.get("ema_9_above_ema_20") and item.get("above_20d_average")),
-            bool(safe_float(tech.get("macd_histogram")) > 0 and tech.get("macd_histogram_rising")),
+            bool(tech.get("ema_9_above_ema_20") and item.get("above_20d_average")),            bool(safe_float(tech.get("macd_histogram")) > 0 and tech.get("macd_histogram_rising")),
             bool(rsi is not None and 50 <= float(rsi) <= 72),
             bool(item.get("above_session_vwap") or item.get("vwap_reclaim")),
             bool(tech.get("bollinger_squeeze_expansion")),
@@ -747,8 +745,7 @@ def webull_latest_bar(symbol: str) -> dict:
 
     # SDK handles Webull's request-signature authentication. This client is    # read-only in Jarvis: only the Market Data API is instantiated/called.
     from webull.core.client import ApiClient
-    from webull.data.data_client import DataClient
-    api_client = ApiClient(app_key, app_secret, "us")
+    from webull.data.data_client import DataClient    api_client = ApiClient(app_key, app_secret, "us")
     api_client.add_endpoint("us", "api.webull.com")
     data_client = DataClient(api_client)
     with WEBULL_QUOTE_SEMAPHORE:
@@ -997,8 +994,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
         except Exception as exc:            massive_quote_status = "not_entitled" if "not entitled" in str(exc).lower() else "unavailable"
 
     if webull_enabled:
-        try:
-            # Optional read-only Webull cross-check; explicitly enabled only after
+        try:            # Optional read-only Webull cross-check; explicitly enabled only after
             # app authorization is confirmed. The scan remains usable without it.
             webull_quote = webull_latest_bar(symbol)
             webull_status = "fresh_quote_received"
@@ -1247,8 +1243,7 @@ def kraken_crypto_market_data(symbol: str):
         raise RuntimeError("Kraken Ticker: " + "; ".join(ticker_payload["error"]))
     ticker_rows = ticker_payload.get("result") or {}
     if not ticker_rows:
-        raise RuntimeError(f"Kraken returned no ticker for {base}")
-    ticker = next(iter(ticker_rows.values()))
+        raise RuntimeError(f"Kraken returned no ticker for {base}")    ticker = next(iter(ticker_rows.values()))
     price = safe_float((ticker.get("c") or [0])[0])
     opening = safe_float(ticker.get("o"))
     volume = safe_float((ticker.get("v") or [0, 0])[1])
@@ -1497,8 +1492,7 @@ const fmtTime=d.synced_at?new Intl.DateTimeFormat('en-US',{timeZone:'America/Det
 
 const stageRank={'BUY':8,'EARLY SETUP':6,'DEVELOPING RUNNER':5,'DEVELOPING SETUP':5,'ACTIONABLE SETUP':4,'EARLY WATCH':3,'LATE RUNNER — CHASE RISK':2,'LOW-CONVICTION WATCH':1,'PRICE UNVERIFIED — WATCH ONLY':0};
 const surfaced=all.filter(x=>x.currently_surfaced!==false);
-const earlyCount=surfaced.filter(x=>['EARLY SETUP','EARLY WATCH','DEVELOPING RUNNER','DEVELOPING SETUP'].includes(x.last_stage)).length;
-const actionableCount=surfaced.filter(x=>x.last_stage==='ACTIONABLE SETUP').length;
+const earlyCount=surfaced.filter(x=>['EARLY SETUP','EARLY WATCH','DEVELOPING RUNNER','DEVELOPING SETUP'].includes(x.last_stage)).length;const actionableCount=surfaced.filter(x=>x.last_stage==='ACTIONABLE SETUP').length;
 const verifiedCount=surfaced.filter(x=>x.price_validation_status!=='unverified').length;
 document.getElementById('radar-stats').innerHTML=[[''+activeBuys.length,'ACTIVE BUY SIGNALS'],[''+surfaced.length,'ON RADAR'],[''+earlyCount,'EARLY / DEVELOPING'],[''+actionableCount,'ACTIONABLE SETUPS'],[''+verifiedCount,'PRICE VERIFIED']].map(x=>'<div class="radar-stat"><strong>'+e(x[0])+'</strong><span>'+x[1]+'</span></div>').join('');
 document.getElementById('buy-summary').textContent=activeBuys.length+' active · '+buySignals.length+' total logged';
@@ -1551,7 +1545,7 @@ document.getElementById('opportunities').innerHTML=candidates.length?candidates.
  const frontPlan=plan?'<div class="op-front-plan"><div><span>ENTRY ZONE</span><b>'+e(entry)+'</b></div><div><span>STOP / INVALIDATION</span><b>'+e(fmtLevel(lv.stop_loss||lv.invalidation_level))+'</b></div></div>':(verified?'':'<div class="op-front-plan-note">Price unverified · trade levels withheld</div>');
  const frontExplanation='<div class="op-front-explanation"><div>'+e(confidenceWhy)+'</div><div>Method: '+e(lv.method||'ATR-based stop and 2R / 3R reward-to-risk targets where saved.')+'</div></div>';
 
- return '<article class="op-card op-flippable '+(i===0?'featured':'')+'" tabindex="0" role="button" aria-pressed="false" aria-label="Flip '+e(x.symbol||'candidate')+' opportunity card for targets and confidence"><div class="op-flip-inner"><div class="op-face op-face-front"><div class="op-card-top"><div><div class="op-kind">'+(i===0?'TOP RADAR CANDIDATE · ':'')+e((x.asset_type||'').toUpperCase())+'</div><div class="op-symbol">'+e(x.symbol||'—')+'</div></div><span class="op-stage '+kind+'">'+e(stage)+'</span></div><div class="op-metrics"><div class="op-metric"><strong>'+e(price)+'</strong><span>LATEST PRICE</span></div><div class="op-metric"><strong class="'+cl(x.daily_change_pct)+'">'+e(day)+'</strong><span>24H MOVE</span></div><div class="op-metric"><strong class="'+cl(x.return_pct)+'">'+e(ret)+'</strong><span>RETURN SINCE FIRST VERIFIED</span></div></div>'+frontQuality+frontExplanation+frontPlan+'<div class="op-reason"><b>WHY IT&#39;S ON RADAR</b><br>'+e(reason)+'</div>'+(risks?'<div class="op-risk">RISK FLAGS: '+e(risks)+'</div>':'')+'<div class="op-flip-hint">TAP FOR TARGETS, STOP LOGIC + FULL SCORE BREAKDOWN ↻</div></div><div class="op-face op-face-back"><div class="op-back-title">'+e((x.symbol||'CANDIDATE')+' · POTENTIAL TRADE PLAN')+'</div>'+targetLine+calcLine+<div class="op-flip-hint">TAP TO RETURN TO OPPORTUNITY ↻</div></div></div></article>';
+ return '<article class="op-card op-flippable '+(i===0?'featured':'')+'" tabindex="0" role="button" aria-pressed="false" aria-label="Flip '+e(x.symbol||'candidate')+' opportunity card for targets and confidence"><div class="op-flip-inner"><div class="op-face op-face-front"><div class="op-card-top"><div><div class="op-kind">'+(i===0?'TOP RADAR CANDIDATE · ':'')+e((x.asset_type||'').toUpperCase())+'</div><div class="op-symbol">'+e(x.symbol||'—')+'</div></div><span class="op-stage '+kind+'">'+e(stage)+'</span></div><div class="op-metrics"><div class="op-metric"><strong>'+e(price)+'</strong><span>LATEST PRICE</span></div><div class="op-metric"><strong class="'+cl(x.daily_change_pct)+'">'+e(day)+'</strong><span>24H MOVE</span></div><div class="op-metric"><strong class="'+cl(x.return_pct)+'">'+e(ret)+'</strong><span>RETURN SINCE FIRST VERIFIED</span></div></div>'+frontQuality+frontExplanation+frontPlan+'<div class="op-reason"><b>WHY IT&#39;S ON RADAR</b><br>'+e(reason)+'</div>'+(risks?'<div class="op-risk">RISK FLAGS: '+e(risks)+'</div>':'')+'<div class="op-flip-hint">TAP FOR TARGETS, STOP LOGIC + FULL SCORE BREAKDOWN ↻</div></div><div class="op-face op-face-back"><div class="op-back-title">'+e((x.symbol||'CANDIDATE')+' · POTENTIAL TRADE PLAN')+'</div>'+targetLine+calcLine+'<div class="op-flip-hint">TAP TO RETURN TO OPPORTUNITY ↻</div></div></div></article>';
 }).join(''):'<div class="op-empty">Nothing has qualified for the radar yet. Jarvis will keep monitoring and show candidates after a successful scan.</div>';
 document.querySelectorAll('.op-flippable').forEach(card=>{const flip=()=>{const on=card.classList.toggle('is-flipped');card.setAttribute('aria-pressed',String(on));};card.addEventListener('click',flip);card.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();flip();}});});
 const timelineItems=surfaced.slice().sort((a,b)=>(stageRank[b.last_stage]??0)-(stageRank[a.last_stage]??0)).slice(0,12);document.getElementById('radar-timeline-cards').innerHTML=timelineItems.length?timelineItems.map(x=>{const history=(x.grade_history||[]).slice(-3).reverse();const events=history.length?history.map(h=>'<div class="timeline-event"><b>'+e(h.to||'Stage update')+'</b> · '+e(date(h.at))+'</div>').join(''):'<div class="timeline-event">First recorded stage: '+e(x.last_stage||'Watching')+'</div>';return '<article class="timeline-card"><div class="timeline-top"><div class="timeline-symbol">'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'</div><span class="timeline-stage">'+e(x.last_stage||'WATCHING')+'</span></div><div class="timeline-events">'+events+'</div></article>';}).join(''):'<div class="op-empty">No candidates are currently on the radar.</div>';
@@ -1747,8 +1741,7 @@ const level=(o,k)=>money(o&&o[k]);
 const buys=(d.buy_signals||[]).filter(x=>x.status==="active").sort((a,b)=>(b.at||"").localeCompare(a.at||""));
 document.getElementById("buyLedger").innerHTML=buys.length?buys.map(x=>'<tr><td><b>'+esc((x.asset_type||"").toUpperCase()+" "+x.symbol)+'</b><br><span class="muted">'+esc(x.at||"")+'</span></td><td><span class="pill">'+esc(x.discovery_source==="research_layer"?"Research-tagged":"Core BUY engine")+'</span></td><td>'+arr(x.research_signal_matches&&x.research_signal_matches.length?x.research_signal_matches:x.reasons)+'</td><td>'+money(x.entry_low)+' – '+money(x.entry_high)+'</td><td class="amber">'+level(x,"stop_loss")+'</td><td class="green">'+level(x,"target_1")+'</td><td class="green">'+level(x,"target_2")+'</td><td>'+esc(x.reward_risk_ratio?x.reward_risk_ratio+":1":"—")+'</td><td>'+esc(x.status||"active")+'</td></tr>').join(""):'<tr><td colspan="9" class="empty">No active official BUY signals are recorded right now. This is not a statement that the market has no opportunities.</td></tr>';
 const researchBuys=all.filter(x=>Array.isArray(x.research_signal_matches)&&x.research_signal_matches.length).sort((a,b)=>(b.last_seen||"").localeCompare(a.last_seen||""));
-document.getElementById("researchBuyLedger").innerHTML=researchBuys.length?researchBuys.map(x=>{const lv=x.levels||{};return '<tr><td><b>'+esc((x.asset_type||"").toUpperCase()+" "+x.symbol)+'</b></td><td>'+arr(x.research_signal_matches)+'</td><td><span class="pill">'+esc(x.last_stage||"—")+'</span></td><td>'+money(lv.watch_entry_low)+' – '+money(lv.watch_entry_high)+'</td><td class="amber">'+money(lv.stop_loss||lv.invalidation_level)+'</td><td class="green">'+money(lv.target_1)+'</td><td class="green">'+money(lv.target_2)+'</td><td>'+esc(x.research_setup_status||"Observed match · not a trade trigger")+'</td></tr>';}).join(""):'<tr><td colspan="8" class="empty">No research-layer matches recorded yet. The additional indicators still need to be wired into candidate discovery; Jarvis will not invent signal attribution.</td></tr>';
-document.getElementById("ledger").innerHTML=all.length?all.sort((a,b)=>(b.last_seen||"").localeCompare(a.last_seen||"")).slice(0,100).map(x=>'<tr><td><b>'+esc((x.asset_type||"").toUpperCase()+" "+x.symbol)+'</b></td><td><span class="pill">'+esc(x.last_stage||"—")+'</span></td><td>'+esc(x.price_validation_status||"unknown")+'<br><span class="muted">'+esc(x.price_source||"source not recorded")+'</span><br><span class="muted">'+esc(x.price_validation_note||"Validation detail not recorded")+'</span><br><span class="muted">Massive: '+esc(x.massive_quote_status||"not reported")+'</span></td><td>'+pick(x,["relative_strength_vs_spy","relative_strength_pct","rs_rank"])+'</td><td>'+pick(x,["intraday_rvol_same_time","same_time_relative_volume"])+'</td><td>'+pick(x,["anchored_vwap_status","opening_range_status","vwap_reclaim"])+'</td><td>'+pick(x,["adx","adx_dmi_status"])+'</td><td>'+pick(x,["spread_pct","dollar_volume","liquidity_status"])+'</td><td>'+pick(x,["catalyst_dilution_status","dilution_flags","catalysts"])+'</td></tr>').join(""):'<tr><td colspan="9" class="empty">No candidate records available.</td></tr>';}
+document.getElementById("researchBuyLedger").innerHTML=researchBuys.length?researchBuys.map(x=>{const lv=x.levels||{};return '<tr><td><b>'+esc((x.asset_type||"").toUpperCase()+" "+x.symbol)+'</b></td><td>'+arr(x.research_signal_matches)+'</td><td><span class="pill">'+esc(x.last_stage||"—")+'</span></td><td>'+money(lv.watch_entry_low)+' – '+money(lv.watch_entry_high)+'</td><td class="amber">'+money(lv.stop_loss||lv.invalidation_level)+'</td><td class="green">'+money(lv.target_1)+'</td><td class="green">'+money(lv.target_2)+'</td><td>'+esc(x.research_setup_status||"Observed match · not a trade trigger")+'</td></tr>';}).join(""):'<tr><td colspan="8" class="empty">No research-layer matches recorded yet. The additional indicators still need to be wired into candidate discovery; Jarvis will not invent signal attribution.</td></tr>';document.getElementById("ledger").innerHTML=all.length?all.sort((a,b)=>(b.last_seen||"").localeCompare(a.last_seen||"")).slice(0,100).map(x=>'<tr><td><b>'+esc((x.asset_type||"").toUpperCase()+" "+x.symbol)+'</b></td><td><span class="pill">'+esc(x.last_stage||"—")+'</span></td><td>'+esc(x.price_validation_status||"unknown")+'<br><span class="muted">'+esc(x.price_source||"source not recorded")+'</span><br><span class="muted">'+esc(x.price_validation_note||"Validation detail not recorded")+'</span><br><span class="muted">Massive: '+esc(x.massive_quote_status||"not reported")+'</span></td><td>'+pick(x,["relative_strength_vs_spy","relative_strength_pct","rs_rank"])+'</td><td>'+pick(x,["intraday_rvol_same_time","same_time_relative_volume"])+'</td><td>'+pick(x,["anchored_vwap_status","opening_range_status","vwap_reclaim"])+'</td><td>'+pick(x,["adx","adx_dmi_status"])+'</td><td>'+pick(x,["spread_pct","dollar_volume","liquidity_status"])+'</td><td>'+pick(x,["catalyst_dilution_status","dilution_flags","catalysts"])+'</td></tr>').join(""):'<tr><td colspan="9" class="empty">No candidate records available.</td></tr>';}
 fetch("/research/data").then(r=>{if(!r.ok)throw Error();return r.json()}).then(render).catch(()=>{document.getElementById("updated").textContent="Research data unavailable";document.getElementById("ledger").innerHTML='<tr><td colspan="9" class="empty">Could not load saved research data. Try again after the next successful sync.</td></tr>';});
 </script></body></html>""")
 
