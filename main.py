@@ -430,7 +430,7 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
         if tech.get("ema_9_above_ema_20"): early_signals.append("short-term EMA trend positive")
 
         technical_confirmations = [
-            bool(tech.get("ema_9_above_ema_20") and trend_up),
+            bool(tech.get("ema_9_above_ema_20") and item.get("above_20d_average")),
             bool(tech.get("macd_histogram", 0) > 0 and tech.get("macd_histogram_rising")),
             bool(rsi is not None and 50 <= float(rsi) <= 72),
             bool(item.get("above_session_vwap") or item.get("vwap_reclaim")),
@@ -479,15 +479,19 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
             and not crypto_late and regime["regime"] != "RISK-OFF"
         )
         if crypto_buy:
-            stage = "BUY"
+            stage, reasons = "BUY", [
+                f"Score {adjusted}/100; volume {float(item.get('relative_volume') or 0):.1f}x and 24-hour breakout confirmed.",
+                "Positive hourly momentum, price above its 24-hour average, and market regime is not risk-off.",
+            ]
         elif adjusted >= 75 and has_confirmation and regime["regime"] != "RISK-OFF":
-            stage = "ACTIONABLE SETUP"
+            stage, reasons = "ACTIONABLE SETUP", ["Strong score and confirmation; full BUY conditions are not all satisfied."]
         elif adjusted >= 55 and has_confirmation:
-            stage = "DEVELOPING SETUP"
+            stage, reasons = "DEVELOPING SETUP", ["Momentum and confirmation are developing."]
         elif adjusted >= 35:
-            stage = "EARLY WATCH"
+            stage, reasons = "EARLY WATCH", ["Some interest is present, but confirmation remains limited."]
         else:
-            stage = "LOW-CONVICTION WATCH"
+            stage, reasons = "LOW-CONVICTION WATCH", ["Current evidence is below the early-watch threshold."]
+        item["stage_reasons"] = reasons
 
     item["stage"] = stage
     item["signal"] = stage
