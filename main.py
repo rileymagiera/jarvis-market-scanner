@@ -1183,10 +1183,46 @@ input:focus,select:focus{outline:2px solid #83b8ff66;border-color:var(--accent)}
 .pill{display:inline-block;border:1px solid #40536a;border-radius:999px;padding:3px 9px;font-size:10px;line-height:1.5;white-space:nowrap;background:#1b2b3c}
 a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 .empty{text-align:center;padding:20px;color:var(--muted)}
+
+.topline{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:14px}
+.eyebrow{font-size:10px;letter-spacing:.16em;color:#8fa8c3;font-weight:750;margin-bottom:6px}
+.topline h1{font-size:clamp(30px,5vw,42px);margin:0 0 5px}
+.live-status{font-size:11px;color:#b8c9da;border:1px solid var(--line);background:#111e2b;padding:8px 11px;border-radius:999px;max-width:48%;text-align:right}
+.live-status:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:7px}
+.disclaimer{font-size:11px;color:var(--muted);border-left:2px solid #7898bb;padding:8px 11px;background:#ffffff05;border-radius:0 8px 8px 0}
+.focus{margin-top:22px;padding-top:20px}
+.section-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:13px}
+.section-heading h2{font-size:21px;margin:0 0 4px}
+.opportunity-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:10px}
+.op-card{background:linear-gradient(145deg,#192b3d,#111d2a);border:1px solid #31475e;border-radius:14px;padding:14px;min-width:0}
+.op-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.op-symbol{font-size:18px;font-weight:800;letter-spacing:-.02em}
+.op-kind{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.op-stage{display:inline-flex;border:1px solid #48617b;background:#20364b;color:#d5e8fa;border-radius:999px;padding:4px 8px;font-size:10px;line-height:1.3}
+.op-stage.action{border-color:#397e69;background:#16392f;color:#9ae5c3}
+.op-stage.late{border-color:#875e42;background:#392719;color:#f1bd91}
+.op-metrics{display:flex;gap:16px;flex-wrap:wrap;margin:8px 0}
+.op-metric strong{display:block;font-size:16px;font-variant-numeric:tabular-nums}
+.op-metric span{font-size:10px;color:var(--muted)}
+.op-reason{font-size:12px;color:#c4d2e0;line-height:1.45;margin-top:8px}
+.op-risk{font-size:11px;color:#ffb0a6;margin-top:8px}
+.op-empty{border:1px dashed #40546a;border-radius:12px;padding:18px;color:var(--muted);font-size:13px}
+.archive{margin-top:28px;border:1px solid var(--line);border-radius:15px;background:#0e1823;overflow:hidden}
+.archive>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 18px;font-weight:700}
+.archive>summary::-webkit-details-marker{display:none}
+.archive>summary:after{content:"＋";color:var(--accent);font-size:18px;margin-left:auto}
+.archive[open]>summary:after{content:"−"}
+.summary-note{font-size:11px;color:var(--muted);font-weight:400}
+.archive-body{padding:0 16px 18px;border-top:1px solid var(--line)}
+.archive-title{margin:18px 0 0;font-size:16px}
+.archive-body .section:first-of-type{margin-top:22px}
+.archive-body .section{margin-top:24px}
+@media(max-width:600px){.topline{display:block}.live-status{display:inline-block;max-width:100%;margin-top:12px;text-align:left}.section-heading{align-items:flex-start;flex-direction:column}.archive>summary{align-items:flex-start;flex-wrap:wrap}.summary-note{width:100%}.archive-body{padding:0 10px 14px}.opportunity-grid{grid-template-columns:1fr}}
+
 @media(max-width:700px){main{width:calc(100% - 24px);padding:22px 0 40px}.cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.card,.panel{padding:12px}.section{margin-top:24px;padding-top:18px}th,td{padding:10px;font-size:11px}#updated{max-width:100%;white-space:normal}}
 @media(max-width:380px){.cards{grid-template-columns:1fr 1fr}.value{font-size:19px}}
-</style></head><body><main><h1>Jarvis History & Performance</h1><div class="muted" id="updated">Loading saved tracking history…</div><div class="tiny">Research tracking only · Returns start at first verified detection, not trade fills · Unverified prices are excluded from performance rankings · Jarvis never places trades.</div>
-<div class="cards" id="stats"></div>
+</style></head><body><main><div class="topline"><div><div class="eyebrow">MARKET INTELLIGENCE</div><h1>Jarvis</h1><div class="muted">Your market radar · research and tracking only</div></div><div class="live-status" id="updated">Loading saved tracking history…</div></div><div class="disclaimer">Jarvis identifies research opportunities. It does not place trades. Prices and returns may be delayed or incomplete.</div><section class="section focus"><div class="section-heading"><div><div class="eyebrow">WHAT NEEDS ATTENTION</div><h2>Opportunity radar</h2><div class="muted">Freshly surfaced and developing candidates, ranked by setup stage.</div></div><div class="tiny">Review before acting</div></div><div id="opportunities" class="opportunity-grid"><div class="empty">Loading candidates…</div></div></section><div class="muted" id="updated">Loading saved tracking history…</div><div class="tiny">Research tracking only · Returns start at first verified detection, not trade fills · Unverified prices are excluded from performance rankings · Jarvis never places trades.</div>
+<details class="archive"><summary><span>Performance & tracking details</span><span class="summary-note">Scorecards, history, and full candidate tables</span></summary><div class="archive-body"><h2 class="archive-title">Performance snapshot</h2><div class="cards" id="stats"></div>
 <section class="section"><h2>Stock vs. crypto scoreboard</h2><div class="grid" id="assets"></div></section>
 <section class="section"><h2>Performance leaderboard</h2><div class="muted">Top tracked candidates by return from first tracked price.</div><div class="scroll"><table><thead><tr><th>#</th><th>Candidate</th><th>First price</th><th>Latest</th><th>Return</th><th>Best</th><th>Worst</th></tr></thead><tbody id="leaders"></tbody></table></div></section>
 <section class="section"><h2>All tracked candidates</h2><div class="toolbar"><input id="q" placeholder="Search ticker…"><select id="assetFilter"><option value="all">All assets</option><option value="stock">Stocks</option><option value="crypto">Crypto</option></select><select id="gradeFilter"><option value="all">All grades</option><option>ACTIONABLE SETUP</option><option>DEVELOPING SETUP</option><option>EARLY WATCH</option><option>LOW-CONVICTION WATCH</option><option>PRICE UNVERIFIED — WATCH ONLY</option></select></div><div class="scroll"><table><thead><tr><th>Candidate</th><th>First seen</th><th>First price</th><th>Current grade</th><th>Price source / freshness</th><th>Price as of</th><th>Session move</th><th>Return since first verified</th><th>Best</th><th>Worst</th><th>Age</th></tr></thead><tbody id="rows"></tbody></table></div></section>
@@ -1194,11 +1230,24 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 <section class="section"><h2>Grade movement history</h2><div class="scroll"><table><thead><tr><th>Candidate</th><th>From</th><th>To</th><th>When</th></tr></thead><tbody id="moves"></tbody></table></div></section>
 <section class="section"><h2>Discovery reasons & catalysts</h2><div class="scroll"><table><thead><tr><th>Candidate</th><th>Signals</th><th>Latest headline / filing</th><th>Risk flags</th></tr></thead><tbody id="catalysts"></tbody></table></div></section>
 <section class="section"><h2>Not in latest scan</h2><div class="tiny">Previously tracked, but absent from the latest scan. Last recorded prices may be stale; this is not a sell signal.</div><div class="scroll"><table><thead><tr><th>Candidate</th><th>Last seen</th><th>Last return</th><th>Best gain</th><th>Last grade</th></tr></thead><tbody id="faded"></tbody></table></div></section>
-<p class="tiny section">Data may be delayed or incomplete. Candidate discovery is not the same as an actionable alert.</p></main><script>
+<p class="tiny section">Data may be delayed or incomplete. Candidate discovery is not the same as an actionable alert.</p></div></details></main><script>
 const n=v=>Number(v||0),pct=v=>n(v).toFixed(2)+'%',cl=v=>n(v)>0?'pos':n(v)<0?'neg':'',e=v=>String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#39;"),date=v=>v?new Date(v).toLocaleString():'—';
 const rank={'ACTIONABLE SETUP':4,'DEVELOPING SETUP':3,'EARLY WATCH':2,'LOW-CONVICTION WATCH':1};
 function render(d){const t=d.paper_tracker||{},l=d.lifetime||{},all=Object.values(t),verified=all.filter(x=>x.price_validation_status!=="unverified"),live=all.filter(x=>x.currently_surfaced!==false),avg=verified.length?verified.reduce((s,x)=>s+n(x.return_pct),0)/verified.length:0;
 const fmtTime=d.synced_at?new Intl.DateTimeFormat('en-US',{timeZone:'America/Detroit',year:'numeric',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit',timeZoneName:'short'}).format(new Date(d.synced_at)):'Not yet synced';document.getElementById('updated').textContent='Last synced: '+fmtTime;
+
+const stageRank={'ACTIONABLE SETUP':5,'DEVELOPING RUNNER':4,'DEVELOPING SETUP':4,'EARLY SETUP':3,'EARLY WATCH':3,'LATE RUNNER — CHASE RISK':2,'LOW-CONVICTION WATCH':1,'PRICE UNVERIFIED — WATCH ONLY':0};
+const candidates=all.filter(x=>x.currently_surfaced!==false).sort((a,b)=>(stageRank[b.last_stage]??0)-(stageRank[a.last_stage]??0)||n(b.daily_change_pct)-n(a.daily_change_pct)).slice(0,9);
+document.getElementById('opportunities').innerHTML=candidates.length?candidates.map(x=>{
+ const stage=x.last_stage||'WATCHLIST',s=String(stage),kind=s.includes('ACTIONABLE')?'action':s.includes('LATE RUNNER')?'late':'';
+ const reason=(x.stage_reasons||x.discovery_reasons||[]).slice(0,2).join(' · ')||'Candidate retained for continued monitoring.';
+ const risks=(x.risk_flags||[]).slice(0,2).join(' · ');
+ const price=x.latest_price==null?'—':Number(x.latest_price).toPrecision(7);
+ const day=x.daily_change_pct==null?'—':pct(x.daily_change_pct);
+ const ret=x.price_validation_status==='unverified'?'Unverified':pct(x.return_pct);
+ return '<article class="op-card"><div class="op-card-top"><div><div class="op-kind">'+e((x.asset_type||'').toUpperCase())+'</div><div class="op-symbol">'+e(x.symbol||'—')+'</div></div><span class="op-stage '+kind+'">'+e(stage)+'</span></div><div class="op-metrics"><div class="op-metric"><strong>'+e(price)+'</strong><span>Latest tracked price</span></div><div class="op-metric"><strong class="'+cl(x.daily_change_pct)+'">'+e(day)+'</strong><span>Daily move</span></div><div class="op-metric"><strong class="'+cl(x.return_pct)+'">'+e(ret)+'</strong><span>Since first verified</span></div></div><div class="op-reason">'+e(reason)+'</div>'+(risks?'<div class="op-risk">Risk: '+e(risks)+'</div>':'')+'</article>';
+}).join(''):'<div class="op-empty">No candidates are currently surfaced. Jarvis will show new opportunities here after the next successful scan.</div>';
+
 const thresholds=[['Positive now',verified.filter(x=>n(x.return_pct)>0).length],['At least +5%',verified.filter(x=>n(x.return_pct)>=5).length],['At least +10%',verified.filter(x=>n(x.return_pct)>=10).length],['At least +20%',verified.filter(x=>n(x.return_pct)>=20).length],['Down 5% or more',verified.filter(x=>n(x.return_pct)<=-5).length],['Ever reached +10%',verified.filter(x=>n(x.max_gain_pct)>=10).length]];
 document.getElementById('stats').innerHTML=[['Tracked candidates',all.length],['In latest scan',live.length],['Average return',pct(avg)],['Positive candidates',thresholds[0][1]+' / '+verified.length],['Lifetime checkpoint wins',Object.values(l.checkpoints||{}).reduce((s,x)=>s+n(x.wins),0)],['Top current return',pct(Math.max(0,...verified.map(x=>n(x.return_pct))))]].map(x=>'<div class="card"><div class="muted">'+e(x[0])+'</div><div class="value">'+e(x[1])+'</div></div>').join('');
 document.getElementById('assets').innerHTML=['stock','crypto'].map(k=>{const a=verified.filter(x=>x.asset_type===k),m=a.length?a.reduce((s,x)=>s+n(x.return_pct),0)/a.length:0;return '<div class="panel"><div class="muted">'+(k==='stock'?'Stocks':'Crypto')+'</div><div class="value">'+a.length+' tracked</div><div class="'+cl(m)+'">Average return '+pct(m)+'</div><div class="tiny">'+a.filter(x=>n(x.return_pct)>0).length+' positive · '+a.filter(x=>x.last_stage==='ACTIONABLE SETUP').length+' actionable grade</div></div>'}).join('');
