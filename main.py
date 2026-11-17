@@ -592,7 +592,6 @@ th{color:#aab6c5} .pos{color:#69d69b}.neg{color:#ff8989}
 </style></head><body><main>
 <h1>Jarvis History</h1><div class="muted" id="updated">Loading saved paper-tracking history…</div>
 <div class="cards" id="stats"></div>
-<div class="section"><h2>Latest scan diagnostics</h2><pre id="diagnostics" class="muted" style="white-space:pre-wrap;overflow-wrap:anywhere;background:#1b2633;border:1px solid #344354;border-radius:10px;padding:12px">Waiting for the next successful scan.</pre></div>
 <div class="section"><h2>Tracked candidates</h2><div class="muted">Rolling detailed history (up to 365 days). Returns are measured from first detection, not trade fills.</div>
 <div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Asset</th><th>First seen</th><th>First tracked price</th><th>Current grade</th><th>Latest return</th><th>Best</th><th>Worst</th><th>Age</th></tr></thead><tbody id="rows"></tbody></table></div></div>
 <div class="section"><h2>Lifetime checkpoints</h2><div style="overflow-x:auto"><table><thead><tr><th>Checkpoint</th><th>Observations</th><th>Wins</th><th>Losses</th><th>Average return</th></tr></thead><tbody id="checks"></tbody></table></div></div>
@@ -607,8 +606,6 @@ fetch('/history/data').then(r=>r.json()).then(d=>{
    ? new Intl.DateTimeFormat('en-US',{timeZone:'America/Detroit',month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit',timeZoneName:'short'}).format(synced)
    : 'Not yet synced';
  document.getElementById('updated').textContent='Last synced: '+syncedLabel;
- const diag=d.scan_diagnostics||{};
- document.getElementById('diagnostics').textContent=diag.timestamp ? JSON.stringify({timestamp:diag.timestamp,candidates_found:diag.candidates_found,diagnostics:diag.diagnostics,errors:diag.errors,market_conditions:diag.market_conditions},null,2) : 'No saved scan diagnostics yet. They will appear after the next successful hourly workflow.';
  const cps=l.checkpoints||{};
  const obs=Object.values(cps).reduce((n,x)=>n+Number(x.observations||0),0);
  document.getElementById('stats').innerHTML=[
@@ -630,14 +627,13 @@ def history_data():
 
     paper = read_state(PAPER_STATE)
     lifetime = read_state(PAPER_LIFETIME_STATE)
-    diagnostics = read_state(Path("scan_diagnostics.json"))
     timestamps = [
         path.stat().st_mtime
         for path in (PAPER_STATE, PAPER_LIFETIME_STATE)
         if path.exists()
     ]
     synced_at = datetime.fromtimestamp(max(timestamps), timezone.utc).isoformat() if timestamps else None
-    return {"synced_at": synced_at, "paper_tracker": paper, "lifetime": lifetime, "scan_diagnostics": diagnostics}
+    return {"synced_at": synced_at, "paper_tracker": paper, "lifetime": lifetime}
 
 
 @app.post("/history/sync")
@@ -733,14 +729,13 @@ def history_data():
 
     paper = read_state(PAPER_STATE)
     lifetime = read_state(PAPER_LIFETIME_STATE)
-    diagnostics = read_state(Path("scan_diagnostics.json"))
     timestamps = [
         path.stat().st_mtime
         for path in (PAPER_STATE, PAPER_LIFETIME_STATE)
         if path.exists()
     ]
     synced_at = datetime.fromtimestamp(max(timestamps), timezone.utc).isoformat() if timestamps else None
-    return {"synced_at": synced_at, "paper_tracker": paper, "lifetime": lifetime, "scan_diagnostics": diagnostics}
+    return {"synced_at": synced_at, "paper_tracker": paper, "lifetime": lifetime}
 
 
 @app.post("/history/sync")
