@@ -35,12 +35,16 @@ jobs:
           JARVIS_GMAIL_APP_PASSWORD: ${{ secrets.JARVIS_GMAIL_APP_PASSWORD }}
           JARVIS_ALERT_TO: ${{ secrets.JARVIS_ALERT_TO }}
           JARVIS_HISTORY_SYNC_TOKEN: ${{ secrets.JARVIS_HISTORY_SYNC_TOKEN }}
+          JARVIS_SITE_USERNAME: ${{ secrets.JARVIS_SITE_USERNAME }}
+          JARVIS_SITE_PASSWORD: ${{ secrets.JARVIS_SITE_PASSWORD }}
           JARVIS_SCANNER_URL: https://jarvis-market-scanner.onrender.com
           SEND_TEST_EMAIL: ${{ inputs.send_test_email }}
         run: |
           test -n "$JARVIS_GMAIL_USER" || (echo "Missing JARVIS_GMAIL_USER" && exit 1)
           test -n "$JARVIS_GMAIL_APP_PASSWORD" || (echo "Missing JARVIS_GMAIL_APP_PASSWORD" && exit 1)
           test -n "$JARVIS_ALERT_TO" || (echo "Missing JARVIS_ALERT_TO" && exit 1)
+          test -n "$JARVIS_SITE_USERNAME" || (echo "Missing JARVIS_SITE_USERNAME" && exit 1)
+          test -n "$JARVIS_SITE_PASSWORD" || (echo "Missing JARVIS_SITE_PASSWORD" && exit 1)
           if [ "$SEND_TEST_EMAIL" = "true" ]; then
             python send_alerts.py --test
           else
