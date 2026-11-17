@@ -431,7 +431,7 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
 
         technical_confirmations = [
             bool(tech.get("ema_9_above_ema_20") and item.get("above_20d_average")),
-            bool(tech.get("macd_histogram", 0) > 0 and tech.get("macd_histogram_rising")),
+            bool(safe_float(tech.get("macd_histogram")) > 0 and tech.get("macd_histogram_rising")),
             bool(rsi is not None and 50 <= float(rsi) <= 72),
             bool(item.get("above_session_vwap") or item.get("vwap_reclaim")),
             bool(tech.get("bollinger_squeeze_expansion")),
