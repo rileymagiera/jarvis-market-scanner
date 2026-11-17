@@ -231,12 +231,8 @@ def main():
     now = datetime.now(timezone.utc)
     local_now = now.astimezone(ZoneInfo("America/Detroit"))
     paper, paper_lifetime = update_paper_tracker(payload["candidates"], now)
-    # Keep Render's history snapshot current without allowing a sync outage
-    # to interrupt the GitHub-backed tracker save.
-    try:
-        sync_history_to_site(paper, paper_lifetime, now)
-    except Exception as exc:
-        print(f"History website sync failed (GitHub tracker remains saved): {str(exc)[:300]}")
+    # The GitHub workflow commits the tracker files after this run.
+    # Render reads those committed files directly; no ephemeral website sync.
     # The history page reads the tracker JSON files committed by the workflow.
     # Do not POST to Render here: an optional sync must not fail the market scan.
     market = payload.get("market_conditions") or {}
