@@ -813,9 +813,10 @@ def home():
 
 
 
-PAPER_STATE = Path("paper_tracker.json")
-PAPER_LIFETIME_STATE = Path("paper_tracker_lifetime.json")
-HISTORY_SNAPSHOT = Path("history_snapshot.json")
+APP_DIR = Path(__file__).resolve().parent
+PAPER_STATE = APP_DIR / "paper_tracker.json"
+PAPER_LIFETIME_STATE = APP_DIR / "paper_tracker_lifetime.json"
+HISTORY_SNAPSHOT = APP_DIR / "history_snapshot.json"
 
 
 @app.get("/history", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
