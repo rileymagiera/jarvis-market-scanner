@@ -129,16 +129,35 @@ def update_paper_tracker(candidates, now):
             continue
         record = tracker.get(key)
         if asset_type == "stock" and not item.get("price_validation_passed", False):
-            if record:
-                record["price_validation_status"] = "unverified"
-                record["price_validation_note"] = item.get("price_validation_note", "Independent quote validation unavailable")
-                record["unverified_return_pct"] = record.get("return_pct")
-                record["return_pct"] = None
-                record["max_gain_pct"] = None
-                record["max_drawdown_pct"] = None
-                record["latest_price"] = None
-                record["currently_surfaced"] = True
-                tracker[key] = record
+            if not record:
+                # Keep an audit row for newly discovered but unverified stocks.
+                # This is not counted as a paper recommendation until a price is accepted.
+                record = {
+                    "asset_type": asset_type, "symbol": symbol,
+                    "first_seen": now.isoformat(), "initial_price": None,
+                    "peak_price": None, "trough_price": None, "milestones": {},
+                    "price_history": [], "discovery_reasons": [], "catalysts": [],
+                    "risk_flags": [], "currently_surfaced": True,
+                }
+            record["price_validation_status"] = "unverified"
+            record["price_validation_note"] = item.get("price_validation_note", "Independent quote validation unavailable")
+            record["webull_status"] = item.get("webull_status", "not_reported")
+            record["webull_price"] = item.get("webull_price")
+            record["webull_price_as_of"] = item.get("webull_price_as_of")
+            record["webull_price_age_minutes"] = item.get("webull_price_age_minutes")
+            record["webull_price_difference_pct"] = item.get("webull_price_difference_pct")
+            record["price_source"] = item.get("data_source") or item.get("price_source")
+            record["price_as_of"] = item.get("price_as_of")
+            record["price_freshness"] = item.get("price_freshness")
+            record["last_stage"] = item.get("stage", item.get("signal", "WATCH"))
+            record["last_seen"] = now.isoformat()
+            record["unverified_return_pct"] = record.get("return_pct")
+            record["return_pct"] = None
+            record["max_gain_pct"] = None
+            record["max_drawdown_pct"] = None
+            record["latest_price"] = None
+            record["currently_surfaced"] = True
+            tracker[key] = record
             continue
         if record and record.get("price_validation_status") == "unverified":
             record["quarantined_initial_price"] = record.get("initial_price")
@@ -171,6 +190,11 @@ def update_paper_tracker(candidates, now):
         record["latest_price"] = price
         record["price_validation_status"] = "verified" if asset_type == "stock" else "not_required"
         record["price_validation_note"] = item.get("price_validation_note", "Not applicable")
+        record["webull_status"] = item.get("webull_status", "not_reported")
+        record["webull_price"] = item.get("webull_price")
+        record["webull_price_as_of"] = item.get("webull_price_as_of")
+        record["webull_price_age_minutes"] = item.get("webull_price_age_minutes")
+        record["webull_price_difference_pct"] = item.get("webull_price_difference_pct")
         record["daily_change_pct"] = item.get("daily_change_pct")
         record["session_change_pct"] = item.get("session_change_pct")
         record["price_source"] = item.get("data_source") or item.get("price_source") or "Provider not reported"
