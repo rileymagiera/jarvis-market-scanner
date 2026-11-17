@@ -886,39 +886,105 @@ def scan_stock(symbol: str) -> Optional[dict]:
         # Keep the daily scan usable if intraday data is unavailable.
         pass
 
+    # Collect live quotes independently. Webull must not depend on Yahoo
+    # succeeding first, otherwise its fallback path is never actually tested.
     validation_passed = False
-    validation_note = "Fresh Yahoo intraday quote unavailable"
+    validation_note = "No fresh independently checked intraday quote available"
     secondary_quote = None
     quote_difference_pct = None
-    if intraday_fresh and intraday_price > 0:
-        try:
-            secondary_quote = stooq_latest_quote(symbol)
-            quote_difference_pct = abs(intraday_price - secondary_quote["price"]) / ((intraday_price + secondary_quote["price"]) / 2) * 100
-            validation_passed = quote_difference_pct <= 3.0
-            validation_note = (f"Yahoo/Stooq agree within {quote_difference_pct:.2f}%" if validation_passed else f"PRICE DISAGREEMENT: Yahoo ${intraday_price:.4f} vs Stooq ${secondary_quote['price']:.4f}")
-        except Exception as exc:
-            validation_note = f"Independent Stooq validation unavailable: {exc}"
     webull_quote = None
     webull_difference_pct = None
     webull_status = "not_configured"
-    if validation_passed and os.getenv("WEBULL_APP_KEY", "").strip() and os.getenv("WEBULL_APP_SECRET", "").strip():
+    has_webull_credentials = bool(
+        os.getenv("WEBULL_APP_KEY", "").strip()
+        and os.getenv("WEBULL_APP_SECRET", "").strip()
+    )
+
+    if intraday_fresh and intraday_price > 0:
         try:
-            webull_quote = webull_latest_bar(symbol)
-            webull_difference_pct = abs(intraday_price - webull_quote["price"]) / ((intraday_price + webull_quote["price"]) / 2) * 100
-            if webull_difference_pct > 3.0:
-                validation_passed = False
-                validation_note = f"PRICE DISAGREEMENT: Yahoo/Stooq vs Webull differ by {webull_difference_pct:.2f}%"
-                webull_status = "price_mismatch"
-            else:
-                validation_note += f"; Webull confirms within {webull_difference_pct:.2f}%"
-                webull_status = "confirmed"
+            secondary_quote = stooq_latest_quote(symbol)
+            quote_difference_pct = (
+                abs(intraday_price - secondary_quote["price"])
+                / ((intraday_price + secondary_quote["price"]) / 2) * 100
+            )
         except Exception:
-            # Webull is additive: missing entitlement, credentials, or outage
-            # must never interrupt the existing Yahoo + Stooq scan.
+            secondary_quote = None
+
+    if has_webull_credentials:
+        try:
+            # Always attempt Webull, even when Yahoo intraday data is absent.
+            webull_quote = webull_latest_bar(symbol)
+            webull_status = "fresh_quote_received"
+        except Exception:
+            # Missing entitlement, credentials, SDK, or endpoint must not stop a scan.
             webull_status = "unavailable_or_not_entitled"
 
+    reference_quotes = []
+    if intraday_fresh and intraday_price > 0:
+        reference_quotes.append(("Yahoo", intraday_price))
+    if secondary_quote and secondary_quote.get("price", 0) > 0:
+        reference_quotes.append(("Stooq", secondary_quote["price"]))
+
+    reference_conflict = bool(
+        len(reference_quotes) == 2
+        and abs(reference_quotes[0][1] - reference_quotes[1][1])
+        / ((reference_quotes[0][1] + reference_quotes[1][1]) / 2) * 100 > 3.0
+    )
+
+    selected_price_as_of = None
+    selected_price_freshness = "daily_bar_unverified"
+    selected_data_source = f"{price_provider} daily; live quote unverified"
+
+    if webull_quote:
+        webull_price = webull_quote["price"]
+        webull_differences = [
+            (name, abs(reference_price - webull_price)
+             / ((reference_price + webull_price) / 2) * 100)
+            for name, reference_price in reference_quotes
+        ]
+        if reference_conflict:
+            webull_status = "reference_disagreement"
+            validation_note = "Yahoo and Stooq live quotes disagree by more than 3%; Webull not accepted"
+        elif webull_differences and all(diff <= 3.0 for _, diff in webull_differences):
+            validation_passed = True
+            webull_difference_pct = max(diff for _, diff in webull_differences)
+            webull_status = "confirmed"
+            names = "/".join(name for name, _ in webull_differences)
+            validation_note = f"Fresh Webull quote cross-checked against {names}; maximum difference {webull_difference_pct:.2f}%"
+            price = webull_price
+            selected_price_as_of = webull_quote["as_of"]
+            selected_price_freshness = "fresh_webull_cross_checked"
+            selected_data_source = f"Webull 1m + {names} cross-check"
+        elif webull_differences:
+            webull_difference_pct = max(diff for _, diff in webull_differences)
+            webull_status = "price_mismatch"
+            validation_note = f"PRICE DISAGREEMENT: Webull differs from an available reference by {webull_difference_pct:.2f}%"
+        else:
+            # Fresh Webull-only quotes may be tracked, but are clearly labelled
+            # single-source and do not satisfy the separate intraday signal gate.
+            validation_passed = True
+            webull_status = "fresh_single_source"
+            validation_note = "Fresh Webull 1-minute quote accepted; no independent live provider quote was available"
+            price = webull_price
+            selected_price_as_of = webull_quote["as_of"]
+            selected_price_freshness = "fresh_webull_single_source"
+            selected_data_source = "Webull 1m quote (single source; no live cross-check)"
+    elif intraday_fresh and secondary_quote and quote_difference_pct is not None:
+        if quote_difference_pct <= 3.0:
+            validation_passed = True
+            validation_note = f"Yahoo/Stooq agree within {quote_difference_pct:.2f}%"
+            price = intraday_price
+            selected_price_as_of = intraday_as_of.isoformat()
+            selected_price_freshness = "fresh_15m_cross_checked"
+            selected_data_source = "Yahoo Finance 15m + independent Stooq quote"
+        else:
+            validation_note = "Yahoo and Stooq live quotes disagree by more than 3%"
+    elif intraday_fresh:
+        validation_note = "Fresh Yahoo intraday quote available, but independent Stooq validation unavailable and Webull did not return a quote"
+    elif has_webull_credentials and not webull_quote:
+        validation_note = "Yahoo intraday quote unavailable; Webull quote request also unavailable or not entitled"
+
     if validation_passed:
-        price = intraday_price
         daily_change = (price / previous - 1) * 100
         five_day_change = (price / safe_float(close.iloc[-6], price) - 1) * 100
     breakout = price > safe_float(close.iloc[-21:-1].max())
@@ -961,8 +1027,8 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "symbol": symbol,
         "asset_type": "stock",
         "price": round(price, 4),
-        "price_as_of": intraday_as_of.isoformat() if validation_passed else pd.Timestamp(frame.index[-1]).isoformat(),
-        "price_freshness": "fresh_15m_cross_checked" if validation_passed else "daily_bar_unverified",
+        "price_as_of": selected_price_as_of or pd.Timestamp(frame.index[-1]).isoformat(),
+        "price_freshness": selected_price_freshness,
         "price_validation_passed": validation_passed,
         "price_validation_note": validation_note,
         "secondary_price": round(secondary_quote["price"], 4) if secondary_quote else None,
@@ -996,13 +1062,13 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "news": news,
         "risk_flags": risk_flags,
         "fundamentals": fundamentals,
-        "intraday_confirmation_available": bool(validation_passed),
+        "intraday_confirmation_available": bool(intraday_fresh),
         "research_notes": [
             "Review latest SEC filings for financing, dilution, debt and material events.",
             "Confirm headline timing and catalyst with a second independent source before acting.",
             "Check float, shares outstanding, cash runway and upcoming earnings; these are not fully verified by this scan.",
         ],
-        "data_source": "Yahoo Finance 15m + independent Stooq quote" if validation_passed else f"{price_provider} daily; live quote unverified",
+        "data_source": selected_data_source,
     }
 
 
