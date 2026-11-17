@@ -389,32 +389,71 @@ def market_conditions() -> dict:
 def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
     raw_score = int(item.get("score") or 0)
     adjusted = max(0, min(100, raw_score + adjustment))
-    if item.get("asset_type") == "stock" and not item.get("price_validation_passed", False):
-        item["raw_score"] = raw_score
-        item["score"] = adjusted
-        item["market_regime"] = regime["regime"]
-        item["market_score_adjustment"] = adjustment
-        item["stage"] = "PRICE UNVERIFIED — WATCH ONLY"
-        item["signal"] = item["stage"]
-        item["signal_blocked_reason"] = item.get("price_validation_note", "Independent quote validation unavailable")
-        return
     item["raw_score"] = raw_score
     item["score"] = adjusted
     item["market_regime"] = regime["regime"]
     item["market_score_adjustment"] = adjustment
+
+    if item.get("asset_type") == "stock" and not item.get("price_validation_passed", False):
+        item["stage"] = "PRICE UNVERIFIED — WATCH ONLY"
+        item["signal"] = item["stage"]
+        item["signal_blocked_reason"] = item.get("price_validation_note", "Independent quote validation unavailable")
+        item["stage_reasons"] = ["Fresh independent price confirmation is required before an actionable alert."]
+        return
+
     has_confirmation = (
         float(item.get("relative_volume") or 0) >= 1.5
         or float(item.get("intraday_relative_volume") or 0) >= 2
         or bool(item.get("breakout_20d") or item.get("breakout_24h") or item.get("intraday_breakout"))
     )
-    if adjusted >= 75 and has_confirmation and regime["regime"] != "RISK-OFF" and item.get("intraday_confirmation_available", True):
-        stage = "ACTIONABLE SETUP"
-    elif adjusted >= 55 and has_confirmation:
-        stage = "DEVELOPING SETUP"
-    elif adjusted >= 35:
-        stage = "EARLY WATCH"
+
+    if item.get("asset_type") == "stock":
+        tech = item.get("technical_analysis") or {}
+        rsi = tech.get("rsi_14")
+        price = float(item.get("price") or 0)
+        ema20 = float(tech.get("ema_20") or 0)
+        atr = float(item.get("atr_14_true_range") or 0)
+        extension_atr = (price - ema20) / atr if price > 0 and ema20 > 0 and atr > 0 else 0
+        late_signals = []
+        if float(item.get("daily_change_pct") or 0) >= 10: late_signals.append("daily move at least 10%")
+        if float(item.get("five_day_change_pct") or 0) >= 25: late_signals.append("five-day move at least 25%")
+        if float(item.get("intraday_change_pct") or 0) >= 8: late_signals.append("intraday move at least 8%")
+        if rsi is not None and float(rsi) >= 78: late_signals.append("RSI at least 78")
+        if extension_atr >= 2.5: late_signals.append("price at least 2.5 ATR above EMA20")
+
+        early_signals = []
+        if float(item.get("relative_volume") or 0) >= 1.3: early_signals.append("daily relative volume building")
+        if float(item.get("intraday_relative_volume") or 0) >= 1.5: early_signals.append("intraday relative volume building")
+        if tech.get("bollinger_squeeze"): early_signals.append("Bollinger squeeze")
+        if tech.get("obv_trend_up_10d"): early_signals.append("OBV trend improving")
+        if item.get("above_session_vwap"): early_signals.append("holding above session VWAP")
+        if tech.get("ema_9_above_ema_20"): early_signals.append("short-term EMA trend positive")
+
+        if len(late_signals) >= 2:
+            stage, reasons = "LATE RUNNER — CHASE RISK", late_signals
+        elif adjusted >= 75 and has_confirmation and regime["regime"] != "RISK-OFF" and item.get("intraday_confirmation_available", True):
+            stage, reasons = "ACTIONABLE SETUP", ["High score, volume/breakout confirmation, supportive market regime and independently verified price."]
+        elif adjusted >= 55 and has_confirmation:
+            stage, reasons = "DEVELOPING RUNNER", ["Momentum and confirmation are developing without multiple late-stage extension warnings."]
+        elif adjusted >= 35 and len(early_signals) >= 2:
+            stage, reasons = "EARLY SETUP", early_signals
+        elif adjusted >= 35:
+            stage, reasons = "EARLY WATCH", ["Some interest is present, but early-stage confirmation is still limited."]
+        else:
+            stage, reasons = "LOW-CONVICTION WATCH", ["Current evidence is below the early-watch threshold."]
+        item["stage_extension_atr"] = round(extension_atr, 2) if extension_atr else None
+        item["stage_signals"] = {"early": early_signals, "late": late_signals}
+        item["stage_reasons"] = reasons
     else:
-        stage = "LOW-CONVICTION WATCH"
+        if adjusted >= 75 and has_confirmation and regime["regime"] != "RISK-OFF":
+            stage = "ACTIONABLE SETUP"
+        elif adjusted >= 55 and has_confirmation:
+            stage = "DEVELOPING SETUP"
+        elif adjusted >= 35:
+            stage = "EARLY WATCH"
+        else:
+            stage = "LOW-CONVICTION WATCH"
+
     item["stage"] = stage
     item["signal"] = stage
 
@@ -815,28 +854,33 @@ def scan_stock(symbol: str) -> Optional[dict]:
     if validation_passed:
         price = intraday_price
         daily_change = (price / previous - 1) * 100
-        daily_change = (daily_bar_price / previous - 1) * 100
-        five_day_change = (daily_bar_price / safe_float(close.iloc[-6], daily_bar_price) - 1) * 100
+        five_day_change = (price / safe_float(close.iloc[-6], price) - 1) * 100
     breakout = price > safe_float(close.iloc[-21:-1].max())
     trend_up = price > safe_float(close.tail(20).mean())
-    score = 0
-    score += 15 if daily_change >= 2 else 8 if daily_change >= 0.5 else 0
-    score += 15 if five_day_change >= 5 else 8 if five_day_change >= 2 else 0
-    score += 20 if relative_volume >= 2.5 else 14 if relative_volume >= 1.8 else 7 if relative_volume >= 1.3 else 0
-    score += 20 if breakout else 0
-    score += 15 if trend_up else 0
-    score += 15 if daily_change > 0 and relative_volume >= 1.5 else 0
-    score += 10 if intraday_change >= 2 else 5 if intraday_change >= 0.75 else 0
-    score += 10 if intraday_relative_volume >= 3 else 5 if intraday_relative_volume >= 2 else 0
-    score += 5 if intraday_breakout else 0
-    # Small additive confirmations favor emerging trends without making one indicator decisive.
-    score += 4 if technical.get("ema_9_above_ema_20") and trend_up else 0
-    score += 4 if technical.get("macd_histogram", 0) > 0 and technical.get("macd_histogram_rising") else 0
-    score += 3 if technical.get("rsi_14") is not None and 50 <= technical["rsi_14"] <= 70 else 0
-    score += 3 if vwap_metrics.get("vwap_reclaim") else 0
-    score += 3 if technical.get("bollinger_squeeze_expansion") else 0
-    score += 2 if technical.get("obv_trend_up_10d") else 0
-    score = min(score, 100)
+    # Score independent evidence groups once; cap secondary confirmations so
+    # correlated momentum/volume indicators cannot dominate the ranking.
+    score_components = {}
+    score_components["daily_momentum"] = 15 if daily_change >= 2 else 8 if daily_change >= 0.5 else 0
+    score_components["five_day_momentum"] = 15 if five_day_change >= 5 else 8 if five_day_change >= 2 else 0
+    score_components["daily_volume"] = 20 if relative_volume >= 2.5 else 14 if relative_volume >= 1.8 else 7 if relative_volume >= 1.3 else 0
+    score_components["breakout"] = 20 if breakout else 0
+    score_components["trend"] = 15 if trend_up else 0
+    intraday_group = (
+        (7 if intraday_change >= 2 else 4 if intraday_change >= 0.75 else 0)
+        + (5 if intraday_relative_volume >= 3 else 3 if intraday_relative_volume >= 2 else 0)
+        + (3 if intraday_breakout else 0)
+    )
+    score_components["intraday_confirmation"] = min(15, intraday_group)
+    technical_group = (
+        (3 if technical.get("ema_9_above_ema_20") and trend_up else 0)
+        + (2 if technical.get("macd_histogram", 0) > 0 and technical.get("macd_histogram_rising") else 0)
+        + (1 if technical.get("rsi_14") is not None and 50 <= technical["rsi_14"] <= 70 else 0)
+        + (2 if vwap_metrics.get("vwap_reclaim") else 0)
+        + (2 if technical.get("bollinger_squeeze_expansion") else 0)
+        + (1 if technical.get("obv_trend_up_10d") else 0)
+    )
+    score_components["technical_confirmation"] = min(8, technical_group)
+    score = min(100, sum(score_components.values()))
 
     if score < 15:
         return None
@@ -847,10 +891,6 @@ def scan_stock(symbol: str) -> Optional[dict]:
         risk_flags.append("Price not independently verified; actionable alerts blocked")
     if any(item.get("form") in {"S-1", "S-3", "424B1", "424B3", "424B5"} for item in news):
         risk_flags.append("Potential offering/registration filing detected; review the SEC document")
-
-        five_day_change = (price / safe_float(close.iloc[-6], price) - 1) * 100
-    else:
-        price = daily_bar_price
     return {
         "symbol": symbol,
         "asset_type": "stock",
@@ -884,6 +924,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "resistance_20d": round(resistance, 6),
         "atr_14_true_range": round(atr, 6),
         "score": score,
+        "score_components": score_components,
         "signal": "HIGH INTEREST" if score >= 75 else "WATCH" if score >= 50 else "EARLY WATCH",
         "levels": levels(price, atr, support),
         "news": news,
