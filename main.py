@@ -731,7 +731,11 @@ fetch('/history/data').then(r=>{if(!r.ok)throw new Error('History request failed
  ['Checkpoint observations',obs],
  ['Lifetime positive checkpoints',Object.values(cps).reduce((n,x)=>n+Number(x.wins||0),0)]
  ].map(x=>'<div class="card"><div class="muted">'+esc(x[0])+'</div><div class="value">'+esc(x[1])+'</div></div>').join('');
- document.getElementById('rows').innerHTML=vals.sort((a,b)=>(b.last_seen||'').localeCompare(a.last_seen||'')).map(x=>
+ const gradeRank={'ACTIONABLE SETUP':4,'DEVELOPING SETUP':3,'EARLY WATCH':2,'LOW-CONVICTION WATCH':1};
+ document.getElementById('rows').innerHTML=vals.sort((a,b)=>
+  (gradeRank[b.last_stage]||0)-(gradeRank[a.last_stage]||0) ||
+  (b.last_seen||'').localeCompare(a.last_seen||'')
+ ).map(x=>
   '<tr><td>'+esc((x.asset_type||'').toUpperCase()+' '+(x.symbol||''))+'</td>'+
   '<td>'+((x.first_seen&& !Number.isNaN(new Date(x.first_seen).getTime()))?new Date(x.first_seen).toLocaleDateString():'—')+'</td>'+
   '<td>'+Number(x.initial_price||0).toFixed(4)+'</td>'+
