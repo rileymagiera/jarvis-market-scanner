@@ -387,7 +387,12 @@ def alpaca_latest_quote(symbol: str) -> dict:
         spread_pct = (ask - bid) / ((ask + bid) / 2) * 100
         if spread_pct > 5.0:
             raise RuntimeError(f"Alpaca quote spread too wide: {spread_pct:.2f}%")
-        stamp = pd.Timestamp(quote.get("t"))
+        quote_timestamp = quote.get("t")
+        if not quote_timestamp:
+            raise RuntimeError("Alpaca quote is missing its exchange timestamp")
+        stamp = pd.Timestamp(quote_timestamp)
+        if pd.isna(stamp):
+            raise RuntimeError("Alpaca quote timestamp is invalid")
         if stamp.tzinfo is None:
             stamp = stamp.tz_localize("UTC")
         stamp = stamp.tz_convert("UTC")
