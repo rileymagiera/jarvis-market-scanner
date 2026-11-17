@@ -9,6 +9,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 import requests
+from io import StringIO
 import yfinance as yf
 from fastapi import FastAPI, Query, Header, HTTPException, Depends
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
@@ -214,6 +215,45 @@ def safe_float(value, default=0.0) -> float:
         return default
 
 
+def stooq_daily_history(symbol: str) -> pd.DataFrame:
+    """Free backup daily OHLCV history from Stooq; data may be delayed."""
+    stooq_symbol = f"{symbol.lower()}.us"
+    response = HTTP.get(
+        "https://stooq.com/q/d/l/",
+        params={"s": stooq_symbol, "i": "d"},
+        timeout=20,
+    )
+    response.raise_for_status()
+    frame = pd.read_csv(StringIO(response.text))
+    required = {"Date", "Open", "High", "Low", "Close", "Volume"}
+    if frame.empty or not required.issubset(frame.columns):
+        raise RuntimeError(f"Stooq returned incomplete daily history for {symbol}")
+    frame = frame.rename(columns={name: name.title() for name in required})
+    for column in ("Open", "High", "Low", "Close", "Volume"):
+        frame[column] = pd.to_numeric(frame[column], errors="coerce")
+    frame = frame.dropna(subset=["Close", "Volume"]).sort_values("Date").tail(90)
+    if len(frame) < 22 or safe_float(frame["Volume"].tail(20).mean()) <= 0:
+        raise RuntimeError(f"Stooq returned insufficient usable daily history for {symbol}")
+    return frame.reset_index(drop=True)
+
+
+def stock_daily_history(symbol: str, ticker=None):
+    """Use Yahoo daily bars first, then Stooq if Yahoo fails or returns too little data."""
+    ticker = ticker or yf.Ticker(symbol)
+    try:
+        frame = ticker.history(period="3mo", interval="1d", auto_adjust=True)
+        if not frame.empty and len(frame.dropna(subset=["Close", "Volume"])) >= 22:
+            return frame, "Yahoo Finance"
+        raise RuntimeError("Yahoo returned insufficient daily history")
+    except Exception as primary_error:
+        try:
+            return stooq_daily_history(symbol), "Stooq public daily data (backup; may be delayed)"
+        except Exception as backup_error:
+            raise RuntimeError(
+                f"Yahoo primary failed ({primary_error}); Stooq backup failed ({backup_error})"
+            ) from backup_error
+
+
 def market_conditions() -> dict:
     """Broad risk appetite snapshot; missing benchmark data is reported, never guessed."""
     benchmarks = {}
@@ -403,9 +443,10 @@ def stock_fundamental_snapshot(ticker) -> dict:
 
 def scan_stock(symbol: str) -> Optional[dict]:
     ticker = yf.Ticker(symbol)
-    frame = ticker.history(period="3mo", interval="1d", auto_adjust=True)
-    if frame.empty or len(frame) < 22:
-        return None
+    try:
+        frame, price_provider = stock_daily_history(symbol, ticker)
+    except Exception:
+        raise
     frame = frame.dropna(subset=["Close", "Volume"])
     if len(frame) < 22:
         return None
@@ -435,7 +476,8 @@ def scan_stock(symbol: str) -> Optional[dict]:
     intraday_relative_volume = 0.0
     intraday_breakout = False
     try:
-        intraday = ticker.history(period="5d", interval="15m", prepost=True, auto_adjust=True)
+        # Stooq is a daily-only backup; do not pretend it supplies intraday confirmation.
+        intraday = ticker.history(period="5d", interval="15m", prepost=True, auto_adjust=True) if price_provider == "Yahoo Finance" else pd.DataFrame()
         if not intraday.empty and len(intraday) >= 8:
             intraday_close = intraday["Close"].astype(float).dropna()
             intraday_volume = intraday["Volume"].astype(float).fillna(0)
@@ -488,6 +530,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "news": news,
         "risk_flags": risk_flags,
         "fundamentals": fundamentals,
+        "data_source": f"{price_provider}; Yahoo/SEC news and optional fundamentals",
         "research_notes": [
             "Review latest SEC filings for financing, dilution, debt and material events.",
             "Confirm headline timing and catalyst with a second independent source before acting.",
