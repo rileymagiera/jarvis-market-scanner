@@ -198,6 +198,15 @@ def update_paper_tracker(candidates, now):
         record["daily_change_pct"] = item.get("daily_change_pct")
         record["session_change_pct"] = item.get("session_change_pct")
         record["price_source"] = item.get("data_source") or item.get("price_source") or "Provider not reported"
+        # Preserve the hypothetical plan and research attribution for the Research tab.
+        # These fields are observational and never affect BUY scoring.
+        record["levels"] = item.get("levels") or {}
+        record["stage_reasons"] = (item.get("stage_reasons") or [])[:10]
+        record["score_components"] = item.get("score_components") or {}
+        record["technical_analysis"] = item.get("technical_analysis") or {}
+        record["research_signal_matches"] = item.get("research_signal_matches") or item.get("research_signals") or []
+        record["research_setup_status"] = item.get("research_setup_status")
+        record["discovery_source"] = "research_layer" if record["research_signal_matches"] else "core_scanner"
         record["price_as_of"] = item.get("price_as_of") or now.isoformat()
         record["price_freshness"] = item.get("price_freshness") or "timestamp unavailable"
         record["price_observed_at"] = now.isoformat()
@@ -320,6 +329,8 @@ def update_buy_signal_history(candidates, now, scan_errors=None):
                 "risk_flags": (item.get("risk_flags") or [])[:8],
                 "score_components": item.get("score_components") or {},
                 "technical_analysis": item.get("technical_analysis") or {},
+                "research_signal_matches": item.get("research_signal_matches") or item.get("research_signals") or [],
+                "discovery_source": "research_layer" if (item.get("research_signal_matches") or item.get("research_signals")) else "core_scanner",
                 "outcomes": {}, "latest_return_pct": 0.0,
                 "max_favorable_pct": 0.0, "max_adverse_pct": 0.0, "status": "active",
             }
