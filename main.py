@@ -6,6 +6,7 @@ import time
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone, timedelta
+from zoneinfo import ZoneInfo
 from typing import Optional
 
 import numpy as np
@@ -72,6 +73,30 @@ def configured_symbols(env_name: str, defaults: list[str]) -> list[str]:
 
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def market_session_status(now=None) -> dict:
+    """Schedule-based US equity session label; holidays are not independently verified."""
+    eastern = (now or datetime.now(timezone.utc)).astimezone(ZoneInfo("America/New_York"))
+    minute = eastern.hour * 60 + eastern.minute
+    weekday = eastern.weekday() < 5
+    if not weekday:
+        phase = "CLOSED — WEEKEND"
+    elif 4 * 60 <= minute < 9 * 60 + 30:
+        phase = "PRE-MARKET"
+    elif 9 * 60 + 30 <= minute < 16 * 60:
+        phase = "REGULAR SESSION"
+    elif 16 * 60 <= minute < 20 * 60:
+        phase = "AFTER-HOURS"
+    else:
+        phase = "CLOSED — OVERNIGHT"
+    return {
+        "phase": phase,
+        "is_regular_session": bool(weekday and 9 * 60 + 30 <= minute < 16 * 60),
+        "is_extended_session": bool(weekday and (4 * 60 <= minute < 9 * 60 + 30 or 16 * 60 <= minute < 20 * 60)),
+        "as_of": eastern.isoformat(),
+        "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
+    }
 
 def discover_stock_symbols(limit: int = 70) -> list[str]:
     """Discover US small/mid-cap momentum names across Yahoo screens concurrently."""
