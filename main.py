@@ -239,6 +239,31 @@ def stooq_daily_history(symbol: str) -> pd.DataFrame:
     return frame.reset_index(drop=True)
 
 
+def stooq_latest_quote(symbol: str) -> dict:
+    """Fetch an independent Stooq quote for cross-provider validation."""
+    response = HTTP.get(
+        "https://stooq.com/q/l/",
+        params={"s": f"{symbol.lower()}.us", "f": "sd2t2ohlcv", "h": "", "e": "csv"},
+        timeout=12,
+    )
+    response.raise_for_status()
+    quote = pd.read_csv(StringIO(response.text))
+    if quote.empty or not {"Date", "Time", "Close"}.issubset(quote.columns):
+        raise RuntimeError("Stooq quote response incomplete")
+    row = quote.iloc[0]
+    price = safe_float(row.get("Close"))
+    if price <= 0:
+        raise RuntimeError("Stooq quote has no usable price")
+    stamp = pd.Timestamp(f"{row['Date']} {row['Time']}")
+    if stamp.tzinfo is None:
+        stamp = stamp.tz_localize("America/New_York")
+    stamp = stamp.tz_convert("UTC")
+    age = (datetime.now(timezone.utc) - stamp.to_pydatetime()).total_seconds() / 60
+    if age < -5 or age > 60:
+        raise RuntimeError(f"Stooq quote stale: {age:.0f} minutes")
+    return {"price": price, "as_of": stamp.isoformat(), "age_minutes": round(age, 1)}
+
+
 MASSIVE_REQUEST_LOCK = threading.Lock()
 MASSIVE_LAST_REQUEST_AT = 0.0
 MASSIVE_REQUESTS_THIS_PROCESS = 0
@@ -584,13 +609,36 @@ def scan_stock(symbol: str) -> Optional[dict]:
     risk_flags = []
     if any(item.get("form") in {"S-1", "S-3", "424B1", "424B3", "424B5"} for item in news):
         risk_flags.append("Potential offering/registration filing detected; review the SEC document")
+    validation_passed = False
+    validation_note = "Fresh Yahoo intraday quote unavailable"
+    secondary_quote = None
+    quote_difference_pct = None
+    if intraday_fresh and intraday_price > 0:
+        try:
+            secondary_quote = stooq_latest_quote(symbol)
+            quote_difference_pct = abs(intraday_price - secondary_quote["price"]) / ((intraday_price + secondary_quote["price"]) / 2) * 100
+            validation_passed = quote_difference_pct <= 3.0
+            validation_note = (f"Yahoo/Stooq agree within {quote_difference_pct:.2f}%" if validation_passed else f"PRICE DISAGREEMENT: Yahoo ${intraday_price:.4f} vs Stooq ${secondary_quote['price']:.4f}")
+        except Exception as exc:
+            validation_note = f"Independent Stooq validation unavailable: {exc}"
+    if validation_passed:
+        price = intraday_price
+        daily_change = (price / previous - 1) * 100
+        five_day_change = (price / safe_float(close.iloc[-6], price) - 1) * 100
+    else:
+        price = daily_bar_price
     return {
         "symbol": symbol,
         "asset_type": "stock",
         "price": round(price, 4),
-        "price_as_of": pd.Timestamp(frame.index[-1]).isoformat(),
-        "price_freshness": "daily_bar_close",
+        "price_as_of": intraday_as_of.isoformat() if validation_passed else pd.Timestamp(frame.index[-1]).isoformat(),
+        "price_freshness": "fresh_15m_cross_checked" if validation_passed else "daily_bar_unverified",
+        "price_validation_passed": validation_passed,
+        "price_validation_note": validation_note,
+        "secondary_price": round(secondary_quote["price"], 4) if secondary_quote else None,
+        "price_difference_pct": round(quote_difference_pct, 2) if quote_difference_pct is not None else None,
         "daily_change_pct": round(daily_change, 2),
+        "session_change_pct": round(daily_change, 2) if validation_passed else None,
         "five_day_change_pct": round(five_day_change, 2),
         "relative_volume": round(relative_volume, 2),
         "intraday_change_pct": round(intraday_change, 2),
@@ -604,13 +652,13 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "news": news,
         "risk_flags": risk_flags,
         "fundamentals": fundamentals,
-        "intraday_confirmation_available": bool(price_provider == "Yahoo Finance" and (intraday_change != 0 or intraday_relative_volume > 0 or intraday_breakout)),
+        "intraday_confirmation_available": bool(validation_passed),
         "research_notes": [
             "Review latest SEC filings for financing, dilution, debt and material events.",
             "Confirm headline timing and catalyst with a second independent source before acting.",
             "Check float, shares outstanding, cash runway and upcoming earnings; these are not fully verified by this scan.",
         ],
-        "data_source": (f"{price_provider} daily + Yahoo 15m intraday" if price_provider == "Yahoo Finance" else f"{price_provider}; intraday confirmation unavailable"),
+        "data_source": "Yahoo Finance 15m + independent Stooq quote" if validation_passed else f"{price_provider} daily; live quote unverified",
     }
 
 
