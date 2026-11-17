@@ -170,11 +170,20 @@ def update_paper_tracker(candidates, now):
                 "opening_range_status", "adx", "plus_di", "minus_di", "adx_dmi_status",
                 "spread_pct", "dollar_volume", "liquidity_status",
                 "volatility_contraction_status", "atr_contraction_pct", "base_tightness_pct",
+                "premarket_gap_pct", "premarket_volume", "premarket_rvol_same_time",
+                "premarket_high", "premarket_low", "cumulative_rvol_same_time",
+                "volume_acceleration_3bar", "float_rotation_pct", "float_shares",
+                "shares_outstanding", "short_percent_float", "higher_highs_higher_lows",
+                "pullback_from_session_high_pct", "premarket_high_reclaimed",
+                "catalyst_labels", "catalyst_dilution_status", "dilution_flags",
+                "catalyst_headline_count", "early_runner_research_score", "early_runner_score_components",
             )
             for field in research_fields:
                 record[field] = item.get(field)
             record["research_feature_snapshot"] = {field: item.get(field) for field in research_fields}
             record["research_signal_matches"] = item.get("research_signal_matches") or []
+            record["early_runner_signal_matches"] = item.get("early_runner_signal_matches") or []
+            record["early_runner_research_score"] = item.get("early_runner_research_score")
             tracker[key] = record
             continue
         if record and record.get("price_validation_status") == "unverified":
@@ -239,10 +248,19 @@ def update_paper_tracker(candidates, now):
             "opening_range_high", "opening_range_low", "adx", "plus_di", "minus_di",
             "adx_dmi_status", "spread_pct", "dollar_volume", "liquidity_status",
             "volatility_contraction_status", "atr_contraction_pct", "base_tightness_pct",
+                "premarket_gap_pct", "premarket_volume", "premarket_rvol_same_time",
+                "premarket_high", "premarket_low", "cumulative_rvol_same_time",
+                "volume_acceleration_3bar", "float_rotation_pct", "float_shares",
+                "shares_outstanding", "short_percent_float", "higher_highs_higher_lows",
+                "pullback_from_session_high_pct", "premarket_high_reclaimed",
+                "catalyst_labels", "catalyst_dilution_status", "dilution_flags",
+                "catalyst_headline_count", "early_runner_research_score", "early_runner_score_components",
         )
         for field in research_fields:
             record[field] = item.get(field)
         record["research_signal_matches"] = item.get("research_signal_matches") or item.get("research_signals") or []
+        record["early_runner_signal_matches"] = item.get("early_runner_signal_matches") or []
+        record["early_runner_research_score"] = item.get("early_runner_research_score")
         record["research_feature_snapshot"] = {field: item.get(field) for field in research_fields}
         record["research_tracking_started_at"] = record.get("research_tracking_started_at") or record.get("first_seen") or now.isoformat()
         research_entry = float(record.get("research_entry_price") or record.get("initial_price") or price)
