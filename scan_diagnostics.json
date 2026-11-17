@@ -1,17 +1,17 @@
 {
-  "candidates_found": 3,
+  "candidates_found": 23,
   "diagnostics": {
     "crypto": {
-      "candidates_returned": 0,
-      "not_returned_or_below_early_watch_floor": 0,
-      "scan_errors": 25,
+      "candidates_returned": 20,
+      "not_returned_or_below_early_watch_floor": 19,
+      "scan_errors": 0,
       "stages": {
         "ACTIONABLE SETUP": 0,
         "DEVELOPING SETUP": 0,
-        "EARLY WATCH": 0,
-        "LOW-CONVICTION WATCH": 0
+        "EARLY WATCH": 2,
+        "LOW-CONVICTION WATCH": 18
       },
-      "symbols_requested": 25
+      "symbols_requested": 39
     },
     "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history/data or score below the early-watch floor; provider-specific discovery failures are not always attributable to one symbol.",
     "stocks": {
@@ -27,113 +27,12 @@
       "symbols_requested": 30
     }
   },
-  "errors": [
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=SOLUSDT",
-      "symbol": "SOLUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=ADAUSDT",
-      "symbol": "ADAUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=AVAXUSDT",
-      "symbol": "AVAXUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=LINKUSDT",
-      "symbol": "LINKUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=DOTUSDT",
-      "symbol": "DOTUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=SUIUSDT",
-      "symbol": "SUIUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=SEIUSDT",
-      "symbol": "SEIUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=APTUSDT",
-      "symbol": "APTUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=INJUSDT",
-      "symbol": "INJUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=NEARUSDT",
-      "symbol": "NEARUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=XRPUSDT",
-      "symbol": "XRPUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=FETUSDT",
-      "symbol": "FETUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=RENDERUSDT",
-      "symbol": "RENDERUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=BNBUSDT",
-      "symbol": "BNBUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=TAOUSDT",
-      "symbol": "TAOUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=PEPEUSDT",
-      "symbol": "PEPEUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=WIFUSDT",
-      "symbol": "WIFUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=BONKUSDT",
-      "symbol": "BONKUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=DOGEUSDT",
-      "symbol": "DOGEUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=JUPUSDT",
-      "symbol": "JUPUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=ONDOUSDT",
-      "symbol": "ONDOUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=ARBUSDT",
-      "symbol": "ARBUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=OPUSDT",
-      "symbol": "OPUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=ETHUSDT",
-      "symbol": "ETHUSDT"
-    },
-    {
-      "error": "451 Client Error:  for url: https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT",
-      "symbol": "BTCUSDT"
-    }
-  ],
+  "errors": [],
   "market_conditions": {
     "benchmarks": {
       "BTC-USD": {
         "above_20d_average": false,
-        "five_day_change_pct": -12.76
+        "five_day_change_pct": -12.74
       },
       "IWM": {
         "above_20d_average": false,
@@ -152,5 +51,5 @@
     "regime": "RISK-OFF",
     "score_adjustment": -8
   },
-  "timestamp": "2026-11-17T00:24:57.557147+00:00"
+  "timestamp": "2026-11-17T00:44:31.041665+00:00"
 }
