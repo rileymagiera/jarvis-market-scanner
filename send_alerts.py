@@ -163,6 +163,18 @@ def update_paper_tracker(candidates, now):
             record["max_drawdown_pct"] = None
             record["latest_price"] = None
             record["currently_surfaced"] = True
+            research_fields = (
+                "relative_strength_vs_spy", "relative_strength_vs_iwm", "rs_rank",
+                "intraday_rvol_same_time", "same_time_relative_volume",
+                "anchored_vwap", "anchored_vwap_status", "opening_range_high", "opening_range_low",
+                "opening_range_status", "adx", "plus_di", "minus_di", "adx_dmi_status",
+                "spread_pct", "dollar_volume", "liquidity_status",
+                "volatility_contraction_status", "atr_contraction_pct", "base_tightness_pct",
+            )
+            for field in research_fields:
+                record[field] = item.get(field)
+            record["research_feature_snapshot"] = {field: item.get(field) for field in research_fields}
+            record["research_signal_matches"] = item.get("research_signal_matches") or []
             tracker[key] = record
             continue
         if record and record.get("price_validation_status") == "unverified":
