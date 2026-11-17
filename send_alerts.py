@@ -426,13 +426,6 @@ def main():
         print("Test email sent.")
         return
 
-    if not SCANNER_USERNAME or not SCANNER_PASSWORD:
-        raise RuntimeError("Missing JARVIS_SITE_USERNAME or JARVIS_SITE_PASSWORD GitHub Actions secret.")
-    credentials = base64.b64encode(f"{SCANNER_USERNAME}:{SCANNER_PASSWORD}".encode("utf-8")).decode("ascii")
-    req = Request(BASE_URL + "/scan?asset=all", headers={
-        "User-Agent": "JarvisAlertWorkflow/1.0",
-        "Authorization": f"Basic {credentials}",
-    })
     metadata_path = Path("scan_metadata.json")
     try:
         metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
@@ -444,29 +437,21 @@ def main():
         "run_id": os.getenv("GITHUB_RUN_ID"),
         "run_number": os.getenv("GITHUB_RUN_NUMBER"),
         "commit_sha": os.getenv("GITHUB_SHA"),
+        "execution_environment": "github_actions_runner",
     })
     metadata_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
 
-    # Retry transient network/provider failures. Do not retry authentication or
-    # other permanent 4xx responses, and never relax downstream quote validation.
-    payload = None
-    last_error = None
-    for attempt in range(3):
-        try:
-            with urlopen(req, timeout=300) as response:
-                payload = json.loads(response.read().decode("utf-8"))
-            break
-        except HTTPError as exc:
-            last_error = exc
-            if exc.code not in (408, 429, 500, 502, 503, 504) or attempt == 2:
-                raise
-        except (URLError, TimeoutError, OSError) as exc:
-            last_error = exc
-            if attempt == 2:
-                raise
-        wait_seconds = (8, 20)[attempt]
-        print(f"Scanner request attempt {attempt + 1} failed ({type(last_error).__name__}); retrying in {wait_seconds}s.")
-        time.sleep(wait_seconds)
+    # Execute the scanner in this runner process so GitHub Actions secrets,
+    # including Alpaca credentials, are available to the actual scan workers.
+    # The previous implementation called Render's /scan endpoint, where these
+    # runner-only secrets were not present.
+    alpaca_configured = bool(
+        os.getenv("ALPACA_API_KEY", "").strip()
+        and os.getenv("ALPACA_API_SECRET", "").strip()
+    )
+    print(f"Alpaca credentials available to scanner: {'yes' if alpaca_configured else 'no'}")
+    from main import scan as run_market_scan
+    payload = run_market_scan(asset="all")
 
     if not isinstance(payload, dict) or not isinstance(payload.get("candidates"), list):
         raise RuntimeError("Scanner response did not contain candidates.")
