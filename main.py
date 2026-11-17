@@ -113,6 +113,7 @@ def discover_stock_symbols(limit: int = 70) -> list[str]:
     )
 
     def fetch_screen(screen: str) -> list[dict]:
+        started = time.monotonic()
         try:
             response = requests.get(
                 "https://query1.finance.yahoo.com/v1/finance/screener/predefined/saved",
@@ -122,9 +123,11 @@ def discover_stock_symbols(limit: int = 70) -> list[str]:
             )
             response.raise_for_status()
             results = (response.json().get("finance", {}).get("result") or [])
+            record_scan_metric("yahoo_discovery_screen", time.monotonic() - started)
             return results[0].get("quotes", []) if results else []
         except Exception as exc:
             # Discovery is additive: one unavailable screen must not stop the scan.
+            record_scan_metric("yahoo_discovery_screen", time.monotonic() - started, "failure")
             print(f"Yahoo discovery screen {screen} failed: {type(exc).__name__}")
             return []
 
@@ -299,7 +302,41 @@ def stooq_latest_quote(symbol: str) -> dict:
 MASSIVE_REQUEST_LOCK = threading.Lock()
 MASSIVE_LAST_REQUEST_AT = 0.0
 MASSIVE_REQUESTS_THIS_PROCESS = 0
-MASSIVE_MAX_REQUESTS_PER_SCAN = 10
+MASSIVE_MAX_REQUESTS_PER_SCAN = 3
+SCAN_METRICS_LOCK = threading.Lock()
+SCAN_METRICS = {}
+
+
+def reset_scan_metrics() -> None:
+    global SCAN_METRICS, MASSIVE_REQUESTS_THIS_PROCESS
+    with SCAN_METRICS_LOCK:
+        SCAN_METRICS = {}
+    with MASSIVE_REQUEST_LOCK:
+        MASSIVE_REQUESTS_THIS_PROCESS = 0
+
+
+def record_scan_metric(name: str, elapsed: float, outcome: str = "success") -> None:
+    with SCAN_METRICS_LOCK:
+        metric = SCAN_METRICS.setdefault(name, {"calls": 0, "failures": 0, "total_seconds": 0.0, "max_seconds": 0.0})
+        metric["calls"] += 1
+        metric["failures"] += int(outcome != "success")
+        metric["total_seconds"] += max(0.0, float(elapsed))
+        metric["max_seconds"] = max(metric["max_seconds"], float(elapsed))
+
+
+def scan_metrics_snapshot() -> dict:
+    with SCAN_METRICS_LOCK:
+        return {
+            name: {
+                "calls": values["calls"],
+                "failures": values["failures"],
+                "total_seconds": round(values["total_seconds"], 2),
+                "max_seconds": round(values["max_seconds"], 2),
+            }
+            for name, values in SCAN_METRICS.items()
+        }
+
+
 MASSIVE_LIVE_QUOTE_ENABLED = os.getenv("MASSIVE_LIVE_QUOTE_ENABLED", "false").strip().lower() in ("1", "true", "yes", "on")
 
 
@@ -382,22 +419,33 @@ def massive_latest_trade(symbol: str) -> dict:
 
 
 def stock_daily_history(symbol: str, ticker=None):
-    """Yahoo primary, Massive free-tier EOD backup, then Stooq emergency fallback."""
+    """Yahoo primary, limited Massive EOD backup, then Stooq emergency fallback."""
     ticker = ticker or yf.Ticker(symbol)
+    started = time.monotonic()
     try:
         frame = ticker.history(period="3mo", interval="1d", auto_adjust=True)
         if not frame.empty and len(frame.dropna(subset=["Close", "Volume"])) >= 22:
+            record_scan_metric("yahoo_daily_history", time.monotonic() - started)
             return frame, "Yahoo Finance"
         raise RuntimeError("Yahoo returned insufficient daily history")
     except Exception as primary_error:
+        record_scan_metric("yahoo_daily_history", time.monotonic() - started, "failure")
         massive_error = None
+        massive_started = time.monotonic()
         try:
-            return massive_daily_history(symbol), "Massive daily aggregates (free-tier EOD/delayed; no intraday)"
+            result = massive_daily_history(symbol)
+            record_scan_metric("massive_daily_fallback", time.monotonic() - massive_started)
+            return result, "Massive daily aggregates (free-tier EOD/delayed; no intraday)"
         except Exception as exc:
+            record_scan_metric("massive_daily_fallback", time.monotonic() - massive_started, "failure")
             massive_error = exc
+        stooq_started = time.monotonic()
         try:
-            return stooq_daily_history(symbol), "Stooq public daily data (emergency backup; may be delayed)"
+            result = stooq_daily_history(symbol)
+            record_scan_metric("stooq_daily_fallback", time.monotonic() - stooq_started)
+            return result, "Stooq public daily data (emergency backup; may be delayed)"
         except Exception as stooq_error:
+            record_scan_metric("stooq_daily_fallback", time.monotonic() - stooq_started, "failure")
             raise RuntimeError(
                 f"Yahoo failed ({primary_error}); Massive unavailable ({massive_error}); "
                 f"Stooq failed ({stooq_error})"
@@ -1349,6 +1397,7 @@ def scan_crypto(symbol: str) -> Optional[dict]:
 
 def run_parallel(symbols: list[str], scanner, workers: int = 6) -> tuple[list, list]:
     results, errors = [], []
+    parallel_started = time.monotonic()
     with ThreadPoolExecutor(max_workers=workers) as pool:
         futures = {pool.submit(scanner, symbol): symbol for symbol in symbols}
         for future in as_completed(futures):
@@ -1359,6 +1408,7 @@ def run_parallel(symbols: list[str], scanner, workers: int = 6) -> tuple[list, l
                     results.append(item)
             except Exception as exc:
                 errors.append({"symbol": symbol, "error": str(exc)[:240]})
+    record_scan_metric(f"{scanner.__name__}_parallel_wall", time.monotonic() - parallel_started, "failure" if errors else "success")
     results.sort(key=lambda item: item["score"], reverse=True)
     return results, errors
 
@@ -1637,8 +1687,11 @@ def scan_cryptocurrencies(limit: int = Query(25, ge=1, le=100)):
 @app.get("/scan", dependencies=[Depends(require_site_login)])
 def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
     scan_started = time.monotonic()
+    reset_scan_metrics()
+    discovery_started = time.monotonic()
     stock_symbols = stock_universe() if asset in ("all", "stocks") else []
     crypto_symbols = crypto_universe() if asset in ("all", "crypto") else []
+    discovery_seconds = time.monotonic() - discovery_started
     stock_results, stock_errors = ([], [])
     crypto_results, crypto_errors = ([], [])
 
@@ -1655,9 +1708,13 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
     elif asset == "crypto":
         crypto_results, crypto_errors = run_parallel(crypto_symbols, scan_crypto)
 
+    asset_scans_seconds = time.monotonic() - scan_started - discovery_seconds
     results = sorted(stock_results + crypto_results, key=lambda item: item["score"], reverse=True)
     errors = stock_errors + crypto_errors
+    market_started = time.monotonic()
     regime = market_conditions()
+    market_conditions_seconds = time.monotonic() - market_started
+    record_scan_metric("market_conditions", market_conditions_seconds)
     for item in results:
         classify_setup(item, regime["score_adjustment"], regime)
     results.sort(key=lambda item: item["score"], reverse=True)
@@ -1688,6 +1745,18 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
             "massive_live_quote_note": "Optional last-trade cross-check is disabled by default. Enable MASSIVE_LIVE_QUOTE_ENABLED=true only if the Massive Stocks plan includes /v2/last/trade; 15-minute delayed data is accepted only when its timestamp is within 45 minutes.",
             "market_session": market_session_status(),
             "scan_duration_seconds": round(time.monotonic() - scan_started, 2),
+            "timing_breakdown": {
+                "universe_discovery_seconds": round(discovery_seconds, 2),
+                "asset_scans_wall_seconds": round(asset_scans_seconds, 2),
+                "market_conditions_seconds": round(market_conditions_seconds, 2),
+                "total_seconds": round(time.monotonic() - scan_started, 2),
+                "provider_activity": scan_metrics_snapshot(),
+            },
+            "massive_fallback_policy": {
+                "max_requests_per_scan": MASSIVE_MAX_REQUESTS_PER_SCAN,
+                "spacing_seconds": 12,
+                "note": "Massive fallback is capped to three requests per scan; remaining Yahoo failures use Stooq to avoid serial rate-limit waits.",
+            },
         },
     }
 
