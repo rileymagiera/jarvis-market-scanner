@@ -1081,6 +1081,110 @@ def intraday_vwap_metrics(frame: pd.DataFrame) -> dict:
     }
 
 
+
+def adx_dmi_metrics(frame: pd.DataFrame, period: int = 14) -> dict:
+    """Wilder-style ADX and directional movement from daily OHLC bars."""
+    required = {"High", "Low", "Close"}
+    if frame is None or len(frame) < period * 2 + 1 or not required.issubset(frame.columns):
+        return {"adx": None, "plus_di": None, "minus_di": None, "adx_dmi_status": "Insufficient daily history"}
+    high, low, close = (frame[c].astype(float) for c in ("High", "Low", "Close"))
+    up, down = high.diff(), -low.diff()
+    plus_dm = up.where((up > down) & (up > 0), 0.0)
+    minus_dm = down.where((down > up) & (down > 0), 0.0)
+    previous_close = close.shift(1)
+    tr = pd.concat([(high-low), (high-previous_close).abs(), (low-previous_close).abs()], axis=1).max(axis=1)
+    atr = tr.ewm(alpha=1/period, adjust=False, min_periods=period).mean()
+    plus_di = 100 * plus_dm.ewm(alpha=1/period, adjust=False, min_periods=period).mean() / atr.replace(0, np.nan)
+    minus_di = 100 * minus_dm.ewm(alpha=1/period, adjust=False, min_periods=period).mean() / atr.replace(0, np.nan)
+    dx = 100 * (plus_di-minus_di).abs() / (plus_di+minus_di).replace(0, np.nan)
+    adx = dx.ewm(alpha=1/period, adjust=False, min_periods=period).mean()
+    a, p, m = safe_float(adx.iloc[-1], np.nan), safe_float(plus_di.iloc[-1], np.nan), safe_float(minus_di.iloc[-1], np.nan)
+    if not all(np.isfinite(x) for x in (a, p, m)):
+        return {"adx": None, "plus_di": None, "minus_di": None, "adx_dmi_status": "Insufficient daily history"}
+    direction = "bullish" if p > m else "bearish" if m > p else "neutral"
+    strength = "strong" if a >= 25 else "developing" if a >= 20 else "weak / choppy"
+    return {"adx": round(a, 2), "plus_di": round(p, 2), "minus_di": round(m, 2),
+            "adx_dmi_status": f"{strength} trend · {direction} DMI"}
+
+
+def advanced_research_metrics(frame: pd.DataFrame, intraday: pd.DataFrame, price: float,
+                              avg_volume: float, spread_pct: Optional[float] = None) -> dict:
+    """Observational research fields. These values never feed the BUY score."""
+    result = {}
+    dollar_volume = price * avg_volume if price > 0 and avg_volume > 0 else None
+    result["dollar_volume"] = round(dollar_volume, 2) if dollar_volume is not None else None
+    result["spread_pct"] = round(float(spread_pct), 3) if spread_pct is not None else None
+    if dollar_volume is None:
+        result["liquidity_status"] = "Dollar volume unavailable"
+    elif spread_pct is None:
+        result["liquidity_status"] = f"{dollar_volume:,.0f} avg dollar volume · spread unavailable"
+    else:
+        liquidity = "liquid" if dollar_volume >= 5_000_000 and spread_pct <= 1.0 else "caution" if dollar_volume >= 1_000_000 and spread_pct <= 2.5 else "thin / high execution risk"
+        result["liquidity_status"] = f"{liquidity} · {dollar_volume:,.0f} avg dollar volume · {spread_pct:.2f}% spread"
+    result.update(adx_dmi_metrics(frame))
+    close, high, low = (frame[c].astype(float) for c in ("Close", "High", "Low"))
+    prev_close = close.shift(1)
+    tr = pd.concat([(high-low), (high-prev_close).abs(), (low-prev_close).abs()], axis=1).max(axis=1)
+    atr = tr.rolling(14, min_periods=14).mean()
+    current_atr = safe_float(atr.iloc[-1]) if len(atr) else 0
+    prior_atr = safe_float(atr.iloc[-11:-1].mean()) if len(atr) >= 24 else 0
+    atr_contraction = ((prior_atr-current_atr)/prior_atr*100) if prior_atr > 0 else None
+    base_high, base_low = safe_float(high.tail(10).max()), safe_float(low.tail(10).min())
+    base_tightness = ((base_high-base_low)/price*100) if price > 0 and base_high > 0 else None
+    result["atr_contraction_pct"] = round(atr_contraction, 2) if atr_contraction is not None else None
+    result["base_tightness_pct"] = round(base_tightness, 2) if base_tightness is not None else None
+    if atr_contraction is None or base_tightness is None:
+        result["volatility_contraction_status"] = "Insufficient history"
+    else:
+        contracted = atr_contraction >= 10 and base_tightness <= 20
+        result["volatility_contraction_status"] = ("Contraction detected" if contracted else "No qualifying contraction") + f" · ATR contraction {atr_contraction:.1f}% · 10d base {base_tightness:.1f}%"
+    result["intraday_rvol_same_time"] = None
+    result["same_time_relative_volume"] = None
+    result["opening_range_status"] = "Intraday bars unavailable"
+    result["anchored_vwap_status"] = "Intraday bars unavailable"
+    result["research_sample_high"] = price
+    result["research_sample_low"] = price
+    if intraday is None or intraday.empty or not {"High", "Low", "Close", "Volume"}.issubset(intraday.columns):
+        return result
+    bars = intraday.dropna(subset=["Close"]).copy()
+    idx = bars.index
+    local_idx = idx.tz_convert("America/New_York") if getattr(idx, "tz", None) is not None else idx
+    bars["_session_date"] = [x.date() for x in local_idx]
+    bars["_tod"] = [x.strftime("%H:%M") for x in local_idx]
+    today = max(bars["_session_date"])
+    session = bars[bars["_session_date"] == today].copy()
+    if session.empty:
+        return result
+    current = session.iloc[-1]
+    result["research_sample_high"] = safe_float(current["High"], price)
+    result["research_sample_low"] = safe_float(current["Low"], price)
+    prior_same_time = bars[(bars["_session_date"] < today) & (bars["_tod"] == current["_tod"])]["Volume"].astype(float)
+    baseline = safe_float(prior_same_time.median()) if len(prior_same_time) >= 2 else 0
+    same_time_rvol = safe_float(current["Volume"]) / baseline if baseline > 0 else None
+    result["intraday_rvol_same_time"] = round(same_time_rvol, 2) if same_time_rvol is not None else None
+    result["same_time_relative_volume"] = result["intraday_rvol_same_time"]
+    regular = session[[x.time() >= datetime.strptime("09:30", "%H:%M").time() for x in local_idx[bars.index.get_indexer(session.index)]]]
+    opening = regular[[x.time() < datetime.strptime("09:45", "%H:%M").time() for x in local_idx[bars.index.get_indexer(regular.index)]]]
+    if not opening.empty:
+        or_high, or_low = safe_float(opening["High"].max()), safe_float(opening["Low"].min())
+        last_price = safe_float(session["Close"].iloc[-1], price)
+        after_open = regular[regular.index > opening.index[-1]]
+        broke_up, broke_down = last_price > or_high, last_price < or_low
+        retested = bool(broke_up and not after_open.empty and (after_open["Low"].astype(float) <= or_high * 1.005).any() and last_price >= or_high)
+        state = "15m upside breakout + retest held" if retested else "15m upside breakout" if broke_up else "15m downside break" if broke_down else "inside 15m opening range"
+        result["opening_range_status"] = f"{state} · range {or_low:.4f}–{or_high:.4f}"
+    else:
+        result["opening_range_status"] = "15m opening range not yet complete"
+    typical = (session["High"].astype(float)+session["Low"].astype(float)+session["Close"].astype(float))/3
+    vol = session["Volume"].astype(float).fillna(0)
+    cumulative = vol.cumsum()
+    vwap = (typical*vol).cumsum()/cumulative.replace(0, np.nan)
+    anchor = safe_float(vwap.iloc[-1]) if len(vwap) else 0
+    if anchor > 0:
+        result["anchored_vwap"] = round(anchor, 6)
+        result["anchored_vwap_status"] = ("Above session-open anchored VWAP" if price >= anchor else "Below session-open anchored VWAP") + f" · {anchor:.4f}"
+    return result
+
 def scan_stock(symbol: str) -> Optional[dict]:
     equity_session = market_session_status()
     ticker = yf.Ticker(symbol)
@@ -1129,6 +1233,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
     intraday_fresh = False
     vwap_metrics = {"session_vwap": None, "above_vwap": False, "vwap_reclaim": False}
     intraday_trend_up = False
+    intraday = pd.DataFrame()
     intraday_started = time.monotonic()
     try:
         # Stooq is a daily-only backup; do not pretend it supplies intraday confirmation.
@@ -1338,6 +1443,8 @@ def scan_stock(symbol: str) -> Optional[dict]:
 
     if score < 15:
         return None
+    advanced_research = advanced_research_metrics(frame, intraday, price, avg_volume,
+        alpaca_quote.get("spread_pct") if alpaca_quote else None)
     news = stock_news(symbol)
     fundamentals = stock_fundamental_snapshot(ticker) if score >= 35 else {"status": "not_fetched_for_low_score"}
     risk_flags = []
@@ -1383,6 +1490,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "breakout_20d": bool(breakout),
         "above_20d_average": bool(trend_up),
         "technical_analysis": technical,
+        **advanced_research,
         "session_vwap": vwap_metrics.get("session_vwap"),
         "above_session_vwap": bool(vwap_metrics.get("above_vwap")),
         "vwap_reclaim": bool(vwap_metrics.get("vwap_reclaim")),
@@ -1944,6 +2052,36 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
     regime = market_conditions()
     market_conditions_seconds = time.monotonic() - market_started
     record_scan_metric("market_conditions", market_conditions_seconds)
+    benchmarks = (regime.get("benchmarks") or {})
+    stock_items = [x for x in results if x.get("asset_type") == "stock"]
+    for item in stock_items:
+        five_day = safe_float(item.get("five_day_change_pct"))
+        spy = safe_float((benchmarks.get("SPY") or {}).get("five_day_change_pct"), np.nan)
+        iwm = safe_float((benchmarks.get("IWM") or {}).get("five_day_change_pct"), np.nan)
+        item["relative_strength_vs_spy"] = round(five_day-spy, 2) if np.isfinite(spy) else None
+        item["relative_strength_vs_iwm"] = round(five_day-iwm, 2) if np.isfinite(iwm) else None
+    ranked_rs = sorted((x for x in stock_items if x.get("relative_strength_vs_spy") is not None),
+                       key=lambda x: x["relative_strength_vs_spy"])
+    for rank, item in enumerate(ranked_rs, 1):
+        item["rs_rank"] = round(rank/len(ranked_rs)*100, 1) if ranked_rs else None
+    for item in results:
+        matches = []
+        if item.get("asset_type") == "stock":
+            if safe_float(item.get("relative_strength_vs_spy"), -999) >= 2 and safe_float(item.get("rs_rank")) >= 70:
+                matches.append("Cross-sectional relative strength")
+            if safe_float(item.get("intraday_rvol_same_time")) >= 2:
+                matches.append("Same-time-of-day relative volume")
+            if "liquid" in str(item.get("liquidity_status", "")).lower():
+                matches.append("Liquidity and spread")
+            if "breakout" in str(item.get("opening_range_status", "")).lower() and "downside" not in str(item.get("opening_range_status", "")).lower():
+                matches.append("Opening range and retest")
+            if "above session-open" in str(item.get("anchored_vwap_status", "")).lower():
+                matches.append("Anchored VWAP")
+            if safe_float(item.get("adx")) >= 20 and safe_float(item.get("plus_di")) > safe_float(item.get("minus_di")):
+                matches.append("ADX / DMI")
+            if "contraction detected" in str(item.get("volatility_contraction_status", "")).lower():
+                matches.append("Volatility contraction")
+        item["research_signal_matches"] = matches
     for item in results:
         classify_setup(item, regime["score_adjustment"], regime)
     results.sort(key=lambda item: item["score"], reverse=True)
@@ -2052,17 +2190,19 @@ const session=d.market_session||{}, providers=d.quote_provider_status||{};
 document.getElementById("sessionStatus").textContent="US equities: "+(session.phase||"session unknown")+" · "+(providers.massive_live_quotes||"Massive live quotes: status unknown")+" · "+(providers.webull||"Webull: status unknown")+" · "+(session.calendar_note||"");
 const stats=[["Tracked candidates",all.length],["Stocks",all.filter(x=>x.asset_type==="stock").length],["Crypto",all.filter(x=>x.asset_type==="crypto").length],["Price verified",verified.length],["Currently surfaced",all.filter(x=>x.currently_surfaced!==false).length]];
 document.getElementById("stats").innerHTML=stats.map(x=>'<div class="metric"><div class="k">'+esc(x[0])+'</div><strong>'+esc(x[1])+'</strong></div>').join("");
-const features=[
-["Cross-sectional relative strength","Compare symbols with SPY, IWM, sector ETFs and peers.","To be instrumented"],
-["Same-time-of-day relative volume","Compare each intraday bar with the same time window across prior sessions.","To be instrumented"],
-["Liquidity and spread","Dollar volume, bid/ask spread and practical execution-risk checks.","To be instrumented"],
-["Opening range and retest","5/15/30-minute range, breakout, retest and failure structure.","To be instrumented"],
-["Anchored VWAP","VWAP anchored to catalyst, gap, swing low or breakout event.","To be instrumented"],
-["ADX / DMI","Trend strength and direction; identify weak or choppy conditions.","To be instrumented"],
-["Volatility contraction","Base tightness, ATR contraction and expansion after compression.","To be instrumented"],
-["Catalyst and dilution","News/filings, shelf/offering/warrant and float-risk classification.","Partially present"]
+const coverage=d.research_field_coverage||{};
+const featureDefs=[
+["Cross-sectional relative strength","Five-day performance versus SPY/IWM plus percentile rank across scanned stocks.",["relative_strength_vs_spy","relative_strength_vs_iwm","rs_rank"]],
+["Same-time-of-day relative volume","Current 15-minute bar volume versus the median for the same clock-time across prior sessions.",["intraday_rvol_same_time"]],
+["Liquidity and spread","Average dollar volume and observed bid/ask spread; missing spread data is explicitly shown.",["dollar_volume","liquidity_status"]],
+["Opening range and retest","15-minute opening range, upside/downside break and retest status. 5m/30m bars are not currently sourced.",["opening_range_status"]],
+["Anchored VWAP","Session-open anchored VWAP and price positioning; catalyst/swing anchors remain future extensions.",["anchored_vwap_status","anchored_vwap"]],
+["ADX / DMI","14-period ADX, +DI and -DI from daily OHLC bars.",["adx","plus_di","minus_di","adx_dmi_status"]],
+["Volatility contraction","ATR contraction versus prior ATR and 10-day base tightness.",["volatility_contraction_status","atr_contraction_pct","base_tightness_pct"]],
+["Catalyst and dilution","News/filings, shelf/offering/warrant and float-risk classification.",["catalyst_dilution_status","dilution_flags"]]
 ];
-document.getElementById("features").innerHTML=features.map(x=>'<div class="feature"><b>'+esc(x[0])+'</b><p>'+esc(x[1])+'</p><span class="status '+(x[2].startsWith("Partially")?"partial":"")+'">'+esc(x[2])+'</span></div>').join("");
+const features=featureDefs.map(([name,description,keys])=>{const covered=Math.max(0,...keys.map(k=>Number(coverage[k]||0)));const total=all.length;const status=name==="Catalyst and dilution"?"Existing / partial research":covered>0?"Collecting · "+covered+"/"+total+" records":"No measurements saved yet";return [name,description,status];});
+document.getElementById("features").innerHTML=features.map(x=>'<div class="feature"><b>'+esc(x[0])+'</b><p>'+esc(x[1])+'</p><span class="status '+(x[2].startsWith("Existing")||x[2].startsWith("Collecting")?"partial":"")+'">'+esc(x[2])+'</span></div>').join("");
 const money=v=>{const n=Number(v);return Number.isFinite(n)&&n>0?n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:6}):"—"};const arr=v=>Array.isArray(v)?v.filter(Boolean).map(esc).join(" · "):esc(v||"—");
 const level=(o,k)=>money(o&&o[k]);
 const buys=(d.buy_signals||[]).filter(x=>x.status==="active").sort((a,b)=>(b.at||"").localeCompare(a.at||""));
@@ -2096,9 +2236,9 @@ def research_data():
             completed=meta.get("last_scan_completed_at"); run_id=meta.get("run_id")
             source="temporary_render_fallback"
     records=list(paper.values()) if isinstance(paper,dict) else []
-    fields=("relative_strength_vs_spy","relative_strength_pct","rs_rank","intraday_rvol_same_time",
-            "same_time_relative_volume","anchored_vwap_status","opening_range_status","adx","adx_dmi_status",
-            "spread_pct","dollar_volume","liquidity_status","catalyst_dilution_status","dilution_flags")
+    fields=("relative_strength_vs_spy","relative_strength_vs_iwm","rs_rank","intraday_rvol_same_time",
+            "same_time_relative_volume","anchored_vwap_status","anchored_vwap","opening_range_status","adx","plus_di","minus_di","adx_dmi_status",
+            "spread_pct","dollar_volume","liquidity_status","volatility_contraction_status","atr_contraction_pct","base_tightness_pct","catalyst_dilution_status","dilution_flags")
     massive_key=bool(os.getenv("MASSIVE_API_KEY","").strip())
     webull_keys=bool(os.getenv("WEBULL_APP_KEY","").strip() and os.getenv("WEBULL_APP_SECRET","").strip())
     return {"synced_at":synced,"last_scan_completed_at":completed,"scan_run_id":run_id,
