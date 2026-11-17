@@ -1,1 +1,50 @@
-{}
+{
+  "stock:LUNR": {
+    "age_days": 0,
+    "asset_type": "stock",
+    "first_seen": "2026-11-17T00:24:57.596366+00:00",
+    "initial_price": 11.73,
+    "last_seen": "2026-11-17T00:24:57.596366+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 11.73,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 0.0,
+    "milestones": {},
+    "peak_price": 11.73,
+    "return_pct": 0.0,
+    "symbol": "LUNR",
+    "trough_price": 11.73
+  },
+  "stock:RIOT": {
+    "age_days": 0,
+    "asset_type": "stock",
+    "first_seen": "2026-11-17T00:24:57.596366+00:00",
+    "initial_price": 17.06,
+    "last_seen": "2026-11-17T00:24:57.596366+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 17.06,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 0.0,
+    "milestones": {},
+    "peak_price": 17.06,
+    "return_pct": 0.0,
+    "symbol": "RIOT",
+    "trough_price": 17.06
+  },
+  "stock:RKLB": {
+    "age_days": 0,
+    "asset_type": "stock",
+    "first_seen": "2026-11-17T00:24:57.596366+00:00",
+    "initial_price": 57.37,
+    "last_seen": "2026-11-17T00:24:57.596366+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 57.37,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 0.0,
+    "milestones": {},
+    "peak_price": 57.37,
+    "return_pct": 0.0,
+    "symbol": "RKLB",
+    "trough_price": 57.37
+  }
+}
