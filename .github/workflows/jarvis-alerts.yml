@@ -78,7 +78,7 @@ jobs:
           else
             echo "Alpaca credentials are missing; scan will report Alpaca as not configured."
           fi
-          python -m py_compile main.py send_alerts.py
+          python -m py_compile main.py send_alerts.py early_runner.py
           if [ "$SEND_TEST_EMAIL" = "true" ]; then
             python send_alerts.py --test
           else
