@@ -441,7 +441,7 @@ def main():
         "run_number": os.getenv("GITHUB_RUN_NUMBER"),
         "commit_sha": os.getenv("GITHUB_SHA"),
     })
-    metadata_path.write_text(json.dumps(metadata, indent=2) + "\\n", encoding="utf-8")
+    metadata_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
 
     # Retry transient network/provider failures. Do not retry authentication or
     # other permanent 4xx responses, and never relax downstream quote validation.
@@ -474,7 +474,7 @@ def main():
         "scan_duration_seconds": payload.get("diagnostics", {}).get("scan_duration_seconds"),
         "scan_errors": len(payload.get("errors") or []),
     })
-    metadata_path.write_text(json.dumps(metadata, indent=2) + "\\n", encoding="utf-8")
+    metadata_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
 
     DIAGNOSTICS_STATE.write_text(json.dumps({
         "timestamp": payload.get("timestamp"),
