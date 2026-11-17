@@ -558,7 +558,11 @@ const fmt=(v)=>Number(v||0).toFixed(2)+'%';
 const cls=(v)=>Number(v)>0?'pos':Number(v)<0?'neg':'';
 fetch('/history/data').then(r=>r.json()).then(d=>{
  const t=d.paper_tracker||{}, l=d.lifetime||{}, vals=Object.values(t);
- document.getElementById('updated').textContent='Last synced: '+(d.synced_at||'Not yet synced');
+ const synced=d.synced_at ? new Date(d.synced_at) : null;
+ const syncedLabel=synced && !Number.isNaN(synced.getTime())
+   ? new Intl.DateTimeFormat('en-US',{timeZone:'America/Detroit',month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit',timeZoneName:'short'}).format(synced)
+   : 'Not yet synced';
+ document.getElementById('updated').textContent='Last synced: '+syncedLabel;
  const cps=l.checkpoints||{};
  const obs=Object.values(cps).reduce((n,x)=>n+Number(x.observations||0),0);
  document.getElementById('stats').innerHTML=[
