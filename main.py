@@ -700,6 +700,7 @@ def home():
 
 PAPER_STATE = Path("paper_tracker.json")
 PAPER_LIFETIME_STATE = Path("paper_tracker_lifetime.json")
+HISTORY_SNAPSHOT = Path("history_snapshot.json")
 
 
 @app.get("/history", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
@@ -744,6 +745,15 @@ def history_data():
         except (OSError, json.JSONDecodeError):
             return {}
 
+    # Prefer the latest scan snapshot pushed by GitHub Actions. Fall back to
+    # the checked-in tracker files so history remains visible before first sync.
+    snapshot = read_state(HISTORY_SNAPSHOT)
+    if isinstance(snapshot, dict) and isinstance(snapshot.get("paper_tracker"), dict):
+        return {
+            "synced_at": snapshot.get("synced_at"),
+            "paper_tracker": snapshot.get("paper_tracker", {}),
+            "lifetime": snapshot.get("lifetime", {}),
+        }
     paper = read_state(PAPER_STATE)
     lifetime = read_state(PAPER_LIFETIME_STATE)
     timestamps = [
