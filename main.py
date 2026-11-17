@@ -594,7 +594,7 @@ th{color:#aab6c5} .pos{color:#69d69b}.neg{color:#ff8989}
 <div class="cards" id="stats"></div>
 <div class="section"><h2>Latest scan diagnostics</h2><pre id="diagnostics" class="muted" style="white-space:pre-wrap;overflow-wrap:anywhere;background:#1b2633;border:1px solid #344354;border-radius:10px;padding:12px">Waiting for the next successful scan.</pre></div>
 <div class="section"><h2>Tracked candidates</h2><div class="muted">Rolling detailed history (up to 365 days). Returns are measured from first detection, not trade fills.</div>
-<div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Asset</th><th>First seen</th><th>Latest return</th><th>Best</th><th>Worst</th><th>Age</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+<div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Asset</th><th>First seen</th><th>First tracked price</th><th>Current grade</th><th>Latest return</th><th>Best</th><th>Worst</th><th>Age</th></tr></thead><tbody id="rows"></tbody></table></div></div>
 <div class="section"><h2>Lifetime checkpoints</h2><div style="overflow-x:auto"><table><thead><tr><th>Checkpoint</th><th>Observations</th><th>Wins</th><th>Losses</th><th>Average return</th></tr></thead><tbody id="checks"></tbody></table></div></div>
 <p class="muted">Research tracking only. Candidate discovery is not the same as an emailed actionable alert. No trades are placed. Price observations may be delayed or incomplete.</p>
 </main><script>
@@ -614,7 +614,110 @@ fetch('/history/data').then(r=>r.json()).then(d=>{
  document.getElementById('stats').innerHTML=[
  ['Tracked candidates now',vals.length],['Lifetime tracked candidates',l.tracked_candidates||l.recommendations||0],['Checkpoint observations',obs],['Lifetime positive checkpoints',Object.values(cps).reduce((n,x)=>n+Number(x.wins||0),0)]
  ].map(x=>'<div class="card"><div class="muted">'+x[0]+'</div><div class="value">'+x[1]+'</div></div>').join('');
- document.getElementById('rows').innerHTML=vals.sort((a,b)=>(b.last_seen||'').localeCompare(a.last_seen||'')).map(x=>'<tr><td>'+x.asset_type.toUpperCase()+' '+x.symbol+'</td><td>'+new Date(x.first_seen).toLocaleDateString()+'</td><td class="'+cls(x.return_pct)+'">'+fmt(x.return_pct)+'</td><td class="pos">'+fmt(x.max_gain_pct)+'</td><td class="neg">'+fmt(x.max_drawdown_pct)+'</td><td>'+Number(x.age_days||0).toFixed(1)+'d</td></tr>').join('')||'<tr><td colspan="6">No paper history has synced yet. It will populate after the next successful hourly workflow.</td></tr>';
+ document.getElementById('rows').innerHTML=vals.sort((a,b)=>(b.last_seen||'').localeCompare(a.last_seen||'')).map(x=>'<tr><td>'+x.asset_type.toUpperCase()+' '+x.symbol+'</td><td>'+new Date(x.first_seen).toLocaleDateString()+'</td><td>
+ document.getElementById('checks').innerHTML=Object.entries(cps).sort((a,b)=>Number(a[0])-Number(b[0])).map(([h,x])=>'<tr><td>'+h+' calendar days</td><td>'+x.observations+'</td><td>'+x.wins+'</td><td>'+x.losses+'</td><td>'+fmt(x.observations?x.total_return_pct/x.observations:0)+'</td></tr>').join('')||'<tr><td colspan="5">Checkpoint results will appear as records mature.</td></tr>';
+}).catch(()=>document.getElementById('updated').textContent='History is temporarily unavailable. Try again after the next scan.');
+</script></body></html>""")
+
+
+@app.get("/history/data", dependencies=[Depends(require_site_login)])
+def history_data():
+    def read_state(path):
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return {}
+
+    paper = read_state(PAPER_STATE)
+    lifetime = read_state(PAPER_LIFETIME_STATE)
+    diagnostics = read_state(Path("scan_diagnostics.json"))
+    timestamps = [
+        path.stat().st_mtime
+        for path in (PAPER_STATE, PAPER_LIFETIME_STATE)
+        if path.exists()
+    ]
+    synced_at = datetime.fromtimestamp(max(timestamps), timezone.utc).isoformat() if timestamps else None
+    return {"synced_at": synced_at, "paper_tracker": paper, "lifetime": lifetime, "scan_diagnostics": diagnostics}
+
+
+@app.post("/history/sync")
+def history_sync(payload: dict, x_jarvis_history_token: Optional[str] = Header(None)):
+    expected = os.getenv("JARVIS_HISTORY_SYNC_TOKEN", "")
+    if not expected or not x_jarvis_history_token or not hmac.compare_digest(expected, x_jarvis_history_token):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    if not isinstance(payload.get("paper_tracker"), dict) or not isinstance(payload.get("lifetime"), dict):
+        raise HTTPException(status_code=400, detail="Invalid history payload")
+    HISTORY_SNAPSHOT.write_text(json.dumps(payload, separators=(",", ":")), encoding="utf-8")
+    return {"status": "synced", "records": len(payload["paper_tracker"])}
+
+
+@app.get("/health")
+def health():
+    return {"status": "healthy", "timestamp": now_iso()}
+
+
+@app.get("/symbols", dependencies=[Depends(require_site_login)])
+def symbols():
+    return {
+        "stocks": stock_universe(),
+        "crypto": crypto_universe(),
+    }
+
+
+@app.get("/scan/stocks", dependencies=[Depends(require_site_login)])
+def scan_stocks(limit: int = Query(30, ge=1, le=100)):
+    universe = stock_universe()[:limit]
+    results, errors = run_parallel(universe, scan_stock)
+    return response_payload("stocks", universe, results, errors)
+
+
+@app.get("/scan/crypto", dependencies=[Depends(require_site_login)])
+def scan_cryptocurrencies(limit: int = Query(25, ge=1, le=100)):
+    universe = crypto_universe()[:limit]
+    results, errors = run_parallel(universe, scan_crypto)
+    return response_payload("crypto", universe, results, errors)
+
+
+@app.get("/scan", dependencies=[Depends(require_site_login)])
+def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
+    stock_symbols = stock_universe()
+    crypto_symbols = crypto_universe()
+    stock_results, stock_errors = ([], [])
+    crypto_results, crypto_errors = ([], [])
+    if asset in ("all", "stocks"):
+        stock_results, stock_errors = run_parallel(stock_symbols, scan_stock)
+    if asset in ("all", "crypto"):
+        crypto_results, crypto_errors = run_parallel(crypto_symbols, scan_crypto)
+    results = sorted(stock_results + crypto_results, key=lambda item: item["score"], reverse=True)
+    errors = stock_errors + crypto_errors
+    regime = market_conditions()
+    for item in results:
+        classify_setup(item, regime["score_adjustment"], regime)
+    results.sort(key=lambda item: item["score"], reverse=True)
+    return {
+        **response_payload(asset, stock_symbols + crypto_symbols, results, errors),
+        "market_conditions": regime,
+        "stock_candidates": len(stock_results),
+        "crypto_candidates": len(crypto_results),
+        "diagnostics": {
+            "stocks": {
+                "symbols_requested": len(stock_symbols),
+                "candidates_returned": len(stock_results),
+                "scan_errors": len(stock_errors),
+                "not_returned_or_below_early_watch_floor": max(0, len(stock_symbols) - len(stock_results) - len(stock_errors)),
+                "stages": {stage: sum(1 for x in stock_results if x.get("stage") == stage) for stage in ("ACTIONABLE SETUP", "DEVELOPING SETUP", "EARLY WATCH", "LOW-CONVICTION WATCH")},
+            },
+            "crypto": {
+                "symbols_requested": len(crypto_symbols),
+                "candidates_returned": len(crypto_results),
+                "scan_errors": len(crypto_errors),
+                "not_returned_or_below_early_watch_floor": max(0, len(crypto_symbols) - len(crypto_results) - len(crypto_errors)),
+                "stages": {stage: sum(1 for x in crypto_results if x.get("stage") == stage) for stage in ("ACTIONABLE SETUP", "DEVELOPING SETUP", "EARLY WATCH", "LOW-CONVICTION WATCH")},
+            },
+            "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history/data or score below the early-watch floor; provider-specific discovery failures are not always attributable to one symbol.",
+        },
+    }
++Number(x.initial_price||0).toFixed(4)+'</td><td>'+String(x.last_stage||'Not graded').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')+'</td><td class="'+cls(x.return_pct)+'">'+fmt(x.return_pct)+'</td><td class="pos">'+fmt(x.max_gain_pct)+'</td><td class="neg">'+fmt(x.max_drawdown_pct)+'</td><td>'+Number(x.age_days||0).toFixed(1)+'d</td></tr>').join('')||'<tr><td colspan="8">No paper history has synced yet. It will populate after the next successful hourly workflow.</td></tr>';
  document.getElementById('checks').innerHTML=Object.entries(cps).sort((a,b)=>Number(a[0])-Number(b[0])).map(([h,x])=>'<tr><td>'+h+' calendar days</td><td>'+x.observations+'</td><td>'+x.wins+'</td><td>'+x.losses+'</td><td>'+fmt(x.observations?x.total_return_pct/x.observations:0)+'</td></tr>').join('')||'<tr><td colspan="5">Checkpoint results will appear as records mature.</td></tr>';
 }).catch(()=>document.getElementById('updated').textContent='History is temporarily unavailable. Try again after the next scan.');
 </script></body></html>""")
