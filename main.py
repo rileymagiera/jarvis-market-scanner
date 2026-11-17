@@ -1,9 +1,11 @@
 import os
 import json
 import hmac
+import threading
+import time
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 
 import numpy as np
@@ -237,8 +239,65 @@ def stooq_daily_history(symbol: str) -> pd.DataFrame:
     return frame.reset_index(drop=True)
 
 
+MASSIVE_REQUEST_LOCK = threading.Lock()
+MASSIVE_LAST_REQUEST_AT = 0.0
+MASSIVE_REQUESTS_THIS_PROCESS = 0
+MASSIVE_MAX_REQUESTS_PER_SCAN = 10
+
+
+def massive_daily_history(symbol: str) -> pd.DataFrame:
+    """Free-tier Massive EOD daily bars; rate-limited and only used after Yahoo fails."""
+    global MASSIVE_LAST_REQUEST_AT, MASSIVE_REQUESTS_THIS_PROCESS
+    api_key = os.getenv("MASSIVE_API_KEY", "").strip()
+    if not api_key:
+        raise RuntimeError("MASSIVE_API_KEY is not configured")
+
+    # Basic/free accounts have a low request allowance. Space calls 12 seconds apart
+    # and cap this process at 10 fallback requests so an outage cannot stall a scan.
+    with MASSIVE_REQUEST_LOCK:
+        if MASSIVE_REQUESTS_THIS_PROCESS >= MASSIVE_MAX_REQUESTS_PER_SCAN:
+            raise RuntimeError("Massive fallback request budget reached for this scan")
+        wait_seconds = max(0.0, 12.0 - (time.monotonic() - MASSIVE_LAST_REQUEST_AT))
+        if wait_seconds:
+            time.sleep(wait_seconds)
+        MASSIVE_LAST_REQUEST_AT = time.monotonic()
+        MASSIVE_REQUESTS_THIS_PROCESS += 1
+
+    end_date = datetime.now(timezone.utc).date()
+    start_date = end_date - timedelta(days=120)
+    url = (
+        f"https://api.massive.com/v2/aggs/ticker/{symbol}/range/1/day/"
+        f"{start_date.isoformat()}/{end_date.isoformat()}"
+    )
+    response = HTTP.get(
+        url,
+        params={"adjusted": "true", "sort": "asc", "limit": 5000, "apiKey": api_key},
+        timeout=20,
+    )
+    if response.status_code != 200:
+        # Do not include the request URL: it contains the API key query parameter.
+        raise RuntimeError(f"Massive API returned HTTP {response.status_code}")
+    payload = response.json()
+    results = payload.get("results") or []
+    if payload.get("status") not in ("OK", "DELAYED") or not results:
+        raise RuntimeError("Massive returned no usable daily aggregates")
+    frame = pd.DataFrame(results).rename(
+        columns={"o": "Open", "h": "High", "l": "Low", "c": "Close", "v": "Volume", "t": "Timestamp"}
+    )
+    required = {"Open", "High", "Low", "Close", "Volume", "Timestamp"}
+    if not required.issubset(frame.columns):
+        raise RuntimeError("Massive returned incomplete OHLCV fields")
+    for column in ("Open", "High", "Low", "Close", "Volume"):
+        frame[column] = pd.to_numeric(frame[column], errors="coerce")
+    frame = frame.dropna(subset=["Close", "Volume"]).sort_values("Timestamp")
+    frame.index = pd.to_datetime(frame.pop("Timestamp"), unit="ms", utc=True)
+    if len(frame) < 22 or safe_float(frame["Volume"].tail(20).mean()) <= 0:
+        raise RuntimeError("Massive returned insufficient usable daily history")
+    return frame.tail(90)
+
+
 def stock_daily_history(symbol: str, ticker=None):
-    """Use Yahoo daily bars first, then Stooq if Yahoo fails or returns too little data."""
+    """Yahoo primary, Massive free-tier EOD backup, then Stooq emergency fallback."""
     ticker = ticker or yf.Ticker(symbol)
     try:
         frame = ticker.history(period="3mo", interval="1d", auto_adjust=True)
@@ -246,12 +305,18 @@ def stock_daily_history(symbol: str, ticker=None):
             return frame, "Yahoo Finance"
         raise RuntimeError("Yahoo returned insufficient daily history")
     except Exception as primary_error:
+        massive_error = None
         try:
-            return stooq_daily_history(symbol), "Stooq public daily data (backup; may be delayed)"
-        except Exception as backup_error:
+            return massive_daily_history(symbol), "Massive daily aggregates (free-tier EOD/delayed; no intraday)"
+        except Exception as exc:
+            massive_error = exc
+        try:
+            return stooq_daily_history(symbol), "Stooq public daily data (emergency backup; may be delayed)"
+        except Exception as stooq_error:
             raise RuntimeError(
-                f"Yahoo primary failed ({primary_error}); Stooq backup failed ({backup_error})"
-            ) from backup_error
+                f"Yahoo failed ({primary_error}); Massive unavailable ({massive_error}); "
+                f"Stooq failed ({stooq_error})"
+            ) from stooq_error
 
 
 def market_conditions() -> dict:
@@ -308,7 +373,7 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
         or float(item.get("intraday_relative_volume") or 0) >= 2
         or bool(item.get("breakout_20d") or item.get("breakout_24h") or item.get("intraday_breakout"))
     )
-    if adjusted >= 75 and has_confirmation and regime["regime"] != "RISK-OFF":
+    if adjusted >= 75 and has_confirmation and regime["regime"] != "RISK-OFF" and item.get("intraday_confirmation_available", True):
         stage = "ACTIONABLE SETUP"
     elif adjusted >= 55 and has_confirmation:
         stage = "DEVELOPING SETUP"
@@ -537,13 +602,13 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "news": news,
         "risk_flags": risk_flags,
         "fundamentals": fundamentals,
-        "data_source": f"{price_provider}; Yahoo/SEC news and optional fundamentals",
+        "intraday_confirmation_available": bool(price_provider == "Yahoo Finance" and (intraday_change != 0 or intraday_relative_volume > 0 or intraday_breakout)),
         "research_notes": [
             "Review latest SEC filings for financing, dilution, debt and material events.",
             "Confirm headline timing and catalyst with a second independent source before acting.",
             "Check float, shares outstanding, cash runway and upcoming earnings; these are not fully verified by this scan.",
         ],
-        "data_source": "Yahoo Finance daily + 15m intraday (pre/post-market when available)",
+        "data_source": (f"{price_provider} daily + Yahoo 15m intraday" if price_provider == "Yahoo Finance" else f"{price_provider}; intraday confirmation unavailable"),
     }
 
 
