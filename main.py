@@ -745,15 +745,9 @@ def history_data():
         except (OSError, json.JSONDecodeError):
             return {}
 
-    # Prefer the latest scan snapshot pushed by GitHub Actions. Fall back to
-    # the checked-in tracker files so history remains visible before first sync.
-    snapshot = read_state(HISTORY_SNAPSHOT)
-    if isinstance(snapshot, dict) and isinstance(snapshot.get("paper_tracker"), dict):
-        return {
-            "synced_at": snapshot.get("synced_at"),
-            "paper_tracker": snapshot.get("paper_tracker", {}),
-            "lifetime": snapshot.get("lifetime", {}),
-        }
+    # GitHub Actions commits these tracker files after each scan. Read the
+    # committed files as the single source of truth; never prefer a Render-local
+    # snapshot, which can be stale or disappear during a redeploy.
     paper = read_state(PAPER_STATE)
     lifetime = read_state(PAPER_LIFETIME_STATE)
     timestamps = [
