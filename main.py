@@ -332,7 +332,14 @@ def stock_fundamental_snapshot(ticker) -> dict:
         "sector": info.get("sector"),
         "industry": info.get("industry"),
     }
-    available = {k: v for k, v in fields.items() if v is not None}
+    available = {}
+    for key, value in fields.items():
+        if isinstance(value, np.generic):
+            value = value.item()
+        if isinstance(value, float) and not np.isfinite(value):
+            continue
+        if isinstance(value, (str, int, float, bool)):
+            available[key] = value
     return {"status": "partial" if available else "unavailable", "fields": available,
             "note": "Yahoo Finance company-profile fields; verify against filings because coverage and freshness vary."}
 
