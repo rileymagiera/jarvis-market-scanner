@@ -1488,7 +1488,7 @@ function savePrefs(){try{localStorage.setItem(PREF_KEY,JSON.stringify(prefs));}c
 function bindPrefs(){const radar=document.getElementById('radar-filter'),density=document.getElementById('layout-density'),timeline=document.getElementById('show-timeline'),performance=document.getElementById('show-performance');radar.value=prefs.radarFilter;density.value=prefs.density;timeline.checked=prefs.showTimeline;performance.checked=prefs.showPerformance;radar.addEventListener('change',()=>{prefs.radarFilter=radar.value;savePrefs();if(window.jarvisRenderData)render(window.jarvisRenderData);});density.addEventListener('change',()=>{prefs.density=density.value;savePrefs();});timeline.addEventListener('change',()=>{prefs.showTimeline=timeline.checked;savePrefs();});performance.addEventListener('change',()=>{prefs.showPerformance=performance.checked;savePrefs();});document.getElementById('reset-dashboard-settings').addEventListener('click',()=>{Object.assign(prefs,{radarFilter:'all',density:'comfortable',showTimeline:true,showPerformance:true});radar.value=prefs.radarFilter;density.value=prefs.density;timeline.checked=prefs.showTimeline;performance.checked=prefs.showPerformance;savePrefs();if(window.jarvisRenderData)render(window.jarvisRenderData);});savePrefs();}
 document.addEventListener('DOMContentLoaded',bindPrefs);
 function elapsed(from,to){if(!from||!to)return '—';const ms=new Date(to)-new Date(from);if(!Number.isFinite(ms)||ms<0)return '—';const hours=Math.floor(ms/3600000);return hours<24?hours+'h':Math.floor(hours/24)+'d '+Math.floor(hours%24)+'h';}function render(d){window.jarvisRenderData=d;const t=d.paper_tracker||{},l=d.lifetime||{},all=Object.values(t),buySignals=d.buy_signals||[],activeBuys=buySignals.filter(x=>x.status==="active"),verified=all.filter(x=>x.price_validation_status!=="unverified"),live=all.filter(x=>x.currently_surfaced!==false),avg=verified.length?verified.reduce((s,x)=>s+n(x.return_pct),0)/verified.length:0;
-const fmtTime=d.synced_at?new Intl.DateTimeFormat('en-US',{timeZone:'America/Detroit',year:'numeric',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit',timeZoneName:'short'}).format(new Date(d.synced_at)):'Not yet synced';document.getElementById('updated').textContent='Last synced: '+fmtTime;
+const fmtTime=d.last_scan_completed_at?new Intl.DateTimeFormat('en-US',{timeZone:'America/Detroit',year:'numeric',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit',timeZoneName:'short'}).format(new Date(d.last_scan_completed_at)):'No completed scan timestamp yet';document.getElementById('updated').textContent='Last scan completed: '+fmtTime;
 
 const stageRank={'BUY':8,'EARLY SETUP':6,'DEVELOPING RUNNER':5,'DEVELOPING SETUP':5,'ACTIONABLE SETUP':4,'EARLY WATCH':3,'LATE RUNNER — CHASE RISK':2,'LOW-CONVICTION WATCH':1,'PRICE UNVERIFIED — WATCH ONLY':0};
 const surfaced=all.filter(x=>x.currently_surfaced!==false);
@@ -1582,13 +1582,16 @@ def history_data():
     paper = read_state(PAPER_STATE)
     lifetime = read_state(PAPER_LIFETIME_STATE)
     buy_state = read_state(BUY_SIGNAL_STATE)
-    timestamps = [
-        path.stat().st_mtime
-        for path in (PAPER_STATE, PAPER_LIFETIME_STATE, BUY_SIGNAL_STATE)
-        if path.exists()
-    ]
-    synced_at = datetime.fromtimestamp(max(timestamps), timezone.utc).isoformat() if timestamps else None
-    return {"synced_at": synced_at, "paper_tracker": paper, "lifetime": lifetime, "buy_signals": buy_state.get("signals", [])}
+    # Read the completion timestamp written by the GitHub Actions scan workflow.
+    # Never infer scan time from file mtimes or from a page refresh.
+    scan_metadata = read_state(Path(__file__).resolve().parent / "scan_metadata.json")
+    return {
+        "last_scan_completed_at": scan_metadata.get("last_scan_completed_at"),
+        "scan_run_id": scan_metadata.get("run_id"),
+        "paper_tracker": paper,
+        "lifetime": lifetime,
+        "buy_signals": buy_state.get("signals", []),
+    }
 
 
 @app.post("/history/sync")
