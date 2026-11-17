@@ -33,15 +33,19 @@ def email(subject, body):
         smtp.send_message(msg)
 
 
-def sync_history_to_site(paper, lifetime, now):
+def sync_history_to_site(paper, lifetime, now, buy_signals=None, scan_metadata=None):
     token = os.getenv("JARVIS_HISTORY_SYNC_TOKEN", "")
     if not token:
         print("History sync skipped: JARVIS_HISTORY_SYNC_TOKEN is not configured.")
         return
+    scan_metadata = scan_metadata or {}
     body = json.dumps({
         "synced_at": now.isoformat(),
+        "last_scan_completed_at": scan_metadata.get("last_scan_completed_at"),
+        "scan_run_id": scan_metadata.get("run_id"),
         "paper_tracker": paper,
         "lifetime": lifetime,
+        "buy_signals": buy_signals or [],
     }).encode("utf-8")
     req = Request(
         BASE_URL + "/history/sync",
@@ -493,10 +497,12 @@ def main():
     local_now = now.astimezone(ZoneInfo("America/Detroit"))
     paper, paper_lifetime = update_paper_tracker(payload["candidates"], now)
     buy_signals = update_buy_signal_history(payload["candidates"], now, payload.get("errors") or [])
-    # The GitHub workflow commits the tracker files after this run.
-    # Render reads those committed files directly; no ephemeral website sync.
-    # The history page reads the tracker JSON files committed by the workflow.
-    # Do not POST to Render here: an optional sync must not fail the market scan.
+    # Keep the live history page current without waiting for a Render redeploy.
+    # The committed JSON files remain the recovery source if the site restarts.
+    try:
+        sync_history_to_site(paper, paper_lifetime, now, buy_signals, metadata)
+    except Exception as exc:
+        print(f"History sync failed; committed tracker files remain available: {type(exc).__name__}: {exc}")
     market = payload.get("market_conditions") or {}
     selected, updates = [], {}
     for item in payload["candidates"]:
