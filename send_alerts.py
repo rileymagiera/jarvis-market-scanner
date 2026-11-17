@@ -277,6 +277,15 @@ def update_buy_signal_history(candidates, now):
                 "entry_low": levels.get("watch_entry_low", price),
                 "entry_high": levels.get("watch_entry_high", price),
                 "invalidation": levels.get("invalidation_level"),
+                "stop_loss": levels.get("stop_loss", levels.get("invalidation_level")),
+                "target_1": levels.get("target_1"),
+                "target_2": levels.get("target_2"),
+                "risk_pct": levels.get("risk_pct"),
+                "target_1_pct": levels.get("target_1_pct"),
+                "target_2_pct": levels.get("target_2_pct"),
+                "reward_risk_ratio": levels.get("reward_risk_ratio"),
+                "target_2_reward_risk_ratio": levels.get("target_2_reward_risk_ratio"),
+                "level_method": levels.get("method"),
                 "score": int(item.get("score") or 0), "raw_score": item.get("raw_score"),
                 "market_regime": item.get("market_regime"),
                 "price_source": item.get("data_source") or item.get("price_source"),
@@ -446,7 +455,13 @@ def main():
             f'Breakout: {item.get("breakout_20d", item.get("breakout_24h", False))} | Source: {item.get("data_source", "n/a")}',
         ]
         levels = item.get("levels") or {}
-        if levels:
+        if levels and item.get("stage") == "BUY":
+            lines.append(f'ENTRY RANGE: {levels.get("watch_entry_low", "n/a")}–{levels.get("watch_entry_high", "n/a")}')
+            lines.append(f'STOP-LOSS: {levels.get("stop_loss", levels.get("invalidation_level", "n/a"))} | Estimated downside from signal price: {levels.get("risk_pct", "n/a")}%')
+            lines.append(f'POTENTIAL SELL: {levels.get("target_1", "n/a")} (+{levels.get("target_1_pct", "n/a")}%) | Stretch target: {levels.get("target_2", "n/a")} (+{levels.get("target_2_pct", "n/a")}%)')
+            lines.append(f'REWARD/RISK: {levels.get("reward_risk_ratio", "n/a")}:1 to first target | {levels.get("target_2_reward_risk_ratio", "n/a")}:1 to stretch target')
+            lines.append("Levels are illustrative, based on the scan price and current ATR/support; reassess if the price moves before entry.")
+        elif levels:
             lines.append(f'Entry reference: {levels.get("watch_entry_low", "n/a")}–{levels.get("watch_entry_high", "n/a")} | Illustrative invalidation: {levels.get("invalidation_level", "n/a")}')
         if item.get("stage") == "BUY":
             lines.append("BUY SIGNAL: strict Jarvis paper recommendation. This is not an executed trade; user approval is required for any real order.")
