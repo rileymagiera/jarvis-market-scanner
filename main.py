@@ -1240,11 +1240,13 @@ def kraken_crypto_market_data(symbol: str):
         raise RuntimeError(f"Kraken has no supported USD/USDT spot pair for {base}")
     ticker_response = HTTP.get(f"{KRAKEN}/Ticker", params={"pair": pair_id}, timeout=12)
     ticker_response.raise_for_status()
-    ticker_payload = ticker_response.json()    if ticker_payload.get("error"):
+    ticker_payload = ticker_response.json()
+    if ticker_payload.get("error"):
         raise RuntimeError("Kraken Ticker: " + "; ".join(ticker_payload["error"]))
     ticker_rows = ticker_payload.get("result") or {}
     if not ticker_rows:
-        raise RuntimeError(f"Kraken returned no ticker for {base}")    ticker = next(iter(ticker_rows.values()))
+        raise RuntimeError(f"Kraken returned no ticker for {base}")
+    ticker = next(iter(ticker_rows.values()))
     price = safe_float((ticker.get("c") or [0])[0])
     opening = safe_float(ticker.get("o"))
     volume = safe_float((ticker.get("v") or [0, 0])[1])
