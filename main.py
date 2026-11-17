@@ -1910,6 +1910,11 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
     for item in results:
         classify_setup(item, regime["score_adjustment"], regime)
     results.sort(key=lambda item: item["score"], reverse=True)
+    provider_activity = scan_metrics_snapshot()
+    alpaca_status_counts = {}
+    for item in stock_results:
+        status = item.get("alpaca_quote_status", "not_reported")
+        alpaca_status_counts[status] = alpaca_status_counts.get(status, 0) + 1
     return {
         **response_payload(asset, stock_symbols + crypto_symbols, results, errors),
         "market_conditions": regime,
@@ -1930,6 +1935,12 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
                 "not_returned_or_below_early_watch_floor": max(0, len(crypto_symbols) - len(crypto_results) - len(crypto_errors)),
                 "stages": {stage: sum(1 for x in crypto_results if x.get("stage") == stage) for stage in ("BUY", "ACTIONABLE SETUP", "DEVELOPING SETUP", "EARLY WATCH", "LOW-CONVICTION WATCH")},
             },
+            "alpaca_quote_status": {
+                "credentials_configured": bool(os.getenv("ALPACA_API_KEY", "").strip() and os.getenv("ALPACA_API_SECRET", "").strip()),
+                "feed": os.getenv("ALPACA_STOCK_DATA_FEED", "iex").strip().lower() or "iex",
+                "candidate_status_counts": alpaca_status_counts,
+                "provider_activity": provider_activity.get("alpaca_quote_validation", {"calls": 0, "failures": 0, "total_seconds": 0.0, "max_seconds": 0.0, "error_counts": {}}),
+            },
             "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history/data or score below the early-watch floor; provider-specific discovery failures are not always attributable to one symbol.",
             "webull_quote_status": "enabled" if WEBULL_QUOTE_ENABLED else "disabled_pending_authorization",
             "webull_quote_note": "Webull quote lookups are opt-in because app authorization was observed pending; Yahoo/Stooq scanning continues independently. Enable only after Webull market-data authorization is confirmed.",
@@ -1942,7 +1953,7 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
                 "asset_scans_wall_seconds": round(asset_scans_seconds, 2),
                 "market_conditions_seconds": round(market_conditions_seconds, 2),
                 "total_seconds": round(time.monotonic() - scan_started, 2),
-                "provider_activity": scan_metrics_snapshot(),
+                "provider_activity": provider_activity,
             },
             "massive_fallback_policy": {
                 "max_requests_per_scan": MASSIVE_MAX_REQUESTS_PER_SCAN,
