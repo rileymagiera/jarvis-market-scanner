@@ -14,6 +14,7 @@ import pandas as pd
 import requests
 from io import StringIO
 import yfinance as yf
+from early_runner import compute_early_runner_metrics
 from fastapi import FastAPI, Query, Header, HTTPException, Depends
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.responses import HTMLResponse
@@ -1448,6 +1449,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
         alpaca_quote.get("spread_pct") if alpaca_quote else None)
     news = stock_news(symbol)
     fundamentals = stock_fundamental_snapshot(ticker) if score >= 35 else {"status": "not_fetched_for_low_score"}
+    early_runner = compute_early_runner_metrics(frame, intraday, price, fundamentals, news)
     risk_flags = []
     if not validation_passed:
         risk_flags.append("Price not independently verified; actionable alerts blocked")
@@ -1506,6 +1508,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "news": news,
         "risk_flags": risk_flags,
         "fundamentals": fundamentals,
+        **early_runner,
         "intraday_confirmation_available": bool(intraday_fresh and equity_session["is_regular_session"]),
         "intraday_quote_available": bool(intraday_fresh),
         "research_notes": [
@@ -2082,6 +2085,7 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
                 matches.append("ADX / DMI")
             if "contraction detected" in str(item.get("volatility_contraction_status", "")).lower():
                 matches.append("Volatility contraction")
+            matches.extend(item.get("early_runner_signal_matches") or [])
         item["research_signal_matches"] = matches
     for item in results:
         classify_setup(item, regime["score_adjustment"], regime)
