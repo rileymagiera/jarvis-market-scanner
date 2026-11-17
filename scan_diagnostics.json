@@ -1,28 +1,34 @@
 {
-  "candidates_found": 35,
+  "candidates_found": 43,
   "diagnostics": {
     "crypto": {
-      "candidates_returned": 27,
-      "not_returned_or_below_early_watch_floor": 11,
+      "candidates_returned": 39,
+      "not_returned_or_below_early_watch_floor": 1,
       "scan_errors": 0,
       "stages": {
         "ACTIONABLE SETUP": 0,
-        "DEVELOPING SETUP": 0,
-        "EARLY WATCH": 2,
-        "LOW-CONVICTION WATCH": 25
+        "BUY": 0,
+        "DEVELOPING SETUP": 9,
+        "EARLY WATCH": 13,
+        "LOW-CONVICTION WATCH": 17
       },
-      "symbols_requested": 38
+      "symbols_requested": 40
     },
     "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history/data or score below the early-watch floor; provider-specific discovery failures are not always attributable to one symbol.",
     "stocks": {
-      "candidates_returned": 8,
-      "not_returned_or_below_early_watch_floor": 22,
+      "candidates_returned": 4,
+      "not_returned_or_below_early_watch_floor": 26,
       "scan_errors": 0,
       "stages": {
         "ACTIONABLE SETUP": 0,
+        "BUY": 0,
+        "DEVELOPING RUNNER": 0,
         "DEVELOPING SETUP": 0,
+        "EARLY SETUP": 0,
         "EARLY WATCH": 0,
-        "LOW-CONVICTION WATCH": 0
+        "LATE RUNNER \u2014 CHASE RISK": 0,
+        "LOW-CONVICTION WATCH": 0,
+        "PRICE UNVERIFIED \u2014 WATCH ONLY": 4
       },
       "symbols_requested": 30
     }
@@ -32,24 +38,24 @@
     "benchmarks": {
       "BTC-USD": {
         "above_20d_average": false,
-        "five_day_change_pct": -12.74
+        "five_day_change_pct": -12.3
       },
       "IWM": {
         "above_20d_average": false,
-        "five_day_change_pct": 1.41
+        "five_day_change_pct": -3.39
       },
       "QQQ": {
         "above_20d_average": false,
-        "five_day_change_pct": 3.63
+        "five_day_change_pct": -2.59
       },
       "SPY": {
         "above_20d_average": false,
-        "five_day_change_pct": 2.59
+        "five_day_change_pct": -1.69
       }
     },
     "note": "Benchmark context is a caution/confirmation input, not a standalone buy or sell signal.",
     "regime": "RISK-OFF",
     "score_adjustment": -8
   },
-  "timestamp": "2026-11-17T02:21:51.011929+00:00"
+  "timestamp": "2026-11-17T04:16:35.403677+00:00"
 }
