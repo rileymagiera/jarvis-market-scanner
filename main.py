@@ -1111,8 +1111,40 @@ HISTORY_SNAPSHOT = APP_DIR / "history_snapshot.json"
 @app.get("/history", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
 def history_page():
     return HTMLResponse("""<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Jarvis History</title><style>
-:root{color-scheme:dark}*{box-sizing:border-box}body{font:15px system-ui,sans-serif;margin:0;background:#0d131b;color:#edf2f7}main{max-width:1200px;margin:auto;padding:20px}h1{margin:0 0 5px}.muted,.tiny{color:#9eacbd}.tiny{font-size:12px}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:18px 0}.card,.panel{background:#172331;border:1px solid #2b3b4d;border-radius:12px;padding:14px}.value{font-size:24px;font-weight:750}.section{margin-top:26px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px}table{border-collapse:collapse;width:100%;min-width:700px}th,td{text-align:left;padding:9px;border-bottom:1px solid #2b3b4d;font-size:13px}th{color:#aebaca}.scroll{overflow-x:auto;margin-top:10px}.pos{color:#62d99a}.neg{color:#ff8989}.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}input,select{background:#0d1722;color:#edf2f7;border:1px solid #40536a;border-radius:8px;padding:9px;font:inherit}input{flex:1;min-width:160px}.pill{border:1px solid #40536a;border-radius:99px;padding:3px 8px;font-size:11px}.empty{text-align:center;padding:16px;color:#9eacbd}@media(max-width:600px){main{padding:14px}.value{font-size:21px}}
-</style></head><body><main><h1>Jarvis History & Performance</h1><div class="muted" id="updated">Loading saved tracking history…</div><div class="tiny">Research tracking only. Returns are measured from first verified detection, not trade fills. Unverified records are excluded from performance rankings. Jarvis never places trades.</div>
+:root{color-scheme:dark;--bg:#0b1119;--surface:#121e2b;--surface2:#172638;--line:#293b50;--muted:#9aabbd;--text:#edf3fa;--accent:#83b8ff;--green:#63d9a0;--red:#ff9292}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(ellipse at 50% -15%,#1a2b40 0%,var(--bg) 58%);color:var(--text);font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{width:min(100% - 32px,1320px);margin:0 auto;padding:30px 0 56px}
+h1{font-size:clamp(26px,4vw,36px);letter-spacing:-.035em;line-height:1.15;margin:0 0 8px}
+h2{font-size:19px;letter-spacing:-.02em;margin:0 0 12px}
+h3{font-size:14px;margin:0 0 12px;color:#dce8f5}
+.muted,.tiny{color:var(--muted)}.tiny{font-size:12px;line-height:1.5}
+#updated{display:inline-flex;align-items:center;gap:7px;margin:5px 0 10px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:#101b28;font-size:12px}
+#updated:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px #63d9a077}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin:20px 0 28px}
+.card,.panel{background:linear-gradient(145deg,var(--surface2),var(--surface));border:1px solid var(--line);border-radius:15px;padding:16px;box-shadow:0 8px 24px #0002;min-width:0}
+.card .muted{font-size:12px;letter-spacing:.02em}.value{font-size:clamp(21px,3vw,27px);font-weight:750;letter-spacing:-.035em;margin-top:5px;overflow-wrap:anywhere}
+.section{margin-top:30px;padding-top:22px;border-top:1px solid #26384b}
+.section> .muted{font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:720px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:11px 12px;border-bottom:1px solid #26384a;font-size:12px;vertical-align:top}
+th{position:sticky;top:0;background:#172638;color:#b9c9da;font-size:11px;text-transform:uppercase;letter-spacing:.055em;white-space:nowrap;z-index:1}
+tbody tr:nth-child(even){background:#ffffff06}tbody tr:hover{background:#83b8ff0d}
+.scroll{overflow:auto;margin-top:12px;border:1px solid var(--line);border-radius:12px;background:#0f1924;overscroll-behavior-x:contain}
+.scroll table{margin:0}.scroll td .tiny{margin-top:3px}
+.pos{color:var(--green);font-weight:650}.neg{color:var(--red)}
+.toolbar{display:flex;flex-wrap:wrap;gap:9px;margin:14px 0}
+input,select{background:#0d1722;color:var(--text);border:1px solid #40536a;border-radius:9px;padding:10px 12px;font:inherit;min-height:42px}
+input{flex:1;min-width:min(100%,190px)}input::placeholder{color:#8193a7}
+input:focus,select:focus{outline:2px solid #83b8ff66;border-color:var(--accent)}
+.pill{display:inline-block;border:1px solid #40536a;border-radius:999px;padding:3px 9px;font-size:10px;line-height:1.5;white-space:nowrap;background:#1b2b3c}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.empty{text-align:center;padding:20px;color:var(--muted)}
+@media(max-width:700px){main{width:calc(100% - 24px);padding:22px 0 40px}.cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.card,.panel{padding:12px}.section{margin-top:24px;padding-top:18px}th,td{padding:10px;font-size:11px}#updated{max-width:100%;white-space:normal}}
+@media(max-width:380px){.cards{grid-template-columns:1fr 1fr}.value{font-size:19px}}
+</style></head><body><main><h1>Jarvis History & Performance</h1><div class="muted" id="updated">Loading saved tracking history…</div><div class="tiny">Research tracking only · Returns start at first verified detection, not trade fills · Unverified prices are excluded from performance rankings · Jarvis never places trades.</div>
 <div class="cards" id="stats"></div>
 <section class="section"><h2>Stock vs. crypto scoreboard</h2><div class="grid" id="assets"></div></section>
 <section class="section"><h2>Performance leaderboard</h2><div class="muted">Top tracked candidates by return from first tracked price.</div><div class="scroll"><table><thead><tr><th>#</th><th>Candidate</th><th>First price</th><th>Latest</th><th>Return</th><th>Best</th><th>Worst</th></tr></thead><tbody id="leaders"></tbody></table></div></section>
