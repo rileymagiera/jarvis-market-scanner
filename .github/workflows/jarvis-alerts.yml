@@ -45,6 +45,7 @@ jobs:
           test -n "$JARVIS_ALERT_TO" || (echo "Missing JARVIS_ALERT_TO" && exit 1)
           test -n "$JARVIS_SITE_USERNAME" || (echo "Missing JARVIS_SITE_USERNAME" && exit 1)
           test -n "$JARVIS_SITE_PASSWORD" || (echo "Missing JARVIS_SITE_PASSWORD" && exit 1)
+          python -m py_compile main.py send_alerts.py
           if [ "$SEND_TEST_EMAIL" = "true" ]; then
             python send_alerts.py --test
           else
