@@ -343,6 +343,77 @@ def stooq_latest_quote(symbol: str) -> dict:
         record_scan_metric("stooq_quote_validation", time.monotonic() - started, outcome, error=error_detail)
 
 
+ALPACA_QUOTE_CACHE = {}
+ALPACA_QUOTE_CACHE_LOCK = threading.Lock()
+ALPACA_QUOTE_CACHE_TTL_SECONDS = 10
+
+
+def alpaca_latest_quote(symbol: str) -> dict:
+    """Fetch a fresh independent Alpaca best-bid/ask quote (IEX by default)."""
+    started = time.monotonic()
+    outcome = "failure"
+    error_detail = None
+    try:
+        api_key = os.getenv("ALPACA_API_KEY", "").strip()
+        api_secret = os.getenv("ALPACA_API_SECRET", "").strip()
+        if not api_key or not api_secret:
+            raise RuntimeError("Alpaca API credentials are not configured")
+        cache_key = symbol.upper()
+        with ALPACA_QUOTE_CACHE_LOCK:
+            cached = ALPACA_QUOTE_CACHE.get(cache_key)
+            if cached and time.monotonic() - cached["cached_at"] <= ALPACA_QUOTE_CACHE_TTL_SECONDS:
+                outcome = "success"
+                return cached["quote"]
+
+        feed = os.getenv("ALPACA_STOCK_DATA_FEED", "iex").strip().lower() or "iex"
+        if feed not in {"iex", "sip", "delayed_sip", "otc", "boats", "overnight"}:
+            raise RuntimeError(f"Unsupported Alpaca stock data feed: {feed}")
+        response = HTTP.get(
+            f"https://data.alpaca.markets/v2/stocks/{symbol.upper()}/quotes/latest",
+            params={"feed": feed},
+            headers={
+                "APCA-API-KEY-ID": api_key,
+                "APCA-API-SECRET-KEY": api_secret,
+            },
+            timeout=(2, 3),
+        )
+        response.raise_for_status()
+        payload = response.json()
+        quote = payload.get("quote") or {}
+        bid = safe_float(quote.get("bp"))
+        ask = safe_float(quote.get("ap"))
+        if bid <= 0 or ask <= 0 or ask < bid:
+            raise RuntimeError("Alpaca quote has no valid two-sided market")
+        spread_pct = (ask - bid) / ((ask + bid) / 2) * 100
+        if spread_pct > 5.0:
+            raise RuntimeError(f"Alpaca quote spread too wide: {spread_pct:.2f}%")
+        stamp = pd.Timestamp(quote.get("t"))
+        if stamp.tzinfo is None:
+            stamp = stamp.tz_localize("UTC")
+        stamp = stamp.tz_convert("UTC")
+        age = (datetime.now(timezone.utc) - stamp.to_pydatetime()).total_seconds() / 60
+        if age < -1 or age > 60:
+            raise RuntimeError(f"Alpaca quote stale: {age:.1f} minutes")
+        result = {
+            "price": (bid + ask) / 2,
+            "bid": bid,
+            "ask": ask,
+            "spread_pct": round(spread_pct, 3),
+            "as_of": stamp.isoformat(),
+            "age_minutes": round(age, 2),
+            "feed": feed,
+        }
+        with ALPACA_QUOTE_CACHE_LOCK:
+            ALPACA_QUOTE_CACHE[cache_key] = {"quote": result, "cached_at": time.monotonic()}
+        outcome = "success"
+        return result
+    except Exception as exc:
+        error_detail = f"{type(exc).__name__}: {str(exc)[:180]}"
+        raise
+    finally:
+        record_scan_metric("alpaca_quote_validation", time.monotonic() - started, outcome, error=error_detail)
+
+
 MASSIVE_REQUEST_LOCK = threading.Lock()
 MASSIVE_LAST_REQUEST_AT = 0.0
 MASSIVE_REQUESTS_THIS_PROCESS = 0
@@ -1099,6 +1170,14 @@ def scan_stock(symbol: str) -> Optional[dict]:
     webull_status = "not_configured"
     massive_quote = None
     massive_quote_status = "disabled" if not MASSIVE_LIVE_QUOTE_ENABLED else ("not_configured" if not os.getenv("MASSIVE_API_KEY", "").strip() else "not_checked")
+    alpaca_quote = None
+    alpaca_quote_status = "not_configured"
+    has_alpaca_credentials = bool(
+        os.getenv("ALPACA_API_KEY", "").strip()
+        and os.getenv("ALPACA_API_SECRET", "").strip()
+    )
+    if has_alpaca_credentials:
+        alpaca_quote_status = "not_checked"
     has_webull_credentials = bool(
         os.getenv("WEBULL_APP_KEY", "").strip()
         and os.getenv("WEBULL_APP_SECRET", "").strip()
@@ -1115,6 +1194,14 @@ def scan_stock(symbol: str) -> Optional[dict]:
             )
         except Exception:
             secondary_quote = None
+
+    if has_alpaca_credentials:
+        try:
+            alpaca_quote = alpaca_latest_quote(symbol)
+            alpaca_quote_status = "fresh_quote_received"
+        except Exception as exc:
+            alpaca_quote_status = "unavailable"
+            validation_note = f"Alpaca quote unavailable: {type(exc).__name__}: {str(exc)[:120]}"
 
     if MASSIVE_LIVE_QUOTE_ENABLED and ((intraday_fresh and intraday_price > 0) or webull_enabled):
         try:
@@ -1141,6 +1228,9 @@ def scan_stock(symbol: str) -> Optional[dict]:
     if secondary_quote and secondary_quote.get("price", 0) > 0:
         reference_quotes.append(("Stooq", secondary_quote["price"]))
         reference_quote_times["Stooq"] = secondary_quote.get("as_of")
+    if alpaca_quote and alpaca_quote.get("price", 0) > 0:
+        reference_quotes.append(("Alpaca", alpaca_quote["price"]))
+        reference_quote_times["Alpaca"] = alpaca_quote.get("as_of")
     if massive_quote and massive_quote.get("price", 0) > 0:
         reference_quotes.append(("Massive", massive_quote["price"]))
         reference_quote_times["Massive"] = massive_quote.get("as_of")
@@ -1166,7 +1256,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
         ]
         if reference_conflict:
             webull_status = "reference_disagreement"
-            validation_note = "Yahoo and Stooq live quotes disagree by more than 3%; Webull not accepted"
+            validation_note = "Independent live quote providers disagree by more than 3%; Webull not accepted"
         elif webull_differences and all(diff <= 3.0 for _, diff in webull_differences):
             validation_passed = True
             webull_difference_pct = max(diff for _, diff in webull_differences)
@@ -1207,7 +1297,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
     elif reference_conflict:
         validation_note = "Independent live quote providers disagree by more than 3%"
     elif intraday_fresh:
-        validation_note = "Fresh Yahoo intraday quote available, but independent Stooq validation unavailable and Webull did not return a quote"
+        validation_note = "Fresh Yahoo intraday quote available, but no independent provider quote agreed within 3%"
     elif webull_enabled and not webull_quote:
         validation_note = "Yahoo intraday quote unavailable; Webull quote request also unavailable or not entitled"
 
@@ -1269,6 +1359,14 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "massive_price_as_of": massive_quote["as_of"] if massive_quote else None,
         "massive_price_age_minutes": massive_quote["age_minutes"] if massive_quote else None,
         "massive_quote_status": massive_quote_status,
+        "alpaca_price": round(alpaca_quote["price"], 4) if alpaca_quote else None,
+        "alpaca_bid": round(alpaca_quote["bid"], 4) if alpaca_quote else None,
+        "alpaca_ask": round(alpaca_quote["ask"], 4) if alpaca_quote else None,
+        "alpaca_price_as_of": alpaca_quote["as_of"] if alpaca_quote else None,
+        "alpaca_price_age_minutes": alpaca_quote["age_minutes"] if alpaca_quote else None,
+        "alpaca_spread_pct": alpaca_quote["spread_pct"] if alpaca_quote else None,
+        "alpaca_feed": alpaca_quote["feed"] if alpaca_quote else None,
+        "alpaca_quote_status": alpaca_quote_status,
         "market_session": equity_session,
         "daily_change_pct": round(daily_change, 2),
         "session_change_pct": round(daily_change, 2) if validation_passed else None,
