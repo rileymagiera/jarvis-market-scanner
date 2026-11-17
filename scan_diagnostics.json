@@ -1,28 +1,28 @@
 {
-  "candidates_found": 23,
+  "candidates_found": 24,
   "diagnostics": {
     "crypto": {
-      "candidates_returned": 20,
-      "not_returned_or_below_early_watch_floor": 19,
+      "candidates_returned": 16,
+      "not_returned_or_below_early_watch_floor": 22,
       "scan_errors": 0,
       "stages": {
         "ACTIONABLE SETUP": 0,
         "DEVELOPING SETUP": 0,
-        "EARLY WATCH": 2,
-        "LOW-CONVICTION WATCH": 18
+        "EARLY WATCH": 1,
+        "LOW-CONVICTION WATCH": 15
       },
-      "symbols_requested": 39
+      "symbols_requested": 38
     },
     "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history/data or score below the early-watch floor; provider-specific discovery failures are not always attributable to one symbol.",
     "stocks": {
-      "candidates_returned": 3,
-      "not_returned_or_below_early_watch_floor": 27,
+      "candidates_returned": 8,
+      "not_returned_or_below_early_watch_floor": 22,
       "scan_errors": 0,
       "stages": {
         "ACTIONABLE SETUP": 0,
         "DEVELOPING SETUP": 0,
         "EARLY WATCH": 0,
-        "LOW-CONVICTION WATCH": 3
+        "LOW-CONVICTION WATCH": 8
       },
       "symbols_requested": 30
     }
@@ -32,24 +32,24 @@
     "benchmarks": {
       "BTC-USD": {
         "above_20d_average": false,
-        "five_day_change_pct": -12.74
+        "five_day_change_pct": -12.71
       },
       "IWM": {
         "above_20d_average": false,
-        "five_day_change_pct": -3.39
+        "five_day_change_pct": 1.41
       },
       "QQQ": {
         "above_20d_average": false,
-        "five_day_change_pct": -2.59
+        "five_day_change_pct": 3.63
       },
       "SPY": {
         "above_20d_average": false,
-        "five_day_change_pct": -1.69
+        "five_day_change_pct": 2.59
       }
     },
     "note": "Benchmark context is a caution/confirmation input, not a standalone buy or sell signal.",
     "regime": "RISK-OFF",
     "score_adjustment": -8
   },
-  "timestamp": "2026-11-17T00:44:31.041665+00:00"
+  "timestamp": "2026-11-17T01:24:08.219663+00:00"
 }

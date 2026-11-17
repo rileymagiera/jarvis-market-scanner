@@ -2,6 +2,7 @@
   "crypto:ADAUSDT": {
     "age_days": 0,
     "asset_type": "crypto",
+    "currently_surfaced": false,
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
     "initial_price": 0.151873,
     "last_seen": "2026-11-17T00:44:31.089923+00:00",
@@ -18,6 +19,7 @@
   "crypto:ARBUSDT": {
     "age_days": 0,
     "asset_type": "crypto",
+    "currently_surfaced": false,
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
     "initial_price": 0.131,
     "last_seen": "2026-11-17T00:44:31.089923+00:00",
@@ -32,24 +34,113 @@
     "trough_price": 0.131
   },
   "crypto:ASTERUSDT": {
+    "age_days": 0.03,
+    "asset_type": "crypto",
+    "catalysts": [],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Prior-range breakout"
+    ],
+    "first_grade": "EARLY WATCH",
+    "first_seen": "2026-11-17T00:44:31.089923+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T00:44:31.089923+00:00",
+        "from": null,
+        "to": "EARLY WATCH"
+      },
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "from": "LOW-CONVICTION WATCH",
+        "to": "EARLY WATCH"
+      }
+    ],
+    "initial_price": 0.57506,
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_stage": "EARLY WATCH",
+    "latest_price": 0.58006,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 0.87,
+    "milestones": {},
+    "peak_price": 0.58006,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 0.58006,
+        "return_pct": 0.87
+      }
+    ],
+    "return_pct": 0.87,
+    "risk_flags": [],
+    "symbol": "ASTERUSDT",
+    "trough_price": 0.57506
+  },
+  "crypto:BNBUSDT": {
     "age_days": 0,
     "asset_type": "crypto",
-    "first_seen": "2026-11-17T00:44:31.089923+00:00",
-    "initial_price": 0.57506,
-    "last_seen": "2026-11-17T00:44:31.089923+00:00",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-11-16T17:15:00Z",
+        "publisher": "TheStreet",
+        "source_type": null,
+        "title": "Binance\u2019s Pay Later lets you spend up to $1,000 without selling Bitcoin",
+        "url": "https://www.thestreet.com/crypto/innovation/binances-pay-later-lets-you-spend-up-to-1000-without-selling-bitcoin"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-16T06:11:12Z",
+        "publisher": "Investing.com",
+        "source_type": null,
+        "title": "Bitcoin muted at $65.2k as crypto sentiment dithers, ETF outflows persist",
+        "url": "https://finance.yahoo.com/news/bitcoin-pinned-below-65k-crypto-061112106.html"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-16T04:13:04Z",
+        "publisher": "Stocktwits",
+        "source_type": null,
+        "title": "Did Binance Make Bitcoin\u2019s Crash Worse? OKX CEO Revives Feud With CZ Over October Selloffs",
+        "url": "https://stocktwits.com/news-articles/markets/cryptocurrency/binance-cz-okx-star-xu-bitcoin-crash-october-selloff/cNb7akaR9XE"
+      }
+    ],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Relative volume 3.8x"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
+    "first_seen": "2026-11-17T01:24:08.246626+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
+    "initial_price": 590.47,
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.57506,
+    "latest_price": 590.47,
     "max_drawdown_pct": 0.0,
     "max_gain_pct": 0.0,
     "milestones": {},
-    "peak_price": 0.57506,
+    "peak_price": 590.47,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 590.47,
+        "return_pct": 0.0
+      }
+    ],
     "return_pct": 0.0,
-    "symbol": "ASTERUSDT",
-    "trough_price": 0.57506
+    "risk_flags": [],
+    "symbol": "BNBUSDT",
+    "trough_price": 590.47
   },
   "crypto:BONKUSDT": {
     "age_days": 0,
     "asset_type": "crypto",
+    "currently_surfaced": false,
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
     "initial_price": 2.321e-06,
     "last_seen": "2026-11-17T00:44:31.089923+00:00",
@@ -64,40 +155,133 @@
     "trough_price": 2.321e-06
   },
   "crypto:BTCUSDT": {
-    "age_days": 0,
+    "age_days": 0.03,
     "asset_type": "crypto",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-11-16T19:00:00Z",
+        "publisher": "Yahoo Finance Video",
+        "source_type": null,
+        "title": "Bitcoin miners paid the electricity bill. Hackers collected the bitcoin.",
+        "url": "https://finance.yahoo.com/video/bitcoin-miners-paid-electricity-bill-190000482.html"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-16T17:00:00Z",
+        "publisher": "Yahoo Finance Video",
+        "source_type": null,
+        "title": "Bitcoin falls as Anthropic IPO looms; Strategy and Strive buy the dip",
+        "url": "https://finance.yahoo.com/video/bitcoin-falls-anthropic-ipo-looms-170000657.html"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-16T17:00:00Z",
+        "publisher": "Yahoo Finance Video",
+        "source_type": null,
+        "title": "Bitcoin's latest sell-off is a major warning sign",
+        "url": "https://finance.yahoo.com/video/bitcoins-latest-sell-off-major-170000727.html"
+      }
+    ],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Relative volume 3.0x"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T00:44:31.089923+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
     "initial_price": 64546.7,
-    "last_seen": "2026-11-17T00:44:31.089923+00:00",
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 64546.7,
+    "latest_price": 64553.5,
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.0,
+    "max_gain_pct": 0.01,
     "milestones": {},
-    "peak_price": 64546.7,
-    "return_pct": 0.0,
+    "peak_price": 64553.5,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 64553.5,
+        "return_pct": 0.01
+      }
+    ],
+    "return_pct": 0.01,
+    "risk_flags": [],
     "symbol": "BTCUSDT",
     "trough_price": 64546.7
   },
   "crypto:DOTUSDT": {
-    "age_days": 0,
+    "age_days": 0.03,
     "asset_type": "crypto",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-11-11T14:47:44Z",
+        "publisher": "BeInCrypto",
+        "source_type": null,
+        "title": "Is Your Altcoin on the List? Crypto Exchange Gemini Names 2026\u2019s 10 Biggest Losers",
+        "url": "https://beincrypto.com/gemini-biggest-altcoin-losers-2026/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-10-17T13:30:57Z",
+        "publisher": "24/7 Wall St.",
+        "source_type": null,
+        "title": "TRON Is One of the Few Big Coins Up Over Two Weeks. Is TRX a Better Buy Than Ethereum?",
+        "url": "https://247wallst.com/investing/cryptocurrency/2026/10/17/tron-is-one-of-the-few-big-coins-up-over-two-weeks-is-trx-a-better-buy-than-ethereum/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-10-15T14:50:56Z",
+        "publisher": "24/7 Wall St.",
+        "source_type": null,
+        "title": "Polkadot Held Flat This Week as Ethereum Fell 8% and Solana 10%. Is It Finally Bottoming?",
+        "url": "https://247wallst.com/investing/cryptocurrency/2026/10/15/polkadot-held-flat-this-week-as-ethereum-fell-8-and-solana-10-is-it-finally-bottoming/"
+      }
+    ],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Momentum / technical scan threshold"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T00:44:31.089923+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
     "initial_price": 0.7287,
-    "last_seen": "2026-11-17T00:44:31.089923+00:00",
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.7287,
-    "max_drawdown_pct": 0.0,
+    "latest_price": 0.7266,
+    "max_drawdown_pct": -0.29,
     "max_gain_pct": 0.0,
     "milestones": {},
     "peak_price": 0.7287,
-    "return_pct": 0.0,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 0.7266,
+        "return_pct": -0.29
+      }
+    ],
+    "return_pct": -0.29,
+    "risk_flags": [],
     "symbol": "DOTUSDT",
-    "trough_price": 0.7287
+    "trough_price": 0.7266
   },
   "crypto:ETHUSDT": {
     "age_days": 0,
     "asset_type": "crypto",
+    "currently_surfaced": false,
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
     "initial_price": 1813.37,
     "last_seen": "2026-11-17T00:44:31.089923+00:00",
@@ -112,72 +296,232 @@
     "trough_price": 1813.37
   },
   "crypto:FETUSDT": {
-    "age_days": 0,
+    "age_days": 0.03,
     "asset_type": "crypto",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-10-20T16:18:55Z",
+        "publisher": "Bankless",
+        "source_type": null,
+        "title": "ZachXBT Flags $20M XMR Laundering Ring on Hyperliquid",
+        "url": "https://www.bankless.com/read/news/zachxbt-flags-20m-xmr-laundering-ring-on-hyperliquid"
+      },
+      {
+        "form": null,
+        "published_at": "2026-09-20T06:13:32Z",
+        "publisher": "BeInCrypto",
+        "source_type": null,
+        "title": "Fetch.ai and NuNet Exploited for $2 Million by Same Attacker, NTX Hits All-Time Low",
+        "url": "https://beincrypto.com/fetch-ai-nunet-2-million-exploit/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-07-31T18:56:31Z",
+        "publisher": "Forkast News",
+        "source_type": null,
+        "title": "Beyond the Token Merger: Analyzing the ASI Alliance\u2019s Decentralized AI Stack",
+        "url": "https://finance.yahoo.com/technology/ai/articles/beyond-token-merger-analyzing-asi-185631531.html"
+      }
+    ],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Momentum / technical scan threshold"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T00:44:31.089923+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
     "initial_price": 0.1311,
-    "last_seen": "2026-11-17T00:44:31.089923+00:00",
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.1311,
-    "max_drawdown_pct": 0.0,
+    "latest_price": 0.131,
+    "max_drawdown_pct": -0.08,
     "max_gain_pct": 0.0,
     "milestones": {},
     "peak_price": 0.1311,
-    "return_pct": 0.0,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 0.131,
+        "return_pct": -0.08
+      }
+    ],
+    "return_pct": -0.08,
+    "risk_flags": [],
     "symbol": "FETUSDT",
-    "trough_price": 0.1311
+    "trough_price": 0.131
   },
   "crypto:HYPEUSDT": {
-    "age_days": 0,
+    "age_days": 0.03,
     "asset_type": "crypto",
+    "catalysts": [],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Momentum / technical scan threshold"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T00:44:31.089923+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
     "initial_price": 69.11,
-    "last_seen": "2026-11-17T00:44:31.089923+00:00",
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 69.11,
-    "max_drawdown_pct": 0.0,
+    "latest_price": 68.86,
+    "max_drawdown_pct": -0.36,
     "max_gain_pct": 0.0,
     "milestones": {},
     "peak_price": 69.11,
-    "return_pct": 0.0,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 68.86,
+        "return_pct": -0.36
+      }
+    ],
+    "return_pct": -0.36,
+    "risk_flags": [],
     "symbol": "HYPEUSDT",
-    "trough_price": 69.11
+    "trough_price": 68.86
   },
   "crypto:INJUSDT": {
-    "age_days": 0,
+    "age_days": 0.03,
     "asset_type": "crypto",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-11-09T04:08:49Z",
+        "publisher": "BeInCrypto",
+        "source_type": null,
+        "title": "Top 3 Altcoins to Watch in the Second Week of November 2026",
+        "url": "https://beincrypto.com/top-3-altcoins-second-week-november/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-09-20T15:59:42Z",
+        "publisher": "Stocktwits",
+        "source_type": null,
+        "title": "Altcoin Rally Explodes: NEAR, ARB, AVAX, INJ, UNI Lead As Kevin O\u2019Leary Says Ethereum May No Longer Rule",
+        "url": "https://stocktwits.com/news-articles/markets/cryptocurrency/7-altcoins-explode-near-arb-avax-inj-uni-rally/cZtCgtCRB4R"
+      },
+      {
+        "form": null,
+        "published_at": "2026-07-30T19:20:41Z",
+        "publisher": "CoinDesk",
+        "source_type": null,
+        "title": "Zcash Sealed $1.7B \u2013 Here's Everything You Need to Know",
+        "url": "http://videos.coindesk.com/previews/9azdw8Xf"
+      }
+    ],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Momentum / technical scan threshold"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T00:44:31.089923+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
     "initial_price": 6.858,
-    "last_seen": "2026-11-17T00:44:31.089923+00:00",
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 6.858,
+    "latest_price": 6.888,
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.0,
+    "max_gain_pct": 0.44,
     "milestones": {},
-    "peak_price": 6.858,
-    "return_pct": 0.0,
+    "peak_price": 6.888,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 6.888,
+        "return_pct": 0.44
+      }
+    ],
+    "return_pct": 0.44,
+    "risk_flags": [],
     "symbol": "INJUSDT",
     "trough_price": 6.858
   },
   "crypto:NIGHTUSDT": {
-    "age_days": 0,
+    "age_days": 0.03,
     "asset_type": "crypto",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-07-24T15:53:40Z",
+        "publisher": "Business Insider",
+        "source_type": null,
+        "title": "What life looked like under Trump's tariff hero, US President William McKinley",
+        "url": "https://www.businessinsider.com/vintage-photos-president-mckinley-tariffs-economy-2025-2"
+      },
+      {
+        "form": null,
+        "published_at": "2026-06-30T04:01:12Z",
+        "publisher": "Business Insider",
+        "source_type": null,
+        "title": "Vibe coding is being called the greatest unlock for non-techies. These 9 startups are raising billions.",
+        "url": "https://www.businessinsider.com/startups-raising-billions-vibe-coding-boom-cursor-lovable-replit-emergent-2026-3"
+      },
+      {
+        "form": null,
+        "published_at": "2026-06-11T13:01:40Z",
+        "publisher": "Business Insider",
+        "source_type": null,
+        "title": "What a US attack on Kharg Island could mean for the global energy trade",
+        "url": "https://www.businessinsider.com/oil-prices-kharg-island-iran-war-us-trump-energy-market-2026-4"
+      }
+    ],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Momentum / technical scan threshold"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T00:44:31.089923+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
     "initial_price": 0.0468,
-    "last_seen": "2026-11-17T00:44:31.089923+00:00",
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.0468,
+    "latest_price": 0.04722,
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.0,
+    "max_gain_pct": 0.9,
     "milestones": {},
-    "peak_price": 0.0468,
-    "return_pct": 0.0,
+    "peak_price": 0.04722,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 0.04722,
+        "return_pct": 0.9
+      }
+    ],
+    "return_pct": 0.9,
+    "risk_flags": [],
     "symbol": "NIGHTUSDT",
     "trough_price": 0.0468
   },
   "crypto:ONDOUSDT": {
     "age_days": 0,
     "asset_type": "crypto",
+    "currently_surfaced": false,
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
     "initial_price": 0.30507,
     "last_seen": "2026-11-17T00:44:31.089923+00:00",
@@ -192,72 +536,241 @@
     "trough_price": 0.30507
   },
   "crypto:PEPEUSDT": {
-    "age_days": 0,
+    "age_days": 0.03,
     "asset_type": "crypto",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-10-23T23:20:02Z",
+        "publisher": "24/7 Wall St.",
+        "source_type": null,
+        "title": "What Will 10 Million Shiba Inu (SHIB) Be Worth by 2030?",
+        "url": "https://247wallst.com/investing/cryptocurrency/2026/10/23/what-will-10-million-shiba-inu-shib-be-worth-by-2030/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-10-23T23:00:22Z",
+        "publisher": "24/7 Wall St.",
+        "source_type": null,
+        "title": "Which Crypto Under $1 Has the Most Upside in 2026?",
+        "url": "https://247wallst.com/investing/cryptocurrency/2026/10/23/which-crypto-under-1-has-the-most-upside-in-2026/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-10-23T22:16:16Z",
+        "publisher": "24/7 Wall St.",
+        "source_type": null,
+        "title": "What Is the Best Crypto to Buy With $500 Right Now?",
+        "url": "https://247wallst.com/investing/cryptocurrency/2026/10/23/what-is-the-best-crypto-to-buy-with-500-right-now/"
+      }
+    ],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Momentum / technical scan threshold"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T00:44:31.089923+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
     "initial_price": 3.898e-06,
-    "last_seen": "2026-11-17T00:44:31.089923+00:00",
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 3.898e-06,
+    "latest_price": 3.92e-06,
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.0,
+    "max_gain_pct": 0.56,
     "milestones": {},
-    "peak_price": 3.898e-06,
-    "return_pct": 0.0,
+    "peak_price": 3.92e-06,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 3.92e-06,
+        "return_pct": 0.56
+      }
+    ],
+    "return_pct": 0.56,
+    "risk_flags": [],
     "symbol": "PEPEUSDT",
     "trough_price": 3.898e-06
   },
   "crypto:RENDERUSDT": {
-    "age_days": 0,
+    "age_days": 0.03,
     "asset_type": "crypto",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-01-09T12:11:45Z",
+        "publisher": "Business Insider",
+        "source_type": null,
+        "title": "WEF mapped out 4 AI-driven futures for jobs by 2030, and only one looks good for humanity",
+        "url": "https://www.businessinsider.com/wef-sees-4-ai-futures-for-jobs-by-2030-only-one-limits-disruption-2026-1"
+      },
+      {
+        "form": null,
+        "published_at": "2025-12-03T12:11:19Z",
+        "publisher": "Business Insider",
+        "source_type": null,
+        "title": "A man called in a bomb threat to New Orleans airport after he couldn't pay for parking, an affidavit says",
+        "url": "https://www.businessinsider.com/man-made-bomb-threat-after-couldnt-pay-airport-parking-affidavit-2025-12"
+      }
+    ],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Relative volume 2.8x"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T00:44:31.089923+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
     "initial_price": 1.364,
-    "last_seen": "2026-11-17T00:44:31.089923+00:00",
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 1.364,
-    "max_drawdown_pct": 0.0,
+    "latest_price": 1.362,
+    "max_drawdown_pct": -0.15,
     "max_gain_pct": 0.0,
     "milestones": {},
     "peak_price": 1.364,
-    "return_pct": 0.0,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 1.362,
+        "return_pct": -0.15
+      }
+    ],
+    "return_pct": -0.15,
+    "risk_flags": [],
     "symbol": "RENDERUSDT",
-    "trough_price": 1.364
+    "trough_price": 1.362
   },
   "crypto:SOLUSDT": {
-    "age_days": 0,
+    "age_days": 0.03,
     "asset_type": "crypto",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-11-16T19:00:00Z",
+        "publisher": "Yahoo Finance Video",
+        "source_type": null,
+        "title": "Solana Breakpoint: What crypto investors should watch",
+        "url": "https://finance.yahoo.com/video/solana-breakpoint-crypto-investors-watch-190000906.html"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-16T23:00:02Z",
+        "publisher": "Motley Fool",
+        "source_type": null,
+        "title": "Crypto Market Today, Nov. 16: Bitcoin Searches for Stability After $230 Billion Crypto Sell-Off",
+        "url": "https://www.fool.com/coverage/stock-market-today/2026/11/16/crypto-market-today-nov-16-bitcoin-searches-for-stability-after-usd230-billion-crypto-sell-off/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-16T22:31:08Z",
+        "publisher": "TheStreet",
+        "source_type": null,
+        "title": "NYSE owner deepens Solana ties, eyes validator role",
+        "url": "https://www.thestreet.com/crypto/innovation/nyse-owner-deepens-solana-ties-eyes-validator-role"
+      }
+    ],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Momentum / technical scan threshold"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T00:44:31.089923+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
     "initial_price": 71.48,
-    "last_seen": "2026-11-17T00:44:31.089923+00:00",
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 71.48,
+    "latest_price": 71.63,
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.0,
+    "max_gain_pct": 0.21,
     "milestones": {},
-    "peak_price": 71.48,
-    "return_pct": 0.0,
+    "peak_price": 71.63,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 71.63,
+        "return_pct": 0.21
+      }
+    ],
+    "return_pct": 0.21,
+    "risk_flags": [],
     "symbol": "SOLUSDT",
     "trough_price": 71.48
   },
   "crypto:TAOUSDT": {
-    "age_days": 0,
+    "age_days": 0.03,
     "asset_type": "crypto",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-10-26T15:47:35Z",
+        "publisher": "24/7 Wall St.",
+        "source_type": null,
+        "title": "Bittensor (TAO) and NEAR Fell Up to 22% in Two Weeks While Bitcoin Fell 4%. Is the AI Coin Trade Over?",
+        "url": "https://247wallst.com/investing/cryptocurrency/2026/10/26/bittensor-tao-and-near-fell-up-to-22-in-two-weeks-while-bitcoin-fell-4-is-the-ai-coin-trade-over/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-10-15T16:00:19Z",
+        "publisher": "24/7 Wall St.",
+        "source_type": null,
+        "title": "Better Buy for the AI Boom: Bittensor or Bitcoin?",
+        "url": "https://247wallst.com/investing/cryptocurrency/2026/10/15/better-buy-for-the-ai-boom-bittensor-or-bitcoin/"
+      }
+    ],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Momentum / technical scan threshold"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T00:44:31.089923+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
     "initial_price": 190.5707,
-    "last_seen": "2026-11-17T00:44:31.089923+00:00",
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 190.5707,
-    "max_drawdown_pct": 0.0,
+    "latest_price": 190.3,
+    "max_drawdown_pct": -0.14,
     "max_gain_pct": 0.0,
     "milestones": {},
     "peak_price": 190.5707,
-    "return_pct": 0.0,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 190.3,
+        "return_pct": -0.14
+      }
+    ],
+    "return_pct": -0.14,
+    "risk_flags": [],
     "symbol": "TAOUSDT",
-    "trough_price": 190.5707
+    "trough_price": 190.3
   },
   "crypto:UNIUSDT": {
     "age_days": 0,
     "asset_type": "crypto",
+    "currently_surfaced": false,
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
     "initial_price": 5.1441,
     "last_seen": "2026-11-17T00:44:31.089923+00:00",
@@ -271,100 +784,698 @@
     "symbol": "UNIUSDT",
     "trough_price": 5.1441
   },
-  "crypto:VVVUSDT": {
+  "crypto:USDGUSDT": {
     "age_days": 0,
     "asset_type": "crypto",
-    "first_seen": "2026-11-17T00:44:31.089923+00:00",
-    "initial_price": 20.19,
-    "last_seen": "2026-11-17T00:44:31.089923+00:00",
+    "catalysts": [],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Relative volume 9.2x"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
+    "first_seen": "2026-11-17T01:24:08.246626+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
+    "initial_price": 1.0,
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 20.19,
+    "latest_price": 1.0,
     "max_drawdown_pct": 0.0,
     "max_gain_pct": 0.0,
     "milestones": {},
-    "peak_price": 20.19,
+    "peak_price": 1.0,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 1.0,
+        "return_pct": 0.0
+      }
+    ],
     "return_pct": 0.0,
+    "risk_flags": [],
+    "symbol": "USDGUSDT",
+    "trough_price": 1.0
+  },
+  "crypto:VVVUSDT": {
+    "age_days": 0.03,
+    "asset_type": "crypto",
+    "catalysts": [],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Momentum / technical scan threshold"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
+    "first_seen": "2026-11-17T00:44:31.089923+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T00:44:31.089923+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
+    "initial_price": 20.19,
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 20.203,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 0.06,
+    "milestones": {},
+    "peak_price": 20.203,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 20.203,
+        "return_pct": 0.06
+      }
+    ],
+    "return_pct": 0.06,
+    "risk_flags": [],
     "symbol": "VVVUSDT",
     "trough_price": 20.19
   },
   "crypto:WIFUSDT": {
-    "age_days": 0,
+    "age_days": 0.03,
     "asset_type": "crypto",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-09-22T16:13:51Z",
+        "publisher": "BeInCrypto",
+        "source_type": null,
+        "title": "3 Meme Coins to Watch in the Fourth Week of September 2026",
+        "url": "https://beincrypto.com/3-meme-coins-watch-fourth-week-september/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-09-02T14:53:47Z",
+        "publisher": "BeInCrypto",
+        "source_type": null,
+        "title": "Robinhood Memecoin Buys Coded as Digital Media: Will Visa Force a Change?",
+        "url": "https://beincrypto.com/robinhood-memecoin-credit-card-coding/"
+      },
+      {
+        "form": null,
+        "published_at": "2025-12-24T17:23:04Z",
+        "publisher": "decrypt",
+        "source_type": null,
+        "title": "How Pudgy Penguins Landed the Las Vegas Sphere\u2014After Dogwifhat Couldn't",
+        "url": "https://decrypt.co/353166/how-pudgy-penguins-landed-las-vegas-sphere-dogwifhat-couldnt"
+      }
+    ],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Momentum / technical scan threshold"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T00:44:31.089923+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
     "initial_price": 0.1344,
-    "last_seen": "2026-11-17T00:44:31.089923+00:00",
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.1344,
-    "max_drawdown_pct": 0.0,
+    "latest_price": 0.1334,
+    "max_drawdown_pct": -0.74,
     "max_gain_pct": 0.0,
     "milestones": {},
     "peak_price": 0.1344,
-    "return_pct": 0.0,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 0.1334,
+        "return_pct": -0.74
+      }
+    ],
+    "return_pct": -0.74,
+    "risk_flags": [],
     "symbol": "WIFUSDT",
-    "trough_price": 0.1344
+    "trough_price": 0.1334
   },
   "crypto:ZECUSDT": {
-    "age_days": 0,
+    "age_days": 0.03,
     "asset_type": "crypto",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-11-16T21:50:52Z",
+        "publisher": "Moby",
+        "source_type": null,
+        "title": "Cypherpunk Technologies Inc. Q3 2026 Earnings Call Summary",
+        "url": "https://app.moby.co/home/research/tools/earningsCalendar/earnings-cypherpunk-technologies-inc-q3-2026-earnings-call-summary?utm_source=yahoo_finance&utm_medium=rss"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-16T20:45:30Z",
+        "publisher": "Motley Fool",
+        "source_type": null,
+        "title": "Cypherpunk (CYPH) Q3 2026 Earnings Call Transcript",
+        "url": "https://www.fool.com/earnings/call-transcripts/2026/11/16/cypherpunk-cyph-q3-2026-earnings-call-transcript/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-16T19:18:00Z",
+        "publisher": "CryptoProwl",
+        "source_type": null,
+        "title": "Cypherpunk Swings to $2.6 Million Operating Profit on Zcash Mining Launch, Resumes ZEC Purchases",
+        "url": "https://www.cryptoprowl.com/releases/cypherpunk-swings-to-26-million-operating-profit-on-zcash-mining-launch-resumes-zec-purchases-7935"
+      }
+    ],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Momentum / technical scan threshold"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T00:44:31.089923+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
     "initial_price": 899.95,
-    "last_seen": "2026-11-17T00:44:31.089923+00:00",
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 899.95,
+    "latest_price": 902.23,
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.0,
+    "max_gain_pct": 0.25,
     "milestones": {},
-    "peak_price": 899.95,
-    "return_pct": 0.0,
+    "peak_price": 902.23,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 902.23,
+        "return_pct": 0.25
+      }
+    ],
+    "return_pct": 0.25,
+    "risk_flags": [],
     "symbol": "ZECUSDT",
     "trough_price": 899.95
   },
-  "stock:LUNR": {
-    "age_days": 0.01,
+  "stock:AMD": {
+    "age_days": 0,
     "asset_type": "stock",
-    "first_seen": "2026-11-17T00:24:57.596366+00:00",
-    "initial_price": 11.73,
-    "last_seen": "2026-11-17T00:44:31.089923+00:00",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-11-16T14:24:53Z",
+        "publisher": "Yahoo Finance",
+        "source_type": null,
+        "title": "AMD, Broadcom stocks sink on tighter US chip rules, CoreWeave and Nebius shares drop",
+        "url": "https://finance.yahoo.com/markets/stocks/article/amd-broadcom-stocks-sink-on-tighter-us-chips-rules-coreweave-drops-143342994.html"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-16T17:14:51Z",
+        "publisher": "Yahoo Finance",
+        "source_type": null,
+        "title": "AMD finalizes $8.2 billion World Labs acquisition, adds 'godmother of AI' as EVP and chief scientist",
+        "url": "https://finance.yahoo.com/technology/article/amd-finalizes-82-billion-world-labs-acquisition-adds-godmother-of-ai-as-evp-and-chief-scientist-171451986.html"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-17T01:09:39Z",
+        "publisher": "Investor's Business Daily",
+        "source_type": null,
+        "title": "Dow Jones Futures: AMD, Nvidia, Micron Lead AI Trade Lower With Nvidia Earnings On Deck",
+        "url": "https://www.investors.com/market-trend/stock-market-today/dow-jones-futures-nvidia-stock-nvda-nvidia-earnings-next/?src=A00220&yptr=yahoo"
+      }
+    ],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Strong 5-day momentum"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
+    "first_seen": "2026-11-17T01:24:08.246626+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
+    "initial_price": 534.06,
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 11.73,
+    "latest_price": 534.06,
     "max_drawdown_pct": 0.0,
     "max_gain_pct": 0.0,
     "milestones": {},
-    "peak_price": 11.73,
+    "peak_price": 534.06,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 534.06,
+        "return_pct": 0.0
+      }
+    ],
     "return_pct": 0.0,
+    "risk_flags": [],
+    "symbol": "AMD",
+    "trough_price": 534.06
+  },
+  "stock:CLSK": {
+    "age_days": 0,
+    "asset_type": "stock",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-11-16T21:45:02Z",
+        "publisher": "Zacks",
+        "source_type": null,
+        "title": "CleanSpark (CLSK) Sees a More Significant Dip Than Broader Market: Some Facts to Know",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/cleanspark-clsk-sees-more-significant-214502104.html"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-16T16:21:00Z",
+        "publisher": "Zacks",
+        "source_type": null,
+        "title": "MSTR Drops Nearly 18% in a Month: Is the Stock Worth Buying Now?",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/mstr-drops-nearly-18-month-162100936.html"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-16T14:44:14Z",
+        "publisher": "TIKR",
+        "source_type": null,
+        "title": "Could CleanSpark Actually Climb 65%? Or Is Bernstein Totally Wrong?",
+        "url": "https://www.tikr.com/blog/could-cleanspark-actually-climb-65-or-is-bernstein-totally-wrong?ref=yahoofinance&tlnk=yf-261116-wprv4m6c"
+      }
+    ],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Strong 5-day momentum"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
+    "first_seen": "2026-11-17T01:24:08.246626+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
+    "initial_price": 6.65,
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 6.65,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 0.0,
+    "milestones": {},
+    "peak_price": 6.65,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 6.65,
+        "return_pct": 0.0
+      }
+    ],
+    "return_pct": 0.0,
+    "risk_flags": [],
+    "symbol": "CLSK",
+    "trough_price": 6.65
+  },
+  "stock:LUNR": {
+    "age_days": 0.04,
+    "asset_type": "stock",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-11-16T05:58:34Z",
+        "publisher": "Stocktwits",
+        "source_type": null,
+        "title": "ASTS, RKLB, LUNR And FLY Fall After ULA Rocket Failure Strands 40 Amazon Satellites \u2014 Why One Analyst Wants Musk To Free Up Falcon 9 Flights",
+        "url": "https://stocktwits.com/news-articles/markets/equity/asts-rklb-lunr-fly-ula-rocket-failure-40-amazon-satellites-analyst-musk-falcon-9-flights/cNb7XOFR9Xa"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-15T17:10:00Z",
+        "publisher": "MarketBeat",
+        "source_type": null,
+        "title": "Intuitive Machines\u2019 Business Is Taking Off\u2014Will Its Stock Follow?",
+        "url": "https://www.marketbeat.com/articles/intuitive-machines-business-is-taking-offwill-its-stock-follow/?utm_source=yahoofinance&utm_medium=yahoofinance"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-14T18:57:08Z",
+        "publisher": "Benzinga",
+        "source_type": null,
+        "title": "Intuitive Machines Is No Longer Just About the Moon, CEO Sees Bigger Space Opportunity",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/intuitive-machines-no-longer-just-185708851.html"
+      }
+    ],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Strong 5-day momentum"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
+    "first_seen": "2026-11-17T00:24:57.596366+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T00:24:57.596366+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
+    "initial_price": 11.73,
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 13.0,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 10.83,
+    "milestones": {},
+    "peak_price": 13.0,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 13.0,
+        "return_pct": 10.83
+      }
+    ],
+    "return_pct": 10.83,
+    "risk_flags": [],
     "symbol": "LUNR",
     "trough_price": 11.73
   },
-  "stock:RIOT": {
-    "age_days": 0.01,
+  "stock:MARA": {
+    "age_days": 0,
     "asset_type": "stock",
-    "first_seen": "2026-11-17T00:24:57.596366+00:00",
-    "initial_price": 17.06,
-    "last_seen": "2026-11-17T00:44:31.089923+00:00",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-11-16T21:13:34Z",
+        "publisher": "TIKR",
+        "source_type": null,
+        "title": "Forget Strategy: MARA Has More to Lose as Bitcoin Breaks Below $70,000",
+        "url": "https://www.tikr.com/blog/forget-strategy-mara-has-more-to-lose-as-bitcoin-breaks-below-70000?ref=yahoofinance&tlnk=yf-261116-gpr7c9g2"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-16T14:31:12Z",
+        "publisher": "TIKR",
+        "source_type": null,
+        "title": "43% Upside for MARA? Piper Sandler Thinks So, and Here\u2019s How",
+        "url": "https://www.tikr.com/blog/43-upside-for-mara-piper-sandler-thinks-so-and-heres-how?ref=yahoofinance&tlnk=yf-261116-jxcrxqrv"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-16T14:08:25Z",
+        "publisher": "24/7 Wall St.",
+        "source_type": null,
+        "title": "Strategy Sinks 8% as Bitcoin Selloff Deepens; Coinbase and MARA Fall 7%",
+        "url": "https://247wallst.com/investing/2026/11/16/strategy-sinks-8-as-bitcoin-selloff-deepens-coinbase-and-mara-fall-7/"
+      }
+    ],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Strong 5-day momentum"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
+    "first_seen": "2026-11-17T01:24:08.246626+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
+    "initial_price": 6.99,
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 17.06,
+    "latest_price": 6.99,
     "max_drawdown_pct": 0.0,
     "max_gain_pct": 0.0,
     "milestones": {},
-    "peak_price": 17.06,
+    "peak_price": 6.99,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 6.99,
+        "return_pct": 0.0
+      }
+    ],
     "return_pct": 0.0,
+    "risk_flags": [],
+    "symbol": "MARA",
+    "trough_price": 6.99
+  },
+  "stock:RDW": {
+    "age_days": 0,
+    "asset_type": "stock",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-11-14T19:08:43Z",
+        "publisher": "Simply Wall St.",
+        "source_type": null,
+        "title": "What Does Redwire (RDW) Need To Prove After Its CTO Hire And Army Order?",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/does-redwire-rdw-prove-cto-190843745.html"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-14T16:20:02Z",
+        "publisher": "Motley Fool",
+        "source_type": null,
+        "title": "Firefly Aerospace vs. Redwire: Which Industrials Stock Is a Better Buy for 2027?",
+        "url": "https://www.fool.com/coverage/better-buy/2026/11/14/firefly-aerospace-vs-redwire-which-industrials-stock-is-a-better-buy-for-2027/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-14T05:12:21Z",
+        "publisher": "Simply Wall St.",
+        "source_type": null,
+        "title": "Did Revenue Miss Just Shift Redwire (RDW) Investment Narrative?",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-revenue-miss-just-shift-051221523.html"
+      }
+    ],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Strong 5-day momentum"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
+    "first_seen": "2026-11-17T01:24:08.246626+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
+    "initial_price": 7.73,
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 7.73,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 0.0,
+    "milestones": {},
+    "peak_price": 7.73,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 7.73,
+        "return_pct": 0.0
+      }
+    ],
+    "return_pct": 0.0,
+    "risk_flags": [],
+    "symbol": "RDW",
+    "trough_price": 7.73
+  },
+  "stock:RIOT": {
+    "age_days": 0.04,
+    "asset_type": "stock",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-11-16T17:19:25Z",
+        "publisher": "TIKR",
+        "source_type": null,
+        "title": "Bernstein\u2019s $30 Target Says Riot Platforms\u2019 Selloff Went Too Far",
+        "url": "https://www.tikr.com/blog/bernsteins-30-target-says-riot-platforms-selloff-went-too-far?ref=yahoofinance&tlnk=yf-261116-x893r78m"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-16T16:57:58Z",
+        "publisher": "GuruFocus.com",
+        "source_type": null,
+        "title": "Crypto Stocks Slide as Bitcoin Sinks and Strategy Leads the Retreat",
+        "url": "https://finance.yahoo.com/markets/crypto/articles/crypto-stocks-slide-bitcoin-sinks-165758731.html"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-16T16:21:00Z",
+        "publisher": "Zacks",
+        "source_type": null,
+        "title": "MSTR Drops Nearly 18% in a Month: Is the Stock Worth Buying Now?",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/mstr-drops-nearly-18-month-162100936.html"
+      }
+    ],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Momentum / technical scan threshold"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
+    "first_seen": "2026-11-17T00:24:57.596366+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T00:24:57.596366+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
+    "initial_price": 17.06,
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 17.52,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 2.7,
+    "milestones": {},
+    "peak_price": 17.52,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 17.52,
+        "return_pct": 2.7
+      }
+    ],
+    "return_pct": 2.7,
+    "risk_flags": [],
     "symbol": "RIOT",
     "trough_price": 17.06
   },
   "stock:RKLB": {
-    "age_days": 0.01,
+    "age_days": 0.04,
     "asset_type": "stock",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-11-16T21:31:17Z",
+        "publisher": "Investor's Business Daily",
+        "source_type": null,
+        "title": "Musk Plans Next Starship After Flight 15 Catch. ULA Loses Amazon Payload.",
+        "url": "https://www.investors.com/news/spacex-starship-flight-15-tower-catch-ula-amazon-launch-failure-rocket-lab-electron-space-stocks/?src=A00220&yptr=yahoo"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-16T21:22:04Z",
+        "publisher": "TIKR",
+        "source_type": null,
+        "title": "Rocket Lab Sinks 7%, AST SpaceMobile Down 12% as Tech Selloff and Vulcan Failure Hit Space Stocks",
+        "url": "https://www.tikr.com/blog/rocket-lab-sinks-7-ast-spacemobile-down-12-as-tech-selloff-and-vulcan-failure-hit-space-stocks?ref=yahoofinance&tlnk=yf-261116-xj5m8wmh"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-16T20:39:00Z",
+        "publisher": "Barrons.com",
+        "source_type": null,
+        "title": "Air Traffic Control Is Complex. Ground Stop Impact Goes Beyond L3Harris Stock.",
+        "url": "https://www.barrons.com/articles/l3harris-stock-rtx-iridium-airlines-travel-bee83c04?siteid=yhoof2&yptr=yahoo"
+      }
+    ],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Strong 5-day momentum"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
     "first_seen": "2026-11-17T00:24:57.596366+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T00:24:57.596366+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
     "initial_price": 57.37,
-    "last_seen": "2026-11-17T00:44:31.089923+00:00",
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 57.37,
+    "latest_price": 61.53,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 7.25,
+    "milestones": {},
+    "peak_price": 61.53,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 61.53,
+        "return_pct": 7.25
+      }
+    ],
+    "return_pct": 7.25,
+    "risk_flags": [],
+    "symbol": "RKLB",
+    "trough_price": 57.37
+  },
+  "stock:TSLA": {
+    "age_days": 0,
+    "asset_type": "stock",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-11-16T19:21:02Z",
+        "publisher": "Yahoo Finance",
+        "source_type": null,
+        "title": "Tesla's Cybercab sales to the public are 'early validation' of robotaxi push, JPMorgan says",
+        "url": "https://finance.yahoo.com/markets/stocks/article/teslas-cybercab-sales-to-the-public-are-early-validation-of-robotaxi-push-jpmorgan-says-192145629.html"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-16T15:09:28Z",
+        "publisher": "Yahoo Finance Video",
+        "source_type": null,
+        "title": "Tesla to sell Cybercabs to 'select' customers: What to know",
+        "url": "https://finance.yahoo.com/video/tesla-to-sell-cybercabs-to-select-customers-what-to-know-150928006.html"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-17T01:00:13Z",
+        "publisher": "Fortune",
+        "source_type": null,
+        "title": "Tesla board member Joe Gebbia: Nvidia should \u201creinstate\u201d Jensen Huang to let investigation play out",
+        "url": "https://finance.yahoo.com/video/tesla-board-member-joe-gebbia-010013441.html"
+      }
+    ],
+    "currently_surfaced": true,
+    "discovery_reasons": [
+      "Strong 5-day momentum"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
+    "first_seen": "2026-11-17T01:24:08.246626+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
+    "initial_price": 390.22,
+    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 390.22,
     "max_drawdown_pct": 0.0,
     "max_gain_pct": 0.0,
     "milestones": {},
-    "peak_price": 57.37,
+    "peak_price": 390.22,
+    "price_history": [
+      {
+        "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 390.22,
+        "return_pct": 0.0
+      }
+    ],
     "return_pct": 0.0,
-    "symbol": "RKLB",
-    "trough_price": 57.37
+    "risk_flags": [],
+    "symbol": "TSLA",
+    "trough_price": 390.22
   }
 }
