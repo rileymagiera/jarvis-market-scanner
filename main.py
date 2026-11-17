@@ -587,7 +587,7 @@ main{max-width:960px;margin:auto;padding:22px}h1{margin-bottom:4px}
 .value{font-size:25px;font-weight:700}.section{margin-top:26px}
 table{width:100%;border-collapse:collapse;background:#1b2633;border-radius:10px;overflow:hidden}
 th,td{text-align:left;padding:10px;border-bottom:1px solid #344354;font-size:14px}
-th{color:#aab6c5} .pos{color:#69d69b}.neg{color:#ff8989}
+th{color:#aab6c5}.pos{color:#69d69b}.neg{color:#ff8989}
 @media(max-width:600px){main{padding:15px}th,td{padding:8px 5px;font-size:12px}}
 </style></head><body><main>
 <h1>Jarvis History</h1><div class="muted" id="updated">Loading saved paper-tracking history…</div>
@@ -599,7 +599,8 @@ th{color:#aab6c5} .pos{color:#69d69b}.neg{color:#ff8989}
 </main><script>
 const fmt=(v)=>Number(v||0).toFixed(2)+'%';
 const cls=(v)=>Number(v)>0?'pos':Number(v)<0?'neg':'';
-fetch('/history/data').then(r=>r.json()).then(d=>{
+const esc=(v)=>String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+fetch('/history/data').then(r=>{if(!r.ok)throw new Error('History request failed');return r.json();}).then(d=>{
  const t=d.paper_tracker||{}, l=d.lifetime||{}, vals=Object.values(t);
  const synced=d.synced_at ? new Date(d.synced_at) : null;
  const syncedLabel=synced && !Number.isNaN(synced.getTime())
@@ -609,10 +610,24 @@ fetch('/history/data').then(r=>r.json()).then(d=>{
  const cps=l.checkpoints||{};
  const obs=Object.values(cps).reduce((n,x)=>n+Number(x.observations||0),0);
  document.getElementById('stats').innerHTML=[
- ['Tracked candidates now',vals.length],['Lifetime tracked candidates',l.tracked_candidates||l.recommendations||0],['Checkpoint observations',obs],['Lifetime positive checkpoints',Object.values(cps).reduce((n,x)=>n+Number(x.wins||0),0)]
- ].map(x=>'<div class="card"><div class="muted">'+x[0]+'</div><div class="value">'+x[1]+'</div></div>').join('');
- document.getElementById('rows').innerHTML=vals.sort((a,b)=>(b.last_seen||'').localeCompare(a.last_seen||'')).map(x=>'<tr><td>'+x.asset_type.toUpperCase()+' '+x.symbol+'</td><td>'+new Date(x.first_seen).toLocaleDateString()+'</td><td>
- document.getElementById('checks').innerHTML=Object.entries(cps).sort((a,b)=>Number(a[0])-Number(b[0])).map(([h,x])=>'<tr><td>'+h+' calendar days</td><td>'+x.observations+'</td><td>'+x.wins+'</td><td>'+x.losses+'</td><td>'+fmt(x.observations?x.total_return_pct/x.observations:0)+'</td></tr>').join('')||'<tr><td colspan="5">Checkpoint results will appear as records mature.</td></tr>';
+ ['Tracked candidates now',vals.length],
+ ['Lifetime tracked candidates',l.tracked_candidates||l.recommendations||0],
+ ['Checkpoint observations',obs],
+ ['Lifetime positive checkpoints',Object.values(cps).reduce((n,x)=>n+Number(x.wins||0),0)]
+ ].map(x=>'<div class="card"><div class="muted">'+esc(x[0])+'</div><div class="value">'+esc(x[1])+'</div></div>').join('');
+ document.getElementById('rows').innerHTML=vals.sort((a,b)=>(b.last_seen||'').localeCompare(a.last_seen||'')).map(x=>
+  '<tr><td>'+esc((x.asset_type||'').toUpperCase()+' '+(x.symbol||''))+'</td>'+
+  '<td>'+((x.first_seen&& !Number.isNaN(new Date(x.first_seen).getTime()))?new Date(x.first_seen).toLocaleDateString():'—')+'</td>'+
+  '<td>'+Number(x.initial_price||0).toFixed(4)+'</td>'+
+  '<td>'+esc(x.last_stage||'Not graded')+'</td>'+
+  '<td class="'+cls(x.return_pct)+'">'+fmt(x.return_pct)+'</td>'+
+  '<td class="pos">'+fmt(x.max_gain_pct)+'</td>'+
+  '<td class="neg">'+fmt(x.max_drawdown_pct)+'</td>'+
+  '<td>'+Number(x.age_days||0).toFixed(1)+'d</td></tr>'
+ ).join('')||'<tr><td colspan="8">No paper history has synced yet. It will populate after the next successful hourly workflow.</td></tr>';
+ document.getElementById('checks').innerHTML=Object.entries(cps).sort((a,b)=>Number(a[0])-Number(b[0])).map(([h,x])=>
+  '<tr><td>'+esc(h)+' calendar days</td><td>'+Number(x.observations||0)+'</td><td>'+Number(x.wins||0)+'</td><td>'+Number(x.losses||0)+'</td><td>'+fmt(x.observations?x.total_return_pct/x.observations:0)+'</td></tr>'
+ ).join('')||'<tr><td colspan="5">Checkpoint results will appear as records mature.</td></tr>';
 }).catch(()=>document.getElementById('updated').textContent='History is temporarily unavailable. Try again after the next scan.');
 </script></body></html>""")
 
