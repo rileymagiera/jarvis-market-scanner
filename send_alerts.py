@@ -12,6 +12,7 @@ from urllib.request import Request, urlopen
 STATE = Path("alert_state.json")
 PAPER_STATE = Path("paper_tracker.json")
 PAPER_LIFETIME_STATE = Path("paper_tracker_lifetime.json")
+DIAGNOSTICS_STATE = Path("scan_diagnostics.json")
 BASE_URL = os.getenv("JARVIS_SCANNER_URL", "https://jarvis-market-scanner.onrender.com").rstrip("/")
 SENDER = os.environ["JARVIS_GMAIL_USER"]
 PASSWORD = os.environ["JARVIS_GMAIL_APP_PASSWORD"].replace(" ", "")
@@ -173,6 +174,14 @@ def main():
         payload = json.loads(response.read().decode("utf-8"))
     if not isinstance(payload.get("candidates"), list):
         raise RuntimeError("Scanner response did not contain candidates.")
+
+    DIAGNOSTICS_STATE.write_text(json.dumps({
+        "timestamp": payload.get("timestamp"),
+        "candidates_found": payload.get("candidates_found", 0),
+        "diagnostics": payload.get("diagnostics") or {},
+        "errors": payload.get("errors") or [],
+        "market_conditions": payload.get("market_conditions") or {},
+    }, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
 
     try:
         state = json.loads(STATE.read_text(encoding="utf-8"))
