@@ -29,7 +29,31 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Record scan attempt start
+        if: ${{ inputs.send_test_email != true }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          path = "scan_metadata.json"
+          try:
+              with open(path, encoding="utf-8") as f:
+                  metadata = json.load(f)
+          except (OSError, json.JSONDecodeError):
+              metadata = {}
+          metadata.update({
+              "last_scan_started_at": datetime.now(timezone.utc).isoformat(),
+              "last_attempt_status": "running",
+              "run_id": os.environ.get("GITHUB_RUN_ID"),
+              "run_number": os.environ.get("GITHUB_RUN_NUMBER"),
+              "commit_sha": os.environ.get("GITHUB_SHA"),
+          })
+          with open(path, "w", encoding="utf-8") as f:
+              json.dump(metadata, f, indent=2)
+              f.write("\n")
+          PY
       - name: Run Jarvis
+        id: jarvis
         env:
           JARVIS_GMAIL_USER: ${{ secrets.JARVIS_GMAIL_USER }}
           JARVIS_GMAIL_APP_PASSWORD: ${{ secrets.JARVIS_GMAIL_APP_PASSWORD }}
@@ -51,20 +75,28 @@ jobs:
           else
             python send_alerts.py
           fi
-      - name: Record completed scan timestamp
-        if: ${{ success() && inputs.send_test_email != true }}
+      - name: Finalize scan attempt status
+        if: ${{ always() && inputs.send_test_email != true }}
         run: |
           python - <<'PY'
-          import json
-          import os
+          import json, os
           from datetime import datetime, timezone
-          metadata = {
-              "last_scan_completed_at": datetime.now(timezone.utc).isoformat(),
-              "run_id": os.environ.get("GITHUB_RUN_ID"),
-              "run_number": os.environ.get("GITHUB_RUN_NUMBER"),
-              "commit_sha": os.environ.get("GITHUB_SHA"),
-          }
-          with open("scan_metadata.json", "w", encoding="utf-8") as f:
+          path = "scan_metadata.json"
+          try:
+              with open(path, encoding="utf-8") as f:
+                  metadata = json.load(f)
+          except (OSError, json.JSONDecodeError):
+              metadata = {}
+          # A valid scanner response counts as a completed scan even if
+          # the later email-delivery step fails.
+          if metadata.get("last_attempt_status") == "running":
+              metadata["last_attempt_status"] = "failed"
+              metadata["last_attempt_failed_at"] = datetime.now(timezone.utc).isoformat()
+              metadata["last_attempt_error"] = "Workflow ended before a valid scanner response was recorded."
+          metadata.setdefault("run_id", os.environ.get("GITHUB_RUN_ID"))
+          metadata.setdefault("run_number", os.environ.get("GITHUB_RUN_NUMBER"))
+          metadata.setdefault("commit_sha", os.environ.get("GITHUB_SHA"))
+          with open(path, "w", encoding="utf-8") as f:
               json.dump(metadata, f, indent=2)
               f.write("\n")
           PY
