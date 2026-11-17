@@ -1633,21 +1633,30 @@ def history_data():
         except (OSError, json.JSONDecodeError):
             return {}
 
-    # GitHub Actions commits these tracker files after each scan. Read the
-    # committed files as the single source of truth; never prefer a Render-local
-    # snapshot, which can be stale or disappear during a redeploy.
-    paper = read_state(PAPER_STATE)
-    lifetime = read_state(PAPER_LIFETIME_STATE)
-    buy_state = read_state(BUY_SIGNAL_STATE)
-    # Read the completion timestamp written by the GitHub Actions scan workflow.
-    # Never infer scan time from file mtimes or from a page refresh.
-    scan_metadata = read_state(Path(__file__).resolve().parent / "scan_metadata.json")
+    # Prefer the latest authenticated push from GitHub Actions so tracker-only
+    # commits do not require a Render redeploy. Committed files remain the
+    # recovery source if the service restarts and its local snapshot is absent.
+    snapshot = read_state(HISTORY_SNAPSHOT)
+    if isinstance(snapshot.get("paper_tracker"), dict) and isinstance(snapshot.get("lifetime"), dict):
+        paper = snapshot["paper_tracker"]
+        lifetime = snapshot["lifetime"]
+        buy_signals = snapshot.get("buy_signals", [])
+        completed_at = snapshot.get("last_scan_completed_at")
+        run_id = snapshot.get("scan_run_id")
+    else:
+        paper = read_state(PAPER_STATE)
+        lifetime = read_state(PAPER_LIFETIME_STATE)
+        buy_state = read_state(BUY_SIGNAL_STATE)
+        scan_metadata = read_state(Path(__file__).resolve().parent / "scan_metadata.json")
+        buy_signals = buy_state.get("signals", [])
+        completed_at = scan_metadata.get("last_scan_completed_at")
+        run_id = scan_metadata.get("run_id")
     return {
-        "last_scan_completed_at": scan_metadata.get("last_scan_completed_at"),
-        "scan_run_id": scan_metadata.get("run_id"),
+        "last_scan_completed_at": completed_at,
+        "scan_run_id": run_id,
         "paper_tracker": paper,
         "lifetime": lifetime,
-        "buy_signals": buy_state.get("signals", []),
+        "buy_signals": buy_signals,
     }
 
 
