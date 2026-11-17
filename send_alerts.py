@@ -170,6 +170,8 @@ def update_paper_tracker(candidates, now):
         record["latest_price"] = price
         record["price_validation_status"] = "verified" if asset_type == "stock" else "not_required"
         record["price_validation_note"] = item.get("price_validation_note", "Not applicable")
+        record["daily_change_pct"] = item.get("daily_change_pct")
+        record["session_change_pct"] = item.get("session_change_pct")
         record["price_source"] = item.get("data_source") or item.get("price_source") or "Provider not reported"
         record["price_as_of"] = item.get("price_as_of") or now.isoformat()
         record["price_freshness"] = item.get("price_freshness") or "timestamp unavailable"
