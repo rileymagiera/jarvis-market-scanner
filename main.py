@@ -429,10 +429,35 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
         if item.get("above_session_vwap"): early_signals.append("holding above session VWAP")
         if tech.get("ema_9_above_ema_20"): early_signals.append("short-term EMA trend positive")
 
+        technical_confirmations = [
+            bool(tech.get("ema_9_above_ema_20") and trend_up),
+            bool(tech.get("macd_histogram", 0) > 0 and tech.get("macd_histogram_rising")),
+            bool(rsi is not None and 50 <= float(rsi) <= 72),
+            bool(item.get("above_session_vwap") or item.get("vwap_reclaim")),
+            bool(tech.get("bollinger_squeeze_expansion")),
+            bool(tech.get("obv_trend_up_10d")),
+        ]
+        buy_volume_confirmed = float(item.get("relative_volume") or 0) >= 1.8 or float(item.get("intraday_relative_volume") or 0) >= 2.0
+        buy_breakout_confirmed = bool(item.get("breakout_20d") or item.get("intraday_breakout"))
+        buy_technical_count = sum(technical_confirmations)
+        buy_conditions = (
+            adjusted >= 82 and has_confirmation and buy_volume_confirmed
+            and buy_breakout_confirmed and buy_technical_count >= 2
+            and regime["regime"] != "RISK-OFF"
+            and item.get("intraday_confirmation_available", False)
+            and bool(item.get("intraday_trend_up_5bars"))
+            and not item.get("risk_flags")
+        )
         if len(late_signals) >= 2:
             stage, reasons = "LATE RUNNER — CHASE RISK", late_signals
+        elif buy_conditions:
+            stage, reasons = "BUY", [
+                f"Score {adjusted}/100; independently validated live price.",
+                f"Volume and breakout confirmed; {buy_technical_count} technical confirmations.",
+                "Intraday trend is positive and market regime is not risk-off.",
+            ]
         elif adjusted >= 75 and has_confirmation and regime["regime"] != "RISK-OFF" and item.get("intraday_confirmation_available", True):
-            stage, reasons = "ACTIONABLE SETUP", ["High score, volume/breakout confirmation, supportive market regime and independently verified price."]
+            stage, reasons = "ACTIONABLE SETUP", ["High score and confirmation; BUY requirements are not all satisfied."]
         elif adjusted >= 55 and has_confirmation:
             stage, reasons = "DEVELOPING RUNNER", ["Momentum and confirmation are developing without multiple late-stage extension warnings."]
         elif adjusted >= 35 and len(early_signals) >= 2:
@@ -445,7 +470,17 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
         item["stage_signals"] = {"early": early_signals, "late": late_signals}
         item["stage_reasons"] = reasons
     else:
-        if adjusted >= 75 and has_confirmation and regime["regime"] != "RISK-OFF":
+        crypto_late = float(item.get("daily_change_pct") or 0) >= 18 or float(item.get("hourly_change_pct") or 0) >= 8
+        crypto_buy = (
+            adjusted >= 82 and has_confirmation
+            and float(item.get("relative_volume") or 0) >= 1.8
+            and bool(item.get("breakout_24h")) and bool(item.get("above_24h_average"))
+            and float(item.get("hourly_change_pct") or 0) > 0
+            and not crypto_late and regime["regime"] != "RISK-OFF"
+        )
+        if crypto_buy:
+            stage = "BUY"
+        elif adjusted >= 75 and has_confirmation and regime["regime"] != "RISK-OFF":
             stage = "ACTIONABLE SETUP"
         elif adjusted >= 55 and has_confirmation:
             stage = "DEVELOPING SETUP"
@@ -1146,6 +1181,7 @@ def home():
 APP_DIR = Path(__file__).resolve().parent
 PAPER_STATE = APP_DIR / "paper_tracker.json"
 PAPER_LIFETIME_STATE = APP_DIR / "paper_tracker_lifetime.json"
+BUY_SIGNAL_STATE = APP_DIR / "buy_signal_history.json"
 HISTORY_SNAPSHOT = APP_DIR / "history_snapshot.json"
 
 
@@ -1199,10 +1235,10 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 .radar-core{position:absolute;left:48%;top:48%;width:9px;height:9px;border-radius:50%;background:#8fffe0;box-shadow:0 0 18px 6px #5ce7d477}
 .radar-label{position:absolute;font-size:8px;letter-spacing:.12em;color:#a8d6df;background:#102637;border:1px solid #356175;padding:4px 6px;border-radius:5px}.radar-label-one{top:15%;right:-8%}.radar-label-two{bottom:16%;left:-10%}.radar-label-three{bottom:3%;right:15%}
 .radar-section{margin-top:0;padding-top:2px}.section-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:14px}.section-heading h2{font-size:22px;margin:0 0 4px}
-.radar-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;border:1px solid #293d50;border-radius:12px;overflow:hidden;background:#293d50;margin-bottom:14px}
+.radar-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;border:1px solid #293d50;border-radius:12px;overflow:hidden;background:#293d50;margin-bottom:14px}
 .radar-stat{padding:12px 15px;background:#111e2b;min-width:0}.radar-stat strong{display:block;font-size:23px;line-height:1.1;font-weight:800;font-variant-numeric:tabular-nums}.radar-stat span{display:block;color:#8fa7bb;font-size:9px;letter-spacing:.1em;margin-top:6px}
 .opportunity-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
-.op-card{background:linear-gradient(145deg,#172b3b,#101c29);border:1px solid #2c4659;border-radius:14px;padding:15px;min-width:0;transition:border-color .15s,transform .15s}.op-card:hover{border-color:#5c9da6;transform:translateY(-2px)}
+.buy-floor{margin:0 0 26px;padding:18px;border:1px solid #356d68;border-radius:16px;background:linear-gradient(135deg,#112b2b,#101d29 72%)}.buy-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.buy-card{padding:14px;border:1px solid #387b69;border-radius:12px;background:#102a27;min-width:0}.buy-card-top{display:flex;justify-content:space-between;gap:10px;align-items:center}.buy-tag{font-size:10px;font-weight:850;letter-spacing:.12em;color:#9cf0c8;border:1px solid #438b70;border-radius:99px;padding:4px 8px}.buy-symbol{font-size:20px;font-weight:850}.buy-detail{font-size:11px;color:#c2d6d2;line-height:1.5;margin-top:8px}.buy-return{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}.buy-meta{font-size:10px;color:#93b2ac;margin-top:5px}.op-card{background:linear-gradient(145deg,#172b3b,#101c29);border:1px solid #2c4659;border-radius:14px;padding:15px;min-width:0;transition:border-color .15s,transform .15s}.op-card:hover{border-color:#5c9da6;transform:translateY(-2px)}
 .op-card.featured{grid-column:span 2;display:grid;grid-template-columns:1.1fr 1fr;column-gap:20px;border-color:#3e8d8e;background:linear-gradient(115deg,#18384a,#132637 65%,#10212e);box-shadow:inset 3px 0 #66d8cc,0 10px 28px #0003}
 .op-card.featured .op-card-top{grid-column:1/-1}.op-card.featured .op-symbol{font-size:27px}.op-card.featured .op-reason{align-self:center;font-size:13px}.op-card.featured .op-metrics{align-self:center}
 .op-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}.op-symbol{font-size:19px;font-weight:850;letter-spacing:-.02em}.op-kind{font-size:9px;color:#9db1c3;text-transform:uppercase;letter-spacing:.13em}
@@ -1220,31 +1256,34 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 .archive-title{margin:18px 0 0;font-size:16px}
 .archive-body .section:first-of-type{margin-top:22px}
 .archive-body .section{margin-top:24px}
-@media(max-width:700px){.command-header{align-items:flex-start;flex-direction:column}.header-right{text-align:left}.hero-panel{grid-template-columns:1fr;min-height:0;padding:24px}.radar-art{width:155px;height:155px;margin:20px auto 0}.radar-label{font-size:7px}.radar-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.opportunity-grid{grid-template-columns:1fr}.op-card.featured{grid-column:auto;display:block}.op-card.featured .op-symbol{font-size:22px}.section-heading{align-items:flex-start;flex-direction:column}.archive>summary{align-items:flex-start;flex-wrap:wrap}.summary-note{width:100%}.archive-body{padding:0 10px 14px}}
+@media(max-width:700px){.command-header{align-items:flex-start;flex-direction:column}.header-right{text-align:left}.hero-panel{grid-template-columns:1fr;min-height:0;padding:24px}.radar-art{width:155px;height:155px;margin:20px auto 0}.radar-label{font-size:7px}.radar-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.opportunity-grid,.buy-grid{grid-template-columns:1fr}.op-card.featured{grid-column:auto;display:block}.op-card.featured .op-symbol{font-size:22px}.section-heading{align-items:flex-start;flex-direction:column}.archive>summary{align-items:flex-start;flex-wrap:wrap}.summary-note{width:100%}.archive-body{padding:0 10px 14px}}
 
 @media(max-width:700px){main{width:calc(100% - 24px);padding:22px 0 40px}.cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.card,.panel{padding:12px}.section{margin-top:24px;padding-top:18px}th,td{padding:10px;font-size:11px}#updated{max-width:100%;white-space:normal}}
 @media(max-width:380px){.cards{grid-template-columns:1fr 1fr}.value{font-size:19px}}
-</style></head><body><main><header class="command-header"><div class="brand-lockup"><div class="brand-mark">J</div><div><div class="eyebrow">MARKET INTELLIGENCE SYSTEM</div><h1>JARVIS<span class="title-dot">.</span></h1><div class="brand-sub">EARLY-MOVE DETECTION · STOCKS + DIGITAL ASSETS</div></div></div><div class="header-right"><div class="live-status" id="updated">Connecting to saved history…</div><div class="tiny">RESEARCH ONLY · NO AUTOMATED TRADES</div></div></header><section class="hero-panel"><div class="hero-copy"><div class="eyebrow">THE WATCHFLOOR</div><h2>Find the move<br><span>before the crowd.</span></h2><p>Jarvis is watching for developing momentum, unusual activity, and early technical shifts. Here’s what has earned a closer look.</p></div><div class="radar-art" aria-hidden="true"><div class="radar-ring ring-one"></div><div class="radar-ring ring-two"></div><div class="radar-ring ring-three"></div><div class="radar-sweep"></div><div class="radar-core"></div><span class="radar-label radar-label-one">MOMENTUM</span><span class="radar-label radar-label-two">VOLUME</span><span class="radar-label radar-label-three">BREAKOUT</span></div></section><section class="radar-section"><div class="section-heading"><div><div class="eyebrow">LIVE WATCHLIST</div><h2>Opportunity radar</h2><div class="muted">Candidates are ranked by setup stage—not just today's biggest gainers.</div></div><div class="tiny">VERIFY PRICE + RISK BEFORE ANY DECISION</div></div><div id="radar-stats" class="radar-stats"><div class="radar-stat"><strong>—</strong><span>ON RADAR</span></div><div class="radar-stat"><strong>—</strong><span>EARLY / DEVELOPING</span></div><div class="radar-stat"><strong>—</strong><span>ACTIONABLE GRADE</span></div><div class="radar-stat"><strong>—</strong><span>PRICE VERIFIED</span></div></div><div id="opportunities" class="opportunity-grid"><div class="empty">Loading candidates…</div></div><div class="tiny footnote">Returns begin at first verified detection, not trade fills. Unverified prices are not treated as confirmed performance. Jarvis never places trades.</div></section>
+</style></head><body><main><header class="command-header"><div class="brand-lockup"><div class="brand-mark">J</div><div><div class="eyebrow">MARKET INTELLIGENCE SYSTEM</div><h1>JARVIS<span class="title-dot">.</span></h1><div class="brand-sub">EARLY-MOVE DETECTION · STOCKS + DIGITAL ASSETS</div></div></div><div class="header-right"><div class="live-status" id="updated">Connecting to saved history…</div><div class="tiny">RESEARCH ONLY · NO AUTOMATED TRADES</div></div></header><section class="hero-panel"><div class="hero-copy"><div class="eyebrow">THE WATCHFLOOR</div><h2>Find the move<br><span>before the crowd.</span></h2><p>Jarvis is watching for developing momentum, unusual activity, and early technical shifts. Here’s what has earned a closer look.</p></div><div class="radar-art" aria-hidden="true"><div class="radar-ring ring-one"></div><div class="radar-ring ring-two"></div><div class="radar-ring ring-three"></div><div class="radar-sweep"></div><div class="radar-core"></div><span class="radar-label radar-label-one">MOMENTUM</span><span class="radar-label radar-label-two">VOLUME</span><span class="radar-label radar-label-three">BREAKOUT</span></div></section><section class="buy-floor"><div class="section-heading"><div><div class="eyebrow">STRICT SIGNAL LOG</div><h2>BUY signals</h2><div class="muted">Only setups that pass Jarvis's full entry filter. Paper-tracked; no trades are placed.</div></div><div class="tiny" id="buy-summary">Waiting for saved signal history</div></div><div id="buy-signals" class="buy-grid"><div class="op-empty">No BUY signals recorded yet. Jarvis will only show one when every required condition passes.</div></div></section><section class="radar-section"><div class="section-heading"><div><div class="eyebrow">LIVE WATCHLIST</div><h2>Opportunity radar</h2><div class="muted">Candidates are ranked by setup stage—not just today's biggest gainers.</div></div><div class="tiny">VERIFY PRICE + RISK BEFORE ANY DECISION</div></div><div id="radar-stats" class="radar-stats"><div class="radar-stat"><strong>—</strong><span>ON RADAR</span></div><div class="radar-stat"><strong>—</strong><span>EARLY / DEVELOPING</span></div><div class="radar-stat"><strong>—</strong><span>ACTIONABLE GRADE</span></div><div class="radar-stat"><strong>—</strong><span>PRICE VERIFIED</span></div></div><div id="opportunities" class="opportunity-grid"><div class="empty">Loading candidates…</div></div><div class="tiny footnote">Returns begin at first verified detection, not trade fills. Unverified prices are not treated as confirmed performance. Jarvis never places trades.</div></section>
 <details class="archive"><summary><span>Performance & tracking details</span><span class="summary-note">Scorecards, history, and full candidate tables</span></summary><div class="archive-body"><h2 class="archive-title">Performance snapshot</h2><div class="cards" id="stats"></div>
 <section class="section"><h2>Stock vs. crypto scoreboard</h2><div class="grid" id="assets"></div></section>
 <section class="section"><h2>Performance leaderboard</h2><div class="muted">Top tracked candidates by return from first tracked price.</div><div class="scroll"><table><thead><tr><th>#</th><th>Candidate</th><th>First price</th><th>Latest</th><th>Return</th><th>Best</th><th>Worst</th></tr></thead><tbody id="leaders"></tbody></table></div></section>
 <section class="section"><h2>All tracked candidates</h2><div class="toolbar"><input id="q" placeholder="Search ticker…"><select id="assetFilter"><option value="all">All assets</option><option value="stock">Stocks</option><option value="crypto">Crypto</option></select><select id="gradeFilter"><option value="all">All grades</option><option>ACTIONABLE SETUP</option><option>DEVELOPING SETUP</option><option>EARLY WATCH</option><option>LOW-CONVICTION WATCH</option><option>PRICE UNVERIFIED — WATCH ONLY</option></select></div><div class="scroll"><table><thead><tr><th>Candidate</th><th>First seen</th><th>First price</th><th>Current grade</th><th>Price source / freshness</th><th>Price as of</th><th>Session move</th><th>Return since first verified</th><th>Best</th><th>Worst</th><th>Age</th></tr></thead><tbody id="rows"></tbody></table></div></section>
-<section class="section"><h2>Accuracy scorecard</h2><div class="muted">Current observed outcomes; legacy checkpoint totals may include stock observations made before independent quote validation.</div><div class="grid"><div class="panel"><h3>Return thresholds</h3><div id="thresholds"></div></div><div class="panel"><h3>Lifetime checkpoints</h3><div class="scroll"><table><thead><tr><th>Days</th><th>Observations</th><th>Wins</th><th>Losses</th><th>Average return</th></tr></thead><tbody id="checks"></tbody></table></div></div></div></section>
+<section class="section"><h2>BUY signal performance</h2><div class="muted">Measured from the exact first BUY signal price. Outcomes are recorded at fixed elapsed-time checkpoints; this is a paper record, not executed fills.</div><div class="scroll"><table><thead><tr><th>Signal</th><th>First BUY</th><th>Entry</th><th>Latest return</th><th>1h</th><th>4h</th><th>1d</th><th>3d</th><th>7d</th><th>Score</th></tr></thead><tbody id="buy-history"></tbody></table></div></section><section class="section"><h2>Accuracy scorecard</h2><div class="muted">Current observed outcomes; legacy checkpoint totals may include stock observations made before independent quote validation.</div><div class="grid"><div class="panel"><h3>Return thresholds</h3><div id="thresholds"></div></div><div class="panel"><h3>Lifetime checkpoints</h3><div class="scroll"><table><thead><tr><th>Days</th><th>Observations</th><th>Wins</th><th>Losses</th><th>Average return</th></tr></thead><tbody id="checks"></tbody></table></div></div></div></section>
 <section class="section"><h2>Grade movement history</h2><div class="scroll"><table><thead><tr><th>Candidate</th><th>From</th><th>To</th><th>When</th></tr></thead><tbody id="moves"></tbody></table></div></section>
 <section class="section"><h2>Discovery reasons & catalysts</h2><div class="scroll"><table><thead><tr><th>Candidate</th><th>Signals</th><th>Latest headline / filing</th><th>Risk flags</th></tr></thead><tbody id="catalysts"></tbody></table></div></section>
 <section class="section"><h2>Not in latest scan</h2><div class="tiny">Previously tracked, but absent from the latest scan. Last recorded prices may be stale; this is not a sell signal.</div><div class="scroll"><table><thead><tr><th>Candidate</th><th>Last seen</th><th>Last return</th><th>Best gain</th><th>Last grade</th></tr></thead><tbody id="faded"></tbody></table></div></section>
 <p class="tiny section">Data may be delayed or incomplete. Candidate discovery is not the same as an actionable alert.</p></div></details></main><script>
 const n=v=>Number(v||0),pct=v=>n(v).toFixed(2)+'%',cl=v=>n(v)>0?'pos':n(v)<0?'neg':'',e=v=>String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#39;"),date=v=>v?new Date(v).toLocaleString():'—';
 const rank={'ACTIONABLE SETUP':4,'DEVELOPING SETUP':3,'EARLY WATCH':2,'LOW-CONVICTION WATCH':1};
-function render(d){const t=d.paper_tracker||{},l=d.lifetime||{},all=Object.values(t),verified=all.filter(x=>x.price_validation_status!=="unverified"),live=all.filter(x=>x.currently_surfaced!==false),avg=verified.length?verified.reduce((s,x)=>s+n(x.return_pct),0)/verified.length:0;
+function render(d){const t=d.paper_tracker||{},l=d.lifetime||{},all=Object.values(t),buySignals=d.buy_signals||[],activeBuys=buySignals.filter(x=>x.status==="active"),verified=all.filter(x=>x.price_validation_status!=="unverified"),live=all.filter(x=>x.currently_surfaced!==false),avg=verified.length?verified.reduce((s,x)=>s+n(x.return_pct),0)/verified.length:0;
 const fmtTime=d.synced_at?new Intl.DateTimeFormat('en-US',{timeZone:'America/Detroit',year:'numeric',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit',timeZoneName:'short'}).format(new Date(d.synced_at)):'Not yet synced';document.getElementById('updated').textContent='Last synced: '+fmtTime;
 
-const stageRank={'EARLY SETUP':6,'DEVELOPING RUNNER':5,'DEVELOPING SETUP':5,'ACTIONABLE SETUP':4,'EARLY WATCH':3,'LATE RUNNER — CHASE RISK':2,'LOW-CONVICTION WATCH':1,'PRICE UNVERIFIED — WATCH ONLY':0};
+const stageRank={'BUY':8,'EARLY SETUP':6,'DEVELOPING RUNNER':5,'DEVELOPING SETUP':5,'ACTIONABLE SETUP':4,'EARLY WATCH':3,'LATE RUNNER — CHASE RISK':2,'LOW-CONVICTION WATCH':1,'PRICE UNVERIFIED — WATCH ONLY':0};
 const surfaced=all.filter(x=>x.currently_surfaced!==false);
 const earlyCount=surfaced.filter(x=>['EARLY SETUP','EARLY WATCH','DEVELOPING RUNNER','DEVELOPING SETUP'].includes(x.last_stage)).length;
 const actionableCount=surfaced.filter(x=>x.last_stage==='ACTIONABLE SETUP').length;
 const verifiedCount=surfaced.filter(x=>x.price_validation_status!=='unverified').length;
-document.getElementById('radar-stats').innerHTML=[[''+surfaced.length,'ON RADAR'],[''+earlyCount,'EARLY / DEVELOPING'],[''+actionableCount,'ACTIONABLE GRADE'],[''+verifiedCount,'PRICE VERIFIED']].map(x=>'<div class="radar-stat"><strong>'+e(x[0])+'</strong><span>'+x[1]+'</span></div>').join('');
+document.getElementById('radar-stats').innerHTML=[[''+activeBuys.length,'ACTIVE BUY SIGNALS'],[''+surfaced.length,'ON RADAR'],[''+earlyCount,'EARLY / DEVELOPING'],[''+actionableCount,'ACTIONABLE SETUPS'],[''+verifiedCount,'PRICE VERIFIED']].map(x=>'<div class="radar-stat"><strong>'+e(x[0])+'</strong><span>'+x[1]+'</span></div>').join('');
+document.getElementById('buy-summary').textContent=activeBuys.length+' active · '+buySignals.length+' total logged';
+const recentBuys=[...buySignals].sort((a,b)=>new Date(b.at)-new Date(a.at)).slice(0,4);
+document.getElementById('buy-signals').innerHTML=recentBuys.length?recentBuys.map(x=>{const ret=x.latest_return_pct==null?'Awaiting update':pct(x.latest_return_pct);const reason=(x.reasons||[]).slice(0,2).join(' · ');return '<article class="buy-card"><div class="buy-card-top"><div><div class="buy-tag">'+(x.status==='active'?'BUY · ACTIVE':'BUY · HISTORICAL')+'</div><div class="buy-symbol">'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'</div></div><div class="buy-return '+cl(x.latest_return_pct)+'">'+e(ret)+'</div></div><div class="buy-detail">Signal price: '+e(x.entry_price)+' · Score: '+e(x.score)+'/100<br>Entry zone: '+e((x.entry_low??'—')+' – '+(x.entry_high??'—'))+' · Invalidation: '+e(x.invalidation??'—')+'</div><div class="buy-meta">'+date(x.at)+' · '+e(reason)+'</div></article>'}).join(''):'<div class="op-empty">No BUY signals recorded yet. Jarvis will keep watching rather than manufacture a trade.</div>';
 const candidates=surfaced.sort((a,b)=>(stageRank[b.last_stage]??0)-(stageRank[a.last_stage]??0)||n(b.daily_change_pct)-n(a.daily_change_pct)).slice(0,9);
 document.getElementById('opportunities').innerHTML=candidates.length?candidates.map((x,i)=>{
  const stage=x.last_stage||'WATCHLIST',s=String(stage),kind=s.includes('ACTIONABLE')?'action':s.includes('LATE RUNNER')?'late':'';
@@ -1259,6 +1298,7 @@ document.getElementById('opportunities').innerHTML=candidates.length?candidates.
 const thresholds=[['Positive now',verified.filter(x=>n(x.return_pct)>0).length],['At least +5%',verified.filter(x=>n(x.return_pct)>=5).length],['At least +10%',verified.filter(x=>n(x.return_pct)>=10).length],['At least +20%',verified.filter(x=>n(x.return_pct)>=20).length],['Down 5% or more',verified.filter(x=>n(x.return_pct)<=-5).length],['Ever reached +10%',verified.filter(x=>n(x.max_gain_pct)>=10).length]];
 document.getElementById('stats').innerHTML=[['Tracked candidates',all.length],['In latest scan',live.length],['Average return',pct(avg)],['Positive candidates',thresholds[0][1]+' / '+verified.length],['Lifetime checkpoint wins',Object.values(l.checkpoints||{}).reduce((s,x)=>s+n(x.wins),0)],['Top current return',pct(Math.max(0,...verified.map(x=>n(x.return_pct))))]].map(x=>'<div class="card"><div class="muted">'+e(x[0])+'</div><div class="value">'+e(x[1])+'</div></div>').join('');
 document.getElementById('assets').innerHTML=['stock','crypto'].map(k=>{const a=verified.filter(x=>x.asset_type===k),m=a.length?a.reduce((s,x)=>s+n(x.return_pct),0)/a.length:0;return '<div class="panel"><div class="muted">'+(k==='stock'?'Stocks':'Crypto')+'</div><div class="value">'+a.length+' tracked</div><div class="'+cl(m)+'">Average return '+pct(m)+'</div><div class="tiny">'+a.filter(x=>n(x.return_pct)>0).length+' positive · '+a.filter(x=>x.last_stage==='ACTIONABLE SETUP').length+' actionable grade</div></div>'}).join('');
+document.getElementById('buy-history').innerHTML=[...buySignals].sort((a,b)=>new Date(b.at)-new Date(a.at)).map(x=>'<tr><td>'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'<div class="tiny">'+e(x.status||'')+'</div></td><td>'+date(x.at)+'</td><td>'+e(x.entry_price)+'</td><td class="'+cl(x.latest_return_pct)+'">'+(x.latest_return_pct==null?'—':pct(x.latest_return_pct))+'</td>'+['1h','4h','1d','3d','7d'].map(h=>'<td class="'+cl(x.outcomes&&x.outcomes[h]&&x.outcomes[h].return_pct)+'">'+(x.outcomes&&x.outcomes[h]?pct(x.outcomes[h].return_pct):'—')+'</td>').join('')+'<td>'+e(x.score)+'/100</td></tr>').join('')||'<tr><td colspan="10" class="empty">No BUY recommendations have been recorded yet.</td></tr>';
 const byReturn=[...verified].sort((a,b)=>n(b.return_pct)-n(a.return_pct));document.getElementById('leaders').innerHTML=byReturn.slice(0,10).map((x,i)=>'<tr><td>'+(i+1)+'</td><td>'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'</td><td>'+n(x.initial_price).toPrecision(7)+'</td><td>'+n(x.latest_price).toPrecision(7)+'</td><td class="'+cl(x.return_pct)+'">'+pct(x.return_pct)+'</td><td class="pos">'+pct(x.max_gain_pct)+'</td><td class="neg">'+pct(x.max_drawdown_pct)+'</td></tr>').join('')||'<tr><td colspan="7" class="empty">No tracked candidates yet.</td></tr>';
 function rows(){const q=document.getElementById('q').value.toUpperCase(),a=document.getElementById('assetFilter').value,g=document.getElementById('gradeFilter').value;const v=all.filter(x=>(a==='all'||x.asset_type===a)&&(g==='all'||x.last_stage===g)&&(!q||String(x.symbol).toUpperCase().includes(q)));v.sort((x,y)=>(rank[y.last_stage]||0)-(rank[x.last_stage]||0)||(y.last_seen||'').localeCompare(x.last_seen||''));document.getElementById('rows').innerHTML=v.map(x=>'<tr><td>'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'</td><td>'+date(x.first_seen)+'</td><td>'+n(x.initial_price).toPrecision(7)+'</td><td><span class="pill">'+e(x.last_stage||'—')+'</span></td><td>'+e(x.price_source||'Legacy record — source not recorded')+'<div class="tiny">'+e(x.price_freshness||'Freshness unknown')+(x.price_validation_status==='unverified'?' · PRICE UNVERIFIED — excluded from returns':'')+'</div></td><td>'+date(x.price_as_of||x.last_seen)+'</td><td class="'+cl(x.session_change_pct)+'">'+(x.price_validation_status==='unverified'||x.session_change_pct==null?'—':pct(x.session_change_pct))+'</td><td class="'+cl(x.return_pct)+'">'+(x.price_validation_status==='unverified'?'UNVERIFIED':pct(x.return_pct))+'</td><td class="pos">'+(x.price_validation_status==='unverified'?'—':pct(x.max_gain_pct))+'</td><td class="neg">'+(x.price_validation_status==='unverified'?'—':pct(x.max_drawdown_pct))+'</td><td>'+n(x.age_days).toFixed(1)+'d</td></tr>').join('')||'<tr><td colspan="11" class="empty">No matches.</td></tr>'}
 ['q','assetFilter','gradeFilter'].forEach(id=>document.getElementById(id).addEventListener(id==='q'?'input':'change',rows));rows();
@@ -1285,13 +1325,14 @@ def history_data():
     # snapshot, which can be stale or disappear during a redeploy.
     paper = read_state(PAPER_STATE)
     lifetime = read_state(PAPER_LIFETIME_STATE)
+    buy_state = read_state(BUY_SIGNAL_STATE)
     timestamps = [
         path.stat().st_mtime
-        for path in (PAPER_STATE, PAPER_LIFETIME_STATE)
+        for path in (PAPER_STATE, PAPER_LIFETIME_STATE, BUY_SIGNAL_STATE)
         if path.exists()
     ]
     synced_at = datetime.fromtimestamp(max(timestamps), timezone.utc).isoformat() if timestamps else None
-    return {"synced_at": synced_at, "paper_tracker": paper, "lifetime": lifetime}
+    return {"synced_at": synced_at, "paper_tracker": paper, "lifetime": lifetime, "buy_signals": buy_state.get("signals", [])}
 
 
 @app.post("/history/sync")
@@ -1359,14 +1400,14 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
                 "candidates_returned": len(stock_results),
                 "scan_errors": len(stock_errors),
                 "not_returned_or_below_early_watch_floor": max(0, len(stock_symbols) - len(stock_results) - len(stock_errors)),
-                "stages": {stage: sum(1 for x in stock_results if x.get("stage") == stage) for stage in ("ACTIONABLE SETUP", "DEVELOPING SETUP", "EARLY WATCH", "LOW-CONVICTION WATCH")},
+                "stages": {stage: sum(1 for x in stock_results if x.get("stage") == stage) for stage in ("BUY", "ACTIONABLE SETUP", "DEVELOPING RUNNER", "DEVELOPING SETUP", "EARLY SETUP", "EARLY WATCH", "LATE RUNNER — CHASE RISK", "LOW-CONVICTION WATCH", "PRICE UNVERIFIED — WATCH ONLY")},
             },
             "crypto": {
                 "symbols_requested": len(crypto_symbols),
                 "candidates_returned": len(crypto_results),
                 "scan_errors": len(crypto_errors),
                 "not_returned_or_below_early_watch_floor": max(0, len(crypto_symbols) - len(crypto_results) - len(crypto_errors)),
-                "stages": {stage: sum(1 for x in crypto_results if x.get("stage") == stage) for stage in ("ACTIONABLE SETUP", "DEVELOPING SETUP", "EARLY WATCH", "LOW-CONVICTION WATCH")},
+                "stages": {stage: sum(1 for x in crypto_results if x.get("stage") == stage) for stage in ("BUY", "ACTIONABLE SETUP", "DEVELOPING SETUP", "EARLY WATCH", "LOW-CONVICTION WATCH")},
             },
             "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history/data or score below the early-watch floor; provider-specific discovery failures are not always attributable to one symbol.",
         },
