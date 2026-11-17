@@ -19,6 +19,21 @@
     "alerted_stage": "DEVELOPING SETUP",
     "score": 67
   },
+  "crypto:NEARUSDT": {
+    "alerted_at": "2026-11-17T23:27:31.869131+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 85
+  },
+  "crypto:RENDERUSDT": {
+    "alerted_at": "2026-11-17T23:27:31.869131+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 92
+  },
+  "crypto:SEIUSDT": {
+    "alerted_at": "2026-11-17T23:27:31.869131+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 71
+  },
   "crypto:SOLUSDT": {
     "alerted_at": "2026-11-17T13:32:34.964836+00:00",
     "alerted_stage": "DEVELOPING SETUP",
