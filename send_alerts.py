@@ -1,10 +1,7 @@
-import base64
 import json
 import os
 import smtplib
 import sys
-import time
-from urllib.error import HTTPError, URLError
 from datetime import datetime, timezone, timedelta
 from zoneinfo import ZoneInfo
 from email.message import EmailMessage
@@ -20,8 +17,6 @@ BASE_URL = os.getenv("JARVIS_SCANNER_URL", "https://jarvis-market-scanner.onrend
 SENDER = os.environ["JARVIS_GMAIL_USER"]
 PASSWORD = os.environ["JARVIS_GMAIL_APP_PASSWORD"].replace(" ", "")
 RECIPIENT = os.environ["JARVIS_ALERT_TO"]
-SCANNER_USERNAME = os.getenv("JARVIS_SITE_USERNAME", "")
-SCANNER_PASSWORD = os.getenv("JARVIS_SITE_PASSWORD", "")
 
 
 def email(subject, body):
