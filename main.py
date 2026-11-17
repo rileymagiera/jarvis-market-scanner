@@ -389,6 +389,15 @@ def market_conditions() -> dict:
 def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
     raw_score = int(item.get("score") or 0)
     adjusted = max(0, min(100, raw_score + adjustment))
+    if item.get("asset_type") == "stock" and not item.get("price_validation_passed", False):
+        item["raw_score"] = raw_score
+        item["score"] = adjusted
+        item["market_regime"] = regime["regime"]
+        item["market_score_adjustment"] = adjustment
+        item["stage"] = "PRICE UNVERIFIED — WATCH ONLY"
+        item["signal"] = item["stage"]
+        item["signal_blocked_reason"] = item.get("price_validation_note", "Independent quote validation unavailable")
+        return
     item["raw_score"] = raw_score
     item["score"] = adjusted
     item["market_regime"] = regime["regime"]
