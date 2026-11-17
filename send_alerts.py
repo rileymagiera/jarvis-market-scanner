@@ -51,6 +51,24 @@ def sync_history_to_site(paper, lifetime, now):
     print(f"History synced to website: {result.get('records', 0)} records.")
 
 
+def _history_context(item):
+    reasons = []
+    rv = float(item.get("relative_volume") or 0)
+    irv = float(item.get("intraday_relative_volume") or 0)
+    if rv >= 1.5: reasons.append(f"Relative volume {rv:.1f}x")
+    if irv >= 2: reasons.append(f"Intraday relative volume {irv:.1f}x")
+    if item.get("breakout_20d") or item.get("breakout_24h"): reasons.append("Prior-range breakout")
+    if item.get("intraday_breakout"): reasons.append("Intraday breakout")
+    if float(item.get("daily_change_pct") or 0) >= 2: reasons.append("Positive daily momentum")
+    if float(item.get("five_day_change_pct") or 0) >= 5: reasons.append("Strong 5-day momentum")
+    if not reasons: reasons.append("Momentum / technical scan threshold")
+    catalysts = []
+    for news in (item.get("news") or [])[:3]:
+        if news.get("title"):
+            catalysts.append({k: news.get(k) for k in ("title", "publisher", "url", "published_at", "source_type", "form")})
+    return reasons, catalysts
+
+
 def update_paper_tracker(candidates, now):
     """Track recommendations with 365-day detail and cumulative lifetime checkpoint stats."""
     try:
@@ -102,6 +120,9 @@ def update_paper_tracker(candidates, now):
                 "asset_type": asset_type, "symbol": symbol,
                 "first_seen": now.isoformat(), "initial_price": price,
                 "peak_price": price, "trough_price": price, "milestones": {},
+                "first_grade": item.get("stage", item.get("signal", "WATCH")),
+                "grade_history": [{"from": None, "to": item.get("stage", item.get("signal", "WATCH")), "at": now.isoformat()}],
+                "price_history": [], "discovery_reasons": [], "catalysts": [], "risk_flags": [],
             }
             lifetime["recommendations"] = int(lifetime.get("recommendations", 0)) + 1
             asset_stats = lifetime.setdefault("by_asset", {}).setdefault(asset_type, {"recommendations": 0})
@@ -117,6 +138,20 @@ def update_paper_tracker(candidates, now):
         record["return_pct"] = round((price / initial - 1) * 100, 2)
         record["max_gain_pct"] = round((float(record["peak_price"]) / initial - 1) * 100, 2)
         record["max_drawdown_pct"] = round((float(record["trough_price"]) / initial - 1) * 100, 2)
+        stage = item.get("stage", item.get("signal", "WATCH"))
+        record.setdefault("first_grade", stage)
+        history = record.setdefault("grade_history", [])
+        previous = record.get("last_stage")
+        if not history: history.append({"from": None, "to": record["first_grade"], "at": record.get("first_seen", now.isoformat())})
+        if previous and previous != stage: history.append({"from": previous, "to": stage, "at": now.isoformat()})
+        record["grade_history"] = history[-100:]
+        prices = record.setdefault("price_history", [])
+        prices.append({"at": now.isoformat(), "price": price, "return_pct": record["return_pct"]})
+        record["price_history"] = prices[-168:]
+        reasons, catalysts = _history_context(item)
+        record["discovery_reasons"] = reasons
+        record["catalysts"] = catalysts
+        record["risk_flags"] = (item.get("risk_flags") or [])[:8]
         for horizon in (1, 3, 5, 20):
             milestone = str(horizon)
             if age_days >= horizon and milestone not in record["milestones"]:
@@ -142,7 +177,8 @@ def update_paper_tracker(candidates, now):
                 asset_stats["flat"] += int(checkpoint_return == 0)
                 asset_stats["total_return_pct"] = round(float(asset_stats["total_return_pct"]) + checkpoint_return, 2)
         record["last_seen"] = now.isoformat()
-        record["last_stage"] = item.get("stage", item.get("signal", "WATCH"))
+        record["last_stage"] = stage
+        record["currently_surfaced"] = True
         tracker[key] = record
         summaries[key] = record
 

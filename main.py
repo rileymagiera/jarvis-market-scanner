@@ -704,65 +704,38 @@ PAPER_LIFETIME_STATE = Path("paper_tracker_lifetime.json")
 
 @app.get("/history", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
 def history_page():
-    return HTMLResponse("""<!doctype html>
-<html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Jarvis History</title><style>
-body{font:16px system-ui,sans-serif;margin:0;background:#10151d;color:#edf2f7}
-main{max-width:960px;margin:auto;padding:22px}h1{margin-bottom:4px}
-.muted{color:#aab6c5}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:20px 0}
-.card{background:#1b2633;border:1px solid #344354;border-radius:12px;padding:14px}
-.value{font-size:25px;font-weight:700}.section{margin-top:26px}
-table{width:100%;border-collapse:collapse;background:#1b2633;border-radius:10px;overflow:hidden}
-th,td{text-align:left;padding:10px;border-bottom:1px solid #344354;font-size:14px}
-th{color:#aab6c5}.pos{color:#69d69b}.neg{color:#ff8989}
-@media(max-width:600px){main{padding:15px}th,td{padding:8px 5px;font-size:12px}}
-</style></head><body><main>
-<h1>Jarvis History</h1><div class="muted" id="updated">Loading saved paper-tracking history…</div>
+    return HTMLResponse("""<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Jarvis History</title><style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{font:15px system-ui,sans-serif;margin:0;background:#0d131b;color:#edf2f7}main{max-width:1200px;margin:auto;padding:20px}h1{margin:0 0 5px}.muted,.tiny{color:#9eacbd}.tiny{font-size:12px}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:18px 0}.card,.panel{background:#172331;border:1px solid #2b3b4d;border-radius:12px;padding:14px}.value{font-size:24px;font-weight:750}.section{margin-top:26px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px}table{border-collapse:collapse;width:100%;min-width:700px}th,td{text-align:left;padding:9px;border-bottom:1px solid #2b3b4d;font-size:13px}th{color:#aebaca}.scroll{overflow-x:auto;margin-top:10px}.pos{color:#62d99a}.neg{color:#ff8989}.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}input,select{background:#0d1722;color:#edf2f7;border:1px solid #40536a;border-radius:8px;padding:9px;font:inherit}input{flex:1;min-width:160px}.pill{border:1px solid #40536a;border-radius:99px;padding:3px 8px;font-size:11px}.empty{text-align:center;padding:16px;color:#9eacbd}@media(max-width:600px){main{padding:14px}.value{font-size:21px}}
+</style></head><body><main><h1>Jarvis History & Performance</h1><div class="muted" id="updated">Loading saved tracking history…</div><div class="tiny">Research tracking only. Returns are measured from first detection, not trade fills. Jarvis never places trades.</div>
 <div class="cards" id="stats"></div>
-<div class="section"><h2>Tracked candidates</h2><div class="muted">Rolling detailed history (up to 365 days). Returns are measured from first detection, not trade fills.</div>
-<div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Asset</th><th>First seen</th><th>First tracked price</th><th>Current grade</th><th>Latest return</th><th>Best</th><th>Worst</th><th>Age</th></tr></thead><tbody id="rows"></tbody></table></div></div>
-<div class="section"><h2>Lifetime checkpoints</h2><div style="overflow-x:auto"><table><thead><tr><th>Checkpoint</th><th>Observations</th><th>Wins</th><th>Losses</th><th>Average return</th></tr></thead><tbody id="checks"></tbody></table></div></div>
-<p class="muted">Research tracking only. Candidate discovery is not the same as an emailed actionable alert. No trades are placed. Price observations may be delayed or incomplete.</p>
-</main><script>
-const fmt=(v)=>Number(v||0).toFixed(2)+'%';
-const cls=(v)=>Number(v)>0?'pos':Number(v)<0?'neg':'';
-const esc=(v)=>String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
-fetch('/history/data').then(r=>{if(!r.ok)throw new Error('History request failed');return r.json();}).then(d=>{
- const t=d.paper_tracker||{}, l=d.lifetime||{}, vals=Object.values(t);
- const synced=d.synced_at ? new Date(d.synced_at) : null;
- const syncedLabel=synced && !Number.isNaN(synced.getTime())
-   ? new Intl.DateTimeFormat('en-US',{timeZone:'America/Detroit',month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit',timeZoneName:'short'}).format(synced)
-   : 'Not yet synced';
- document.getElementById('updated').textContent='Last synced: '+syncedLabel;
- const cps=l.checkpoints||{};
- const obs=Object.values(cps).reduce((n,x)=>n+Number(x.observations||0),0);
- document.getElementById('stats').innerHTML=[
- ['Tracked candidates now',vals.length],
- ['Lifetime tracked candidates',l.tracked_candidates||l.recommendations||0],
- ['Checkpoint observations',obs],
- ['Lifetime positive checkpoints',Object.values(cps).reduce((n,x)=>n+Number(x.wins||0),0)]
- ].map(x=>'<div class="card"><div class="muted">'+esc(x[0])+'</div><div class="value">'+esc(x[1])+'</div></div>').join('');
- const gradeRank={'ACTIONABLE SETUP':4,'DEVELOPING SETUP':3,'EARLY WATCH':2,'LOW-CONVICTION WATCH':1};
- document.getElementById('rows').innerHTML=vals.sort((a,b)=>
-  (gradeRank[b.last_stage]||0)-(gradeRank[a.last_stage]||0) ||
-  (b.last_seen||'').localeCompare(a.last_seen||'')
- ).map(x=>
-  '<tr><td>'+esc((x.asset_type||'').toUpperCase()+' '+(x.symbol||''))+'</td>'+
-  '<td>'+((x.first_seen&& !Number.isNaN(new Date(x.first_seen).getTime()))?new Date(x.first_seen).toLocaleDateString():'—')+'</td>'+
-  '<td>'+Number(x.initial_price||0).toFixed(4)+'</td>'+
-  '<td>'+esc(x.last_stage||'Not graded')+'</td>'+
-  '<td class="'+cls(x.return_pct)+'">'+fmt(x.return_pct)+'</td>'+
-  '<td class="pos">'+fmt(x.max_gain_pct)+'</td>'+
-  '<td class="neg">'+fmt(x.max_drawdown_pct)+'</td>'+
-  '<td>'+Number(x.age_days||0).toFixed(1)+'d</td></tr>'
- ).join('')||'<tr><td colspan="8">No paper history has synced yet. It will populate after the next successful hourly workflow.</td></tr>';
- document.getElementById('checks').innerHTML=Object.entries(cps).sort((a,b)=>Number(a[0])-Number(b[0])).map(([h,x])=>
-  '<tr><td>'+esc(h)+' calendar days</td><td>'+Number(x.observations||0)+'</td><td>'+Number(x.wins||0)+'</td><td>'+Number(x.losses||0)+'</td><td>'+fmt(x.observations?x.total_return_pct/x.observations:0)+'</td></tr>'
- ).join('')||'<tr><td colspan="5">Checkpoint results will appear as records mature.</td></tr>';
-}).catch(()=>document.getElementById('updated').textContent='History is temporarily unavailable. Try again after the next scan.');
+<section class="section"><h2>Stock vs. crypto scoreboard</h2><div class="grid" id="assets"></div></section>
+<section class="section"><h2>Performance leaderboard</h2><div class="muted">Top tracked candidates by return from first tracked price.</div><div class="scroll"><table><thead><tr><th>#</th><th>Candidate</th><th>First price</th><th>Latest</th><th>Return</th><th>Best</th><th>Worst</th></tr></thead><tbody id="leaders"></tbody></table></div></section>
+<section class="section"><h2>All tracked candidates</h2><div class="toolbar"><input id="q" placeholder="Search ticker…"><select id="assetFilter"><option value="all">All assets</option><option value="stock">Stocks</option><option value="crypto">Crypto</option></select><select id="gradeFilter"><option value="all">All grades</option><option>ACTIONABLE SETUP</option><option>DEVELOPING SETUP</option><option>EARLY WATCH</option><option>LOW-CONVICTION WATCH</option></select></div><div class="scroll"><table><thead><tr><th>Candidate</th><th>First seen</th><th>First price</th><th>Current grade</th><th>Return</th><th>Best</th><th>Worst</th><th>Age</th></tr></thead><tbody id="rows"></tbody></table></div></section>
+<section class="section"><h2>Accuracy scorecard</h2><div class="muted">Current observed outcomes; not a guarantee of future performance.</div><div class="grid"><div class="panel"><h3>Return thresholds</h3><div id="thresholds"></div></div><div class="panel"><h3>Lifetime checkpoints</h3><div class="scroll"><table><thead><tr><th>Days</th><th>Observations</th><th>Wins</th><th>Losses</th><th>Average return</th></tr></thead><tbody id="checks"></tbody></table></div></div></div></section>
+<section class="section"><h2>Grade movement history</h2><div class="scroll"><table><thead><tr><th>Candidate</th><th>From</th><th>To</th><th>When</th></tr></thead><tbody id="moves"></tbody></table></div></section>
+<section class="section"><h2>Discovery reasons & catalysts</h2><div class="scroll"><table><thead><tr><th>Candidate</th><th>Signals</th><th>Latest headline / filing</th><th>Risk flags</th></tr></thead><tbody id="catalysts"></tbody></table></div></section>
+<section class="section"><h2>Not in latest scan</h2><div class="tiny">Previously tracked, but absent from the latest scan. Last recorded prices may be stale; this is not a sell signal.</div><div class="scroll"><table><thead><tr><th>Candidate</th><th>Last seen</th><th>Last return</th><th>Best gain</th><th>Last grade</th></tr></thead><tbody id="faded"></tbody></table></div></section>
+<p class="tiny section">Data may be delayed or incomplete. Candidate discovery is not the same as an actionable alert.</p></main><script>
+const n=v=>Number(v||0),pct=v=>n(v).toFixed(2)+'%',cl=v=>n(v)>0?'pos':n(v)<0?'neg':'',e=v=>String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#39;"),date=v=>v?new Date(v).toLocaleString():'—';
+const rank={'ACTIONABLE SETUP':4,'DEVELOPING SETUP':3,'EARLY WATCH':2,'LOW-CONVICTION WATCH':1};
+function render(d){const t=d.paper_tracker||{},l=d.lifetime||{},all=Object.values(t),live=all.filter(x=>x.currently_surfaced!==false),avg=all.length?all.reduce((s,x)=>s+n(x.return_pct),0)/all.length:0;
+const fmtTime=d.synced_at?new Intl.DateTimeFormat('en-US',{timeZone:'America/Detroit',dateStyle:'medium',timeStyle:'medium',timeZoneName:'short'}).format(new Date(d.synced_at)):'Not yet synced';document.getElementById('updated').textContent='Last synced: '+fmtTime;
+const thresholds=[['Positive now',all.filter(x=>n(x.return_pct)>0).length],['At least +5%',all.filter(x=>n(x.return_pct)>=5).length],['At least +10%',all.filter(x=>n(x.return_pct)>=10).length],['At least +20%',all.filter(x=>n(x.return_pct)>=20).length],['Down 5% or more',all.filter(x=>n(x.return_pct)<=-5).length],['Ever reached +10%',all.filter(x=>n(x.max_gain_pct)>=10).length]];
+document.getElementById('stats').innerHTML=[['Tracked candidates',all.length],['In latest scan',live.length],['Average return',pct(avg)],['Positive candidates',thresholds[0][1]+' / '+all.length],['Lifetime checkpoint wins',Object.values(l.checkpoints||{}).reduce((s,x)=>s+n(x.wins),0)],['Top current return',pct(Math.max(0,...all.map(x=>n(x.return_pct))))]].map(x=>'<div class="card"><div class="muted">'+e(x[0])+'</div><div class="value">'+e(x[1])+'</div></div>').join('');
+document.getElementById('assets').innerHTML=['stock','crypto'].map(k=>{const a=all.filter(x=>x.asset_type===k),m=a.length?a.reduce((s,x)=>s+n(x.return_pct),0)/a.length:0;return '<div class="panel"><div class="muted">'+(k==='stock'?'Stocks':'Crypto')+'</div><div class="value">'+a.length+' tracked</div><div class="'+cl(m)+'">Average return '+pct(m)+'</div><div class="tiny">'+a.filter(x=>n(x.return_pct)>0).length+' positive · '+a.filter(x=>x.last_stage==='ACTIONABLE SETUP').length+' actionable grade</div></div>'}).join('');
+const byReturn=[...all].sort((a,b)=>n(b.return_pct)-n(a.return_pct));document.getElementById('leaders').innerHTML=byReturn.slice(0,10).map((x,i)=>'<tr><td>'+(i+1)+'</td><td>'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'</td><td>'+n(x.initial_price).toPrecision(7)+'</td><td>'+n(x.latest_price).toPrecision(7)+'</td><td class="'+cl(x.return_pct)+'">'+pct(x.return_pct)+'</td><td class="pos">'+pct(x.max_gain_pct)+'</td><td class="neg">'+pct(x.max_drawdown_pct)+'</td></tr>').join('')||'<tr><td colspan="7" class="empty">No tracked candidates yet.</td></tr>';
+function rows(){const q=document.getElementById('q').value.toUpperCase(),a=document.getElementById('assetFilter').value,g=document.getElementById('gradeFilter').value;const v=all.filter(x=>(a==='all'||x.asset_type===a)&&(g==='all'||x.last_stage===g)&&(!q||String(x.symbol).toUpperCase().includes(q)));v.sort((x,y)=>(rank[y.last_stage]||0)-(rank[x.last_stage]||0)||(y.last_seen||'').localeCompare(x.last_seen||''));document.getElementById('rows').innerHTML=v.map(x=>'<tr><td>'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'</td><td>'+date(x.first_seen)+'</td><td>'+n(x.initial_price).toPrecision(7)+'</td><td><span class="pill">'+e(x.last_stage||'—')+'</span></td><td class="'+cl(x.return_pct)+'">'+pct(x.return_pct)+'</td><td class="pos">'+pct(x.max_gain_pct)+'</td><td class="neg">'+pct(x.max_drawdown_pct)+'</td><td>'+n(x.age_days).toFixed(1)+'d</td></tr>').join('')||'<tr><td colspan="8" class="empty">No matches.</td></tr>'}
+['q','assetFilter','gradeFilter'].forEach(id=>document.getElementById(id).addEventListener(id==='q'?'input':'change',rows));rows();
+document.getElementById('thresholds').innerHTML=thresholds.map(x=>'<div style="display:flex;justify-content:space-between;padding:7px;border-bottom:1px solid #2b3b4d"><span>'+e(x[0])+'</span><b>'+x[1]+'</b></div>').join('');
+const cps=l.checkpoints||{};document.getElementById('checks').innerHTML=Object.entries(cps).sort((a,b)=>n(a[0])-n(b[0])).map(([h,x])=>'<tr><td>'+e(h)+'</td><td>'+n(x.observations)+'</td><td>'+n(x.wins)+'</td><td>'+n(x.losses)+'</td><td>'+pct(x.observations?n(x.total_return_pct)/n(x.observations):0)+'</td></tr>').join('')||'<tr><td colspan="5">Checkpoints populate as records mature.</td></tr>';
+const moves=[];all.forEach(x=>(x.grade_history||[]).forEach(m=>moves.push({...m,symbol:x.symbol,asset:x.asset_type})));moves.sort((a,b)=>new Date(b.at)-new Date(a.at));document.getElementById('moves').innerHTML=moves.slice(0,50).map(m=>'<tr><td>'+e((m.asset||'').toUpperCase()+' '+m.symbol)+'</td><td>'+e(m.from||'—')+'</td><td>'+e(m.to||'—')+'</td><td>'+date(m.at)+'</td></tr>').join('')||'<tr><td colspan="4">Grade history starts recording from this upgrade onward.</td></tr>';
+document.getElementById('catalysts').innerHTML=all.filter(x=>(x.discovery_reasons||[]).length||(x.catalysts||[]).length||(x.risk_flags||[]).length).slice(0,40).map(x=>'<tr><td>'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'</td><td>'+e((x.discovery_reasons||[]).join(' · ')||'—')+'</td><td>'+((x.catalysts||[]).slice(0,2).map(c=>c.url?'<a target="_blank" rel="noopener" href="'+e(c.url)+'">'+e(c.title)+'</a>':e(c.title)).join('<br>')||'—')+'</td><td class="neg">'+e((x.risk_flags||[]).join(' · ')||'—')+'</td></tr>').join('')||'<tr><td colspan="4">Discovery details will populate on the next scan.</td></tr>';
+const faded=all.filter(x=>x.currently_surfaced===false).sort((a,b)=>(b.last_seen||'').localeCompare(a.last_seen||''));document.getElementById('faded').innerHTML=faded.slice(0,40).map(x=>'<tr><td>'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'</td><td>'+date(x.last_seen)+'</td><td class="'+cl(x.return_pct)+'">'+pct(x.return_pct)+'</td><td class="pos">'+pct(x.max_gain_pct)+'</td><td>'+e(x.last_stage||'—')+'</td></tr>').join('')||'<tr><td colspan="5">No candidates currently absent from the latest scan.</td></tr>';
+}
+fetch('/history/data').then(r=>{if(!r.ok)throw Error();return r.json()}).then(render).catch(()=>document.getElementById('updated').textContent='History temporarily unavailable; try again after the next sync.');
 </script></body></html>""")
-
-
+ 
+ 
 @app.get("/history/data", dependencies=[Depends(require_site_login)])
 def history_data():
     def read_state(path):
