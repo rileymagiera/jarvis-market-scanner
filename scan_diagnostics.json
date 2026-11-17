@@ -1,15 +1,15 @@
 {
-  "candidates_found": 24,
+  "candidates_found": 35,
   "diagnostics": {
     "crypto": {
-      "candidates_returned": 16,
-      "not_returned_or_below_early_watch_floor": 22,
+      "candidates_returned": 27,
+      "not_returned_or_below_early_watch_floor": 11,
       "scan_errors": 0,
       "stages": {
         "ACTIONABLE SETUP": 0,
         "DEVELOPING SETUP": 0,
-        "EARLY WATCH": 1,
-        "LOW-CONVICTION WATCH": 15
+        "EARLY WATCH": 2,
+        "LOW-CONVICTION WATCH": 25
       },
       "symbols_requested": 38
     },
@@ -22,7 +22,7 @@
         "ACTIONABLE SETUP": 0,
         "DEVELOPING SETUP": 0,
         "EARLY WATCH": 0,
-        "LOW-CONVICTION WATCH": 8
+        "LOW-CONVICTION WATCH": 0
       },
       "symbols_requested": 30
     }
@@ -32,7 +32,7 @@
     "benchmarks": {
       "BTC-USD": {
         "above_20d_average": false,
-        "five_day_change_pct": -12.55
+        "five_day_change_pct": -12.74
       },
       "IWM": {
         "above_20d_average": false,
@@ -51,5 +51,5 @@
     "regime": "RISK-OFF",
     "score_adjustment": -8
   },
-  "timestamp": "2026-11-17T01:40:31.246956+00:00"
+  "timestamp": "2026-11-17T02:21:51.011929+00:00"
 }

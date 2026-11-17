@@ -1,4 +1,74 @@
 {
+  "crypto:AAVEUSDT": {
+    "age_days": 0,
+    "asset_type": "crypto",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-11-11T19:06:57Z",
+        "publisher": "Unchained",
+        "source_type": null,
+        "title": "LlamaRisk Asks Aave to Freeze StakeWise, Lombard and Rocket Pool Tokens on Its V3 Core Market",
+        "url": "https://unchainedcrypto.com/llamarisk-asks-aave-to-freeze-stakewise-lombard-and-rocket-pool-tokens-on-its-v3-core-market/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-09T05:16:29Z",
+        "publisher": "BeInCrypto",
+        "source_type": null,
+        "title": "Wall Street Keeps Selling Ethereum, but Whales Are Buying In",
+        "url": "https://beincrypto.com/ethereum-whales-buy-etf-outflows/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-06T17:00:20Z",
+        "publisher": "Unchained",
+        "source_type": null,
+        "title": "How the $6B Binance Hack Ran Through Aave: Uneasy Money",
+        "url": "https://unchainedcrypto.com/how-the-6b-binance-hack-ran-through-aave-uneasy-money/"
+      }
+    ],
+    "currently_surfaced": true,
+    "daily_change_pct": 1.36,
+    "discovery_reasons": [
+      "Momentum / technical scan threshold"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
+    "first_seen": "2026-11-17T02:21:51.143636+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
+    "initial_price": 109.95,
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 109.95,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 0.0,
+    "milestones": {},
+    "peak_price": 109.95,
+    "price_as_of": "2026-11-17T02:21:49.673894+00:00",
+    "price_freshness": "live_ticker_snapshot",
+    "price_history": [
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 109.95,
+        "return_pct": 0.0
+      }
+    ],
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 0.0,
+    "risk_flags": [],
+    "session_change_pct": null,
+    "symbol": "AAVEUSDT",
+    "trough_price": 109.95
+  },
   "crypto:ADAUSDT": {
     "age_days": 0,
     "asset_type": "crypto",
@@ -34,10 +104,11 @@
     "trough_price": 0.131
   },
   "crypto:ASTERUSDT": {
-    "age_days": 0.04,
+    "age_days": 0.07,
     "asset_type": "crypto",
     "catalysts": [],
     "currently_surfaced": true,
+    "daily_change_pct": 1.9,
     "discovery_reasons": [
       "Prior-range breakout"
     ],
@@ -53,16 +124,23 @@
         "at": "2026-11-17T01:24:08.246626+00:00",
         "from": "LOW-CONVICTION WATCH",
         "to": "EARLY WATCH"
+      },
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "from": "EARLY WATCH",
+        "to": "LOW-CONVICTION WATCH"
       }
     ],
     "initial_price": 0.57506,
-    "last_seen": "2026-11-17T01:40:31.296983+00:00",
-    "last_stage": "EARLY WATCH",
-    "latest_price": 0.57995,
-    "max_drawdown_pct": 0,
-    "max_gain_pct": 0.87,
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 0.58013,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 0.88,
     "milestones": {},
-    "peak_price": 0.58006,
+    "peak_price": 0.58013,
+    "price_as_of": "2026-11-17T02:21:50.211872+00:00",
+    "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
@@ -73,15 +151,25 @@
         "at": "2026-11-17T01:40:31.296983+00:00",
         "price": 0.57995,
         "return_pct": 0.85
+      },
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 0.58013,
+        "return_pct": 0.88
       }
     ],
-    "return_pct": 0.85,
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 0.88,
     "risk_flags": [],
+    "session_change_pct": null,
     "symbol": "ASTERUSDT",
     "trough_price": 0.57506
   },
   "crypto:BNBUSDT": {
-    "age_days": 0.01,
+    "age_days": 0.04,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -89,7 +177,7 @@
         "published_at": "2026-11-16T17:15:00Z",
         "publisher": "TheStreet",
         "source_type": null,
-        "title": "Binance’s Pay Later lets you spend up to $1,000 without selling Bitcoin",
+        "title": "Binance\u2019s Pay Later lets you spend up to $1,000 without selling Bitcoin",
         "url": "https://www.thestreet.com/crypto/innovation/binances-pay-later-lets-you-spend-up-to-1000-without-selling-bitcoin"
       },
       {
@@ -105,13 +193,14 @@
         "published_at": "2026-11-16T04:13:04Z",
         "publisher": "Stocktwits",
         "source_type": null,
-        "title": "Did Binance Make Bitcoin’s Crash Worse? OKX CEO Revives Feud With CZ Over October Selloffs",
+        "title": "Did Binance Make Bitcoin\u2019s Crash Worse? OKX CEO Revives Feud With CZ Over October Selloffs",
         "url": "https://stocktwits.com/news-articles/markets/cryptocurrency/binance-cz-okx-star-xu-bitcoin-crash-october-selloff/cNb7akaR9XE"
       }
     ],
     "currently_surfaced": true,
+    "daily_change_pct": 0.16,
     "discovery_reasons": [
-      "Relative volume 3.8x"
+      "Momentum / technical scan threshold"
     ],
     "first_grade": "LOW-CONVICTION WATCH",
     "first_seen": "2026-11-17T01:24:08.246626+00:00",
@@ -123,13 +212,15 @@
       }
     ],
     "initial_price": 590.47,
-    "last_seen": "2026-11-17T01:40:31.296983+00:00",
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 592,
-    "max_drawdown_pct": 0,
+    "latest_price": 591.62,
+    "max_drawdown_pct": 0.0,
     "max_gain_pct": 0.26,
     "milestones": {},
-    "peak_price": 592,
+    "peak_price": 592.0,
+    "price_as_of": "2026-11-17T02:21:47.307041+00:00",
+    "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
@@ -140,32 +231,95 @@
         "at": "2026-11-17T01:40:31.296983+00:00",
         "price": 592,
         "return_pct": 0.26
+      },
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 591.62,
+        "return_pct": 0.19
       }
     ],
-    "return_pct": 0.26,
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 0.19,
     "risk_flags": [],
+    "session_change_pct": null,
     "symbol": "BNBUSDT",
     "trough_price": 590.47
   },
   "crypto:BONKUSDT": {
-    "age_days": 0,
+    "age_days": 0.07,
     "asset_type": "crypto",
-    "currently_surfaced": false,
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-10-05T10:17:54Z",
+        "publisher": "BeInCrypto",
+        "source_type": null,
+        "title": "Shiba Inu Steps Beyond Shibarium, Opens a Second Front on Solana",
+        "url": "https://beincrypto.com/shib-on-solana-shiba-inu-sunrise/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-09-06T22:00:00Z",
+        "publisher": "BeInCrypto",
+        "source_type": null,
+        "title": "Top 3 Meme Coins to Watch in the Second Week of September",
+        "url": "https://beincrypto.com/meme-coins-watch-second-week-september/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-08-25T13:23:00Z",
+        "publisher": "CryptoProwl",
+        "source_type": null,
+        "title": "Crypto Rally Extends To Memecoins",
+        "url": "https://www.cryptoprowl.com/releases/crypto-rally-extends-to-memecoins-6520"
+      }
+    ],
+    "currently_surfaced": true,
+    "daily_change_pct": 0.64,
+    "discovery_reasons": [
+      "Momentum / technical scan threshold"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
-    "initial_price": 0.000002321,
-    "last_seen": "2026-11-17T00:44:31.089923+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T00:44:31.089923+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
+    "initial_price": 2.321e-06,
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.000002321,
-    "max_drawdown_pct": 0,
-    "max_gain_pct": 0,
+    "latest_price": 2.35e-06,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 1.25,
     "milestones": {},
-    "peak_price": 0.000002321,
-    "return_pct": 0,
+    "peak_price": 2.35e-06,
+    "price_as_of": "2026-11-17T02:21:48.661450+00:00",
+    "price_freshness": "live_ticker_snapshot",
+    "price_history": [
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 2.35e-06,
+        "return_pct": 1.25
+      }
+    ],
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 1.25,
+    "risk_flags": [],
+    "session_change_pct": null,
     "symbol": "BONKUSDT",
-    "trough_price": 0.000002321
+    "trough_price": 2.321e-06
   },
   "crypto:BTCUSDT": {
-    "age_days": 0.04,
+    "age_days": 0.07,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -194,8 +348,9 @@
       }
     ],
     "currently_surfaced": true,
+    "daily_change_pct": -0.41,
     "discovery_reasons": [
-      "Relative volume 3.0x"
+      "Relative volume 1.7x"
     ],
     "first_grade": "LOW-CONVICTION WATCH",
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
@@ -207,13 +362,15 @@
       }
     ],
     "initial_price": 64546.7,
-    "last_seen": "2026-11-17T01:40:31.296983+00:00",
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 64671.8,
-    "max_drawdown_pct": 0,
+    "latest_price": 64549.7,
+    "max_drawdown_pct": 0.0,
     "max_gain_pct": 0.19,
     "milestones": {},
     "peak_price": 64671.8,
+    "price_as_of": "2026-11-17T02:21:46.103801+00:00",
+    "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
@@ -224,15 +381,25 @@
         "at": "2026-11-17T01:40:31.296983+00:00",
         "price": 64671.8,
         "return_pct": 0.19
+      },
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 64549.7,
+        "return_pct": 0.0
       }
     ],
-    "return_pct": 0.19,
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 0.0,
     "risk_flags": [],
+    "session_change_pct": null,
     "symbol": "BTCUSDT",
     "trough_price": 64546.7
   },
   "crypto:DOTUSDT": {
-    "age_days": 0.04,
+    "age_days": 0.07,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -240,7 +407,7 @@
         "published_at": "2026-11-11T14:47:44Z",
         "publisher": "BeInCrypto",
         "source_type": null,
-        "title": "Is Your Altcoin on the List? Crypto Exchange Gemini Names 2026’s 10 Biggest Losers",
+        "title": "Is Your Altcoin on the List? Crypto Exchange Gemini Names 2026\u2019s 10 Biggest Losers",
         "url": "https://beincrypto.com/gemini-biggest-altcoin-losers-2026/"
       },
       {
@@ -261,6 +428,7 @@
       }
     ],
     "currently_surfaced": true,
+    "daily_change_pct": 0.16,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -274,13 +442,15 @@
       }
     ],
     "initial_price": 0.7287,
-    "last_seen": "2026-11-17T01:40:31.296983+00:00",
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.732,
+    "latest_price": 0.7339,
     "max_drawdown_pct": -0.29,
-    "max_gain_pct": 0.45,
+    "max_gain_pct": 0.71,
     "milestones": {},
-    "peak_price": 0.732,
+    "peak_price": 0.7339,
+    "price_as_of": "2026-11-17T02:21:47.686483+00:00",
+    "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
@@ -291,32 +461,95 @@
         "at": "2026-11-17T01:40:31.296983+00:00",
         "price": 0.732,
         "return_pct": 0.45
+      },
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 0.7339,
+        "return_pct": 0.71
       }
     ],
-    "return_pct": 0.45,
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 0.71,
     "risk_flags": [],
+    "session_change_pct": null,
     "symbol": "DOTUSDT",
     "trough_price": 0.7266
   },
   "crypto:ETHUSDT": {
-    "age_days": 0,
+    "age_days": 0.07,
     "asset_type": "crypto",
-    "currently_surfaced": false,
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-11-16T21:00:00Z",
+        "publisher": "Yahoo Finance Video",
+        "source_type": null,
+        "title": "Lighter halts withdrawals after $15.5 million drained via stolen API key",
+        "url": "https://finance.yahoo.com/video/lighter-halts-withdrawals-15-5-210000335.html"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-16T23:51:49Z",
+        "publisher": "TheStreet",
+        "source_type": null,
+        "title": "Hive Digital CEO says its five-year-old Nvidia GPUs still produce cash flow",
+        "url": "https://www.thestreet.com/crypto/innovation/hive-digital-ceo-says-its-five-year-old-nvidia-gpus-still-produce-cash-flow"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-16T23:00:02Z",
+        "publisher": "Motley Fool",
+        "source_type": null,
+        "title": "Crypto Market Today, Nov. 16: Bitcoin Searches for Stability After $230 Billion Crypto Sell-Off",
+        "url": "https://www.fool.com/coverage/stock-market-today/2026/11/16/crypto-market-today-nov-16-bitcoin-searches-for-stability-after-usd230-billion-crypto-sell-off/"
+      }
+    ],
+    "currently_surfaced": true,
+    "daily_change_pct": -0.14,
+    "discovery_reasons": [
+      "Momentum / technical scan threshold"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T00:44:31.089923+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
     "initial_price": 1813.37,
-    "last_seen": "2026-11-17T00:44:31.089923+00:00",
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 1813.37,
-    "max_drawdown_pct": 0,
-    "max_gain_pct": 0,
+    "latest_price": 1816.24,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 0.16,
     "milestones": {},
-    "peak_price": 1813.37,
-    "return_pct": 0,
+    "peak_price": 1816.24,
+    "price_as_of": "2026-11-17T02:21:47.110047+00:00",
+    "price_freshness": "live_ticker_snapshot",
+    "price_history": [
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 1816.24,
+        "return_pct": 0.16
+      }
+    ],
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 0.16,
+    "risk_flags": [],
+    "session_change_pct": null,
     "symbol": "ETHUSDT",
     "trough_price": 1813.37
   },
   "crypto:FETUSDT": {
-    "age_days": 0.04,
+    "age_days": 0.07,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -340,11 +573,12 @@
         "published_at": "2026-07-31T18:56:31Z",
         "publisher": "Forkast News",
         "source_type": null,
-        "title": "Beyond the Token Merger: Analyzing the ASI Alliance’s Decentralized AI Stack",
+        "title": "Beyond the Token Merger: Analyzing the ASI Alliance\u2019s Decentralized AI Stack",
         "url": "https://finance.yahoo.com/technology/ai/articles/beyond-token-merger-analyzing-asi-185631531.html"
       }
     ],
     "currently_surfaced": true,
+    "daily_change_pct": -0.46,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -358,13 +592,15 @@
       }
     ],
     "initial_price": 0.1311,
-    "last_seen": "2026-11-17T01:40:31.296983+00:00",
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.131,
+    "latest_price": 0.1312,
     "max_drawdown_pct": -0.08,
-    "max_gain_pct": 0,
+    "max_gain_pct": 0.08,
     "milestones": {},
-    "peak_price": 0.1311,
+    "peak_price": 0.1312,
+    "price_as_of": "2026-11-17T02:21:48.267624+00:00",
+    "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
@@ -375,18 +611,29 @@
         "at": "2026-11-17T01:40:31.296983+00:00",
         "price": 0.131,
         "return_pct": -0.08
+      },
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 0.1312,
+        "return_pct": 0.08
       }
     ],
-    "return_pct": -0.08,
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 0.08,
     "risk_flags": [],
+    "session_change_pct": null,
     "symbol": "FETUSDT",
     "trough_price": 0.131
   },
   "crypto:HYPEUSDT": {
-    "age_days": 0.04,
+    "age_days": 0.07,
     "asset_type": "crypto",
     "catalysts": [],
     "currently_surfaced": true,
+    "daily_change_pct": -1.35,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -400,13 +647,15 @@
       }
     ],
     "initial_price": 69.11,
-    "last_seen": "2026-11-17T01:40:31.296983+00:00",
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 68.81,
-    "max_drawdown_pct": -0.43,
-    "max_gain_pct": 0,
+    "latest_price": 68.8,
+    "max_drawdown_pct": -0.45,
+    "max_gain_pct": 0.0,
     "milestones": {},
     "peak_price": 69.11,
+    "price_as_of": "2026-11-17T02:21:49.852806+00:00",
+    "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
@@ -417,15 +666,25 @@
         "at": "2026-11-17T01:40:31.296983+00:00",
         "price": 68.81,
         "return_pct": -0.43
+      },
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 68.8,
+        "return_pct": -0.45
       }
     ],
-    "return_pct": -0.43,
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": -0.45,
     "risk_flags": [],
+    "session_change_pct": null,
     "symbol": "HYPEUSDT",
-    "trough_price": 68.81
+    "trough_price": 68.8
   },
   "crypto:INJUSDT": {
-    "age_days": 0.04,
+    "age_days": 0.07,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -441,7 +700,7 @@
         "published_at": "2026-09-20T15:59:42Z",
         "publisher": "Stocktwits",
         "source_type": null,
-        "title": "Altcoin Rally Explodes: NEAR, ARB, AVAX, INJ, UNI Lead As Kevin O’Leary Says Ethereum May No Longer Rule",
+        "title": "Altcoin Rally Explodes: NEAR, ARB, AVAX, INJ, UNI Lead As Kevin O\u2019Leary Says Ethereum May No Longer Rule",
         "url": "https://stocktwits.com/news-articles/markets/cryptocurrency/7-altcoins-explode-near-arb-avax-inj-uni-rally/cZtCgtCRB4R"
       },
       {
@@ -449,13 +708,14 @@
         "published_at": "2026-07-30T19:20:41Z",
         "publisher": "CoinDesk",
         "source_type": null,
-        "title": "Zcash Sealed $1.7B – Here's Everything You Need to Know",
+        "title": "Zcash Sealed $1.7B \u2013 Here's Everything You Need to Know",
         "url": "http://videos.coindesk.com/previews/9azdw8Xf"
       }
     ],
     "currently_surfaced": true,
+    "daily_change_pct": 1.87,
     "discovery_reasons": [
-      "Momentum / technical scan threshold"
+      "Relative volume 1.7x"
     ],
     "first_grade": "LOW-CONVICTION WATCH",
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
@@ -464,16 +724,23 @@
         "at": "2026-11-17T00:44:31.089923+00:00",
         "from": null,
         "to": "LOW-CONVICTION WATCH"
+      },
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "from": "LOW-CONVICTION WATCH",
+        "to": "EARLY WATCH"
       }
     ],
     "initial_price": 6.858,
-    "last_seen": "2026-11-17T01:40:31.296983+00:00",
-    "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 6.944,
-    "max_drawdown_pct": 0,
-    "max_gain_pct": 1.25,
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
+    "last_stage": "EARLY WATCH",
+    "latest_price": 7.028,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 2.48,
     "milestones": {},
-    "peak_price": 6.944,
+    "peak_price": 7.028,
+    "price_as_of": "2026-11-17T02:21:47.763915+00:00",
+    "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
@@ -484,15 +751,95 @@
         "at": "2026-11-17T01:40:31.296983+00:00",
         "price": 6.944,
         "return_pct": 1.25
+      },
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 7.028,
+        "return_pct": 2.48
       }
     ],
-    "return_pct": 1.25,
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 2.48,
     "risk_flags": [],
+    "session_change_pct": null,
     "symbol": "INJUSDT",
     "trough_price": 6.858
   },
+  "crypto:LTCUSDT": {
+    "age_days": 0,
+    "asset_type": "crypto",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-11-12T14:19:21Z",
+        "publisher": "24/7 Wall St.",
+        "source_type": null,
+        "title": "Bitcoin Gained 7% in September, but NEAR and Arbitrum Reportedly Surged 187% and 137%",
+        "url": "https://247wallst.com/investing/cryptocurrency/2026/11/12/bitcoin-gained-7-in-september-but-near-and-arbitrum-reportedly-surged-187-and-137/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-06T11:53:52Z",
+        "publisher": "BeInCrypto",
+        "source_type": null,
+        "title": "XRP Holders Hit Back at Litecoin\u2019s Latest Jab With One Chart",
+        "url": "https://beincrypto.com/litecoin-xrp-feud-ltc-trails/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-03T22:10:43Z",
+        "publisher": "Unchained",
+        "source_type": null,
+        "title": "THORChain Restarts Most Swaps After Analyst Said Operators Would Expect North Korea to Launder",
+        "url": "https://unchainedcrypto.com/thorchain-restarts-most-swaps-after-analyst-said-operators-would-expect-north-korea-to-launder/"
+      }
+    ],
+    "currently_surfaced": true,
+    "daily_change_pct": 0.52,
+    "discovery_reasons": [
+      "Momentum / technical scan threshold"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
+    "first_seen": "2026-11-17T02:21:51.143636+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
+    "initial_price": 44.7,
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 44.7,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 0.0,
+    "milestones": {},
+    "peak_price": 44.7,
+    "price_as_of": "2026-11-17T02:21:50.048328+00:00",
+    "price_freshness": "live_ticker_snapshot",
+    "price_history": [
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 44.7,
+        "return_pct": 0.0
+      }
+    ],
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 0.0,
+    "risk_flags": [],
+    "session_change_pct": null,
+    "symbol": "LTCUSDT",
+    "trough_price": 44.7
+  },
   "crypto:NIGHTUSDT": {
-    "age_days": 0.04,
+    "age_days": 0.07,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -521,6 +868,7 @@
       }
     ],
     "currently_surfaced": true,
+    "daily_change_pct": -0.74,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -534,13 +882,15 @@
       }
     ],
     "initial_price": 0.0468,
-    "last_seen": "2026-11-17T01:40:31.296983+00:00",
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.04723,
-    "max_drawdown_pct": 0,
+    "latest_price": 0.04714,
+    "max_drawdown_pct": 0.0,
     "max_gain_pct": 0.92,
     "milestones": {},
     "peak_price": 0.04723,
+    "price_as_of": "2026-11-17T02:21:50.245921+00:00",
+    "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
@@ -551,32 +901,240 @@
         "at": "2026-11-17T01:40:31.296983+00:00",
         "price": 0.04723,
         "return_pct": 0.92
+      },
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 0.04714,
+        "return_pct": 0.73
       }
     ],
-    "return_pct": 0.92,
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 0.73,
     "risk_flags": [],
+    "session_change_pct": null,
     "symbol": "NIGHTUSDT",
     "trough_price": 0.0468
   },
   "crypto:ONDOUSDT": {
-    "age_days": 0,
+    "age_days": 0.07,
     "asset_type": "crypto",
-    "currently_surfaced": false,
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-11-16T15:36:57Z",
+        "publisher": "NYSE",
+        "source_type": null,
+        "title": "Ondo Finance Exec on Firm Topping $4 Billion in Tokenized Real-World Assets",
+        "url": "https://finance.yahoo.com/video/ondo-finance-exec-firm-topping-153657209.html"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-11T22:57:21Z",
+        "publisher": "TheStreet",
+        "source_type": null,
+        "title": "T7X CEO says existing laws allow tokenization",
+        "url": "https://www.thestreet.com/crypto/policy/t7x-ceo-says-existing-laws-allow-tokenization"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-09T17:49:09Z",
+        "publisher": "CoinDesk",
+        "source_type": null,
+        "title": "Ondo tops $4B and tokenizes Anthropic as tZERO eyes $350M SPAC",
+        "url": "http://videos.coindesk.com/previews/kiQXqc97"
+      }
+    ],
+    "currently_surfaced": true,
+    "daily_change_pct": -0.31,
+    "discovery_reasons": [
+      "Momentum / technical scan threshold"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T00:44:31.089923+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      },
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "from": "EARLY WATCH",
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
     "initial_price": 0.30507,
-    "last_seen": "2026-11-17T00:44:31.089923+00:00",
-    "last_stage": "EARLY WATCH",
-    "latest_price": 0.30507,
-    "max_drawdown_pct": 0,
-    "max_gain_pct": 0,
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 0.30665,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 0.52,
     "milestones": {},
-    "peak_price": 0.30507,
-    "return_pct": 0,
+    "peak_price": 0.30665,
+    "price_as_of": "2026-11-17T02:21:48.804204+00:00",
+    "price_freshness": "live_ticker_snapshot",
+    "price_history": [
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 0.30665,
+        "return_pct": 0.52
+      }
+    ],
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 0.52,
+    "risk_flags": [],
+    "session_change_pct": null,
     "symbol": "ONDOUSDT",
     "trough_price": 0.30507
   },
+  "crypto:OPUSDT": {
+    "age_days": 0,
+    "asset_type": "crypto",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-09-24T14:39:41Z",
+        "publisher": "24/7 Wall St.",
+        "source_type": null,
+        "title": "Ethereum Rises 8% in a Month, but Arbitrum Soars 135%. Is Robinhood Chain to Blame?",
+        "url": "https://247wallst.com/investing/cryptocurrency/2026/09/24/ethereum-rises-8-in-a-month-but-arbitrum-soars-135-is-robinhood-chain-to-blame/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-05-30T09:56:01Z",
+        "publisher": "Business Insider",
+        "source_type": null,
+        "title": "We did the math on Ken Griffin's pied-\u00e0-terre tax bill",
+        "url": "https://www.businessinsider.com/ken-griffin-pay-mamdani-nyc-pied-a-terre-tax-2026-5"
+      },
+      {
+        "form": null,
+        "published_at": "2026-05-29T15:11:02Z",
+        "publisher": "Business Insider",
+        "source_type": null,
+        "title": "Barclays sees a short-squeeze brewing in this corner of the market as the Iran war winds down",
+        "url": "https://www.businessinsider.com/stock-market-outlook-iran-peace-deal-short-squeeze-consumer-stocks-barclays-2026-5"
+      }
+    ],
+    "currently_surfaced": true,
+    "daily_change_pct": -0.13,
+    "discovery_reasons": [
+      "Relative volume 2.3x"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
+    "first_seen": "2026-11-17T02:21:51.143636+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
+    "initial_price": 0.0791,
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 0.0791,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 0.0,
+    "milestones": {},
+    "peak_price": 0.0791,
+    "price_as_of": "2026-11-17T02:21:48.923680+00:00",
+    "price_freshness": "live_ticker_snapshot",
+    "price_history": [
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 0.0791,
+        "return_pct": 0.0
+      }
+    ],
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 0.0,
+    "risk_flags": [],
+    "session_change_pct": null,
+    "symbol": "OPUSDT",
+    "trough_price": 0.0791
+  },
+  "crypto:PAXGUSDT": {
+    "age_days": 0,
+    "asset_type": "crypto",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-11-09T13:06:59Z",
+        "publisher": "CCN",
+        "source_type": null,
+        "title": "Coinbase Users Can Now Borrow USDC Against Tokenized Gold",
+        "url": "https://www.ccn.com/news/crypto/coinbase-usdc-loans-tokenized-gold-paxg/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-06T22:35:58Z",
+        "publisher": "TheStreet",
+        "source_type": null,
+        "title": "Coinbase has news for gold holders",
+        "url": "https://www.thestreet.com/crypto/markets/coinbase-has-news-for-gold-holders"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-06T16:34:43Z",
+        "publisher": "Bankless",
+        "source_type": null,
+        "title": "Coinbase Enables Borrowing Against Gold via Morpho",
+        "url": "https://www.bankless.com/read/news/coinbase-enables-borrowing-against-gold-via-morpho"
+      }
+    ],
+    "currently_surfaced": true,
+    "daily_change_pct": 0.13,
+    "discovery_reasons": [
+      "Momentum / technical scan threshold"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
+    "first_seen": "2026-11-17T02:21:51.143636+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
+    "initial_price": 3852.36,
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 3852.36,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 0.0,
+    "milestones": {},
+    "peak_price": 3852.36,
+    "price_as_of": "2026-11-17T02:21:50.261066+00:00",
+    "price_freshness": "live_ticker_snapshot",
+    "price_history": [
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 3852.36,
+        "return_pct": 0.0
+      }
+    ],
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 0.0,
+    "risk_flags": [],
+    "session_change_pct": null,
+    "symbol": "PAXGUSDT",
+    "trough_price": 3852.36
+  },
   "crypto:PEPEUSDT": {
-    "age_days": 0.04,
+    "age_days": 0.07,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -605,8 +1163,9 @@
       }
     ],
     "currently_surfaced": true,
+    "daily_change_pct": 0.82,
     "discovery_reasons": [
-      "Momentum / technical scan threshold"
+      "Relative volume 2.7x"
     ],
     "first_grade": "LOW-CONVICTION WATCH",
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
@@ -615,35 +1174,52 @@
         "at": "2026-11-17T00:44:31.089923+00:00",
         "from": null,
         "to": "LOW-CONVICTION WATCH"
+      },
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "from": "LOW-CONVICTION WATCH",
+        "to": "EARLY WATCH"
       }
     ],
-    "initial_price": 0.000003898,
-    "last_seen": "2026-11-17T01:40:31.296983+00:00",
-    "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.00000393,
-    "max_drawdown_pct": 0,
+    "initial_price": 3.898e-06,
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
+    "last_stage": "EARLY WATCH",
+    "latest_price": 3.929e-06,
+    "max_drawdown_pct": 0.0,
     "max_gain_pct": 0.82,
     "milestones": {},
-    "peak_price": 0.00000393,
+    "peak_price": 3.93e-06,
+    "price_as_of": "2026-11-17T02:21:48.401435+00:00",
+    "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
-        "price": 0.00000392,
+        "price": 3.92e-06,
         "return_pct": 0.56
       },
       {
         "at": "2026-11-17T01:40:31.296983+00:00",
-        "price": 0.00000393,
+        "price": 3.93e-06,
         "return_pct": 0.82
+      },
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 3.929e-06,
+        "return_pct": 0.8
       }
     ],
-    "return_pct": 0.82,
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 0.8,
     "risk_flags": [],
+    "session_change_pct": null,
     "symbol": "PEPEUSDT",
-    "trough_price": 0.000003898
+    "trough_price": 3.898e-06
   },
   "crypto:RENDERUSDT": {
-    "age_days": 0.04,
+    "age_days": 0.07,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -664,8 +1240,9 @@
       }
     ],
     "currently_surfaced": true,
+    "daily_change_pct": -0.65,
     "discovery_reasons": [
-      "Relative volume 2.8x"
+      "Relative volume 2.2x"
     ],
     "first_grade": "LOW-CONVICTION WATCH",
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
@@ -677,13 +1254,15 @@
       }
     ],
     "initial_price": 1.364,
-    "last_seen": "2026-11-17T01:40:31.296983+00:00",
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 1.364,
+    "latest_price": 1.368,
     "max_drawdown_pct": -0.15,
-    "max_gain_pct": 0,
+    "max_gain_pct": 0.29,
     "milestones": {},
-    "peak_price": 1.364,
+    "peak_price": 1.368,
+    "price_as_of": "2026-11-17T02:21:48.173615+00:00",
+    "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
@@ -694,15 +1273,95 @@
         "at": "2026-11-17T01:40:31.296983+00:00",
         "price": 1.364,
         "return_pct": 0
+      },
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 1.368,
+        "return_pct": 0.29
       }
     ],
-    "return_pct": 0,
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 0.29,
     "risk_flags": [],
+    "session_change_pct": null,
     "symbol": "RENDERUSDT",
     "trough_price": 1.362
   },
+  "crypto:SEIUSDT": {
+    "age_days": 0,
+    "asset_type": "crypto",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-02-02T15:14:04Z",
+        "publisher": "CoinDesk",
+        "source_type": null,
+        "title": "Earnings season gathers steam, U.S. jobs: Crypto Week Ahead",
+        "url": "https://www.coindesk.com/markets/2026/02/02/earnings-season-gathers-steam-u-s-jobs-crypto-week-ahead"
+      },
+      {
+        "form": null,
+        "published_at": "2026-01-15T19:21:58Z",
+        "publisher": "Coinspeaker",
+        "source_type": null,
+        "title": "MetaMask Integrates TRON Network Across Web, Mobile Platforms",
+        "url": "https://www.coinspeaker.com/metamask-integrates-tron-network-trx-hits-three-month-high/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-01-06T15:11:07Z",
+        "publisher": "99bitcoins",
+        "source_type": null,
+        "title": "Sei Crypto News: Is This An Easy 5X Crypto For 2026?",
+        "url": "https://99bitcoins.com/news/altcoins/sei-crypto-news-is-this-an-easy-5x-crypto-for-2026/"
+      }
+    ],
+    "currently_surfaced": true,
+    "daily_change_pct": -0.18,
+    "discovery_reasons": [
+      "Relative volume 2.5x"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
+    "first_seen": "2026-11-17T02:21:51.143636+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
+    "initial_price": 0.03887,
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 0.03887,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 0.0,
+    "milestones": {},
+    "peak_price": 0.03887,
+    "price_as_of": "2026-11-17T02:21:47.849320+00:00",
+    "price_freshness": "live_ticker_snapshot",
+    "price_history": [
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 0.03887,
+        "return_pct": 0.0
+      }
+    ],
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 0.0,
+    "risk_flags": [],
+    "session_change_pct": null,
+    "symbol": "SEIUSDT",
+    "trough_price": 0.03887
+  },
   "crypto:SOLUSDT": {
-    "age_days": 0.04,
+    "age_days": 0.07,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -731,6 +1390,7 @@
       }
     ],
     "currently_surfaced": true,
+    "daily_change_pct": 0.25,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -744,13 +1404,15 @@
       }
     ],
     "initial_price": 71.48,
-    "last_seen": "2026-11-17T01:40:31.296983+00:00",
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 71.79,
-    "max_drawdown_pct": 0,
+    "latest_price": 71.7,
+    "max_drawdown_pct": 0.0,
     "max_gain_pct": 0.43,
     "milestones": {},
     "peak_price": 71.79,
+    "price_as_of": "2026-11-17T02:21:46.807068+00:00",
+    "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
@@ -761,15 +1423,25 @@
         "at": "2026-11-17T01:40:31.296983+00:00",
         "price": 71.79,
         "return_pct": 0.43
+      },
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 71.7,
+        "return_pct": 0.31
       }
     ],
-    "return_pct": 0.43,
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 0.31,
     "risk_flags": [],
+    "session_change_pct": null,
     "symbol": "SOLUSDT",
     "trough_price": 71.48
   },
   "crypto:TAOUSDT": {
-    "age_days": 0.04,
+    "age_days": 0.07,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -790,6 +1462,7 @@
       }
     ],
     "currently_surfaced": true,
+    "daily_change_pct": -0.01,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -803,13 +1476,15 @@
       }
     ],
     "initial_price": 190.5707,
-    "last_seen": "2026-11-17T01:40:31.296983+00:00",
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 191.4135,
+    "latest_price": 191.1728,
     "max_drawdown_pct": -0.14,
     "max_gain_pct": 0.44,
     "milestones": {},
     "peak_price": 191.4135,
+    "price_as_of": "2026-11-17T02:21:48.340811+00:00",
+    "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
@@ -820,27 +1495,90 @@
         "at": "2026-11-17T01:40:31.296983+00:00",
         "price": 191.4135,
         "return_pct": 0.44
+      },
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 191.1728,
+        "return_pct": 0.32
       }
     ],
-    "return_pct": 0.44,
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 0.32,
     "risk_flags": [],
+    "session_change_pct": null,
     "symbol": "TAOUSDT",
     "trough_price": 190.3
   },
   "crypto:UNIUSDT": {
-    "age_days": 0,
+    "age_days": 0.07,
     "asset_type": "crypto",
-    "currently_surfaced": false,
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-11-12T14:19:21Z",
+        "publisher": "24/7 Wall St.",
+        "source_type": null,
+        "title": "Bitcoin Gained 7% in September, but NEAR and Arbitrum Reportedly Surged 187% and 137%",
+        "url": "https://247wallst.com/investing/cryptocurrency/2026/11/12/bitcoin-gained-7-in-september-but-near-and-arbitrum-reportedly-surged-187-and-137/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-10-26T19:30:39Z",
+        "publisher": "24/7 Wall St.",
+        "source_type": null,
+        "title": "AI Price Prediction: ChatGPT Predicts Where Ethereum, Chainlink and Uniswap Could Be by the End of 2026",
+        "url": "https://247wallst.com/investing/cryptocurrency/2026/10/26/ai-price-prediction-chatgpt-predicts-where-ethereum-chainlink-and-uniswap-could-be-by-the-end-of-2026/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-10-22T21:30:41Z",
+        "publisher": "24/7 Wall St.",
+        "source_type": null,
+        "title": "Can Uniswap (UNI) Get Back to $10 After a 21% Monthly Drop?",
+        "url": "https://247wallst.com/investing/cryptocurrency/2026/10/22/can-uniswap-uni-get-back-to-10-after-a-21-monthly-drop/"
+      }
+    ],
+    "currently_surfaced": true,
+    "daily_change_pct": 0.16,
+    "discovery_reasons": [
+      "Momentum / technical scan threshold"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T00:44:31.089923+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
     "initial_price": 5.1441,
-    "last_seen": "2026-11-17T00:44:31.089923+00:00",
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 5.1441,
-    "max_drawdown_pct": 0,
-    "max_gain_pct": 0,
+    "latest_price": 5.1693,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 0.49,
     "milestones": {},
-    "peak_price": 5.1441,
-    "return_pct": 0,
+    "peak_price": 5.1693,
+    "price_as_of": "2026-11-17T02:21:50.304200+00:00",
+    "price_freshness": "live_ticker_snapshot",
+    "price_history": [
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 5.1693,
+        "return_pct": 0.49
+      }
+    ],
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 0.49,
+    "risk_flags": [],
+    "session_change_pct": null,
     "symbol": "UNIUSDT",
     "trough_price": 5.1441
   },
@@ -848,7 +1586,7 @@
     "age_days": 0.01,
     "asset_type": "crypto",
     "catalysts": [],
-    "currently_surfaced": true,
+    "currently_surfaced": false,
     "discovery_reasons": [
       "Relative volume 9.2x"
     ],
@@ -887,10 +1625,11 @@
     "trough_price": 1
   },
   "crypto:VVVUSDT": {
-    "age_days": 0.04,
+    "age_days": 0.07,
     "asset_type": "crypto",
     "catalysts": [],
     "currently_surfaced": true,
+    "daily_change_pct": 1.51,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -904,13 +1643,15 @@
       }
     ],
     "initial_price": 20.19,
-    "last_seen": "2026-11-17T01:40:31.296983+00:00",
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 20.248,
-    "max_drawdown_pct": 0,
-    "max_gain_pct": 0.29,
+    "latest_price": 20.452,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 1.3,
     "milestones": {},
-    "peak_price": 20.248,
+    "peak_price": 20.452,
+    "price_as_of": "2026-11-17T02:21:49.871413+00:00",
+    "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
@@ -921,15 +1662,25 @@
         "at": "2026-11-17T01:40:31.296983+00:00",
         "price": 20.248,
         "return_pct": 0.29
+      },
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 20.452,
+        "return_pct": 1.3
       }
     ],
-    "return_pct": 0.29,
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 1.3,
     "risk_flags": [],
+    "session_change_pct": null,
     "symbol": "VVVUSDT",
     "trough_price": 20.19
   },
   "crypto:WIFUSDT": {
-    "age_days": 0.04,
+    "age_days": 0.07,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -953,11 +1704,12 @@
         "published_at": "2025-12-24T17:23:04Z",
         "publisher": "decrypt",
         "source_type": null,
-        "title": "How Pudgy Penguins Landed the Las Vegas Sphere—After Dogwifhat Couldn't",
+        "title": "How Pudgy Penguins Landed the Las Vegas Sphere\u2014After Dogwifhat Couldn't",
         "url": "https://decrypt.co/353166/how-pudgy-penguins-landed-las-vegas-sphere-dogwifhat-couldnt"
       }
     ],
     "currently_surfaced": true,
+    "daily_change_pct": -0.74,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -971,13 +1723,15 @@
       }
     ],
     "initial_price": 0.1344,
-    "last_seen": "2026-11-17T01:40:31.296983+00:00",
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.1336,
+    "latest_price": 0.1338,
     "max_drawdown_pct": -0.74,
-    "max_gain_pct": 0,
+    "max_gain_pct": 0.0,
     "milestones": {},
     "peak_price": 0.1344,
+    "price_as_of": "2026-11-17T02:21:48.371653+00:00",
+    "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
@@ -988,15 +1742,235 @@
         "at": "2026-11-17T01:40:31.296983+00:00",
         "price": 0.1336,
         "return_pct": -0.6
+      },
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 0.1338,
+        "return_pct": -0.45
       }
     ],
-    "return_pct": -0.6,
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": -0.45,
     "risk_flags": [],
+    "session_change_pct": null,
     "symbol": "WIFUSDT",
     "trough_price": 0.1334
   },
+  "crypto:XDCUSDT": {
+    "age_days": 0,
+    "asset_type": "crypto",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-11-09T20:34:31Z",
+        "publisher": "BeInCrypto",
+        "source_type": null,
+        "title": "Wall Street Wants to Tokenize Everything. But Who\u2019s Buying?",
+        "url": "https://beincrypto.com/wall-street-wants-to-tokenize-everything-but-whos-buying/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-10-20T10:53:23Z",
+        "publisher": "BeInCrypto",
+        "source_type": null,
+        "title": "MoneyGram Makes Another Big Blockchain Move With XDC Network",
+        "url": "https://beincrypto.com/moneygram-xdc-network-blockchain-validator/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-10-05T17:32:49Z",
+        "publisher": "BeInCrypto",
+        "source_type": null,
+        "title": "Why Are Financial Firms Becoming Blockchain Validators? Amber Joins XDC",
+        "url": "https://beincrypto.com/amber-premium-xdc-network-validator/"
+      }
+    ],
+    "currently_surfaced": true,
+    "daily_change_pct": 1.13,
+    "discovery_reasons": [
+      "Momentum / technical scan threshold"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
+    "first_seen": "2026-11-17T02:21:51.143636+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
+    "initial_price": 0.02953,
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 0.02953,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 0.0,
+    "milestones": {},
+    "peak_price": 0.02953,
+    "price_as_of": "2026-11-17T02:21:50.075492+00:00",
+    "price_freshness": "live_ticker_snapshot",
+    "price_history": [
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 0.02953,
+        "return_pct": 0.0
+      }
+    ],
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 0.0,
+    "risk_flags": [],
+    "session_change_pct": null,
+    "symbol": "XDCUSDT",
+    "trough_price": 0.02953
+  },
+  "crypto:XMRUSDT": {
+    "age_days": 0,
+    "asset_type": "crypto",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-11-16T15:06:19Z",
+        "publisher": "BeInCrypto",
+        "source_type": null,
+        "title": "Why Circle Can\u2019t Freeze the $6.45 Million Stolen From a Crypto Wallet",
+        "url": "https://beincrypto.com/hacker-stolen-dollars-circle-freeze-monero/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-09T18:16:00Z",
+        "publisher": "Motley Fool",
+        "source_type": null,
+        "title": "This Under-the-Radar Cryptocurrency Is Up Big So Far in 2026. But Is It a Buy?",
+        "url": "https://www.fool.com/investing/2026/11/09/this-under-the-radar-cryptocurrency-is-up-big-so-f/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-07T10:39:50Z",
+        "publisher": "BeInCrypto",
+        "source_type": null,
+        "title": "3 Altcoins Defy the Crypto Market Crash",
+        "url": "https://beincrypto.com/altcoins-to-watch-market-crash-november-second-week/"
+      }
+    ],
+    "currently_surfaced": true,
+    "daily_change_pct": -0.02,
+    "discovery_reasons": [
+      "Relative volume 1.7x"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
+    "first_seen": "2026-11-17T02:21:51.143636+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
+    "initial_price": 493.46,
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 493.46,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 0.0,
+    "milestones": {},
+    "peak_price": 493.46,
+    "price_as_of": "2026-11-17T02:21:49.404654+00:00",
+    "price_freshness": "live_ticker_snapshot",
+    "price_history": [
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 493.46,
+        "return_pct": 0.0
+      }
+    ],
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 0.0,
+    "risk_flags": [],
+    "session_change_pct": null,
+    "symbol": "XMRUSDT",
+    "trough_price": 493.46
+  },
+  "crypto:XRPUSDT": {
+    "age_days": 0,
+    "asset_type": "crypto",
+    "catalysts": [
+      {
+        "form": null,
+        "published_at": "2026-11-16T19:56:28Z",
+        "publisher": "24/7 Wall St.",
+        "source_type": null,
+        "title": "What Could $100 a Month in XRP Be Worth by 2030?",
+        "url": "https://247wallst.com/investing/cryptocurrency/2026/11/16/what-could-100-a-month-in-xrp-be-worth-by-2030/"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-16T18:25:29Z",
+        "publisher": "FX Empire",
+        "source_type": null,
+        "title": "XRP Price Prediction: Further Pain Ahead as XRP Dips to Our $0.90 Target",
+        "url": "https://finance.yahoo.com/markets/crypto/articles/xrp-price-prediction-further-pain-182529333.html"
+      },
+      {
+        "form": null,
+        "published_at": "2026-11-16T18:01:25Z",
+        "publisher": "24/7 Wall St.",
+        "source_type": null,
+        "title": "3 Reasons to Buy XRP Before 2027 and 2 Reasons to Wait",
+        "url": "https://247wallst.com/investing/cryptocurrency/2026/11/16/3-reasons-to-buy-xrp-before-2027-and-2-reasons-to-wait/"
+      }
+    ],
+    "currently_surfaced": true,
+    "daily_change_pct": 0.05,
+    "discovery_reasons": [
+      "Momentum / technical scan threshold"
+    ],
+    "first_grade": "LOW-CONVICTION WATCH",
+    "first_seen": "2026-11-17T02:21:51.143636+00:00",
+    "grade_history": [
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "from": null,
+        "to": "LOW-CONVICTION WATCH"
+      }
+    ],
+    "initial_price": 0.95525,
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 0.95525,
+    "max_drawdown_pct": 0.0,
+    "max_gain_pct": 0.0,
+    "milestones": {},
+    "peak_price": 0.95525,
+    "price_as_of": "2026-11-17T02:21:47.102459+00:00",
+    "price_freshness": "live_ticker_snapshot",
+    "price_history": [
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 0.95525,
+        "return_pct": 0.0
+      }
+    ],
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 0.0,
+    "risk_flags": [],
+    "session_change_pct": null,
+    "symbol": "XRPUSDT",
+    "trough_price": 0.95525
+  },
   "crypto:ZECUSDT": {
-    "age_days": 0.04,
+    "age_days": 0.07,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -1025,6 +1999,7 @@
       }
     ],
     "currently_surfaced": true,
+    "daily_change_pct": 0.15,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -1038,13 +2013,15 @@
       }
     ],
     "initial_price": 899.95,
-    "last_seen": "2026-11-17T01:40:31.296983+00:00",
+    "last_seen": "2026-11-17T02:21:51.143636+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 910.43,
-    "max_drawdown_pct": 0,
+    "latest_price": 905.13,
+    "max_drawdown_pct": 0.0,
     "max_gain_pct": 1.16,
     "milestones": {},
     "peak_price": 910.43,
+    "price_as_of": "2026-11-17T02:21:49.511673+00:00",
+    "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
@@ -1055,10 +2032,20 @@
         "at": "2026-11-17T01:40:31.296983+00:00",
         "price": 910.43,
         "return_pct": 1.16
+      },
+      {
+        "at": "2026-11-17T02:21:51.143636+00:00",
+        "price": 905.13,
+        "return_pct": 0.58
       }
     ],
-    "return_pct": 1.16,
+    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_source": "Kraken Spot public API + Yahoo Finance headlines",
+    "price_validation_note": "Not applicable",
+    "price_validation_status": "not_required",
+    "return_pct": 0.58,
     "risk_flags": [],
+    "session_change_pct": null,
     "symbol": "ZECUSDT",
     "trough_price": 899.95
   },
@@ -1124,13 +2111,13 @@
         "return_pct": 0
       }
     ],
+    "price_validation_note": "Fresh Yahoo intraday quote unavailable",
+    "price_validation_status": "unverified",
     "return_pct": null,
     "risk_flags": [],
     "symbol": "AMD",
     "trough_price": 534.06,
-    "price_validation_status": "unverified",
-    "price_validation_note": "Legacy stock price quarantined pending fresh independent quote validation",
-    "unverified_return_pct": 0
+    "unverified_return_pct": null
   },
   "stock:CLSK": {
     "age_days": 0.01,
@@ -1194,13 +2181,13 @@
         "return_pct": 0
       }
     ],
+    "price_validation_note": "Fresh Yahoo intraday quote unavailable",
+    "price_validation_status": "unverified",
     "return_pct": null,
     "risk_flags": [],
     "symbol": "CLSK",
     "trough_price": 6.65,
-    "price_validation_status": "unverified",
-    "price_validation_note": "Legacy stock price quarantined pending fresh independent quote validation",
-    "unverified_return_pct": 0
+    "unverified_return_pct": null
   },
   "stock:LUNR": {
     "age_days": 0.05,
@@ -1211,7 +2198,7 @@
         "published_at": "2026-11-16T05:58:34Z",
         "publisher": "Stocktwits",
         "source_type": null,
-        "title": "ASTS, RKLB, LUNR And FLY Fall After ULA Rocket Failure Strands 40 Amazon Satellites — Why One Analyst Wants Musk To Free Up Falcon 9 Flights",
+        "title": "ASTS, RKLB, LUNR And FLY Fall After ULA Rocket Failure Strands 40 Amazon Satellites \u2014 Why One Analyst Wants Musk To Free Up Falcon 9 Flights",
         "url": "https://stocktwits.com/news-articles/markets/equity/asts-rklb-lunr-fly-ula-rocket-failure-40-amazon-satellites-analyst-musk-falcon-9-flights/cNb7XOFR9Xa"
       },
       {
@@ -1219,7 +2206,7 @@
         "published_at": "2026-11-15T17:10:00Z",
         "publisher": "MarketBeat",
         "source_type": null,
-        "title": "Intuitive Machines’ Business Is Taking Off—Will Its Stock Follow?",
+        "title": "Intuitive Machines\u2019 Business Is Taking Off\u2014Will Its Stock Follow?",
         "url": "https://www.marketbeat.com/articles/intuitive-machines-business-is-taking-offwill-its-stock-follow/?utm_source=yahoofinance&utm_medium=yahoofinance"
       },
       {
@@ -1264,13 +2251,13 @@
         "return_pct": 10.83
       }
     ],
+    "price_validation_note": "Fresh Yahoo intraday quote unavailable",
+    "price_validation_status": "unverified",
     "return_pct": null,
     "risk_flags": [],
     "symbol": "LUNR",
     "trough_price": 11.73,
-    "price_validation_status": "unverified",
-    "price_validation_note": "Legacy stock price quarantined pending fresh independent quote validation",
-    "unverified_return_pct": 10.83
+    "unverified_return_pct": null
   },
   "stock:MARA": {
     "age_days": 0.01,
@@ -1289,7 +2276,7 @@
         "published_at": "2026-11-16T14:31:12Z",
         "publisher": "TIKR",
         "source_type": null,
-        "title": "43% Upside for MARA? Piper Sandler Thinks So, and Here’s How",
+        "title": "43% Upside for MARA? Piper Sandler Thinks So, and Here\u2019s How",
         "url": "https://www.tikr.com/blog/43-upside-for-mara-piper-sandler-thinks-so-and-heres-how?ref=yahoofinance&tlnk=yf-261116-jxcrxqrv"
       },
       {
@@ -1334,13 +2321,13 @@
         "return_pct": 0
       }
     ],
+    "price_validation_note": "Fresh Yahoo intraday quote unavailable",
+    "price_validation_status": "unverified",
     "return_pct": null,
     "risk_flags": [],
     "symbol": "MARA",
     "trough_price": 6.99,
-    "price_validation_status": "unverified",
-    "price_validation_note": "Legacy stock price quarantined pending fresh independent quote validation",
-    "unverified_return_pct": 0
+    "unverified_return_pct": null
   },
   "stock:RDW": {
     "age_days": 0.01,
@@ -1404,13 +2391,13 @@
         "return_pct": 0
       }
     ],
+    "price_validation_note": "Fresh Yahoo intraday quote unavailable",
+    "price_validation_status": "unverified",
     "return_pct": null,
     "risk_flags": [],
     "symbol": "RDW",
     "trough_price": 7.73,
-    "price_validation_status": "unverified",
-    "price_validation_note": "Legacy stock price quarantined pending fresh independent quote validation",
-    "unverified_return_pct": 0
+    "unverified_return_pct": null
   },
   "stock:RIOT": {
     "age_days": 0.05,
@@ -1421,7 +2408,7 @@
         "published_at": "2026-11-16T17:19:25Z",
         "publisher": "TIKR",
         "source_type": null,
-        "title": "Bernstein’s $30 Target Says Riot Platforms’ Selloff Went Too Far",
+        "title": "Bernstein\u2019s $30 Target Says Riot Platforms\u2019 Selloff Went Too Far",
         "url": "https://www.tikr.com/blog/bernsteins-30-target-says-riot-platforms-selloff-went-too-far?ref=yahoofinance&tlnk=yf-261116-x893r78m"
       },
       {
@@ -1474,13 +2461,13 @@
         "return_pct": 2.7
       }
     ],
+    "price_validation_note": "Fresh Yahoo intraday quote unavailable",
+    "price_validation_status": "unverified",
     "return_pct": null,
     "risk_flags": [],
     "symbol": "RIOT",
     "trough_price": 17.06,
-    "price_validation_status": "unverified",
-    "price_validation_note": "Legacy stock price quarantined pending fresh independent quote validation",
-    "unverified_return_pct": 2.7
+    "unverified_return_pct": null
   },
   "stock:RKLB": {
     "age_days": 0.05,
@@ -1544,13 +2531,13 @@
         "return_pct": 7.25
       }
     ],
+    "price_validation_note": "Fresh Yahoo intraday quote unavailable",
+    "price_validation_status": "unverified",
     "return_pct": null,
     "risk_flags": [],
     "symbol": "RKLB",
     "trough_price": 57.37,
-    "price_validation_status": "unverified",
-    "price_validation_note": "Legacy stock price quarantined pending fresh independent quote validation",
-    "unverified_return_pct": 7.25
+    "unverified_return_pct": null
   },
   "stock:TSLA": {
     "age_days": 0.01,
@@ -1577,7 +2564,7 @@
         "published_at": "2026-11-17T01:00:13Z",
         "publisher": "Fortune",
         "source_type": null,
-        "title": "Tesla board member Joe Gebbia: Nvidia should “reinstate” Jensen Huang to let investigation play out",
+        "title": "Tesla board member Joe Gebbia: Nvidia should \u201creinstate\u201d Jensen Huang to let investigation play out",
         "url": "https://finance.yahoo.com/video/tesla-board-member-joe-gebbia-010013441.html"
       }
     ],
@@ -1614,12 +2601,12 @@
         "return_pct": 0
       }
     ],
+    "price_validation_note": "Fresh Yahoo intraday quote unavailable",
+    "price_validation_status": "unverified",
     "return_pct": null,
     "risk_flags": [],
     "symbol": "TSLA",
     "trough_price": 390.22,
-    "price_validation_status": "unverified",
-    "price_validation_note": "Legacy stock price quarantined pending fresh independent quote validation",
-    "unverified_return_pct": 0
+    "unverified_return_pct": null
   }
 }

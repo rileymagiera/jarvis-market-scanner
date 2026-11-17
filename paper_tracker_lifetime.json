@@ -1,12 +1,12 @@
 {
   "by_asset": {
     "crypto": {
-      "recommendations": 22
+      "recommendations": 30
     },
     "stock": {
       "recommendations": 8
     }
   },
   "checkpoints": {},
-  "recommendations": 30
+  "recommendations": 38
 }
