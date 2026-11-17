@@ -7,4 +7,14 @@ services:
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     plan: free
+    buildFilter:
+      paths:
+        - "**/*"
+      ignoredPaths:
+        - alert_state.json
+        - paper_tracker.json
+        - paper_tracker_lifetime.json
+        - buy_signal_history.json
+        - scan_diagnostics.json
+        - scan_metadata.json
     
