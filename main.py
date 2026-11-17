@@ -70,10 +70,20 @@ def configured_symbols(env_name: str, defaults: list[str]) -> list[str]:
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
-def discover_stock_symbols(limit: int = 35) -> list[str]:
-    """Discover additional small/mid-cap movers from Yahoo's public screener."""
+def discover_stock_symbols(limit: int = 70) -> list[str]:
+    """Discover US small/mid-cap momentum names across several Yahoo screeners."""
     found = {}
-    for screen in ("day_gainers", "most_actives", "small_cap_gainers"):
+    # The extra screens broaden coverage beyond headline gainers/most-active lists:
+    # aggressive_small_caps and most_shorted_stocks can surface earlier-stage movers.
+    screens = (
+        "small_cap_gainers",
+        "aggressive_small_caps",
+        "most_shorted_stocks",
+        "growth_technology_stocks",
+        "day_gainers",
+        "most_actives",
+    )
+    for screen in screens:
         try:
             response = HTTP.get(
                 "https://query1.finance.yahoo.com/v1/finance/screener/predefined/saved",
@@ -90,18 +100,19 @@ def discover_stock_symbols(limit: int = 35) -> list[str]:
                 volume = safe_float(quote.get("regularMarketVolume"))
                 average_volume = safe_float(quote.get("averageDailyVolume3Month"))
                 change = safe_float(quote.get("regularMarketChangePercent"))
-                if not symbol or market_cap < 20_000_000 or market_cap > 15_000_000_000:
+                if not symbol or market_cap < 10_000_000 or market_cap > 25_000_000_000:
                     continue
-                if price < 0.50 or volume < 100_000:
+                if price < 0.25 or volume < 50_000 or price * volume < 250_000:
                     continue
                 relative_volume = volume / average_volume if average_volume else 0
-                # Keep quiet-but-unusual volume names in the discovery pool; scoring happens later.
-                if change < 0.5 and relative_volume < 1.15:
+                # Retain modest movers and unusual-volume names; the technical score
+                # and grade system decide whether they deserve an early-watch label.
+                if change < -3 and relative_volume < 1.5:
                     continue
                 rank = change + min(relative_volume, 10) * 2
                 found[symbol] = max(rank, found.get(symbol, float("-inf")))
         except Exception:
-            # Dynamic discovery is additive; a provider outage must not stop the core scan.
+            # Discovery is additive: a failed screen must not stop the core scan.
             continue
     ranked = sorted(found, key=found.get, reverse=True)
     return ranked[:limit]
