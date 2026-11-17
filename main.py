@@ -618,9 +618,6 @@ def scan_stock(symbol: str) -> Optional[dict]:
     if validation_passed:
         price = intraday_price
         daily_change = (price / previous - 1) * 100
-        five_day_change = (price / safe_float(close.iloc[-6], price) - 1) * 100
-    else:
-        price = daily_bar_price
         daily_change = (daily_bar_price / previous - 1) * 100
         five_day_change = (daily_bar_price / safe_float(close.iloc[-6], daily_bar_price) - 1) * 100
     breakout = price > safe_float(close.iloc[-21:-1].max())
