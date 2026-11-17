@@ -52,7 +52,7 @@ jobs:
             python send_alerts.py
           fi
       - name: Save alert deduplication state
-        if: ${{ success() && inputs.send_test_email != true }}
+        if: ${{ always() && inputs.send_test_email != true }}
         run: |
           if [ -n "$(git status --porcelain alert_state.json paper_tracker.json paper_tracker_lifetime.json buy_signal_history.json scan_diagnostics.json)" ]; then
             git config user.name "github-actions[bot]"
