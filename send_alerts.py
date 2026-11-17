@@ -119,8 +119,33 @@ def update_paper_tracker(candidates, now):
         if price <= 0:
             continue
         record = tracker.get(key)
-        if not record:
-            record = {
+        if asset_type == "stock" and not item.get("price_validation_passed", False):
+            if record:
+                record["price_validation_status"] = "unverified"
+                record["price_validation_note"] = item.get("price_validation_note", "Independent quote validation unavailable")
+                record["unverified_return_pct"] = record.get("return_pct")
+                record["return_pct"] = None
+                record["max_gain_pct"] = None
+                record["max_drawdown_pct"] = None
+                record["latest_price"] = None
+                record["currently_surfaced"] = True
+                tracker[key] = record
+            continue
+        if record and record.get("price_validation_status") == "unverified":
+            record["quarantined_initial_price"] = record.get("initial_price")
+            record["quarantined_return_pct"] = record.get("unverified_return_pct")
+            record["first_seen"] = now.isoformat()
+            record["initial_price"] = price
+            record["peak_price"] = price
+            record["trough_price"] = price
+            record["price_history"] = []
+            record["milestones"] = {}
+            record["return_pct"] = 0.0
+            record["max_gain_pct"] = 0.0
+            record["max_drawdown_pct"] = 0.0
+            record["price_validation_status"] = "verified"
+            record["price_validation_note"] = "Baseline reset after independent price verification"
+        if not record:            record = {
                 "asset_type": asset_type, "symbol": symbol,
                 "first_seen": now.isoformat(), "initial_price": price,
                 "peak_price": price, "trough_price": price, "milestones": {},
@@ -134,6 +159,8 @@ def update_paper_tracker(candidates, now):
 
         initial = float(record.get("initial_price") or price)
         record["latest_price"] = price
+        record["price_validation_status"] = "verified" if asset_type == "stock" else "not_required"
+        record["price_validation_note"] = item.get("price_validation_note", "Not applicable")
         record["price_source"] = item.get("data_source") or item.get("price_source") or "Provider not reported"
         record["price_as_of"] = item.get("price_as_of") or now.isoformat()
         record["price_freshness"] = item.get("price_freshness") or "timestamp unavailable"
@@ -242,6 +269,8 @@ def main():
     market = payload.get("market_conditions") or {}
     selected, updates = [], {}
     for item in payload["candidates"]:
+        if item.get("asset_type") == "stock" and not item.get("price_validation_passed", False):
+            continue
         score = int(item.get("score") or 0)
         volume = float(item.get("relative_volume") or 0)
         intraday_volume = float(item.get("intraday_relative_volume") or 0)
