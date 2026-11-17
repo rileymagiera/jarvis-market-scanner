@@ -235,8 +235,9 @@ def main():
             "Market regime: " + str(market.get("regime", "unavailable")),
             f"Candidates returned: {candidates}",
             f"Paper-tracked candidates: {len(paper)}",
-            f"Lifetime recommendations recorded: {paper_lifetime.get('recommendations', 0)}",
+            f"Lifetime tracked candidates: {paper_lifetime.get('tracked_candidates', paper_lifetime.get('recommendations', 0))}",
             "Lifetime checkpoint wins/observations: " + str({h: (v.get('wins', 0), v.get('observations', 0)) for h, v in paper_lifetime.get('checkpoints', {}).items()}),
+            "Scan coverage: " + json.dumps(payload.get("diagnostics") or {}, sort_keys=True),
             f"Scanner errors reported: {len(errors)}",
             "",
             "This is a monitoring update, not a buy or sell instruction.",
@@ -254,7 +255,7 @@ def main():
         "",
         "Research watchlist only. Not personalized financial advice. No trades are placed.",
         "Detailed paper history: rolling 365 days; lifetime checkpoint totals are retained.",
-        f"Lifetime recommendations recorded: {paper_lifetime.get('recommendations', 0)}",
+        f"Lifetime tracked candidates: {paper_lifetime.get('tracked_candidates', paper_lifetime.get('recommendations', 0))}",
         "Lifetime checkpoint wins/observations: " + str({h: (v.get('wins', 0), v.get('observations', 0)) for h, v in paper_lifetime.get('checkpoints', {}).items()}),
         "Verify current price, liquidity, news and risk before making any decision.",
         "",
@@ -284,7 +285,7 @@ def main():
         for flag in (item.get("risk_flags") or []):
             lines.append("RISK REVIEW: " + flag)
         lines.append("")
-    lines += [f'Scan candidates: {payload.get("candidates_found", "n/a")}', f'Scan errors: {len(payload.get("errors") or [])}']
+    lines += [f'Scan candidates: {payload.get("candidates_found", "n/a")}', 'Scan diagnostics: ' + json.dumps(payload.get('diagnostics') or {}, sort_keys=True), f'Scan errors: {len(payload.get("errors") or [])}']
     email(f"Jarvis: {len(selected)} new market setup(s)", "\n".join(lines))
     state.update(updates)
     STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
