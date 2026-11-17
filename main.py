@@ -547,6 +547,76 @@ def stock_fundamental_snapshot(ticker) -> dict:
     return {"status": "partial" if available else "unavailable", "fields": available,
             "note": "Yahoo Finance company-profile fields; verify against filings because coverage and freshness vary."}
 
+WEBULL_QUOTE_CACHE = {}
+WEBULL_QUOTE_CACHE_LOCK = threading.Lock()
+WEBULL_QUOTE_SEMAPHORE = threading.BoundedSemaphore(4)
+
+
+def webull_latest_bar(symbol: str) -> dict:
+    """Optional read-only Webull OpenAPI 1-minute bar for independent quote checking."""
+    app_key = os.getenv("WEBULL_APP_KEY", "").strip()
+    app_secret = os.getenv("WEBULL_APP_SECRET", "").strip()
+    if not app_key or not app_secret:
+        raise RuntimeError("Webull OpenAPI credentials are not configured")
+    cached = None
+    with WEBULL_QUOTE_CACHE_LOCK:
+        cached = WEBULL_QUOTE_CACHE.get(symbol)
+        if cached and (datetime.now(timezone.utc) - cached["fetched_at"]).total_seconds() < 30:
+            return cached["quote"]
+
+    # SDK handles Webull's request-signature authentication. This client is
+    # read-only in Jarvis: only the Market Data API is instantiated/called.
+    from webull.core.client import ApiClient
+    from webull.data.data_client import DataClient
+    api_client = ApiClient(app_key, app_secret, "us")
+    api_client.add_endpoint("us", "api.webull.com")
+    data_client = DataClient(api_client)
+    with WEBULL_QUOTE_SEMAPHORE:
+        response = data_client.market_data.get_history_bar(symbol, "US_STOCK", "M1")
+    if getattr(response, "status_code", None) != 200:
+        raise RuntimeError("Webull Market Data API did not return HTTP 200")
+    payload = response.json()
+
+    candidates = []
+    def collect(node):
+        if isinstance(node, dict):
+            close_value = next((node.get(k) for k in ("close", "c", "last_price", "price") if node.get(k) is not None), None)
+            time_value = next((node.get(k) for k in ("time", "timestamp", "bar_time", "trade_time") if node.get(k) is not None), None)
+            if close_value is not None and time_value is not None:
+                try:
+                    stamp_value = float(time_value)
+                    if stamp_value > 1e12:
+                        stamp = datetime.fromtimestamp(stamp_value / 1000, timezone.utc)
+                    elif stamp_value > 1e9:
+                        stamp = datetime.fromtimestamp(stamp_value, timezone.utc)
+                    else:
+                        stamp = pd.Timestamp(str(time_value)).to_pydatetime()
+                        if stamp.tzinfo is None:
+                            stamp = stamp.replace(tzinfo=timezone.utc)
+                        stamp = stamp.astimezone(timezone.utc)
+                    close = safe_float(close_value)
+                    if close > 0:
+                        candidates.append((stamp, close))
+                except (TypeError, ValueError, OverflowError):
+                    pass
+            for value in node.values():
+                collect(value)
+        elif isinstance(node, list):
+            for value in node:
+                collect(value)
+    collect(payload)
+    if not candidates:
+        raise RuntimeError("Webull response contained no parseable OHLCV bars")
+    stamp, price = max(candidates, key=lambda item: item[0])
+    age_minutes = (datetime.now(timezone.utc) - stamp).total_seconds() / 60
+    if age_minutes < -5 or age_minutes > 10:
+        raise RuntimeError("Webull latest bar is stale or future-dated")
+    quote = {"price": price, "as_of": stamp.isoformat(), "age_minutes": round(age_minutes, 1)}
+    with WEBULL_QUOTE_CACHE_LOCK:
+        WEBULL_QUOTE_CACHE[symbol] = {"quote": quote, "fetched_at": datetime.now(timezone.utc)}
+    return quote
+
+
 def scan_stock(symbol: str) -> Optional[dict]:
     ticker = yf.Ticker(symbol)
     try:
@@ -624,6 +694,25 @@ def scan_stock(symbol: str) -> Optional[dict]:
             validation_note = (f"Yahoo/Stooq agree within {quote_difference_pct:.2f}%" if validation_passed else f"PRICE DISAGREEMENT: Yahoo ${intraday_price:.4f} vs Stooq ${secondary_quote['price']:.4f}")
         except Exception as exc:
             validation_note = f"Independent Stooq validation unavailable: {exc}"
+    webull_quote = None
+    webull_difference_pct = None
+    webull_status = "not_configured"
+    if validation_passed and os.getenv("WEBULL_APP_KEY", "").strip() and os.getenv("WEBULL_APP_SECRET", "").strip():
+        try:
+            webull_quote = webull_latest_bar(symbol)
+            webull_difference_pct = abs(intraday_price - webull_quote["price"]) / ((intraday_price + webull_quote["price"]) / 2) * 100
+            if webull_difference_pct > 3.0:
+                validation_passed = False
+                validation_note = f"PRICE DISAGREEMENT: Yahoo/Stooq vs Webull differ by {webull_difference_pct:.2f}%"
+                webull_status = "price_mismatch"
+            else:
+                validation_note += f"; Webull confirms within {webull_difference_pct:.2f}%"
+                webull_status = "confirmed"
+        except Exception:
+            # Webull is additive: missing entitlement, credentials, or outage
+            # must never interrupt the existing Yahoo + Stooq scan.
+            webull_status = "unavailable_or_not_entitled"
+
     if validation_passed:
         price = intraday_price
         daily_change = (price / previous - 1) * 100
@@ -666,6 +755,11 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "price_validation_note": validation_note,
         "secondary_price": round(secondary_quote["price"], 4) if secondary_quote else None,
         "price_difference_pct": round(quote_difference_pct, 2) if quote_difference_pct is not None else None,
+        "webull_price": round(webull_quote["price"], 4) if webull_quote else None,
+        "webull_price_as_of": webull_quote["as_of"] if webull_quote else None,
+        "webull_price_age_minutes": webull_quote["age_minutes"] if webull_quote else None,
+        "webull_price_difference_pct": round(webull_difference_pct, 2) if webull_difference_pct is not None else None,
+        "webull_status": webull_status,
         "daily_change_pct": round(daily_change, 2),
         "session_change_pct": round(daily_change, 2) if validation_passed else None,
         "five_day_change_pct": round(five_day_change, 2),
