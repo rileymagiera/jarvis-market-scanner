@@ -181,7 +181,7 @@ def main():
         "diagnostics": payload.get("diagnostics") or {},
         "errors": payload.get("errors") or [],
         "market_conditions": payload.get("market_conditions") or {},
-    }, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+    }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
     try:
         state = json.loads(STATE.read_text(encoding="utf-8"))
