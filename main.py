@@ -617,6 +617,93 @@ def webull_latest_bar(symbol: str) -> dict:
     return quote
 
 
+def technical_indicators(frame: pd.DataFrame) -> dict:
+    """Daily trend, momentum, volatility and volume-accumulation indicators."""
+    close = frame["Close"].astype(float).dropna()
+    volume = frame.loc[close.index, "Volume"].astype(float).fillna(0)
+    if len(close) < 26:
+        return {}
+    ema9 = close.ewm(span=9, adjust=False).mean()
+    ema20 = close.ewm(span=20, adjust=False).mean()
+    ema12 = close.ewm(span=12, adjust=False).mean()
+    ema26 = close.ewm(span=26, adjust=False).mean()
+    macd = ema12 - ema26
+    macd_signal = macd.ewm(span=9, adjust=False).mean()
+    macd_hist = macd - macd_signal
+
+    delta = close.diff()
+    average_gain = delta.clip(lower=0).rolling(14, min_periods=14).mean()
+    average_loss = -delta.clip(upper=0).rolling(14, min_periods=14).mean()
+    rs = average_gain / average_loss.replace(0, np.nan)
+    rsi = 100 - (100 / (1 + rs))
+    rsi = rsi.where(average_loss != 0, 100)
+
+    middle = close.rolling(20, min_periods=20).mean()
+    deviation = close.rolling(20, min_periods=20).std(ddof=0)
+    band_width = ((4 * deviation) / middle.replace(0, np.nan)).dropna()
+    current_width = safe_float(band_width.iloc[-1]) if len(band_width) else 0
+    width_sample = band_width.tail(60)
+    width_percentile = float((width_sample <= current_width).mean()) if len(width_sample) else None
+    prior_width = safe_float(band_width.iloc[-2]) if len(band_width) >= 2 else 0
+    prior_sample = band_width.tail(61).iloc[:-1]
+    prior_squeeze = bool(len(prior_sample) >= 10 and prior_width <= float(prior_sample.quantile(0.25)))
+    squeeze_expansion = bool(prior_squeeze and current_width > prior_width * 1.05)
+
+    direction = np.sign(close.diff()).fillna(0)
+    obv = (direction * volume).cumsum()
+    obv_up = bool(len(obv) >= 11 and obv.iloc[-1] > obv.iloc[-11])
+
+    return {
+        "rsi_14": round(safe_float(rsi.iloc[-1]), 2) if pd.notna(rsi.iloc[-1]) else None,
+        "macd": round(safe_float(macd.iloc[-1]), 6),
+        "macd_signal": round(safe_float(macd_signal.iloc[-1]), 6),
+        "macd_histogram": round(safe_float(macd_hist.iloc[-1]), 6),
+        "macd_histogram_rising": bool(len(macd_hist) >= 2 and macd_hist.iloc[-1] > macd_hist.iloc[-2]),
+        "ema_9": round(safe_float(ema9.iloc[-1]), 6),
+        "ema_20": round(safe_float(ema20.iloc[-1]), 6),
+        "ema_9_above_ema_20": bool(ema9.iloc[-1] > ema20.iloc[-1]),
+        "sma_50": round(safe_float(close.tail(50).mean()), 6) if len(close) >= 50 else None,
+        "above_sma_50": bool(close.iloc[-1] > close.tail(50).mean()) if len(close) >= 50 else None,
+        "bollinger_band_width_pct": round(current_width * 100, 3) if current_width else None,
+        "bollinger_width_percentile_60d": round(width_percentile * 100, 1) if width_percentile is not None else None,
+        "bollinger_squeeze": bool(width_percentile is not None and width_percentile <= 0.20),
+        "bollinger_squeeze_expansion": squeeze_expansion,
+        "obv_trend_up_10d": obv_up,
+    }
+
+
+def intraday_vwap_metrics(frame: pd.DataFrame) -> dict:
+    """Calculate session VWAP from available intraday OHLCV bars."""
+    if frame is None or frame.empty or not {"High", "Low", "Close", "Volume"}.issubset(frame.columns):
+        return {"session_vwap": None, "above_vwap": False, "vwap_reclaim": False}
+    session = frame.copy()
+    index = session.index
+    local_dates = index.tz_convert("America/New_York").date if getattr(index, "tz", None) is not None else index.date
+    session = session.loc[local_dates == local_dates[-1]]
+    if session.empty:
+        return {"session_vwap": None, "above_vwap": False, "vwap_reclaim": False}
+    high = session["High"].astype(float)
+    low = session["Low"].astype(float)
+    close = session["Close"].astype(float)
+    volume = session["Volume"].astype(float).fillna(0)
+    typical = (high + low + close) / 3
+    cumulative_volume = volume.cumsum()
+    vwap_series = (typical * volume).cumsum() / cumulative_volume.replace(0, np.nan)
+    if vwap_series.dropna().empty:
+        return {"session_vwap": None, "above_vwap": False, "vwap_reclaim": False}
+    current_vwap = safe_float(vwap_series.iloc[-1])
+    above = bool(current_vwap > 0 and close.iloc[-1] > current_vwap)
+    reclaim = bool(
+        above and len(session) >= 2 and pd.notna(vwap_series.iloc[-2])
+        and close.iloc[-2] <= vwap_series.iloc[-2]
+    )
+    return {
+        "session_vwap": round(current_vwap, 6) if current_vwap > 0 else None,
+        "above_vwap": above,
+        "vwap_reclaim": reclaim,
+    }
+
+
 def scan_stock(symbol: str) -> Optional[dict]:
     ticker = yf.Ticker(symbol)
     try:
@@ -644,9 +731,16 @@ def scan_stock(symbol: str) -> Optional[dict]:
     breakout = price > prior_high
     ma20 = safe_float(close.tail(20).mean())
     trend_up = price > ma20
-    high_low = frame["High"].astype(float) - frame["Low"].astype(float)
-    atr = safe_float(high_low.tail(14).mean(), price * 0.03)
+    previous_close = close.shift(1)
+    true_range = pd.concat([
+        frame["High"].astype(float) - frame["Low"].astype(float),
+        (frame["High"].astype(float) - previous_close).abs(),
+        (frame["Low"].astype(float) - previous_close).abs(),
+    ], axis=1).max(axis=1)
+    atr = safe_float(true_range.tail(14).mean(), price * 0.03)
     support = safe_float(frame["Low"].tail(10).min(), price * 0.95)
+    resistance = safe_float(frame["High"].iloc[-21:-1].max(), price * 1.05)
+    technical = technical_indicators(frame)
 
     # Intraday bars add earlier momentum and pre/post-market context.
     intraday_change = 0.0
@@ -655,6 +749,8 @@ def scan_stock(symbol: str) -> Optional[dict]:
     intraday_price = 0.0
     intraday_as_of = None
     intraday_fresh = False
+    vwap_metrics = {"session_vwap": None, "above_vwap": False, "vwap_reclaim": False}
+    intraday_trend_up = False
     try:
         # Stooq is a daily-only backup; do not pretend it supplies intraday confirmation.
         intraday = ticker.history(period="5d", interval="15m", prepost=True, auto_adjust=True) if price_provider == "Yahoo Finance" else pd.DataFrame()
@@ -671,6 +767,9 @@ def scan_stock(symbol: str) -> Optional[dict]:
             intraday_close = intraday["Close"].astype(float).dropna()
             intraday_volume = intraday["Volume"].astype(float).fillna(0)
             intraday_high = intraday["High"].astype(float).dropna()
+            if len(intraday_close) >= 5:
+                intraday_trend_up = bool(intraday_close.iloc[-1] > intraday_close.iloc[-5])
+            vwap_metrics = intraday_vwap_metrics(intraday)
             if len(intraday_close) >= 5:
                 intraday_change = (safe_float(intraday_close.iloc[-1]) / safe_float(intraday_close.iloc[-5]) - 1) * 100
             baseline_volume = safe_float(intraday_volume.iloc[-21:-1].median()) if len(intraday_volume) >= 21 else 0
@@ -730,6 +829,13 @@ def scan_stock(symbol: str) -> Optional[dict]:
     score += 10 if intraday_change >= 2 else 5 if intraday_change >= 0.75 else 0
     score += 10 if intraday_relative_volume >= 3 else 5 if intraday_relative_volume >= 2 else 0
     score += 5 if intraday_breakout else 0
+    # Small additive confirmations favor emerging trends without making one indicator decisive.
+    score += 4 if technical.get("ema_9_above_ema_20") and trend_up else 0
+    score += 4 if technical.get("macd_histogram", 0) > 0 and technical.get("macd_histogram_rising") else 0
+    score += 3 if technical.get("rsi_14") is not None and 50 <= technical["rsi_14"] <= 70 else 0
+    score += 3 if vwap_metrics.get("vwap_reclaim") else 0
+    score += 3 if technical.get("bollinger_squeeze_expansion") else 0
+    score += 2 if technical.get("obv_trend_up_10d") else 0
     score = min(score, 100)
 
     if score < 15:
@@ -769,6 +875,14 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "intraday_breakout": bool(intraday_breakout),
         "breakout_20d": bool(breakout),
         "above_20d_average": bool(trend_up),
+        "technical_analysis": technical,
+        "session_vwap": vwap_metrics.get("session_vwap"),
+        "above_session_vwap": bool(vwap_metrics.get("above_vwap")),
+        "vwap_reclaim": bool(vwap_metrics.get("vwap_reclaim")),
+        "intraday_trend_up_5bars": bool(intraday_trend_up),
+        "support_10d": round(support, 6),
+        "resistance_20d": round(resistance, 6),
+        "atr_14_true_range": round(atr, 6),
         "score": score,
         "signal": "HIGH INTEREST" if score >= 75 else "WATCH" if score >= 50 else "EARLY WATCH",
         "levels": levels(price, atr, support),
