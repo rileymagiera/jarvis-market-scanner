@@ -1,25 +1,25 @@
 {
-  "candidates_found": 40,
+  "candidates_found": 35,
   "diagnostics": {
     "crypto": {
-      "candidates_returned": 37,
-      "not_returned_or_below_early_watch_floor": 1,
+      "candidates_returned": 31,
+      "not_returned_or_below_early_watch_floor": 7,
       "scan_errors": 0,
       "stages": {
         "ACTIONABLE SETUP": 0,
         "BUY": 0,
-        "DEVELOPING SETUP": 4,
-        "EARLY WATCH": 10,
+        "DEVELOPING SETUP": 1,
+        "EARLY WATCH": 7,
         "LOW-CONVICTION WATCH": 23
       },
       "symbols_requested": 38
     },
     "market_session": {
-      "as_of": "2026-11-17T09:27:46.387421-05:00",
+      "as_of": "2026-11-17T10:12:06.072817-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
-      "is_extended_session": true,
-      "is_regular_session": false,
-      "phase": "PRE-MARKET"
+      "is_extended_session": false,
+      "is_regular_session": true,
+      "phase": "REGULAR SESSION"
     },
     "massive_fallback_policy": {
       "max_requests_per_scan": 3,
@@ -29,10 +29,10 @@
     "massive_live_quote_note": "Optional last-trade cross-check is disabled by default. Enable MASSIVE_LIVE_QUOTE_ENABLED=true only if the Massive Stocks plan includes /v2/last/trade; 15-minute delayed data is accepted only when its timestamp is within 45 minutes.",
     "massive_live_quote_status": "disabled_pending_entitlement_check",
     "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history/data or score below the early-watch floor; provider-specific discovery failures are not always attributable to one symbol.",
-    "scan_duration_seconds": 90.49,
+    "scan_duration_seconds": 21.42,
     "stocks": {
-      "candidates_returned": 3,
-      "not_returned_or_below_early_watch_floor": 27,
+      "candidates_returned": 4,
+      "not_returned_or_below_early_watch_floor": 26,
       "scan_errors": 0,
       "stages": {
         "ACTIONABLE SETUP": 0,
@@ -43,71 +43,96 @@
         "EARLY WATCH": 0,
         "LATE RUNNER \u2014 CHASE RISK": 0,
         "LOW-CONVICTION WATCH": 0,
-        "PRICE UNVERIFIED \u2014 WATCH ONLY": 3
+        "PRICE UNVERIFIED \u2014 WATCH ONLY": 4
       },
       "symbols_requested": 30
     },
     "timing_breakdown": {
-      "asset_scans_wall_seconds": 87.71,
-      "market_conditions_seconds": 0.5,
+      "asset_scans_wall_seconds": 18.48,
+      "market_conditions_seconds": 0.52,
       "provider_activity": {
         "market_conditions": {
           "calls": 1,
+          "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.5,
-          "total_seconds": 0.5
+          "max_seconds": 0.52,
+          "total_seconds": 0.52
         },
         "scan_crypto_parallel_wall": {
           "calls": 1,
+          "error_counts": {},
           "failures": 0,
-          "max_seconds": 8.71,
-          "total_seconds": 8.71
+          "max_seconds": 13.08,
+          "total_seconds": 13.08
         },
         "scan_stock_parallel_wall": {
           "calls": 1,
+          "error_counts": {},
           "failures": 0,
-          "max_seconds": 87.71,
-          "total_seconds": 87.71
+          "max_seconds": 18.48,
+          "total_seconds": 18.48
         },
         "sec_recent_filings": {
-          "calls": 3,
+          "calls": 4,
+          "error_counts": {},
           "failures": 0,
-          "max_seconds": 1.92,
-          "total_seconds": 2.09
+          "max_seconds": 4.0,
+          "total_seconds": 8.49
         },
         "stooq_quote_validation": {
           "calls": 30,
+          "error_counts": {
+            "ConnectTimeout: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/l/?s=asts.us&f=sd2t2ohlcv&h=&e=csv (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.co": 1,
+            "ConnectTimeout: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/l/?s=pltr.us&f=sd2t2ohlcv&h=&e=csv (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.co": 1,
+            "ConnectTimeout: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/l/?s=rklb.us&f=sd2t2ohlcv&h=&e=csv (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.co": 1,
+            "RuntimeError: Stooq quote circuit open; independent validation unavailable": 27
+          },
           "failures": 30,
-          "max_seconds": 10.42,
-          "total_seconds": 302.14
+          "max_seconds": 4.69,
+          "total_seconds": 13.78
+        },
+        "stooq_quote_validation_skipped": {
+          "calls": 27,
+          "error_counts": {
+            "circuit_open: ConnectTimeout: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/l/?s=asts.us&f=sd2t2ohlcv&h=&e=csv (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.co": 1,
+            "circuit_open: RuntimeError: Stooq quote circuit open; independent validation unavailable": 25,
+            "circuit_open: per-scan attempt budget reached": 1
+          },
+          "failures": 27,
+          "max_seconds": 0.0,
+          "total_seconds": 0.0
         },
         "yahoo_daily_history": {
           "calls": 30,
+          "error_counts": {},
           "failures": 0,
-          "max_seconds": 3.0,
-          "total_seconds": 14.95
+          "max_seconds": 3.5,
+          "total_seconds": 27.72
         },
         "yahoo_discovery_screen": {
           "calls": 6,
+          "error_counts": {},
           "failures": 6,
-          "max_seconds": 1.77,
-          "total_seconds": 9.17
+          "max_seconds": 1.83,
+          "total_seconds": 10.58
         },
         "yahoo_intraday_history": {
           "calls": 30,
+          "error_counts": {},
           "failures": 0,
-          "max_seconds": 1.1,
-          "total_seconds": 7.61
+          "max_seconds": 1.2,
+          "total_seconds": 15.19
         },
         "yahoo_stock_news": {
-          "calls": 3,
+          "calls": 4,
+          "error_counts": {},
           "failures": 0,
-          "max_seconds": 2.22,
-          "total_seconds": 2.63
+          "max_seconds": 4.89,
+          "total_seconds": 11.18
         }
       },
-      "total_seconds": 90.49,
-      "universe_discovery_seconds": 2.28
+      "total_seconds": 21.42,
+      "universe_discovery_seconds": 2.41
     },
     "webull_quote_note": "Webull quote lookups are opt-in because app authorization was observed pending; Yahoo/Stooq scanning continues independently. Enable only after Webull market-data authorization is confirmed.",
     "webull_quote_status": "disabled_pending_authorization"
@@ -117,24 +142,24 @@
     "benchmarks": {
       "BTC-USD": {
         "above_20d_average": false,
-        "five_day_change_pct": -9.08
+        "five_day_change_pct": -9.47
       },
       "IWM": {
         "above_20d_average": false,
-        "five_day_change_pct": -3.39
+        "five_day_change_pct": -3.18
       },
       "QQQ": {
         "above_20d_average": false,
-        "five_day_change_pct": -2.59
+        "five_day_change_pct": -2.15
       },
       "SPY": {
         "above_20d_average": false,
-        "five_day_change_pct": -1.69
+        "five_day_change_pct": -1.68
       }
     },
     "note": "Benchmark context is a caution/confirmation input, not a standalone buy or sell signal.",
     "regime": "RISK-OFF",
     "score_adjustment": -8
   },
-  "timestamp": "2026-11-17T14:27:46.387391+00:00"
+  "timestamp": "2026-11-17T15:12:06.072785+00:00"
 }

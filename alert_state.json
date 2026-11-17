@@ -29,6 +29,11 @@
     "alerted_stage": "DEVELOPING SETUP",
     "score": 62
   },
+  "crypto:TRXUSDT": {
+    "alerted_at": "2026-11-17T15:12:06.184312+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 62
+  },
   "crypto:UNIUSDT": {
     "alerted_at": "2026-11-17T14:27:46.490045+00:00",
     "alerted_stage": "DEVELOPING SETUP",
