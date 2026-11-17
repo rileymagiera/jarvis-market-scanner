@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 import smtplib
@@ -15,6 +16,8 @@ BASE_URL = os.getenv("JARVIS_SCANNER_URL", "https://jarvis-market-scanner.onrend
 SENDER = os.environ["JARVIS_GMAIL_USER"]
 PASSWORD = os.environ["JARVIS_GMAIL_APP_PASSWORD"].replace(" ", "")
 RECIPIENT = os.environ["JARVIS_ALERT_TO"]
+SCANNER_USERNAME = os.getenv("JARVIS_SITE_USERNAME", "")
+SCANNER_PASSWORD = os.getenv("JARVIS_SITE_PASSWORD", "")
 
 
 def email(subject, body):
@@ -159,7 +162,13 @@ def main():
         print("Test email sent.")
         return
 
-    req = Request(BASE_URL + "/scan?asset=all", headers={"User-Agent": "JarvisAlertWorkflow/1.0"})
+    if not SCANNER_USERNAME or not SCANNER_PASSWORD:
+        raise RuntimeError("Missing JARVIS_SITE_USERNAME or JARVIS_SITE_PASSWORD GitHub Actions secret.")
+    credentials = base64.b64encode(f"{SCANNER_USERNAME}:{SCANNER_PASSWORD}".encode("utf-8")).decode("ascii")
+    req = Request(BASE_URL + "/scan?asset=all", headers={
+        "User-Agent": "JarvisAlertWorkflow/1.0",
+        "Authorization": f"Basic {credentials}",
+    })
     with urlopen(req, timeout=240) as response:
         payload = json.loads(response.read().decode("utf-8"))
     if not isinstance(payload.get("candidates"), list):
