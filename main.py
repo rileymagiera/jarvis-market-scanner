@@ -1184,29 +1184,32 @@ input:focus,select:focus{outline:2px solid #83b8ff66;border-color:var(--accent)}
 a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 .empty{text-align:center;padding:20px;color:var(--muted)}
 
-.topline{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:14px}
-.eyebrow{font-size:10px;letter-spacing:.16em;color:#8fa8c3;font-weight:750;margin-bottom:6px}
-.topline h1{font-size:clamp(30px,5vw,42px);margin:0 0 5px}
-.live-status{font-size:11px;color:#b8c9da;border:1px solid var(--line);background:#111e2b;padding:8px 11px;border-radius:999px;max-width:48%;text-align:right}
-.live-status:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:7px}
-.disclaimer{font-size:11px;color:var(--muted);border-left:2px solid #7898bb;padding:8px 11px;background:#ffffff05;border-radius:0 8px 8px 0}
-.focus{margin-top:22px;padding-top:20px}
-.section-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:13px}
-.section-heading h2{font-size:21px;margin:0 0 4px}
-.opportunity-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:10px}
-.op-card{background:linear-gradient(145deg,#192b3d,#111d2a);border:1px solid #31475e;border-radius:14px;padding:14px;min-width:0}
-.op-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
-.op-symbol{font-size:18px;font-weight:800;letter-spacing:-.02em}
-.op-kind{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
-.op-stage{display:inline-flex;border:1px solid #48617b;background:#20364b;color:#d5e8fa;border-radius:999px;padding:4px 8px;font-size:10px;line-height:1.3}
-.op-stage.action{border-color:#397e69;background:#16392f;color:#9ae5c3}
-.op-stage.late{border-color:#875e42;background:#392719;color:#f1bd91}
-.op-metrics{display:flex;gap:16px;flex-wrap:wrap;margin:8px 0}
-.op-metric strong{display:block;font-size:16px;font-variant-numeric:tabular-nums}
-.op-metric span{font-size:10px;color:var(--muted)}
-.op-reason{font-size:12px;color:#c4d2e0;line-height:1.45;margin-top:8px}
-.op-risk{font-size:11px;color:#ffb0a6;margin-top:8px}
-.op-empty{border:1px dashed #40546a;border-radius:12px;padding:18px;color:var(--muted);font-size:13px}
+.eyebrow{font-size:10px;letter-spacing:.18em;color:#8fa8c3;font-weight:800;margin-bottom:7px}
+.command-header{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:10px 2px 22px;border-bottom:1px solid #293b50}
+.brand-lockup{display:flex;align-items:center;gap:13px}.brand-mark{width:48px;height:48px;border:1px solid #527da3;border-radius:13px;display:grid;place-items:center;background:linear-gradient(145deg,#244767,#102236);font-size:26px;font-weight:900;color:#d9f1ff;box-shadow:0 0 28px #5cbcff20}
+.command-header h1{font-size:clamp(27px,4vw,36px);letter-spacing:.08em;margin:0;line-height:1}.title-dot{color:#6ed8d0}.brand-sub{font-size:9px;letter-spacing:.12em;color:#91a7bd;margin-top:7px}
+.header-right{text-align:right}.live-status{font-size:11px;color:#b8c9da;border:1px solid var(--line);background:#111e2b;padding:8px 11px;border-radius:999px;display:inline-flex;align-items:center;max-width:100%;white-space:normal}
+.live-status:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:7px;box-shadow:0 0 10px #63d9a077;flex:0 0 auto}
+.header-right .tiny{font-size:9px;letter-spacing:.1em;margin-top:8px}
+.hero-panel{position:relative;overflow:hidden;display:grid;grid-template-columns:1.2fr .8fr;min-height:245px;margin:22px 0 28px;padding:28px 34px;border:1px solid #294d65;border-radius:20px;background:radial-gradient(ellipse at 78% 48%,#17445a 0%,#14283a 36%,#101b29 78%);box-shadow:0 18px 50px #0004}
+.hero-copy{position:relative;z-index:2;align-self:center;max-width:520px}.hero-copy h2{font-size:clamp(29px,4vw,45px);line-height:1.04;letter-spacing:-.045em;margin:5px 0 12px}.hero-copy h2 span{color:#78d9d0}.hero-copy p{font-size:13px;color:#b4c7d8;max-width:430px;margin:0;line-height:1.65}
+.radar-art{position:relative;align-self:center;justify-self:center;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,#183b50 0%,#12283a 48%,#0d1b28 70%);border:1px solid #4e8498;box-shadow:0 0 55px #43b6bd22,inset 0 0 35px #56c9cf18}
+.radar-ring{position:absolute;border:1px solid #4f9ca277;border-radius:50%;inset:15%}.ring-two{inset:30%}.ring-three{inset:45%}.radar-art:before,.radar-art:after{content:"";position:absolute;background:#4f9ca255}.radar-art:before{height:1px;left:7%;right:7%;top:50%}.radar-art:after{width:1px;top:7%;bottom:7%;left:50%}
+.radar-sweep{position:absolute;inset:9%;border-radius:50%;background:conic-gradient(from 5deg,transparent 0deg,transparent 290deg,#5ed8d044 345deg,#5ed8d088 360deg);clip-path:circle(50%);transform:rotate(20deg)}
+.radar-core{position:absolute;left:48%;top:48%;width:9px;height:9px;border-radius:50%;background:#8fffe0;box-shadow:0 0 18px 6px #5ce7d477}
+.radar-label{position:absolute;font-size:8px;letter-spacing:.12em;color:#a8d6df;background:#102637;border:1px solid #356175;padding:4px 6px;border-radius:5px}.radar-label-one{top:15%;right:-8%}.radar-label-two{bottom:16%;left:-10%}.radar-label-three{bottom:3%;right:15%}
+.radar-section{margin-top:0;padding-top:2px}.section-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:14px}.section-heading h2{font-size:22px;margin:0 0 4px}
+.radar-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;border:1px solid #293d50;border-radius:12px;overflow:hidden;background:#293d50;margin-bottom:14px}
+.radar-stat{padding:12px 15px;background:#111e2b;min-width:0}.radar-stat strong{display:block;font-size:23px;line-height:1.1;font-weight:800;font-variant-numeric:tabular-nums}.radar-stat span{display:block;color:#8fa7bb;font-size:9px;letter-spacing:.1em;margin-top:6px}
+.opportunity-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.op-card{background:linear-gradient(145deg,#172b3b,#101c29);border:1px solid #2c4659;border-radius:14px;padding:15px;min-width:0;transition:border-color .15s,transform .15s}.op-card:hover{border-color:#5c9da6;transform:translateY(-2px)}
+.op-card.featured{grid-column:span 2;display:grid;grid-template-columns:1.1fr 1fr;column-gap:20px;border-color:#3e8d8e;background:linear-gradient(115deg,#18384a,#132637 65%,#10212e);box-shadow:inset 3px 0 #66d8cc,0 10px 28px #0003}
+.op-card.featured .op-card-top{grid-column:1/-1}.op-card.featured .op-symbol{font-size:27px}.op-card.featured .op-reason{align-self:center;font-size:13px}.op-card.featured .op-metrics{align-self:center}
+.op-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}.op-symbol{font-size:19px;font-weight:850;letter-spacing:-.02em}.op-kind{font-size:9px;color:#9db1c3;text-transform:uppercase;letter-spacing:.13em}
+.op-stage{display:inline-flex;border:1px solid #48617b;background:#20364b;color:#d5e8fa;border-radius:999px;padding:5px 9px;font-size:9px;line-height:1.3;letter-spacing:.03em}
+.op-stage.action{border-color:#397e69;background:#16392f;color:#9ae5c3}.op-stage.late{border-color:#875e42;background:#392719;color:#f1bd91}
+.op-metrics{display:flex;gap:18px;flex-wrap:wrap;margin:10px 0}.op-metric strong{display:block;font-size:17px;font-variant-numeric:tabular-nums}.op-metric span{font-size:9px;color:#91a7ba;letter-spacing:.04em}
+.op-reason{font-size:11px;color:#c4d2e0;line-height:1.5;margin-top:8px}.op-risk{font-size:10px;color:#ffb0a6;margin-top:8px}.op-empty{border:1px dashed #40546a;border-radius:12px;padding:20px;color:var(--muted);font-size:13px;grid-column:1/-1}.footnote{margin-top:13px}
 .archive{margin-top:28px;border:1px solid var(--line);border-radius:15px;background:#0e1823;overflow:hidden}
 .archive>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 18px;font-weight:700}
 .archive>summary::-webkit-details-marker{display:none}
@@ -1217,11 +1220,11 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 .archive-title{margin:18px 0 0;font-size:16px}
 .archive-body .section:first-of-type{margin-top:22px}
 .archive-body .section{margin-top:24px}
-@media(max-width:600px){.topline{display:block}.live-status{display:inline-block;max-width:100%;margin-top:12px;text-align:left}.section-heading{align-items:flex-start;flex-direction:column}.archive>summary{align-items:flex-start;flex-wrap:wrap}.summary-note{width:100%}.archive-body{padding:0 10px 14px}.opportunity-grid{grid-template-columns:1fr}}
+@media(max-width:700px){.command-header{align-items:flex-start;flex-direction:column}.header-right{text-align:left}.hero-panel{grid-template-columns:1fr;min-height:0;padding:24px}.radar-art{width:155px;height:155px;margin:20px auto 0}.radar-label{font-size:7px}.radar-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.opportunity-grid{grid-template-columns:1fr}.op-card.featured{grid-column:auto;display:block}.op-card.featured .op-symbol{font-size:22px}.section-heading{align-items:flex-start;flex-direction:column}.archive>summary{align-items:flex-start;flex-wrap:wrap}.summary-note{width:100%}.archive-body{padding:0 10px 14px}}
 
 @media(max-width:700px){main{width:calc(100% - 24px);padding:22px 0 40px}.cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.card,.panel{padding:12px}.section{margin-top:24px;padding-top:18px}th,td{padding:10px;font-size:11px}#updated{max-width:100%;white-space:normal}}
 @media(max-width:380px){.cards{grid-template-columns:1fr 1fr}.value{font-size:19px}}
-</style></head><body><main><div class="topline"><div><div class="eyebrow">MARKET INTELLIGENCE</div><h1>Jarvis</h1><div class="muted">Your market radar · research and tracking only</div></div><div class="live-status" id="updated">Loading saved tracking history…</div></div><div class="disclaimer">Jarvis identifies research opportunities. It does not place trades. Prices and returns may be delayed or incomplete.</div><section class="section focus"><div class="section-heading"><div><div class="eyebrow">WHAT NEEDS ATTENTION</div><h2>Opportunity radar</h2><div class="muted">Freshly surfaced and developing candidates, ranked by setup stage.</div></div><div class="tiny">Review before acting</div></div><div id="opportunities" class="opportunity-grid"><div class="empty">Loading candidates…</div></div></section><div class="muted" id="updated">Loading saved tracking history…</div><div class="tiny">Research tracking only · Returns start at first verified detection, not trade fills · Unverified prices are excluded from performance rankings · Jarvis never places trades.</div>
+</style></head><body><main><header class="command-header"><div class="brand-lockup"><div class="brand-mark">J</div><div><div class="eyebrow">MARKET INTELLIGENCE SYSTEM</div><h1>JARVIS<span class="title-dot">.</span></h1><div class="brand-sub">EARLY-MOVE DETECTION · STOCKS + DIGITAL ASSETS</div></div></div><div class="header-right"><div class="live-status" id="updated">Connecting to saved history…</div><div class="tiny">RESEARCH ONLY · NO AUTOMATED TRADES</div></div></header><section class="hero-panel"><div class="hero-copy"><div class="eyebrow">THE WATCHFLOOR</div><h2>Find the move<br><span>before the crowd.</span></h2><p>Jarvis is watching for developing momentum, unusual activity, and early technical shifts. Here’s what has earned a closer look.</p></div><div class="radar-art" aria-hidden="true"><div class="radar-ring ring-one"></div><div class="radar-ring ring-two"></div><div class="radar-ring ring-three"></div><div class="radar-sweep"></div><div class="radar-core"></div><span class="radar-label radar-label-one">MOMENTUM</span><span class="radar-label radar-label-two">VOLUME</span><span class="radar-label radar-label-three">BREAKOUT</span></div></section><section class="radar-section"><div class="section-heading"><div><div class="eyebrow">LIVE WATCHLIST</div><h2>Opportunity radar</h2><div class="muted">Candidates are ranked by setup stage—not just today's biggest gainers.</div></div><div class="tiny">VERIFY PRICE + RISK BEFORE ANY DECISION</div></div><div id="radar-stats" class="radar-stats"><div class="radar-stat"><strong>—</strong><span>ON RADAR</span></div><div class="radar-stat"><strong>—</strong><span>EARLY / DEVELOPING</span></div><div class="radar-stat"><strong>—</strong><span>ACTIONABLE GRADE</span></div><div class="radar-stat"><strong>—</strong><span>PRICE VERIFIED</span></div></div><div id="opportunities" class="opportunity-grid"><div class="empty">Loading candidates…</div></div><div class="tiny footnote">Returns begin at first verified detection, not trade fills. Unverified prices are not treated as confirmed performance. Jarvis never places trades.</div></section>
 <details class="archive"><summary><span>Performance & tracking details</span><span class="summary-note">Scorecards, history, and full candidate tables</span></summary><div class="archive-body"><h2 class="archive-title">Performance snapshot</h2><div class="cards" id="stats"></div>
 <section class="section"><h2>Stock vs. crypto scoreboard</h2><div class="grid" id="assets"></div></section>
 <section class="section"><h2>Performance leaderboard</h2><div class="muted">Top tracked candidates by return from first tracked price.</div><div class="scroll"><table><thead><tr><th>#</th><th>Candidate</th><th>First price</th><th>Latest</th><th>Return</th><th>Best</th><th>Worst</th></tr></thead><tbody id="leaders"></tbody></table></div></section>
@@ -1236,17 +1239,22 @@ const rank={'ACTIONABLE SETUP':4,'DEVELOPING SETUP':3,'EARLY WATCH':2,'LOW-CONVI
 function render(d){const t=d.paper_tracker||{},l=d.lifetime||{},all=Object.values(t),verified=all.filter(x=>x.price_validation_status!=="unverified"),live=all.filter(x=>x.currently_surfaced!==false),avg=verified.length?verified.reduce((s,x)=>s+n(x.return_pct),0)/verified.length:0;
 const fmtTime=d.synced_at?new Intl.DateTimeFormat('en-US',{timeZone:'America/Detroit',year:'numeric',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit',timeZoneName:'short'}).format(new Date(d.synced_at)):'Not yet synced';document.getElementById('updated').textContent='Last synced: '+fmtTime;
 
-const stageRank={'ACTIONABLE SETUP':5,'DEVELOPING RUNNER':4,'DEVELOPING SETUP':4,'EARLY SETUP':3,'EARLY WATCH':3,'LATE RUNNER — CHASE RISK':2,'LOW-CONVICTION WATCH':1,'PRICE UNVERIFIED — WATCH ONLY':0};
-const candidates=all.filter(x=>x.currently_surfaced!==false).sort((a,b)=>(stageRank[b.last_stage]??0)-(stageRank[a.last_stage]??0)||n(b.daily_change_pct)-n(a.daily_change_pct)).slice(0,9);
-document.getElementById('opportunities').innerHTML=candidates.length?candidates.map(x=>{
+const stageRank={'EARLY SETUP':6,'DEVELOPING RUNNER':5,'DEVELOPING SETUP':5,'ACTIONABLE SETUP':4,'EARLY WATCH':3,'LATE RUNNER — CHASE RISK':2,'LOW-CONVICTION WATCH':1,'PRICE UNVERIFIED — WATCH ONLY':0};
+const surfaced=all.filter(x=>x.currently_surfaced!==false);
+const earlyCount=surfaced.filter(x=>['EARLY SETUP','EARLY WATCH','DEVELOPING RUNNER','DEVELOPING SETUP'].includes(x.last_stage)).length;
+const actionableCount=surfaced.filter(x=>x.last_stage==='ACTIONABLE SETUP').length;
+const verifiedCount=surfaced.filter(x=>x.price_validation_status!=='unverified').length;
+document.getElementById('radar-stats').innerHTML=[[''+surfaced.length,'ON RADAR'],[''+earlyCount,'EARLY / DEVELOPING'],[''+actionableCount,'ACTIONABLE GRADE'],[''+verifiedCount,'PRICE VERIFIED']].map(x=>'<div class="radar-stat"><strong>'+e(x[0])+'</strong><span>'+x[1]+'</span></div>').join('');
+const candidates=surfaced.sort((a,b)=>(stageRank[b.last_stage]??0)-(stageRank[a.last_stage]??0)||n(b.daily_change_pct)-n(a.daily_change_pct)).slice(0,9);
+document.getElementById('opportunities').innerHTML=candidates.length?candidates.map((x,i)=>{
  const stage=x.last_stage||'WATCHLIST',s=String(stage),kind=s.includes('ACTIONABLE')?'action':s.includes('LATE RUNNER')?'late':'';
  const reason=(x.stage_reasons||x.discovery_reasons||[]).slice(0,2).join(' · ')||'Candidate retained for continued monitoring.';
  const risks=(x.risk_flags||[]).slice(0,2).join(' · ');
- const price=x.latest_price==null?'—':Number(x.latest_price).toPrecision(7);
+ const price=x.latest_price==null?'—':(Number.isFinite(Number(x.latest_price))?Number(x.latest_price).toPrecision(7):'—');
  const day=x.daily_change_pct==null?'—':pct(x.daily_change_pct);
  const ret=x.price_validation_status==='unverified'?'Unverified':pct(x.return_pct);
- return '<article class="op-card"><div class="op-card-top"><div><div class="op-kind">'+e((x.asset_type||'').toUpperCase())+'</div><div class="op-symbol">'+e(x.symbol||'—')+'</div></div><span class="op-stage '+kind+'">'+e(stage)+'</span></div><div class="op-metrics"><div class="op-metric"><strong>'+e(price)+'</strong><span>Latest tracked price</span></div><div class="op-metric"><strong class="'+cl(x.daily_change_pct)+'">'+e(day)+'</strong><span>Daily move</span></div><div class="op-metric"><strong class="'+cl(x.return_pct)+'">'+e(ret)+'</strong><span>Since first verified</span></div></div><div class="op-reason">'+e(reason)+'</div>'+(risks?'<div class="op-risk">Risk: '+e(risks)+'</div>':'')+'</article>';
-}).join(''):'<div class="op-empty">No candidates are currently surfaced. Jarvis will show new opportunities here after the next successful scan.</div>';
+ return '<article class="op-card '+(i===0?'featured':'')+'"><div class="op-card-top"><div><div class="op-kind">'+(i===0?'TOP RADAR CANDIDATE · ':'')+e((x.asset_type||'').toUpperCase())+'</div><div class="op-symbol">'+e(x.symbol||'—')+'</div></div><span class="op-stage '+kind+'">'+e(stage)+'</span></div><div class="op-metrics"><div class="op-metric"><strong>'+e(price)+'</strong><span>LATEST TRACKED PRICE</span></div><div class="op-metric"><strong class="'+cl(x.daily_change_pct)+'">'+e(day)+'</strong><span>DAILY MOVE</span></div><div class="op-metric"><strong class="'+cl(x.return_pct)+'">'+e(ret)+'</strong><span>SINCE FIRST VERIFIED</span></div></div><div class="op-reason">'+e(reason)+'</div>'+(risks?'<div class="op-risk">RISK: '+e(risks)+'</div>':'')+'</article>';
+}).join(''):'<div class="op-empty">Nothing has qualified for the radar yet. Jarvis will keep monitoring and show candidates after a successful scan.</div>';
 
 const thresholds=[['Positive now',verified.filter(x=>n(x.return_pct)>0).length],['At least +5%',verified.filter(x=>n(x.return_pct)>=5).length],['At least +10%',verified.filter(x=>n(x.return_pct)>=10).length],['At least +20%',verified.filter(x=>n(x.return_pct)>=20).length],['Down 5% or more',verified.filter(x=>n(x.return_pct)<=-5).length],['Ever reached +10%',verified.filter(x=>n(x.max_gain_pct)>=10).length]];
 document.getElementById('stats').innerHTML=[['Tracked candidates',all.length],['In latest scan',live.length],['Average return',pct(avg)],['Positive candidates',thresholds[0][1]+' / '+verified.length],['Lifetime checkpoint wins',Object.values(l.checkpoints||{}).reduce((s,x)=>s+n(x.wins),0)],['Top current return',pct(Math.max(0,...verified.map(x=>n(x.return_pct))))]].map(x=>'<div class="card"><div class="muted">'+e(x[0])+'</div><div class="value">'+e(x[1])+'</div></div>').join('');
