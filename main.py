@@ -550,7 +550,8 @@ def scan_stock(symbol: str) -> Optional[dict]:
 
     close = frame["Close"].astype(float)
     volume = frame["Volume"].astype(float)
-    price = safe_float(close.iloc[-1])
+    daily_bar_price = safe_float(close.iloc[-1])
+    price = daily_bar_price
     previous = safe_float(close.iloc[-2])
     avg_volume = safe_float(volume.iloc[-21:-1].mean())
     current_volume = safe_float(volume.iloc[-1])
@@ -572,10 +573,22 @@ def scan_stock(symbol: str) -> Optional[dict]:
     intraday_change = 0.0
     intraday_relative_volume = 0.0
     intraday_breakout = False
+    intraday_price = 0.0
+    intraday_as_of = None
+    intraday_fresh = False
     try:
         # Stooq is a daily-only backup; do not pretend it supplies intraday confirmation.
         intraday = ticker.history(period="5d", interval="15m", prepost=True, auto_adjust=True) if price_provider == "Yahoo Finance" else pd.DataFrame()
-        if not intraday.empty and len(intraday) >= 8:
+        if not intraday.empty and len(intraday) >= 1:
+            intraday = intraday.dropna(subset=["Close"])
+            if not intraday.empty:
+                intraday_price = safe_float(intraday["Close"].iloc[-1])
+                intraday_as_of = pd.Timestamp(intraday.index[-1])
+                if intraday_as_of.tzinfo is None:
+                    intraday_as_of = intraday_as_of.tz_localize("UTC")
+                intraday_as_of = intraday_as_of.tz_convert("UTC")
+                quote_age = (datetime.now(timezone.utc) - intraday_as_of.to_pydatetime()).total_seconds() / 60
+                intraday_fresh = bool(intraday_price > 0 and -5 <= quote_age <= 45)
             intraday_close = intraday["Close"].astype(float).dropna()
             intraday_volume = intraday["Volume"].astype(float).fillna(0)
             intraday_high = intraday["High"].astype(float).dropna()
@@ -590,6 +603,28 @@ def scan_stock(symbol: str) -> Optional[dict]:
         # Keep the daily scan usable if intraday data is unavailable.
         pass
 
+    validation_passed = False
+    validation_note = "Fresh Yahoo intraday quote unavailable"
+    secondary_quote = None
+    quote_difference_pct = None
+    if intraday_fresh and intraday_price > 0:
+        try:
+            secondary_quote = stooq_latest_quote(symbol)
+            quote_difference_pct = abs(intraday_price - secondary_quote["price"]) / ((intraday_price + secondary_quote["price"]) / 2) * 100
+            validation_passed = quote_difference_pct <= 3.0
+            validation_note = (f"Yahoo/Stooq agree within {quote_difference_pct:.2f}%" if validation_passed else f"PRICE DISAGREEMENT: Yahoo ${intraday_price:.4f} vs Stooq ${secondary_quote['price']:.4f}")
+        except Exception as exc:
+            validation_note = f"Independent Stooq validation unavailable: {exc}"
+    if validation_passed:
+        price = intraday_price
+        daily_change = (price / previous - 1) * 100
+        five_day_change = (price / safe_float(close.iloc[-6], price) - 1) * 100
+    else:
+        price = daily_bar_price
+        daily_change = (daily_bar_price / previous - 1) * 100
+        five_day_change = (daily_bar_price / safe_float(close.iloc[-6], daily_bar_price) - 1) * 100
+    breakout = price > safe_float(close.iloc[-21:-1].max())
+    trend_up = price > safe_float(close.tail(20).mean())
     score = 0
     score += 15 if daily_change >= 2 else 8 if daily_change >= 0.5 else 0
     score += 15 if five_day_change >= 5 else 8 if five_day_change >= 2 else 0
@@ -607,23 +642,11 @@ def scan_stock(symbol: str) -> Optional[dict]:
     news = stock_news(symbol)
     fundamentals = stock_fundamental_snapshot(ticker) if score >= 35 else {"status": "not_fetched_for_low_score"}
     risk_flags = []
+    if not validation_passed:
+        risk_flags.append("Price not independently verified; actionable alerts blocked")
     if any(item.get("form") in {"S-1", "S-3", "424B1", "424B3", "424B5"} for item in news):
         risk_flags.append("Potential offering/registration filing detected; review the SEC document")
-    validation_passed = False
-    validation_note = "Fresh Yahoo intraday quote unavailable"
-    secondary_quote = None
-    quote_difference_pct = None
-    if intraday_fresh and intraday_price > 0:
-        try:
-            secondary_quote = stooq_latest_quote(symbol)
-            quote_difference_pct = abs(intraday_price - secondary_quote["price"]) / ((intraday_price + secondary_quote["price"]) / 2) * 100
-            validation_passed = quote_difference_pct <= 3.0
-            validation_note = (f"Yahoo/Stooq agree within {quote_difference_pct:.2f}%" if validation_passed else f"PRICE DISAGREEMENT: Yahoo ${intraday_price:.4f} vs Stooq ${secondary_quote['price']:.4f}")
-        except Exception as exc:
-            validation_note = f"Independent Stooq validation unavailable: {exc}"
-    if validation_passed:
-        price = intraday_price
-        daily_change = (price / previous - 1) * 100
+
         five_day_change = (price / safe_float(close.iloc[-6], price) - 1) * 100
     else:
         price = daily_bar_price
