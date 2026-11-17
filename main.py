@@ -302,6 +302,7 @@ MASSIVE_REQUEST_LOCK = threading.Lock()
 MASSIVE_LAST_REQUEST_AT = 0.0
 MASSIVE_REQUESTS_THIS_PROCESS = 0
 MASSIVE_MAX_REQUESTS_PER_SCAN = 10
+MASSIVE_LIVE_QUOTE_ENABLED = os.getenv("MASSIVE_LIVE_QUOTE_ENABLED", "false").strip().lower() in ("1", "true", "yes", "on")
 
 
 def massive_daily_history(symbol: str) -> pd.DataFrame:
@@ -353,6 +354,33 @@ def massive_daily_history(symbol: str) -> pd.DataFrame:
     if len(frame) < 22 or safe_float(frame["Volume"].tail(20).mean()) <= 0:
         raise RuntimeError("Massive returned insufficient usable daily history")
     return frame.tail(90)
+
+
+def massive_latest_trade(symbol: str) -> dict:
+    """Optional independent Massive last-trade quote; requires an entitled Stocks plan."""
+    api_key = os.getenv("MASSIVE_API_KEY", "").strip()
+    if not api_key:
+        raise RuntimeError("MASSIVE_API_KEY is not configured")
+    response = HTTP.get(
+        f"https://api.massive.com/v2/last/trade/{symbol}",
+        params={"apiKey": api_key},
+        timeout=8,
+    )
+    if response.status_code in (401, 403):
+        raise RuntimeError(f"Massive last-trade endpoint not entitled (HTTP {response.status_code})")
+    response.raise_for_status()
+    payload = response.json()
+    trade = payload.get("results") or {}
+    price = safe_float(trade.get("p"))
+    timestamp_ns = safe_float(trade.get("t") or trade.get("y"))
+    if price <= 0 or timestamp_ns <= 0:
+        raise RuntimeError("Massive last-trade response missing price or timestamp")
+    stamp = datetime.fromtimestamp(timestamp_ns / 1_000_000_000, timezone.utc)
+    age = (datetime.now(timezone.utc) - stamp).total_seconds() / 60
+    # Allows a 15-minute delayed plan plus normal delivery jitter; older prints are not live validation.
+    if age < -5 or age > 45:
+        raise RuntimeError(f"Massive last trade stale or future-dated: {age:.0f} minutes")
+    return {"price": price, "as_of": stamp.isoformat(), "age_minutes": round(age, 1)}
 
 
 def stock_daily_history(symbol: str, ticker=None):
@@ -933,6 +961,8 @@ def scan_stock(symbol: str) -> Optional[dict]:
     webull_quote = None
     webull_difference_pct = None
     webull_status = "not_configured"
+    massive_quote = None
+    massive_quote_status = "disabled" if not MASSIVE_LIVE_QUOTE_ENABLED else ("not_configured" if not os.getenv("MASSIVE_API_KEY", "").strip() else "not_checked")
     has_webull_credentials = bool(
         os.getenv("WEBULL_APP_KEY", "").strip()
         and os.getenv("WEBULL_APP_SECRET", "").strip()
@@ -950,6 +980,13 @@ def scan_stock(symbol: str) -> Optional[dict]:
         except Exception:
             secondary_quote = None
 
+    if MASSIVE_LIVE_QUOTE_ENABLED and ((intraday_fresh and intraday_price > 0) or webull_enabled):
+        try:
+            massive_quote = massive_latest_trade(symbol)
+            massive_quote_status = "fresh_quote_received"
+        except Exception as exc:
+            massive_quote_status = "not_entitled" if "not entitled" in str(exc).lower() else "unavailable"
+
     if webull_enabled:
         try:
             # Optional read-only Webull cross-check; explicitly enabled only after
@@ -963,16 +1000,24 @@ def scan_stock(symbol: str) -> Optional[dict]:
         webull_status = "disabled_pending_authorization"
 
     reference_quotes = []
+    reference_quote_times = {}
     if intraday_fresh and intraday_price > 0:
         reference_quotes.append(("Yahoo", intraday_price))
+        reference_quote_times["Yahoo"] = intraday_as_of.isoformat() if intraday_as_of is not None else None
     if secondary_quote and secondary_quote.get("price", 0) > 0:
         reference_quotes.append(("Stooq", secondary_quote["price"]))
+        reference_quote_times["Stooq"] = secondary_quote.get("as_of")
+    if massive_quote and massive_quote.get("price", 0) > 0:
+        reference_quotes.append(("Massive", massive_quote["price"]))
+        reference_quote_times["Massive"] = massive_quote.get("as_of")
 
-    reference_conflict = bool(
-        len(reference_quotes) == 2
-        and abs(reference_quotes[0][1] - reference_quotes[1][1])
-        / ((reference_quotes[0][1] + reference_quotes[1][1]) / 2) * 100 > 3.0
-    )
+    reference_spreads = []
+    for index, (_, left_price) in enumerate(reference_quotes):
+        for _, right_price in reference_quotes[index + 1:]:
+            midpoint = (left_price + right_price) / 2
+            if midpoint > 0:
+                reference_spreads.append(abs(left_price - right_price) / midpoint * 100)
+    reference_conflict = any(spread > 3.0 for spread in reference_spreads)
 
     selected_price_as_of = None
     selected_price_freshness = "daily_bar_unverified"
@@ -1012,16 +1057,21 @@ def scan_stock(symbol: str) -> Optional[dict]:
             selected_price_as_of = webull_quote["as_of"]
             selected_price_freshness = "fresh_webull_single_source"
             selected_data_source = "Webull 1m quote (single source; no live cross-check)"
-    elif intraday_fresh and secondary_quote and quote_difference_pct is not None:
-        if quote_difference_pct <= 3.0:
-            validation_passed = True
-            validation_note = f"Yahoo/Stooq agree within {quote_difference_pct:.2f}%"
-            price = intraday_price
-            selected_price_as_of = intraday_as_of.isoformat()
-            selected_price_freshness = "fresh_15m_cross_checked"
-            selected_data_source = "Yahoo Finance 15m + independent Stooq quote"
-        else:
-            validation_note = "Yahoo and Stooq live quotes disagree by more than 3%"
+    elif len(reference_quotes) >= 2 and not reference_conflict:
+        quote_difference_pct = max(reference_spreads) if reference_spreads else 0.0
+        selected_reference = next(
+            (quote for quote in reference_quotes if quote[0] == "Yahoo"),
+            next((quote for quote in reference_quotes if quote[0] == "Massive"), reference_quotes[0]),
+        )
+        selected_name, selected_price = selected_reference
+        validation_passed = True
+        validation_note = f"{'/'.join(name for name, _ in reference_quotes)} agree within {quote_difference_pct:.2f}%"
+        price = selected_price
+        selected_price_as_of = reference_quote_times.get(selected_name)
+        selected_price_freshness = "fresh_multi_provider_cross_checked"
+        selected_data_source = " + ".join(name for name, _ in reference_quotes) + " independent live/delayed quote cross-check"
+    elif reference_conflict:
+        validation_note = "Independent live quote providers disagree by more than 3%"
     elif intraday_fresh:
         validation_note = "Fresh Yahoo intraday quote available, but independent Stooq validation unavailable and Webull did not return a quote"
     elif webull_enabled and not webull_quote:
@@ -1081,6 +1131,11 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "webull_price_age_minutes": webull_quote["age_minutes"] if webull_quote else None,
         "webull_price_difference_pct": round(webull_difference_pct, 2) if webull_difference_pct is not None else None,
         "webull_status": webull_status,
+        "massive_price": round(massive_quote["price"], 4) if massive_quote else None,
+        "massive_price_as_of": massive_quote["as_of"] if massive_quote else None,
+        "massive_price_age_minutes": massive_quote["age_minutes"] if massive_quote else None,
+        "massive_quote_status": massive_quote_status,
+        "market_session": market_session_status(),
         "daily_change_pct": round(daily_change, 2),
         "session_change_pct": round(daily_change, 2) if validation_passed else None,
         "five_day_change_pct": round(five_day_change, 2),
@@ -1571,7 +1626,10 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
             },
             "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history/data or score below the early-watch floor; provider-specific discovery failures are not always attributable to one symbol.",
             "webull_quote_status": "enabled" if WEBULL_QUOTE_ENABLED else "disabled_pending_authorization",
-            "webull_quote_note": "Webull quote lookups are opt-in because the app authorization was observed pending; Yahoo/Stooq scanning continues independently. Set WEBULL_QUOTE_ENABLED=true only after Webull market-data authorization is confirmed.",
+            "webull_quote_note": "Webull quote lookups are opt-in because app authorization was observed pending; Yahoo/Stooq scanning continues independently. Enable only after Webull market-data authorization is confirmed.",
+            "massive_live_quote_status": "enabled" if MASSIVE_LIVE_QUOTE_ENABLED else "disabled_pending_entitlement_check",
+            "massive_live_quote_note": "Optional last-trade cross-check is disabled by default. Enable MASSIVE_LIVE_QUOTE_ENABLED=true only if the Massive Stocks plan includes /v2/last/trade; 15-minute delayed data is accepted only when its timestamp is within 45 minutes.",
+            "market_session": market_session_status(),
             "scan_duration_seconds": round(time.monotonic() - scan_started, 2),
         },
     }
