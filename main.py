@@ -107,34 +107,81 @@ def discover_stock_symbols(limit: int = 35) -> list[str]:
     return ranked[:limit]
 
 
+KRAKEN = "https://api.kraken.com/0/public"
+KRAKEN_PAIR_MAP = None
+
+
+def crypto_base(symbol: str) -> str:
+    value = str(symbol or "").upper()
+    for suffix in ("USDT", "USD", "USDC"):
+        if value.endswith(suffix):
+            value = value[:-len(suffix)]
+            break
+    return {"XBT": "BTC", "XDG": "DOGE"}.get(value, value)
+
+
+def kraken_pairs():
+    """Map Jarvis base symbols to Kraken's public spot pair identifiers."""
+    global KRAKEN_PAIR_MAP
+    if KRAKEN_PAIR_MAP is not None:
+        return KRAKEN_PAIR_MAP
+    response = HTTP.get(f"{KRAKEN}/AssetPairs", timeout=15)
+    response.raise_for_status()
+    payload = response.json()
+    if payload.get("error"):
+        raise RuntimeError("Kraken AssetPairs: " + "; ".join(payload["error"]))
+    pairs = {}
+    for pair_id, info in (payload.get("result") or {}).items():
+        wsname = str(info.get("wsname") or "")
+        if "/" not in wsname:
+            continue
+        base, quote = wsname.split("/", 1)
+        if quote not in ("USD", "USDT"):
+            continue
+        base = crypto_base(base)
+        if not base:
+            continue
+        priority = 0 if quote == "USD" else 1
+        current = pairs.get(base)
+        if current is None or priority < current[0]:
+            pairs[base] = (priority, pair_id)
+    KRAKEN_PAIR_MAP = {base: value[1] for base, value in pairs.items()}
+    return KRAKEN_PAIR_MAP
+
+
 def discover_crypto_symbols(limit: int = 25) -> list[str]:
-    """Find liquid, actively moving USDT spot pairs beyond the fixed watchlist."""
+    """Discover liquid early movers from Kraken USD/USDT spot markets."""
     excluded_bases = {"USDC", "FDUSD", "USDT", "TUSD", "USDP", "DAI", "EUR", "TRY", "BRL"}
     leveraged_suffixes = ("UP", "DOWN", "BULL", "BEAR")
     try:
-        response = HTTP.get(f"{BINANCE}/api/v3/ticker/24hr", timeout=20)
+        pairs = kraken_pairs()
+        response = HTTP.get(f"{KRAKEN}/Ticker", timeout=20)
         response.raise_for_status()
-        tickers = response.json()
+        payload = response.json()
+        if payload.get("error"):
+            raise RuntimeError("Kraken Ticker: " + "; ".join(payload["error"]))
+        tickers = payload.get("result") or {}
     except Exception:
         return []
     ranked = []
-    for ticker in tickers:
-        symbol = str(ticker.get("symbol") or "").upper()
-        if not symbol.endswith("USDT"):
-            continue
-        base = symbol[:-4]
+    for base, pair_id in pairs.items():
         if base in excluded_bases or base.endswith(leveraged_suffixes):
             continue
-        quote_volume = safe_float(ticker.get("quoteVolume"))
-        change = safe_float(ticker.get("priceChangePercent"))
-        # Do not require a coin to already be a 24h winner: include liquid flat/early movers.
-        if quote_volume < 1_000_000 or change < -10 or change > 150:
+        ticker = tickers.get(pair_id)
+        if not ticker:
+            continue
+        price = safe_float((ticker.get("c") or [0])[0])
+        volume = safe_float((ticker.get("v") or [0, 0])[1])
+        vwap = safe_float((ticker.get("p") or [0, 0])[1])
+        quote_volume = volume * vwap
+        opening = safe_float(ticker.get("o"))
+        change = (price / opening - 1) * 100 if opening > 0 else 0
+        if price <= 0 or quote_volume < 1_000_000 or change < -10 or change > 150:
             continue
         rank = change * 0.65 + min(np.log10(max(quote_volume, 1)), 9) * 2
-        ranked.append((rank, symbol))
+        ranked.append((rank, base + "USDT"))
     ranked.sort(reverse=True)
     return [symbol for _, symbol in ranked[:limit]]
-
 
 def stock_universe() -> list[str]:
     defaults = configured_symbols("SCAN_STOCKS", DEFAULT_STOCKS)
@@ -462,21 +509,90 @@ def crypto_news(symbol: str) -> list[dict]:
         return []
 
 
-def scan_crypto(symbol: str) -> Optional[dict]:
-    ticker_response = HTTP.get(
-        f"{BINANCE}/api/v3/ticker/24hr",
-        params={"symbol": symbol},
-        timeout=12,
-    )
+def coinbase_crypto_market_data(symbol: str):
+    """Fallback public market data from Coinbase Exchange; no API key required."""
+    base = crypto_base(symbol)
+    product = f"{base}-USD"
+    ticker_response = HTTP.get(f"https://api.exchange.coinbase.com/products/{product}/ticker", timeout=12)
     ticker_response.raise_for_status()
     ticker = ticker_response.json()
+    stats_response = HTTP.get(f"https://api.exchange.coinbase.com/products/{product}/stats", timeout=12)
+    stats_response.raise_for_status()
+    stats = stats_response.json()
+    candles_response = HTTP.get(
+        f"https://api.exchange.coinbase.com/products/{product}/candles",
+        params={"granularity": 3600},
+        timeout=15,
+    )
+    candles_response.raise_for_status()
+    # Coinbase returns [time, low, high, open, close, volume], newest first.
+    raw = list(reversed(candles_response.json()))
+    bars = [[row[0], row[3], row[2], row[1], row[4], row[5]] for row in raw if len(row) >= 6]
+    price = safe_float(ticker.get("price"))
+    opening = safe_float(stats.get("open"))
+    volume = safe_float(stats.get("volume"))
+    if price <= 0 or opening <= 0:
+        raise RuntimeError(f"Coinbase returned incomplete market data for {product}")
+    normalized = {
+        "lastPrice": price,
+        "priceChangePercent": (price / opening - 1) * 100,
+        "quoteVolume": volume * price,
+    }
+    return normalized, bars, "Coinbase Exchange public API"
+
+
+def kraken_crypto_market_data(symbol: str):
+    """Primary public market data from Kraken Spot REST API."""
+    base = crypto_base(symbol)
+    pair_id = kraken_pairs().get(base)
+    if not pair_id:
+        raise RuntimeError(f"Kraken has no supported USD/USDT spot pair for {base}")
+    ticker_response = HTTP.get(f"{KRAKEN}/Ticker", params={"pair": pair_id}, timeout=12)
+    ticker_response.raise_for_status()
+    ticker_payload = ticker_response.json()
+    if ticker_payload.get("error"):
+        raise RuntimeError("Kraken Ticker: " + "; ".join(ticker_payload["error"]))
+    ticker_rows = ticker_payload.get("result") or {}
+    if not ticker_rows:
+        raise RuntimeError(f"Kraken returned no ticker for {base}")
+    ticker = next(iter(ticker_rows.values()))
+    price = safe_float((ticker.get("c") or [0])[0])
+    opening = safe_float(ticker.get("o"))
+    volume = safe_float((ticker.get("v") or [0, 0])[1])
+    vwap = safe_float((ticker.get("p") or [0, 0])[1])
+    if price <= 0 or opening <= 0:
+        raise RuntimeError(f"Kraken returned incomplete ticker for {base}")
     bars_response = HTTP.get(
-        f"{BINANCE}/api/v3/klines",
-        params={"symbol": symbol, "interval": "1h", "limit": 50},
+        f"{KRAKEN}/OHLC",
+        params={"pair": pair_id, "interval": 60},
         timeout=12,
     )
     bars_response.raise_for_status()
-    bars = bars_response.json()
+    bars_payload = bars_response.json()
+    if bars_payload.get("error"):
+        raise RuntimeError("Kraken OHLC: " + "; ".join(bars_payload["error"]))
+    bars_rows = [value for key, value in (bars_payload.get("result") or {}).items() if key != "last"]
+    raw = bars_rows[0] if bars_rows else []
+    # Kraken returns [time, open, high, low, close, vwap, volume, count].
+    bars = [[row[0], row[1], row[2], row[3], row[4], row[6]] for row in raw if len(row) >= 8]
+    normalized = {
+        "lastPrice": price,
+        "priceChangePercent": (price / opening - 1) * 100,
+        "quoteVolume": volume * vwap,
+    }
+    return normalized, bars, "Kraken Spot public API"
+
+
+def scan_crypto(symbol: str) -> Optional[dict]:
+    try:
+        ticker, bars, provider = kraken_crypto_market_data(symbol)
+    except Exception as primary_error:
+        try:
+            ticker, bars, provider = coinbase_crypto_market_data(symbol)
+        except Exception as backup_error:
+            raise RuntimeError(
+                f"Kraken primary failed ({primary_error}); Coinbase backup failed ({backup_error})"
+            ) from backup_error
     if len(bars) < 26:
         return None
 
@@ -525,7 +641,7 @@ def scan_crypto(symbol: str) -> Optional[dict]:
         "signal": "HIGH INTEREST" if score >= 75 else "WATCH" if score >= 50 else "EARLY WATCH",
         "levels": levels(price, atr, support),
         "news": crypto_news(symbol),
-        "data_source": "Binance public market data + Yahoo Finance headlines",
+        "data_source": f"{provider} + Yahoo Finance headlines",
     }
 
 
