@@ -134,6 +134,10 @@ def update_paper_tracker(candidates, now):
 
         initial = float(record.get("initial_price") or price)
         record["latest_price"] = price
+        record["price_source"] = item.get("data_source") or item.get("price_source") or "Provider not reported"
+        record["price_as_of"] = item.get("price_as_of") or now.isoformat()
+        record["price_freshness"] = item.get("price_freshness") or "timestamp unavailable"
+        record["price_observed_at"] = now.isoformat()
         record["peak_price"] = max(float(record.get("peak_price") or price), price)
         record["trough_price"] = min(float(record.get("trough_price") or price), price)
         first_seen = datetime.fromisoformat(record["first_seen"])
