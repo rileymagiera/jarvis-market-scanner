@@ -1627,6 +1627,41 @@ PAPER_STATE = APP_DIR / "paper_tracker.json"
 PAPER_LIFETIME_STATE = APP_DIR / "paper_tracker_lifetime.json"
 BUY_SIGNAL_STATE = APP_DIR / "buy_signal_history.json"
 HISTORY_SNAPSHOT = APP_DIR / "history_snapshot.json"
+GITHUB_HISTORY_CACHE = {"at": 0.0, "data": None}
+GITHUB_HISTORY_CACHE_LOCK = threading.Lock()
+
+
+def github_history_state() -> dict:
+    token = os.getenv("JARVIS_GITHUB_READ_TOKEN", "").strip()
+    if not token:
+        return {}
+    with GITHUB_HISTORY_CACHE_LOCK:
+        cached = GITHUB_HISTORY_CACHE.get("data")
+        if cached and time.monotonic() - GITHUB_HISTORY_CACHE.get("at", 0.0) < 30:
+            return cached
+    headers = {"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json",
+               "X-GitHub-Api-Version": "2022-11-28"}
+    base = "https://api.github.com/repos/rileymagiera/jarvis-market-scanner/contents/"
+    paths = {"paper_tracker":"paper_tracker.json","lifetime":"paper_tracker_lifetime.json",
+             "buy_state":"buy_signal_history.json","metadata":"scan_metadata.json"}
+    state = {}
+    import base64
+    for key, path in paths.items():
+        response = HTTP.get(base + path, headers=headers, params={"ref":"main"}, timeout=(3,12))
+        response.raise_for_status()
+        state[key] = json.loads(base64.b64decode(response.json()["content"]).decode("utf-8"))
+    if not isinstance(state.get("paper_tracker"), dict) or not isinstance(state.get("lifetime"), dict):
+        raise RuntimeError("GitHub history files returned invalid structure")
+    meta = state.get("metadata") or {}
+    result = {"paper_tracker":state["paper_tracker"],"lifetime":state["lifetime"],
+              "buy_signals":(state.get("buy_state") or {}).get("signals",[]),
+              "last_scan_completed_at":meta.get("last_scan_completed_at"),
+              "scan_run_id":meta.get("run_id"),"synced_at":meta.get("last_scan_completed_at"),
+              "history_source":"github"}
+    with GITHUB_HISTORY_CACHE_LOCK:
+        GITHUB_HISTORY_CACHE["data"] = result
+        GITHUB_HISTORY_CACHE["at"] = time.monotonic()
+    return result
 
 
 @app.get("/history", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
@@ -1805,48 +1840,39 @@ fetch('/history/data').then(r=>{if(!r.ok)throw Error();return r.json()}).then(re
  
 @app.get("/history/data", dependencies=[Depends(require_site_login)])
 def history_data():
+    durable = github_history_state()
+    if durable:
+        return {"last_scan_completed_at":durable.get("last_scan_completed_at"),
+                "scan_run_id":durable.get("scan_run_id"),"paper_tracker":durable["paper_tracker"],
+                "lifetime":durable["lifetime"],"buy_signals":durable["buy_signals"],"history_source":"github"}
     def read_state(path):
-        try:
-            return json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            return {}
-
-    # Prefer the latest authenticated push from GitHub Actions so tracker-only
-    # commits do not require a Render redeploy. Committed files remain the
-    # recovery source if the service restarts and its local snapshot is absent.
-    snapshot = read_state(HISTORY_SNAPSHOT)
-    if isinstance(snapshot.get("paper_tracker"), dict) and isinstance(snapshot.get("lifetime"), dict):
-        paper = snapshot["paper_tracker"]
-        lifetime = snapshot["lifetime"]
-        buy_signals = snapshot.get("buy_signals", [])
-        completed_at = snapshot.get("last_scan_completed_at")
-        run_id = snapshot.get("scan_run_id")
+        try: return json.loads(path.read_text(encoding="utf-8"))
+        except (OSError,json.JSONDecodeError): return {}
+    snapshot=read_state(HISTORY_SNAPSHOT)
+    if isinstance(snapshot.get("paper_tracker"),dict) and isinstance(snapshot.get("lifetime"),dict):
+        paper=snapshot["paper_tracker"]; lifetime=snapshot["lifetime"]; buys=snapshot.get("buy_signals",[])
+        completed=snapshot.get("last_scan_completed_at"); run_id=snapshot.get("scan_run_id")
+        source="temporary_render_snapshot"
     else:
-        paper = read_state(PAPER_STATE)
-        lifetime = read_state(PAPER_LIFETIME_STATE)
-        buy_state = read_state(BUY_SIGNAL_STATE)
-        scan_metadata = read_state(Path(__file__).resolve().parent / "scan_metadata.json")
-        buy_signals = buy_state.get("signals", [])
-        completed_at = scan_metadata.get("last_scan_completed_at")
-        run_id = scan_metadata.get("run_id")
-    return {
-        "last_scan_completed_at": completed_at,
-        "scan_run_id": run_id,
-        "paper_tracker": paper,
-        "lifetime": lifetime,
-        "buy_signals": buy_signals,
-    }
+        paper=read_state(PAPER_STATE); lifetime=read_state(PAPER_LIFETIME_STATE)
+        buys=read_state(BUY_SIGNAL_STATE).get("signals",[])
+        meta=read_state(APP_DIR/"scan_metadata.json"); completed=meta.get("last_scan_completed_at")
+        run_id=meta.get("run_id"); source="temporary_render_fallback"
+    return {"last_scan_completed_at":completed,"scan_run_id":run_id,"paper_tracker":paper,
+            "lifetime":lifetime,"buy_signals":buys,"history_source":source}
 
 
 @app.post("/history/sync")
 def history_sync(payload: dict, x_jarvis_history_token: Optional[str] = Header(None)):
-    expected = os.getenv("JARVIS_HISTORY_SYNC_TOKEN", "")
-    if not expected or not x_jarvis_history_token or not hmac.compare_digest(expected, x_jarvis_history_token):
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    if not isinstance(payload.get("paper_tracker"), dict) or not isinstance(payload.get("lifetime"), dict):
-        raise HTTPException(status_code=400, detail="Invalid history payload")
-    HISTORY_SNAPSHOT.write_text(json.dumps(payload, separators=(",", ":")), encoding="utf-8")
-    return {"status": "synced", "records": len(payload["paper_tracker"])}
+    expected=os.getenv("JARVIS_HISTORY_SYNC_TOKEN","")
+    if not expected or not x_jarvis_history_token or not hmac.compare_digest(expected,x_jarvis_history_token):
+        raise HTTPException(status_code=401,detail="Unauthorized")
+    if not isinstance(payload.get("paper_tracker"),dict) or not isinstance(payload.get("lifetime"),dict):
+        raise HTTPException(status_code=400,detail="Invalid history payload")
+    HISTORY_SNAPSHOT.write_text(json.dumps(payload,separators=(",",":")),encoding="utf-8")
+    with GITHUB_HISTORY_CACHE_LOCK:
+        GITHUB_HISTORY_CACHE["data"]=None; GITHUB_HISTORY_CACHE["at"]=0.0
+    return {"status":"synced","records":len(payload["paper_tracker"])}
 
 
 @app.get("/health")
@@ -2038,51 +2064,38 @@ fetch("/research/data").then(r=>{if(!r.ok)throw Error();return r.json()}).then(r
 
 @app.get("/research/data", dependencies=[Depends(require_site_login)])
 def research_data():
-    def read_state(path):
-        try:
-            return json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            return {}
-
-    # Prefer the latest authenticated GitHub Actions snapshot, just like
-    # /history/data. State-only commits are intentionally excluded from
-    # Render auto-deploys, so local JSON files can otherwise become stale.
-    snapshot = read_state(HISTORY_SNAPSHOT)
-    if isinstance(snapshot.get("paper_tracker"), dict) and isinstance(snapshot.get("lifetime"), dict):
-        paper = snapshot["paper_tracker"]
-        lifetime = snapshot["lifetime"]
-        buy_signals = snapshot.get("buy_signals", [])
-        synced_at = snapshot.get("synced_at") or now_iso()
-        last_scan_completed_at = snapshot.get("last_scan_completed_at")
-        scan_run_id = snapshot.get("scan_run_id")
+    durable=github_history_state()
+    if durable:
+        paper=durable["paper_tracker"]; lifetime=durable["lifetime"]; buys=durable["buy_signals"]
+        synced=durable.get("synced_at"); completed=durable.get("last_scan_completed_at")
+        run_id=durable.get("scan_run_id"); source="github"
     else:
-        paper = read_state(PAPER_STATE)
-        lifetime = read_state(PAPER_LIFETIME_STATE)
-        buy_state = read_state(BUY_SIGNAL_STATE)
-        buy_signals = buy_state.get("signals", []) if isinstance(buy_state, dict) else []
-        metadata = read_state(APP_DIR / "scan_metadata.json")
-        synced_at = now_iso()
-        last_scan_completed_at = metadata.get("last_scan_completed_at")
-        scan_run_id = metadata.get("run_id")
-
-    records = list(paper.values()) if isinstance(paper, dict) else []
-    fields = ("relative_strength_vs_spy", "relative_strength_pct", "rs_rank",
-              "intraday_rvol_same_time", "same_time_relative_volume",
-              "anchored_vwap_status", "opening_range_status", "adx", "adx_dmi_status",
-              "spread_pct", "dollar_volume", "liquidity_status",
-              "catalyst_dilution_status", "dilution_flags")
-    massive_key = bool(os.getenv("MASSIVE_API_KEY", "").strip())
-    webull_keys = bool(os.getenv("WEBULL_APP_KEY", "").strip() and os.getenv("WEBULL_APP_SECRET", "").strip())
-    return {"synced_at": synced_at, "last_scan_completed_at": last_scan_completed_at,
-            "scan_run_id": scan_run_id, "paper_tracker": paper, "lifetime": lifetime,
-            "buy_signals": buy_signals,
-            "market_session": market_session_status(),
-            "quote_provider_status": {
-                "massive_live_quotes": ("Massive live quotes: enabled" if MASSIVE_LIVE_QUOTE_ENABLED and massive_key else
-                                        "Massive live quotes: disabled by safety setting" if not MASSIVE_LIVE_QUOTE_ENABLED else
-                                        "Massive live quotes: API key missing"),
-                "webull": ("Webull: enabled" if WEBULL_QUOTE_ENABLED and webull_keys else
-                           "Webull: authorization pending / provider disabled" if webull_keys else
-                           "Webull: credentials not configured"),
-            },
-            "research_field_coverage": {key: sum(1 for r in records if isinstance(r, dict) and r.get(key) is not None) for key in fields}}
+        def read_state(path):
+            try: return json.loads(path.read_text(encoding="utf-8"))
+            except (OSError,json.JSONDecodeError): return {}
+        snapshot=read_state(HISTORY_SNAPSHOT)
+        if isinstance(snapshot.get("paper_tracker"),dict) and isinstance(snapshot.get("lifetime"),dict):
+            paper=snapshot["paper_tracker"]; lifetime=snapshot["lifetime"]; buys=snapshot.get("buy_signals",[])
+            synced=snapshot.get("synced_at") or now_iso(); completed=snapshot.get("last_scan_completed_at")
+            run_id=snapshot.get("scan_run_id"); source="temporary_render_snapshot"
+        else:
+            paper=read_state(PAPER_STATE); lifetime=read_state(PAPER_LIFETIME_STATE)
+            buys=read_state(BUY_SIGNAL_STATE).get("signals",[])
+            meta=read_state(APP_DIR/"scan_metadata.json"); synced=None
+            completed=meta.get("last_scan_completed_at"); run_id=meta.get("run_id")
+            source="temporary_render_fallback"
+    records=list(paper.values()) if isinstance(paper,dict) else []
+    fields=("relative_strength_vs_spy","relative_strength_pct","rs_rank","intraday_rvol_same_time",
+            "same_time_relative_volume","anchored_vwap_status","opening_range_status","adx","adx_dmi_status",
+            "spread_pct","dollar_volume","liquidity_status","catalyst_dilution_status","dilution_flags")
+    massive_key=bool(os.getenv("MASSIVE_API_KEY","").strip())
+    webull_keys=bool(os.getenv("WEBULL_APP_KEY","").strip() and os.getenv("WEBULL_APP_SECRET","").strip())
+    return {"synced_at":synced,"last_scan_completed_at":completed,"scan_run_id":run_id,
+            "history_source":source,"paper_tracker":paper,"lifetime":lifetime,"buy_signals":buys,
+            "market_session":market_session_status(),
+            "quote_provider_status":{
+                "massive_live_quotes":("Massive live quotes: enabled" if MASSIVE_LIVE_QUOTE_ENABLED and massive_key else
+                    "Massive live quotes: disabled by safety setting" if not MASSIVE_LIVE_QUOTE_ENABLED else "Massive live quotes: API key missing"),
+                "webull":("Webull: enabled" if WEBULL_QUOTE_ENABLED and webull_keys else
+                    "Webull: authorization pending / provider disabled" if webull_keys else "Webull: credentials not configured")},
+            "research_field_coverage":{key:sum(1 for r in records if isinstance(r,dict) and r.get(key) is not None) for key in fields}}
