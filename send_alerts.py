@@ -3,6 +3,8 @@ import json
 import os
 import smtplib
 import sys
+import time
+from urllib.error import HTTPError, URLError
 from datetime import datetime, timezone, timedelta
 from zoneinfo import ZoneInfo
 from email.message import EmailMessage
@@ -427,10 +429,52 @@ def main():
         "User-Agent": "JarvisAlertWorkflow/1.0",
         "Authorization": f"Basic {credentials}",
     })
-    with urlopen(req, timeout=240) as response:
-        payload = json.loads(response.read().decode("utf-8"))
-    if not isinstance(payload.get("candidates"), list):
+    metadata_path = Path("scan_metadata.json")
+    try:
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        metadata = {}
+    metadata.update({
+        "last_scan_started_at": datetime.now(timezone.utc).isoformat(),
+        "last_attempt_status": "running",
+        "run_id": os.getenv("GITHUB_RUN_ID"),
+        "run_number": os.getenv("GITHUB_RUN_NUMBER"),
+        "commit_sha": os.getenv("GITHUB_SHA"),
+    })
+    metadata_path.write_text(json.dumps(metadata, indent=2) + "\\n", encoding="utf-8")
+
+    # Retry transient network/provider failures. Do not retry authentication or
+    # other permanent 4xx responses, and never relax downstream quote validation.
+    payload = None
+    last_error = None
+    for attempt in range(3):
+        try:
+            with urlopen(req, timeout=300) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+            break
+        except HTTPError as exc:
+            last_error = exc
+            if exc.code not in (408, 429, 500, 502, 503, 504) or attempt == 2:
+                raise
+        except (URLError, TimeoutError, OSError) as exc:
+            last_error = exc
+            if attempt == 2:
+                raise
+        wait_seconds = (8, 20)[attempt]
+        print(f"Scanner request attempt {attempt + 1} failed ({type(last_error).__name__}); retrying in {wait_seconds}s.")
+        time.sleep(wait_seconds)
+
+    if not isinstance(payload, dict) or not isinstance(payload.get("candidates"), list):
         raise RuntimeError("Scanner response did not contain candidates.")
+    completed_at = datetime.now(timezone.utc).isoformat()
+    metadata.update({
+        "last_scan_completed_at": completed_at,
+        "last_attempt_status": "completed",
+        "last_attempt_error": None,
+        "scan_duration_seconds": payload.get("diagnostics", {}).get("scan_duration_seconds"),
+        "scan_errors": len(payload.get("errors") or []),
+    })
+    metadata_path.write_text(json.dumps(metadata, indent=2) + "\\n", encoding="utf-8")
 
     DIAGNOSTICS_STATE.write_text(json.dumps({
         "timestamp": payload.get("timestamp"),
