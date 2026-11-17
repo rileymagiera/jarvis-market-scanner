@@ -12,6 +12,7 @@ from urllib.request import Request, urlopen
 STATE = Path("alert_state.json")
 PAPER_STATE = Path("paper_tracker.json")
 PAPER_LIFETIME_STATE = Path("paper_tracker_lifetime.json")
+BUY_SIGNAL_STATE = Path("buy_signal_history.json")
 DIAGNOSTICS_STATE = Path("scan_diagnostics.json")
 BASE_URL = os.getenv("JARVIS_SCANNER_URL", "https://jarvis-market-scanner.onrender.com").rstrip("/")
 SENDER = os.environ["JARVIS_GMAIL_USER"]
@@ -239,6 +240,83 @@ def update_paper_tracker(candidates, now):
     return summaries, lifetime
 
 
+def update_buy_signal_history(candidates, now):
+    """Persist distinct BUY events and measure forward returns from their signal prices."""
+    try:
+        state = json.loads(BUY_SIGNAL_STATE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        state = {}
+    signals = state.setdefault("signals", [])
+    active = state.setdefault("active_by_key", {})
+    by_id = {x.get("signal_id"): x for x in signals if x.get("signal_id")}
+    horizons = {"1h": 3600, "4h": 14400, "1d": 86400, "3d": 259200, "7d": 604800}
+
+    for item in candidates:
+        asset, symbol = item.get("asset_type", "asset"), item.get("symbol", "unknown")
+        key = f"{asset}:{symbol}"
+        stage = item.get("stage", item.get("signal", "WATCH"))
+        price = float(item.get("price") or 0)
+        price_ok = price > 0 and not (asset == "stock" and not item.get("price_validation_passed", False))
+        if stage != "BUY":
+            signal_id = active.pop(key, None)
+            old = by_id.get(signal_id)
+            if old and old.get("status") == "active":
+                old["status"], old["closed_at"] = "closed", now.isoformat()
+            continue
+        if not price_ok:
+            continue
+
+        signal_id = active.get(key)
+        record = by_id.get(signal_id) if signal_id else None
+        if record is None:
+            levels = item.get("levels") or {}
+            signal_id = f"{key}:{now.isoformat()}"
+            record = {
+                "signal_id": signal_id, "asset_type": asset, "symbol": symbol,
+                "at": now.isoformat(), "entry_price": price,
+                "entry_low": levels.get("watch_entry_low", price),
+                "entry_high": levels.get("watch_entry_high", price),
+                "invalidation": levels.get("invalidation_level"),
+                "score": int(item.get("score") or 0), "raw_score": item.get("raw_score"),
+                "market_regime": item.get("market_regime"),
+                "price_source": item.get("data_source") or item.get("price_source"),
+                "price_as_of": item.get("price_as_of"),
+                "reasons": (item.get("stage_reasons") or [])[:6],
+                "risk_flags": (item.get("risk_flags") or [])[:8],
+                "score_components": item.get("score_components") or {},
+                "technical_analysis": item.get("technical_analysis") or {},
+                "outcomes": {}, "latest_return_pct": 0.0,
+                "max_favorable_pct": 0.0, "max_adverse_pct": 0.0, "status": "active",
+            }
+            signals.append(record)
+            by_id[signal_id] = record
+            active[key] = signal_id
+
+        age = max(0, (now - datetime.fromisoformat(record["at"])).total_seconds())
+        change = (price / float(record["entry_price"]) - 1) * 100
+        record["latest_price"] = price
+        record["latest_price_as_of"] = item.get("price_as_of")
+        record["latest_observed_at"] = now.isoformat()
+        record["latest_return_pct"] = round(change, 3)
+        record["max_favorable_pct"] = round(max(float(record.get("max_favorable_pct") or 0), change), 3)
+        record["max_adverse_pct"] = round(min(float(record.get("max_adverse_pct") or 0), change), 3)
+        for horizon, seconds in horizons.items():
+            if age >= seconds and horizon not in record["outcomes"]:
+                record["outcomes"][horizon] = {
+                    "at": now.isoformat(), "elapsed_seconds": int(age),
+                    "price": price, "return_pct": round(change, 3),
+                }
+
+    signals.sort(key=lambda x: x.get("at", ""), reverse=True)
+    state["signals"] = signals[:500]
+    state["active_by_key"] = {
+        key: sid for key, sid in active.items()
+        if sid in by_id and by_id[sid].get("status") == "active"
+    }
+    BUY_SIGNAL_STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return state["signals"]
+
+
 def main():
     if "--test" in sys.argv:
         email("Jarvis email test", "Jarvis successfully sent a test email. Email delivery is connected. This test does not confirm market scanning. Jarvis is recommendation-only and never places trades.")
@@ -273,6 +351,7 @@ def main():
     now = datetime.now(timezone.utc)
     local_now = now.astimezone(ZoneInfo("America/Detroit"))
     paper, paper_lifetime = update_paper_tracker(payload["candidates"], now)
+    buy_signals = update_buy_signal_history(payload["candidates"], now)
     # The GitHub workflow commits the tracker files after this run.
     # Render reads those committed files directly; no ephemeral website sync.
     # The history page reads the tracker JSON files committed by the workflow.
@@ -299,9 +378,11 @@ def main():
                 expired = now - datetime.fromisoformat(last) >= timedelta(hours=24)
             except ValueError:
                 pass
-        if not previous or expired or (score >= 75 and previous_score < 75) or score >= previous_score + 12:
+        is_buy = item.get("stage") == "BUY"
+        new_buy = is_buy and previous.get("alerted_stage") != "BUY"
+        if new_buy or (not is_buy and (not previous or expired or (score >= 75 and previous_score < 75) or score >= previous_score + 12)):
             selected.append(item)
-            updates[key] = {"score": score, "alerted_at": now.isoformat()}
+            updates[key] = {"score": score, "alerted_at": now.isoformat(), "alerted_stage": item.get("stage")}
 
     # Continue scanning and updating paper performance around the clock, but
     # send email only during the preferred Eastern Time notification windows.
@@ -365,7 +446,9 @@ def main():
         ]
         levels = item.get("levels") or {}
         if levels:
-            lines.append(f'Watch range: {levels.get("watch_entry_low", "n/a")}–{levels.get("watch_entry_high", "n/a")} | Illustrative invalidation: {levels.get("invalidation_level", "n/a")}')
+            lines.append(f'Entry reference: {levels.get("watch_entry_low", "n/a")}–{levels.get("watch_entry_high", "n/a")} | Illustrative invalidation: {levels.get("invalidation_level", "n/a")}')
+        if item.get("stage") == "BUY":
+            lines.append("BUY SIGNAL: strict Jarvis paper recommendation. This is not an executed trade; user approval is required for any real order.")
         tracked = paper.get(f'{item.get("asset_type", "asset")}:{item.get("symbol", "unknown")}')
         if tracked:
             lines.append(
@@ -381,7 +464,9 @@ def main():
             lines.append("RISK REVIEW: " + flag)
         lines.append("")
     lines += [f'Scan candidates: {payload.get("candidates_found", "n/a")}', 'Scan diagnostics: ' + json.dumps(payload.get('diagnostics') or {}, sort_keys=True), f'Scan errors: {len(payload.get("errors") or [])}']
-    email(f"Jarvis: {len(selected)} new market setup(s)", "\n".join(lines))
+    buy_count = sum(1 for item in selected if item.get("stage") == "BUY")
+    subject = f"Jarvis BUY signal: {selected[0].get('symbol')}" if buy_count == 1 and len(selected) == 1 else f"Jarvis: {buy_count} BUY signal(s), {len(selected)} new setup(s)"
+    email(subject, "\n".join(lines))
     state.update(updates)
     STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(f"Sent {len(selected)} alert(s).")
