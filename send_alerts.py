@@ -211,6 +211,11 @@ def update_paper_tracker(candidates, now):
         # Preserve the hypothetical plan and research attribution for the Research tab.
         # These fields are observational and never affect BUY scoring.
         record["levels"] = item.get("levels") or {}
+        record["score"] = int(item.get("score") or 0)
+        record["raw_score"] = item.get("raw_score")
+        record["market_regime"] = item.get("market_regime")
+        record["stage_signals"] = item.get("stage_signals") or {}
+        record["price_validation_note"] = item.get("price_validation_note")
         record["stage_reasons"] = (item.get("stage_reasons") or [])[:10]
         record["score_components"] = item.get("score_components") or {}
         record["technical_analysis"] = item.get("technical_analysis") or {}
