@@ -262,6 +262,25 @@ def update_paper_tracker(candidates, now):
         record["early_runner_signal_matches"] = item.get("early_runner_signal_matches") or []
         record["early_runner_research_score"] = item.get("early_runner_research_score")
         record["research_feature_snapshot"] = {field: item.get(field) for field in research_fields}
+        # Freeze a separate feature snapshot at the start of this research cohort.
+        # Later scans may update live fields but must not rewrite the features used for outcome attribution.
+        if not record.get("early_runner_snapshot_at"):
+            record["early_runner_snapshot_at"] = now.isoformat()
+            record["early_runner_entry_price"] = price
+            record["early_runner_initial_feature_snapshot"] = dict(record["research_feature_snapshot"])
+            record["early_runner_initial_signal_matches"] = list(item.get("early_runner_signal_matches") or [])
+            record["early_runner_outcomes"] = {}
+        early_entry = safe_float(record.get("early_runner_entry_price"))
+        early_started = datetime.fromisoformat(record["early_runner_snapshot_at"])
+        early_age = max(0, (now - early_started).total_seconds())
+        record.setdefault("early_runner_outcomes", {})
+        for horizon, seconds in {"1h": 3600, "4h": 14400, "1d": 86400, "3d": 259200, "5d": 432000}.items():
+            if early_age >= seconds and horizon not in record["early_runner_outcomes"] and early_entry > 0:
+                record["early_runner_outcomes"][horizon] = {
+                    "at": now.isoformat(), "elapsed_seconds": int(early_age),
+                    "price": price, "return_pct": round((price / early_entry - 1) * 100, 3),
+                    "sampling_note": "First completed scan after feature snapshot at or beyond target horizon; not an exact-time fill"
+                }
         record["research_tracking_started_at"] = record.get("research_tracking_started_at") or record.get("first_seen") or now.isoformat()
         research_entry = float(record.get("research_entry_price") or record.get("initial_price") or price)
         record["research_entry_price"] = research_entry
