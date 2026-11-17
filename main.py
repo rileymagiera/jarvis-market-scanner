@@ -1634,6 +1634,7 @@ GITHUB_HISTORY_CACHE_LOCK = threading.Lock()
 def github_history_state() -> dict:
     token = os.getenv("JARVIS_GITHUB_READ_TOKEN", "").strip()
     if not token:
+        print("JARVIS_HISTORY_DIAGNOSTIC source=fallback reason=github_read_token_missing", flush=True)
         return {}
     with GITHUB_HISTORY_CACHE_LOCK:
         cached = GITHUB_HISTORY_CACHE.get("data")
@@ -1647,9 +1648,14 @@ def github_history_state() -> dict:
     state = {}
     import base64
     for key, path in paths.items():
-        response = HTTP.get(base + path, headers=headers, params={"ref":"main"}, timeout=(3,12))
-        response.raise_for_status()
-        state[key] = json.loads(base64.b64decode(response.json()["content"]).decode("utf-8"))
+        try:
+            response = HTTP.get(base + path, headers=headers, params={"ref":"main"}, timeout=(3,12))
+            response.raise_for_status()
+            state[key] = json.loads(base64.b64decode(response.json()["content"]).decode("utf-8"))
+        except Exception as exc:
+            status = getattr(getattr(exc, "response", None), "status_code", None)
+            print(f"JARVIS_HISTORY_DIAGNOSTIC source=fallback reason=github_read_failed file={path} status={status or 'unknown'} error_type={type(exc).__name__}", flush=True)
+            return {}
     if not isinstance(state.get("paper_tracker"), dict) or not isinstance(state.get("lifetime"), dict):
         raise RuntimeError("GitHub history files returned invalid structure")
     meta = state.get("metadata") or {}
@@ -1661,6 +1667,11 @@ def github_history_state() -> dict:
     with GITHUB_HISTORY_CACHE_LOCK:
         GITHUB_HISTORY_CACHE["data"] = result
         GITHUB_HISTORY_CACHE["at"] = time.monotonic()
+    print("JARVIS_HISTORY_DIAGNOSTIC source=github "
+          f"candidates={len(result['paper_tracker'])} "
+          f"lifetime_records={len(result['lifetime'].get('recommendations', [])) if isinstance(result['lifetime'], dict) else 0} "
+          f"buy_signals={len(result['buy_signals'])} "
+          f"last_scan={result.get('last_scan_completed_at')} run_id={result.get('scan_run_id')}", flush=True)
     return result
 
 
