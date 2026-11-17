@@ -1649,7 +1649,7 @@ a{color:var(--accent);text-decoration:none}.muted,.sub{color:var(--muted);font-s
 @media(max-width:700px){main{width:calc(100% - 24px);padding-top:20px}.hero{grid-template-columns:1fr}.metric{padding:12px}.metric strong{font-size:21px}}
 </style></head><body><main><div class="eyebrow">JARVIS · MARKET INTELLIGENCE</div><h1>Research lab</h1><div class="sub" id="updated">Loading saved research records…</div>
 <nav class="tabs"><a href="/history">Overview</a><a class="active" href="/research">Research</a></nav>
-<section class="hero"><div><div class="eyebrow">EXPERIMENTAL SIGNALS · NOT TRADE TRIGGERS</div><h2>Measure first. Promote only what earns it.</h2><p>This workspace evaluates additional momentum-entry signals alongside the existing scanner. It does not change BUY scoring, place trades, or treat unverified quotes as valid results.</p></div><div class="notice"><b>Research-only mode</b><br>Existing data is shown separately from measurements that still need to be added. Missing values stay blank rather than being guessed.</div></section>
+<section class="hero"><div><div class="eyebrow">EXPERIMENTAL SIGNALS · NOT TRADE TRIGGERS</div><h2>Measure first. Promote only what earns it.</h2><p>This workspace evaluates additional momentum-entry signals alongside the existing scanner. It does not change BUY scoring, place trades, or treat unverified quotes as valid results.</p></div><div class="notice"><b>Research-only mode</b><br>Existing data is shown separately from measurements that still need to be added. Missing values stay blank rather than being guessed.<div id="sessionStatus" style="margin-top:9px;color:#c5d6e8">Checking market session and quote providers…</div></div></section>
 <div class="grid" id="stats"></div>
 <section class="section"><h2>Professional signal checklist</h2><div class="muted">A transparent status for each proposed research feature.</div><div class="features" id="features"></div></section>
 <section class="section"><h2>BUY opportunities &amp; research discoveries</h2><div class="muted">Potential plans are hypothetical reference levels from Jarvis. Stops and targets are not guaranteed fills. Existing BUY engine signals are kept separate from experimental research matches.</div>
@@ -1669,6 +1669,8 @@ const esc=v=>String(v??"—").replaceAll("&","&amp;").replaceAll("<","&lt;").rep
 const pick=(o,ks)=>{for(const k of ks)if(o&&o[k]!==undefined&&o[k]!==null&&o[k]!=="")return esc(o[k]);return "—"};
 function render(d){const all=Object.values(d.paper_tracker||{}),verified=all.filter(x=>x.price_validation_status!=="unverified");
 document.getElementById("updated").textContent="Saved snapshot · "+(d.synced_at?new Date(d.synced_at).toLocaleString():"sync timestamp unavailable");
+const session=d.market_session||{}, providers=d.quote_provider_status||{};
+document.getElementById("sessionStatus").textContent="US equities: "+(session.phase||"session unknown")+" · "+(providers.massive_live_quotes||"Massive live quotes: status unknown")+" · "+(providers.webull||"Webull: status unknown")+" · "+(session.calendar_note||"");
 const stats=[["Tracked candidates",all.length],["Stocks",all.filter(x=>x.asset_type==="stock").length],["Crypto",all.filter(x=>x.asset_type==="crypto").length],["Price verified",verified.length],["Currently surfaced",all.filter(x=>x.currently_surfaced!==false).length]];
 document.getElementById("stats").innerHTML=stats.map(x=>'<div class="metric"><div class="k">'+esc(x[0])+'</div><strong>'+esc(x[1])+'</strong></div>').join("");
 const features=[
@@ -1710,6 +1712,17 @@ def research_data():
               "anchored_vwap_status", "opening_range_status", "adx", "adx_dmi_status",
               "spread_pct", "dollar_volume", "liquidity_status",
               "catalyst_dilution_status", "dilution_flags")
+    massive_key = bool(os.getenv("MASSIVE_API_KEY", "").strip())
+    webull_keys = bool(os.getenv("WEBULL_APP_KEY", "").strip() and os.getenv("WEBULL_APP_SECRET", "").strip())
     return {"synced_at": now_iso(), "paper_tracker": paper, "lifetime": lifetime,
             "buy_signals": buy_state.get("signals", []) if isinstance(buy_state, dict) else [],
+            "market_session": market_session_status(),
+            "quote_provider_status": {
+                "massive_live_quotes": ("Massive live quotes: enabled" if MASSIVE_LIVE_QUOTE_ENABLED and massive_key else
+                                        "Massive live quotes: disabled by safety setting" if not MASSIVE_LIVE_QUOTE_ENABLED else
+                                        "Massive live quotes: API key missing"),
+                "webull": ("Webull: enabled" if WEBULL_QUOTE_ENABLED and webull_keys else
+                           "Webull: authorization pending / provider disabled" if webull_keys else
+                           "Webull: credentials not configured"),
+            },
             "research_field_coverage": {key: sum(1 for r in records if isinstance(r, dict) and r.get(key) is not None) for key in fields}}
