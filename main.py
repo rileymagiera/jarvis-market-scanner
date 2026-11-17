@@ -2265,21 +2265,22 @@ def research_data():
     # Cohort outcomes use only verified candidate records with a completed 5-day observation.
     # A runner is defined conservatively as a +20% 5-day observed return; this is a research label, not a forecast.
     cohort_rules = {
-        "Float rotation >=20%": lambda r: safe_float(r.get("float_rotation_pct"), 0) >= 20,
-        "Volume acceleration >=1.8x": lambda r: safe_float(r.get("volume_acceleration_3bar"), 0) >= 1.8,
-        "Cumulative RVOL >=1.5x": lambda r: safe_float(r.get("cumulative_rvol_same_time"), 0) >= 1.5,
-        "Premarket RVOL >=1.5x": lambda r: safe_float(r.get("premarket_rvol_same_time"), 0) >= 1.5,
-        "Higher highs / higher lows": lambda r: r.get("higher_highs_higher_lows") is True,
-        "Classified catalyst": lambda r: bool(r.get("catalyst_labels")),
-        "Early runner score >=50": lambda r: safe_float(r.get("early_runner_research_score"), 0) >= 50,
+        "Float rotation >=20%": lambda f: safe_float(f.get("float_rotation_pct"), 0) >= 20,
+        "Volume acceleration >=1.8x": lambda f: safe_float(f.get("volume_acceleration_3bar"), 0) >= 1.8,
+        "Cumulative RVOL >=1.5x": lambda f: safe_float(f.get("cumulative_rvol_same_time"), 0) >= 1.5,
+        "Premarket RVOL >=1.5x": lambda f: safe_float(f.get("premarket_rvol_same_time"), 0) >= 1.5,
+        "Higher highs / higher lows": lambda f: f.get("higher_highs_higher_lows") is True,
+        "Classified catalyst": lambda f: bool(f.get("catalyst_labels")),
+        "Early runner score >=50": lambda f: safe_float(f.get("early_runner_research_score"), 0) >= 50,
     }
     early_runner_cohorts = {}
     for label, predicate in cohort_rules.items():
         sample = [r for r in records if isinstance(r, dict)
                   and r.get("price_validation_status") != "unverified"
-                  and isinstance((r.get("research_outcomes") or {}).get("5d"), dict)
-                  and predicate(r)]
-        returns = [safe_float((r.get("research_outcomes") or {}).get("5d", {}).get("return_pct"), 0) for r in sample]
+                  and isinstance(r.get("early_runner_initial_feature_snapshot"), dict)
+                  and isinstance((r.get("early_runner_outcomes") or {}).get("5d"), dict)
+                  and predicate(r.get("early_runner_initial_feature_snapshot") or {})]
+        returns = [safe_float((r.get("early_runner_outcomes") or {}).get("5d", {}).get("return_pct"), 0) for r in sample]
         runners = sum(1 for value in returns if value >= 20)
         early_runner_cohorts[label] = {
             "observations": len(sample), "runner_count": runners,
