@@ -34,7 +34,7 @@
     "trough_price": 0.131
   },
   "crypto:ASTERUSDT": {
-    "age_days": 0.03,
+    "age_days": 0.04,
     "asset_type": "crypto",
     "catalysts": [],
     "currently_surfaced": true,
@@ -56,9 +56,9 @@
       }
     ],
     "initial_price": 0.57506,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "EARLY WATCH",
-    "latest_price": 0.58006,
+    "latest_price": 0.57995,
     "max_drawdown_pct": 0.0,
     "max_gain_pct": 0.87,
     "milestones": {},
@@ -68,15 +68,20 @@
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 0.58006,
         "return_pct": 0.87
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
+        "price": 0.57995,
+        "return_pct": 0.85
       }
     ],
-    "return_pct": 0.87,
+    "return_pct": 0.85,
     "risk_flags": [],
     "symbol": "ASTERUSDT",
     "trough_price": 0.57506
   },
   "crypto:BNBUSDT": {
-    "age_days": 0,
+    "age_days": 0.01,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -118,21 +123,26 @@
       }
     ],
     "initial_price": 590.47,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 590.47,
+    "latest_price": 592.0,
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.0,
+    "max_gain_pct": 0.26,
     "milestones": {},
-    "peak_price": 590.47,
+    "peak_price": 592.0,
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 590.47,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
+        "price": 592.0,
+        "return_pct": 0.26
       }
     ],
-    "return_pct": 0.0,
+    "return_pct": 0.26,
     "risk_flags": [],
     "symbol": "BNBUSDT",
     "trough_price": 590.47
@@ -155,7 +165,7 @@
     "trough_price": 2.321e-06
   },
   "crypto:BTCUSDT": {
-    "age_days": 0.03,
+    "age_days": 0.04,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -197,27 +207,32 @@
       }
     ],
     "initial_price": 64546.7,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 64553.5,
+    "latest_price": 64671.8,
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.01,
+    "max_gain_pct": 0.19,
     "milestones": {},
-    "peak_price": 64553.5,
+    "peak_price": 64671.8,
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 64553.5,
         "return_pct": 0.01
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
+        "price": 64671.8,
+        "return_pct": 0.19
       }
     ],
-    "return_pct": 0.01,
+    "return_pct": 0.19,
     "risk_flags": [],
     "symbol": "BTCUSDT",
     "trough_price": 64546.7
   },
   "crypto:DOTUSDT": {
-    "age_days": 0.03,
+    "age_days": 0.04,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -259,21 +274,26 @@
       }
     ],
     "initial_price": 0.7287,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.7266,
+    "latest_price": 0.732,
     "max_drawdown_pct": -0.29,
-    "max_gain_pct": 0.0,
+    "max_gain_pct": 0.45,
     "milestones": {},
-    "peak_price": 0.7287,
+    "peak_price": 0.732,
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 0.7266,
         "return_pct": -0.29
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
+        "price": 0.732,
+        "return_pct": 0.45
       }
     ],
-    "return_pct": -0.29,
+    "return_pct": 0.45,
     "risk_flags": [],
     "symbol": "DOTUSDT",
     "trough_price": 0.7266
@@ -296,7 +316,7 @@
     "trough_price": 1813.37
   },
   "crypto:FETUSDT": {
-    "age_days": 0.03,
+    "age_days": 0.04,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -338,7 +358,7 @@
       }
     ],
     "initial_price": 0.1311,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 0.131,
     "max_drawdown_pct": -0.08,
@@ -350,6 +370,11 @@
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 0.131,
         "return_pct": -0.08
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
+        "price": 0.131,
+        "return_pct": -0.08
       }
     ],
     "return_pct": -0.08,
@@ -358,7 +383,7 @@
     "trough_price": 0.131
   },
   "crypto:HYPEUSDT": {
-    "age_days": 0.03,
+    "age_days": 0.04,
     "asset_type": "crypto",
     "catalysts": [],
     "currently_surfaced": true,
@@ -375,10 +400,10 @@
       }
     ],
     "initial_price": 69.11,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 68.86,
-    "max_drawdown_pct": -0.36,
+    "latest_price": 68.81,
+    "max_drawdown_pct": -0.43,
     "max_gain_pct": 0.0,
     "milestones": {},
     "peak_price": 69.11,
@@ -387,15 +412,20 @@
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 68.86,
         "return_pct": -0.36
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
+        "price": 68.81,
+        "return_pct": -0.43
       }
     ],
-    "return_pct": -0.36,
+    "return_pct": -0.43,
     "risk_flags": [],
     "symbol": "HYPEUSDT",
-    "trough_price": 68.86
+    "trough_price": 68.81
   },
   "crypto:INJUSDT": {
-    "age_days": 0.03,
+    "age_days": 0.04,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -437,27 +467,32 @@
       }
     ],
     "initial_price": 6.858,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 6.888,
+    "latest_price": 6.944,
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.44,
+    "max_gain_pct": 1.25,
     "milestones": {},
-    "peak_price": 6.888,
+    "peak_price": 6.944,
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 6.888,
         "return_pct": 0.44
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
+        "price": 6.944,
+        "return_pct": 1.25
       }
     ],
-    "return_pct": 0.44,
+    "return_pct": 1.25,
     "risk_flags": [],
     "symbol": "INJUSDT",
     "trough_price": 6.858
   },
   "crypto:NIGHTUSDT": {
-    "age_days": 0.03,
+    "age_days": 0.04,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -499,21 +534,26 @@
       }
     ],
     "initial_price": 0.0468,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.04722,
+    "latest_price": 0.04723,
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.9,
+    "max_gain_pct": 0.92,
     "milestones": {},
-    "peak_price": 0.04722,
+    "peak_price": 0.04723,
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 0.04722,
         "return_pct": 0.9
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
+        "price": 0.04723,
+        "return_pct": 0.92
       }
     ],
-    "return_pct": 0.9,
+    "return_pct": 0.92,
     "risk_flags": [],
     "symbol": "NIGHTUSDT",
     "trough_price": 0.0468
@@ -536,7 +576,7 @@
     "trough_price": 0.30507
   },
   "crypto:PEPEUSDT": {
-    "age_days": 0.03,
+    "age_days": 0.04,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -578,27 +618,32 @@
       }
     ],
     "initial_price": 3.898e-06,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 3.92e-06,
+    "latest_price": 3.93e-06,
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.56,
+    "max_gain_pct": 0.82,
     "milestones": {},
-    "peak_price": 3.92e-06,
+    "peak_price": 3.93e-06,
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 3.92e-06,
         "return_pct": 0.56
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
+        "price": 3.93e-06,
+        "return_pct": 0.82
       }
     ],
-    "return_pct": 0.56,
+    "return_pct": 0.82,
     "risk_flags": [],
     "symbol": "PEPEUSDT",
     "trough_price": 3.898e-06
   },
   "crypto:RENDERUSDT": {
-    "age_days": 0.03,
+    "age_days": 0.04,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -632,9 +677,9 @@
       }
     ],
     "initial_price": 1.364,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 1.362,
+    "latest_price": 1.364,
     "max_drawdown_pct": -0.15,
     "max_gain_pct": 0.0,
     "milestones": {},
@@ -644,15 +689,20 @@
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 1.362,
         "return_pct": -0.15
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
+        "price": 1.364,
+        "return_pct": 0.0
       }
     ],
-    "return_pct": -0.15,
+    "return_pct": 0.0,
     "risk_flags": [],
     "symbol": "RENDERUSDT",
     "trough_price": 1.362
   },
   "crypto:SOLUSDT": {
-    "age_days": 0.03,
+    "age_days": 0.04,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -694,27 +744,32 @@
       }
     ],
     "initial_price": 71.48,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 71.63,
+    "latest_price": 71.79,
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.21,
+    "max_gain_pct": 0.43,
     "milestones": {},
-    "peak_price": 71.63,
+    "peak_price": 71.79,
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 71.63,
         "return_pct": 0.21
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
+        "price": 71.79,
+        "return_pct": 0.43
       }
     ],
-    "return_pct": 0.21,
+    "return_pct": 0.43,
     "risk_flags": [],
     "symbol": "SOLUSDT",
     "trough_price": 71.48
   },
   "crypto:TAOUSDT": {
-    "age_days": 0.03,
+    "age_days": 0.04,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -748,21 +803,26 @@
       }
     ],
     "initial_price": 190.5707,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 190.3,
+    "latest_price": 191.4135,
     "max_drawdown_pct": -0.14,
-    "max_gain_pct": 0.0,
+    "max_gain_pct": 0.44,
     "milestones": {},
-    "peak_price": 190.5707,
+    "peak_price": 191.4135,
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 190.3,
         "return_pct": -0.14
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
+        "price": 191.4135,
+        "return_pct": 0.44
       }
     ],
-    "return_pct": -0.14,
+    "return_pct": 0.44,
     "risk_flags": [],
     "symbol": "TAOUSDT",
     "trough_price": 190.3
@@ -785,7 +845,7 @@
     "trough_price": 5.1441
   },
   "crypto:USDGUSDT": {
-    "age_days": 0,
+    "age_days": 0.01,
     "asset_type": "crypto",
     "catalysts": [],
     "currently_surfaced": true,
@@ -802,7 +862,7 @@
       }
     ],
     "initial_price": 1.0,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 1.0,
     "max_drawdown_pct": 0.0,
@@ -814,6 +874,11 @@
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 1.0,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
+        "price": 1.0,
+        "return_pct": 0.0
       }
     ],
     "return_pct": 0.0,
@@ -822,7 +887,7 @@
     "trough_price": 1.0
   },
   "crypto:VVVUSDT": {
-    "age_days": 0.03,
+    "age_days": 0.04,
     "asset_type": "crypto",
     "catalysts": [],
     "currently_surfaced": true,
@@ -839,27 +904,32 @@
       }
     ],
     "initial_price": 20.19,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 20.203,
+    "latest_price": 20.248,
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.06,
+    "max_gain_pct": 0.29,
     "milestones": {},
-    "peak_price": 20.203,
+    "peak_price": 20.248,
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 20.203,
         "return_pct": 0.06
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
+        "price": 20.248,
+        "return_pct": 0.29
       }
     ],
-    "return_pct": 0.06,
+    "return_pct": 0.29,
     "risk_flags": [],
     "symbol": "VVVUSDT",
     "trough_price": 20.19
   },
   "crypto:WIFUSDT": {
-    "age_days": 0.03,
+    "age_days": 0.04,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -901,9 +971,9 @@
       }
     ],
     "initial_price": 0.1344,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.1334,
+    "latest_price": 0.1336,
     "max_drawdown_pct": -0.74,
     "max_gain_pct": 0.0,
     "milestones": {},
@@ -913,15 +983,20 @@
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 0.1334,
         "return_pct": -0.74
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
+        "price": 0.1336,
+        "return_pct": -0.6
       }
     ],
-    "return_pct": -0.74,
+    "return_pct": -0.6,
     "risk_flags": [],
     "symbol": "WIFUSDT",
     "trough_price": 0.1334
   },
   "crypto:ZECUSDT": {
-    "age_days": 0.03,
+    "age_days": 0.04,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -963,27 +1038,32 @@
       }
     ],
     "initial_price": 899.95,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 902.23,
+    "latest_price": 910.43,
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.25,
+    "max_gain_pct": 1.16,
     "milestones": {},
-    "peak_price": 902.23,
+    "peak_price": 910.43,
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 902.23,
         "return_pct": 0.25
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
+        "price": 910.43,
+        "return_pct": 1.16
       }
     ],
-    "return_pct": 0.25,
+    "return_pct": 1.16,
     "risk_flags": [],
     "symbol": "ZECUSDT",
     "trough_price": 899.95
   },
   "stock:AMD": {
-    "age_days": 0,
+    "age_days": 0.01,
     "asset_type": "stock",
     "catalysts": [
       {
@@ -1025,7 +1105,7 @@
       }
     ],
     "initial_price": 534.06,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 534.06,
     "max_drawdown_pct": 0.0,
@@ -1037,6 +1117,11 @@
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 534.06,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
+        "price": 534.06,
+        "return_pct": 0.0
       }
     ],
     "return_pct": 0.0,
@@ -1045,7 +1130,7 @@
     "trough_price": 534.06
   },
   "stock:CLSK": {
-    "age_days": 0,
+    "age_days": 0.01,
     "asset_type": "stock",
     "catalysts": [
       {
@@ -1087,7 +1172,7 @@
       }
     ],
     "initial_price": 6.65,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 6.65,
     "max_drawdown_pct": 0.0,
@@ -1099,6 +1184,11 @@
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 6.65,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
+        "price": 6.65,
+        "return_pct": 0.0
       }
     ],
     "return_pct": 0.0,
@@ -1107,7 +1197,7 @@
     "trough_price": 6.65
   },
   "stock:LUNR": {
-    "age_days": 0.04,
+    "age_days": 0.05,
     "asset_type": "stock",
     "catalysts": [
       {
@@ -1149,7 +1239,7 @@
       }
     ],
     "initial_price": 11.73,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 13.0,
     "max_drawdown_pct": 0.0,
@@ -1161,6 +1251,11 @@
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 13.0,
         "return_pct": 10.83
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
+        "price": 13.0,
+        "return_pct": 10.83
       }
     ],
     "return_pct": 10.83,
@@ -1169,7 +1264,7 @@
     "trough_price": 11.73
   },
   "stock:MARA": {
-    "age_days": 0,
+    "age_days": 0.01,
     "asset_type": "stock",
     "catalysts": [
       {
@@ -1211,7 +1306,7 @@
       }
     ],
     "initial_price": 6.99,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 6.99,
     "max_drawdown_pct": 0.0,
@@ -1223,6 +1318,11 @@
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 6.99,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
+        "price": 6.99,
+        "return_pct": 0.0
       }
     ],
     "return_pct": 0.0,
@@ -1231,7 +1331,7 @@
     "trough_price": 6.99
   },
   "stock:RDW": {
-    "age_days": 0,
+    "age_days": 0.01,
     "asset_type": "stock",
     "catalysts": [
       {
@@ -1273,7 +1373,7 @@
       }
     ],
     "initial_price": 7.73,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 7.73,
     "max_drawdown_pct": 0.0,
@@ -1285,6 +1385,11 @@
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 7.73,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
+        "price": 7.73,
+        "return_pct": 0.0
       }
     ],
     "return_pct": 0.0,
@@ -1293,7 +1398,7 @@
     "trough_price": 7.73
   },
   "stock:RIOT": {
-    "age_days": 0.04,
+    "age_days": 0.05,
     "asset_type": "stock",
     "catalysts": [
       {
@@ -1335,7 +1440,7 @@
       }
     ],
     "initial_price": 17.06,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 17.52,
     "max_drawdown_pct": 0.0,
@@ -1347,6 +1452,11 @@
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 17.52,
         "return_pct": 2.7
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
+        "price": 17.52,
+        "return_pct": 2.7
       }
     ],
     "return_pct": 2.7,
@@ -1355,7 +1465,7 @@
     "trough_price": 17.06
   },
   "stock:RKLB": {
-    "age_days": 0.04,
+    "age_days": 0.05,
     "asset_type": "stock",
     "catalysts": [
       {
@@ -1397,7 +1507,7 @@
       }
     ],
     "initial_price": 57.37,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 61.53,
     "max_drawdown_pct": 0.0,
@@ -1409,6 +1519,11 @@
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 61.53,
         "return_pct": 7.25
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
+        "price": 61.53,
+        "return_pct": 7.25
       }
     ],
     "return_pct": 7.25,
@@ -1417,7 +1532,7 @@
     "trough_price": 57.37
   },
   "stock:TSLA": {
-    "age_days": 0,
+    "age_days": 0.01,
     "asset_type": "stock",
     "catalysts": [
       {
@@ -1459,7 +1574,7 @@
       }
     ],
     "initial_price": 390.22,
-    "last_seen": "2026-11-17T01:24:08.246626+00:00",
+    "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 390.22,
     "max_drawdown_pct": 0.0,
@@ -1469,6 +1584,11 @@
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
+        "price": 390.22,
+        "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-17T01:40:31.296983+00:00",
         "price": 390.22,
         "return_pct": 0.0
       }
