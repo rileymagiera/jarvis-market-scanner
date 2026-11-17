@@ -259,7 +259,14 @@ def market_conditions() -> dict:
     benchmarks = {}
     for symbol in ("SPY", "QQQ", "IWM", "BTC-USD"):
         try:
-            hist = yf.Ticker(symbol).history(period="2mo", interval="1d", auto_adjust=True)
+            try:
+                hist = yf.Ticker(symbol).history(period="2mo", interval="1d", auto_adjust=True)
+                if hist.empty or len(hist.dropna(subset=["Close"])) < 21:
+                    raise RuntimeError("Yahoo returned insufficient benchmark history")
+            except Exception:
+                if symbol == "BTC-USD":
+                    raise
+                hist, _ = stock_daily_history(symbol)
             closes = hist["Close"].dropna().astype(float)
             if len(closes) < 21:
                 continue
