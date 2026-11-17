@@ -3,7 +3,7 @@ name: Jarvis Market Alerts
 on:
   # Re-register the hourly schedule on the default branch.
   schedule:
-    - cron: "5 * * * *"
+    - cron: "6 * * * *"
   workflow_dispatch:
     inputs:
       send_test_email:
