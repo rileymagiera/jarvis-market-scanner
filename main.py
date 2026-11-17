@@ -2043,9 +2043,28 @@ def research_data():
             return json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             return {}
-    paper = read_state(PAPER_STATE)
-    lifetime = read_state(PAPER_LIFETIME_STATE)
-    buy_state = read_state(BUY_SIGNAL_STATE)
+
+    # Prefer the latest authenticated GitHub Actions snapshot, just like
+    # /history/data. State-only commits are intentionally excluded from
+    # Render auto-deploys, so local JSON files can otherwise become stale.
+    snapshot = read_state(HISTORY_SNAPSHOT)
+    if isinstance(snapshot.get("paper_tracker"), dict) and isinstance(snapshot.get("lifetime"), dict):
+        paper = snapshot["paper_tracker"]
+        lifetime = snapshot["lifetime"]
+        buy_signals = snapshot.get("buy_signals", [])
+        synced_at = snapshot.get("synced_at") or now_iso()
+        last_scan_completed_at = snapshot.get("last_scan_completed_at")
+        scan_run_id = snapshot.get("scan_run_id")
+    else:
+        paper = read_state(PAPER_STATE)
+        lifetime = read_state(PAPER_LIFETIME_STATE)
+        buy_state = read_state(BUY_SIGNAL_STATE)
+        buy_signals = buy_state.get("signals", []) if isinstance(buy_state, dict) else []
+        metadata = read_state(APP_DIR / "scan_metadata.json")
+        synced_at = now_iso()
+        last_scan_completed_at = metadata.get("last_scan_completed_at")
+        scan_run_id = metadata.get("run_id")
+
     records = list(paper.values()) if isinstance(paper, dict) else []
     fields = ("relative_strength_vs_spy", "relative_strength_pct", "rs_rank",
               "intraday_rvol_same_time", "same_time_relative_volume",
@@ -2054,8 +2073,9 @@ def research_data():
               "catalyst_dilution_status", "dilution_flags")
     massive_key = bool(os.getenv("MASSIVE_API_KEY", "").strip())
     webull_keys = bool(os.getenv("WEBULL_APP_KEY", "").strip() and os.getenv("WEBULL_APP_SECRET", "").strip())
-    return {"synced_at": now_iso(), "paper_tracker": paper, "lifetime": lifetime,
-            "buy_signals": buy_state.get("signals", []) if isinstance(buy_state, dict) else [],
+    return {"synced_at": synced_at, "last_scan_completed_at": last_scan_completed_at,
+            "scan_run_id": scan_run_id, "paper_tracker": paper, "lifetime": lifetime,
+            "buy_signals": buy_signals,
             "market_session": market_session_status(),
             "quote_provider_status": {
                 "massive_live_quotes": ("Massive live quotes: enabled" if MASSIVE_LIVE_QUOTE_ENABLED and massive_key else
