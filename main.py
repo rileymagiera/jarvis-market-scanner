@@ -277,12 +277,17 @@ def stooq_daily_history(symbol: str) -> pd.DataFrame:
 STOOQ_QUOTE_CACHE = {}
 STOOQ_QUOTE_CACHE_LOCK = threading.Lock()
 STOOQ_QUOTE_CACHE_TTL_SECONDS = 20
+STOOQ_QUOTE_FAILURE_LIMIT = 2
+STOOQ_QUOTE_MAX_ATTEMPTS_PER_SCAN = 3
+STOOQ_QUOTE_STATE_LOCK = threading.Lock()
+STOOQ_QUOTE_STATE = {"attempts": 0, "failures": 0, "circuit_open": False, "last_error": None}
 
 
 def stooq_latest_quote(symbol: str) -> dict:
-    """Fetch an independent Stooq quote with a short timeout and tiny in-process cache."""
+    """Fetch an independent Stooq quote with a scan-wide circuit breaker."""
     started = time.monotonic()
     outcome = "failure"
+    error_detail = None
     try:
         cache_key = symbol.upper()
         with STOOQ_QUOTE_CACHE_LOCK:
@@ -290,10 +295,21 @@ def stooq_latest_quote(symbol: str) -> dict:
             if cached and (time.monotonic() - cached["cached_at"]) <= STOOQ_QUOTE_CACHE_TTL_SECONDS:
                 outcome = "success"
                 return cached["quote"]
+
+        # Reserve a small number of attempts across all stock workers. This prevents
+        # a provider outage from causing one timeout per ticker.
+        with STOOQ_QUOTE_STATE_LOCK:
+            if STOOQ_QUOTE_STATE["circuit_open"] or STOOQ_QUOTE_STATE["attempts"] >= STOOQ_QUOTE_MAX_ATTEMPTS_PER_SCAN:
+                STOOQ_QUOTE_STATE["circuit_open"] = True
+                reason = STOOQ_QUOTE_STATE.get("last_error") or "per-scan attempt budget reached"
+                record_scan_metric("stooq_quote_validation_skipped", 0, "failure", error=f"circuit_open: {reason}")
+                raise RuntimeError("Stooq quote circuit open; independent validation unavailable")
+            STOOQ_QUOTE_STATE["attempts"] += 1
+
         response = HTTP.get(
             "https://stooq.com/q/l/",
             params={"s": f"{symbol.lower()}.us", "f": "sd2t2ohlcv", "h": "", "e": "csv"},
-            timeout=5,
+            timeout=(2, 2),
         )
         response.raise_for_status()
         quote = pd.read_csv(StringIO(response.text))
@@ -315,8 +331,16 @@ def stooq_latest_quote(symbol: str) -> dict:
             STOOQ_QUOTE_CACHE[cache_key] = {"quote": result, "cached_at": time.monotonic()}
         outcome = "success"
         return result
+    except Exception as exc:
+        error_detail = f"{type(exc).__name__}: {str(exc)[:180]}"
+        with STOOQ_QUOTE_STATE_LOCK:
+            STOOQ_QUOTE_STATE["failures"] += 1
+            STOOQ_QUOTE_STATE["last_error"] = error_detail
+            if STOOQ_QUOTE_STATE["failures"] >= STOOQ_QUOTE_FAILURE_LIMIT or STOOQ_QUOTE_STATE["attempts"] >= STOOQ_QUOTE_MAX_ATTEMPTS_PER_SCAN:
+                STOOQ_QUOTE_STATE["circuit_open"] = True
+        raise
     finally:
-        record_scan_metric("stooq_quote_validation", time.monotonic() - started, outcome)
+        record_scan_metric("stooq_quote_validation", time.monotonic() - started, outcome, error=error_detail)
 
 
 MASSIVE_REQUEST_LOCK = threading.Lock()
@@ -328,20 +352,25 @@ SCAN_METRICS = {}
 
 
 def reset_scan_metrics() -> None:
-    global SCAN_METRICS, MASSIVE_REQUESTS_THIS_PROCESS
+    global SCAN_METRICS, MASSIVE_REQUESTS_THIS_PROCESS, STOOQ_QUOTE_STATE
     with SCAN_METRICS_LOCK:
         SCAN_METRICS = {}
     with MASSIVE_REQUEST_LOCK:
         MASSIVE_REQUESTS_THIS_PROCESS = 0
+    with STOOQ_QUOTE_STATE_LOCK:
+        STOOQ_QUOTE_STATE = {"attempts": 0, "failures": 0, "circuit_open": False, "last_error": None}
 
 
-def record_scan_metric(name: str, elapsed: float, outcome: str = "success") -> None:
+def record_scan_metric(name: str, elapsed: float, outcome: str = "success", error: Optional[str] = None) -> None:
     with SCAN_METRICS_LOCK:
-        metric = SCAN_METRICS.setdefault(name, {"calls": 0, "failures": 0, "total_seconds": 0.0, "max_seconds": 0.0})
+        metric = SCAN_METRICS.setdefault(name, {"calls": 0, "failures": 0, "total_seconds": 0.0, "max_seconds": 0.0, "error_counts": {}})
         metric["calls"] += 1
         metric["failures"] += int(outcome != "success")
         metric["total_seconds"] += max(0.0, float(elapsed))
         metric["max_seconds"] = max(metric["max_seconds"], float(elapsed))
+        if error:
+            label = str(error)[:220]
+            metric["error_counts"][label] = metric["error_counts"].get(label, 0) + 1
 
 
 ENRICHMENT_EXECUTOR = ThreadPoolExecutor(max_workers=4, thread_name_prefix="jarvis-enrichment")
@@ -365,6 +394,7 @@ def scan_metrics_snapshot() -> dict:
                 "failures": values["failures"],
                 "total_seconds": round(values["total_seconds"], 2),
                 "max_seconds": round(values["max_seconds"], 2),
+                "error_counts": dict(values.get("error_counts", {})),
             }
             for name, values in SCAN_METRICS.items()
         }
