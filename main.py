@@ -745,7 +745,8 @@ def webull_latest_bar(symbol: str) -> dict:
 
     # SDK handles Webull's request-signature authentication. This client is    # read-only in Jarvis: only the Market Data API is instantiated/called.
     from webull.core.client import ApiClient
-    from webull.data.data_client import DataClient    api_client = ApiClient(app_key, app_secret, "us")
+    from webull.data.data_client import DataClient
+    api_client = ApiClient(app_key, app_secret, "us")
     api_client.add_endpoint("us", "api.webull.com")
     data_client = DataClient(api_client)
     with WEBULL_QUOTE_SEMAPHORE:
