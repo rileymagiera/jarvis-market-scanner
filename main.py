@@ -900,8 +900,9 @@ def scan_stock(symbol: str) -> Optional[dict]:
         and os.getenv("WEBULL_APP_SECRET", "").strip()
     )
 
-    if intraday_fresh and intraday_price > 0:
+    if (intraday_fresh and intraday_price > 0) or has_webull_credentials:
         try:
+            # Stooq can independently cross-check Webull even when Yahoo is down.
             secondary_quote = stooq_latest_quote(symbol)
             quote_difference_pct = (
                 abs(intraday_price - secondary_quote["price"])
