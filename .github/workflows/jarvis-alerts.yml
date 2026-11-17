@@ -51,7 +51,7 @@ jobs:
           })
           with open(path, "w", encoding="utf-8") as f:
               json.dump(metadata, f, indent=2)
-              f.write("\\n")
+              f.write("\n")
           PY
       - name: Run Jarvis
         id: jarvis
@@ -99,7 +99,7 @@ jobs:
           metadata.setdefault("commit_sha", os.environ.get("GITHUB_SHA"))
           with open(path, "w", encoding="utf-8") as f:
               json.dump(metadata, f, indent=2)
-              f.write("\\n")
+              f.write("\n")
           PY
       - name: Save alert deduplication state
         if: ${{ always() && inputs.send_test_email != true }}
