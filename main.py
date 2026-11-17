@@ -876,6 +876,7 @@ def intraday_vwap_metrics(frame: pd.DataFrame) -> dict:
 
 
 def scan_stock(symbol: str) -> Optional[dict]:
+    equity_session = market_session_status()
     ticker = yf.Ticker(symbol)
     try:
         frame, price_provider = stock_daily_history(symbol, ticker)
@@ -1135,7 +1136,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "massive_price_as_of": massive_quote["as_of"] if massive_quote else None,
         "massive_price_age_minutes": massive_quote["age_minutes"] if massive_quote else None,
         "massive_quote_status": massive_quote_status,
-        "market_session": market_session_status(),
+        "market_session": equity_session,
         "daily_change_pct": round(daily_change, 2),
         "session_change_pct": round(daily_change, 2) if validation_passed else None,
         "five_day_change_pct": round(five_day_change, 2),
@@ -1160,7 +1161,8 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "news": news,
         "risk_flags": risk_flags,
         "fundamentals": fundamentals,
-        "intraday_confirmation_available": bool(intraday_fresh),
+        "intraday_confirmation_available": bool(intraday_fresh and equity_session["is_regular_session"]),
+        "intraday_quote_available": bool(intraday_fresh),
         "research_notes": [
             "Review latest SEC filings for financing, dilution, debt and material events.",
             "Confirm headline timing and catalyst with a second independent source before acting.",
