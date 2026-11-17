@@ -106,6 +106,10 @@ def update_paper_tracker(candidates, now):
                 old_asset_checkpoint["flat"] += int(old_return == 0)
                 old_asset_checkpoint["total_return_pct"] = round(old_asset_checkpoint["total_return_pct"] + old_return, 2)
 
+    # Mark prior records absent until they are rediscovered in this scan.
+    for existing in tracker.values():
+        existing["currently_surfaced"] = False
+
     summaries = {}
     for item in candidates:
         asset_type = item.get("asset_type", "asset")
