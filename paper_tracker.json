@@ -8,11 +8,11 @@
     "last_seen": "2026-11-17T00:44:31.089923+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 0.151873,
-    "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.0,
+    "max_drawdown_pct": 0,
+    "max_gain_pct": 0,
     "milestones": {},
     "peak_price": 0.151873,
-    "return_pct": 0.0,
+    "return_pct": 0,
     "symbol": "ADAUSDT",
     "trough_price": 0.151873
   },
@@ -25,11 +25,11 @@
     "last_seen": "2026-11-17T00:44:31.089923+00:00",
     "last_stage": "EARLY WATCH",
     "latest_price": 0.131,
-    "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.0,
+    "max_drawdown_pct": 0,
+    "max_gain_pct": 0,
     "milestones": {},
     "peak_price": 0.131,
-    "return_pct": 0.0,
+    "return_pct": 0,
     "symbol": "ARBUSDT",
     "trough_price": 0.131
   },
@@ -59,7 +59,7 @@
     "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "EARLY WATCH",
     "latest_price": 0.57995,
-    "max_drawdown_pct": 0.0,
+    "max_drawdown_pct": 0,
     "max_gain_pct": 0.87,
     "milestones": {},
     "peak_price": 0.58006,
@@ -89,7 +89,7 @@
         "published_at": "2026-11-16T17:15:00Z",
         "publisher": "TheStreet",
         "source_type": null,
-        "title": "Binance\u2019s Pay Later lets you spend up to $1,000 without selling Bitcoin",
+        "title": "Binance’s Pay Later lets you spend up to $1,000 without selling Bitcoin",
         "url": "https://www.thestreet.com/crypto/innovation/binances-pay-later-lets-you-spend-up-to-1000-without-selling-bitcoin"
       },
       {
@@ -105,7 +105,7 @@
         "published_at": "2026-11-16T04:13:04Z",
         "publisher": "Stocktwits",
         "source_type": null,
-        "title": "Did Binance Make Bitcoin\u2019s Crash Worse? OKX CEO Revives Feud With CZ Over October Selloffs",
+        "title": "Did Binance Make Bitcoin’s Crash Worse? OKX CEO Revives Feud With CZ Over October Selloffs",
         "url": "https://stocktwits.com/news-articles/markets/cryptocurrency/binance-cz-okx-star-xu-bitcoin-crash-october-selloff/cNb7akaR9XE"
       }
     ],
@@ -125,20 +125,20 @@
     "initial_price": 590.47,
     "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 592.0,
-    "max_drawdown_pct": 0.0,
+    "latest_price": 592,
+    "max_drawdown_pct": 0,
     "max_gain_pct": 0.26,
     "milestones": {},
-    "peak_price": 592.0,
+    "peak_price": 592,
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 590.47,
-        "return_pct": 0.0
+        "return_pct": 0
       },
       {
         "at": "2026-11-17T01:40:31.296983+00:00",
-        "price": 592.0,
+        "price": 592,
         "return_pct": 0.26
       }
     ],
@@ -152,17 +152,17 @@
     "asset_type": "crypto",
     "currently_surfaced": false,
     "first_seen": "2026-11-17T00:44:31.089923+00:00",
-    "initial_price": 2.321e-06,
+    "initial_price": 0.000002321,
     "last_seen": "2026-11-17T00:44:31.089923+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 2.321e-06,
-    "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.0,
+    "latest_price": 0.000002321,
+    "max_drawdown_pct": 0,
+    "max_gain_pct": 0,
     "milestones": {},
-    "peak_price": 2.321e-06,
-    "return_pct": 0.0,
+    "peak_price": 0.000002321,
+    "return_pct": 0,
     "symbol": "BONKUSDT",
-    "trough_price": 2.321e-06
+    "trough_price": 0.000002321
   },
   "crypto:BTCUSDT": {
     "age_days": 0.04,
@@ -210,7 +210,7 @@
     "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 64671.8,
-    "max_drawdown_pct": 0.0,
+    "max_drawdown_pct": 0,
     "max_gain_pct": 0.19,
     "milestones": {},
     "peak_price": 64671.8,
@@ -240,7 +240,7 @@
         "published_at": "2026-11-11T14:47:44Z",
         "publisher": "BeInCrypto",
         "source_type": null,
-        "title": "Is Your Altcoin on the List? Crypto Exchange Gemini Names 2026\u2019s 10 Biggest Losers",
+        "title": "Is Your Altcoin on the List? Crypto Exchange Gemini Names 2026’s 10 Biggest Losers",
         "url": "https://beincrypto.com/gemini-biggest-altcoin-losers-2026/"
       },
       {
@@ -307,11 +307,11 @@
     "last_seen": "2026-11-17T00:44:31.089923+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 1813.37,
-    "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.0,
+    "max_drawdown_pct": 0,
+    "max_gain_pct": 0,
     "milestones": {},
     "peak_price": 1813.37,
-    "return_pct": 0.0,
+    "return_pct": 0,
     "symbol": "ETHUSDT",
     "trough_price": 1813.37
   },
@@ -340,7 +340,7 @@
         "published_at": "2026-07-31T18:56:31Z",
         "publisher": "Forkast News",
         "source_type": null,
-        "title": "Beyond the Token Merger: Analyzing the ASI Alliance\u2019s Decentralized AI Stack",
+        "title": "Beyond the Token Merger: Analyzing the ASI Alliance’s Decentralized AI Stack",
         "url": "https://finance.yahoo.com/technology/ai/articles/beyond-token-merger-analyzing-asi-185631531.html"
       }
     ],
@@ -362,7 +362,7 @@
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 0.131,
     "max_drawdown_pct": -0.08,
-    "max_gain_pct": 0.0,
+    "max_gain_pct": 0,
     "milestones": {},
     "peak_price": 0.1311,
     "price_history": [
@@ -404,7 +404,7 @@
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 68.81,
     "max_drawdown_pct": -0.43,
-    "max_gain_pct": 0.0,
+    "max_gain_pct": 0,
     "milestones": {},
     "peak_price": 69.11,
     "price_history": [
@@ -441,7 +441,7 @@
         "published_at": "2026-09-20T15:59:42Z",
         "publisher": "Stocktwits",
         "source_type": null,
-        "title": "Altcoin Rally Explodes: NEAR, ARB, AVAX, INJ, UNI Lead As Kevin O\u2019Leary Says Ethereum May No Longer Rule",
+        "title": "Altcoin Rally Explodes: NEAR, ARB, AVAX, INJ, UNI Lead As Kevin O’Leary Says Ethereum May No Longer Rule",
         "url": "https://stocktwits.com/news-articles/markets/cryptocurrency/7-altcoins-explode-near-arb-avax-inj-uni-rally/cZtCgtCRB4R"
       },
       {
@@ -449,7 +449,7 @@
         "published_at": "2026-07-30T19:20:41Z",
         "publisher": "CoinDesk",
         "source_type": null,
-        "title": "Zcash Sealed $1.7B \u2013 Here's Everything You Need to Know",
+        "title": "Zcash Sealed $1.7B – Here's Everything You Need to Know",
         "url": "http://videos.coindesk.com/previews/9azdw8Xf"
       }
     ],
@@ -470,7 +470,7 @@
     "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 6.944,
-    "max_drawdown_pct": 0.0,
+    "max_drawdown_pct": 0,
     "max_gain_pct": 1.25,
     "milestones": {},
     "peak_price": 6.944,
@@ -537,7 +537,7 @@
     "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 0.04723,
-    "max_drawdown_pct": 0.0,
+    "max_drawdown_pct": 0,
     "max_gain_pct": 0.92,
     "milestones": {},
     "peak_price": 0.04723,
@@ -567,11 +567,11 @@
     "last_seen": "2026-11-17T00:44:31.089923+00:00",
     "last_stage": "EARLY WATCH",
     "latest_price": 0.30507,
-    "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.0,
+    "max_drawdown_pct": 0,
+    "max_gain_pct": 0,
     "milestones": {},
     "peak_price": 0.30507,
-    "return_pct": 0.0,
+    "return_pct": 0,
     "symbol": "ONDOUSDT",
     "trough_price": 0.30507
   },
@@ -617,30 +617,30 @@
         "to": "LOW-CONVICTION WATCH"
       }
     ],
-    "initial_price": 3.898e-06,
+    "initial_price": 0.000003898,
     "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 3.93e-06,
-    "max_drawdown_pct": 0.0,
+    "latest_price": 0.00000393,
+    "max_drawdown_pct": 0,
     "max_gain_pct": 0.82,
     "milestones": {},
-    "peak_price": 3.93e-06,
+    "peak_price": 0.00000393,
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
-        "price": 3.92e-06,
+        "price": 0.00000392,
         "return_pct": 0.56
       },
       {
         "at": "2026-11-17T01:40:31.296983+00:00",
-        "price": 3.93e-06,
+        "price": 0.00000393,
         "return_pct": 0.82
       }
     ],
     "return_pct": 0.82,
     "risk_flags": [],
     "symbol": "PEPEUSDT",
-    "trough_price": 3.898e-06
+    "trough_price": 0.000003898
   },
   "crypto:RENDERUSDT": {
     "age_days": 0.04,
@@ -681,7 +681,7 @@
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 1.364,
     "max_drawdown_pct": -0.15,
-    "max_gain_pct": 0.0,
+    "max_gain_pct": 0,
     "milestones": {},
     "peak_price": 1.364,
     "price_history": [
@@ -693,10 +693,10 @@
       {
         "at": "2026-11-17T01:40:31.296983+00:00",
         "price": 1.364,
-        "return_pct": 0.0
+        "return_pct": 0
       }
     ],
-    "return_pct": 0.0,
+    "return_pct": 0,
     "risk_flags": [],
     "symbol": "RENDERUSDT",
     "trough_price": 1.362
@@ -747,7 +747,7 @@
     "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 71.79,
-    "max_drawdown_pct": 0.0,
+    "max_drawdown_pct": 0,
     "max_gain_pct": 0.43,
     "milestones": {},
     "peak_price": 71.79,
@@ -836,11 +836,11 @@
     "last_seen": "2026-11-17T00:44:31.089923+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 5.1441,
-    "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.0,
+    "max_drawdown_pct": 0,
+    "max_gain_pct": 0,
     "milestones": {},
     "peak_price": 5.1441,
-    "return_pct": 0.0,
+    "return_pct": 0,
     "symbol": "UNIUSDT",
     "trough_price": 5.1441
   },
@@ -861,30 +861,30 @@
         "to": "LOW-CONVICTION WATCH"
       }
     ],
-    "initial_price": 1.0,
+    "initial_price": 1,
     "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 1.0,
-    "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.0,
+    "latest_price": 1,
+    "max_drawdown_pct": 0,
+    "max_gain_pct": 0,
     "milestones": {},
-    "peak_price": 1.0,
+    "peak_price": 1,
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
-        "price": 1.0,
-        "return_pct": 0.0
+        "price": 1,
+        "return_pct": 0
       },
       {
         "at": "2026-11-17T01:40:31.296983+00:00",
-        "price": 1.0,
-        "return_pct": 0.0
+        "price": 1,
+        "return_pct": 0
       }
     ],
-    "return_pct": 0.0,
+    "return_pct": 0,
     "risk_flags": [],
     "symbol": "USDGUSDT",
-    "trough_price": 1.0
+    "trough_price": 1
   },
   "crypto:VVVUSDT": {
     "age_days": 0.04,
@@ -907,7 +907,7 @@
     "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 20.248,
-    "max_drawdown_pct": 0.0,
+    "max_drawdown_pct": 0,
     "max_gain_pct": 0.29,
     "milestones": {},
     "peak_price": 20.248,
@@ -953,7 +953,7 @@
         "published_at": "2025-12-24T17:23:04Z",
         "publisher": "decrypt",
         "source_type": null,
-        "title": "How Pudgy Penguins Landed the Las Vegas Sphere\u2014After Dogwifhat Couldn't",
+        "title": "How Pudgy Penguins Landed the Las Vegas Sphere—After Dogwifhat Couldn't",
         "url": "https://decrypt.co/353166/how-pudgy-penguins-landed-las-vegas-sphere-dogwifhat-couldnt"
       }
     ],
@@ -975,7 +975,7 @@
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 0.1336,
     "max_drawdown_pct": -0.74,
-    "max_gain_pct": 0.0,
+    "max_gain_pct": 0,
     "milestones": {},
     "peak_price": 0.1344,
     "price_history": [
@@ -1041,7 +1041,7 @@
     "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 910.43,
-    "max_drawdown_pct": 0.0,
+    "max_drawdown_pct": 0,
     "max_gain_pct": 1.16,
     "milestones": {},
     "peak_price": 910.43,
@@ -1107,27 +1107,30 @@
     "initial_price": 534.06,
     "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 534.06,
-    "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.0,
+    "latest_price": null,
+    "max_drawdown_pct": null,
+    "max_gain_pct": null,
     "milestones": {},
     "peak_price": 534.06,
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 534.06,
-        "return_pct": 0.0
+        "return_pct": 0
       },
       {
         "at": "2026-11-17T01:40:31.296983+00:00",
         "price": 534.06,
-        "return_pct": 0.0
+        "return_pct": 0
       }
     ],
-    "return_pct": 0.0,
+    "return_pct": null,
     "risk_flags": [],
     "symbol": "AMD",
-    "trough_price": 534.06
+    "trough_price": 534.06,
+    "price_validation_status": "unverified",
+    "price_validation_note": "Legacy stock price quarantined pending fresh independent quote validation",
+    "unverified_return_pct": 0
   },
   "stock:CLSK": {
     "age_days": 0.01,
@@ -1174,27 +1177,30 @@
     "initial_price": 6.65,
     "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 6.65,
-    "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.0,
+    "latest_price": null,
+    "max_drawdown_pct": null,
+    "max_gain_pct": null,
     "milestones": {},
     "peak_price": 6.65,
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 6.65,
-        "return_pct": 0.0
+        "return_pct": 0
       },
       {
         "at": "2026-11-17T01:40:31.296983+00:00",
         "price": 6.65,
-        "return_pct": 0.0
+        "return_pct": 0
       }
     ],
-    "return_pct": 0.0,
+    "return_pct": null,
     "risk_flags": [],
     "symbol": "CLSK",
-    "trough_price": 6.65
+    "trough_price": 6.65,
+    "price_validation_status": "unverified",
+    "price_validation_note": "Legacy stock price quarantined pending fresh independent quote validation",
+    "unverified_return_pct": 0
   },
   "stock:LUNR": {
     "age_days": 0.05,
@@ -1205,7 +1211,7 @@
         "published_at": "2026-11-16T05:58:34Z",
         "publisher": "Stocktwits",
         "source_type": null,
-        "title": "ASTS, RKLB, LUNR And FLY Fall After ULA Rocket Failure Strands 40 Amazon Satellites \u2014 Why One Analyst Wants Musk To Free Up Falcon 9 Flights",
+        "title": "ASTS, RKLB, LUNR And FLY Fall After ULA Rocket Failure Strands 40 Amazon Satellites — Why One Analyst Wants Musk To Free Up Falcon 9 Flights",
         "url": "https://stocktwits.com/news-articles/markets/equity/asts-rklb-lunr-fly-ula-rocket-failure-40-amazon-satellites-analyst-musk-falcon-9-flights/cNb7XOFR9Xa"
       },
       {
@@ -1213,7 +1219,7 @@
         "published_at": "2026-11-15T17:10:00Z",
         "publisher": "MarketBeat",
         "source_type": null,
-        "title": "Intuitive Machines\u2019 Business Is Taking Off\u2014Will Its Stock Follow?",
+        "title": "Intuitive Machines’ Business Is Taking Off—Will Its Stock Follow?",
         "url": "https://www.marketbeat.com/articles/intuitive-machines-business-is-taking-offwill-its-stock-follow/?utm_source=yahoofinance&utm_medium=yahoofinance"
       },
       {
@@ -1241,27 +1247,30 @@
     "initial_price": 11.73,
     "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 13.0,
-    "max_drawdown_pct": 0.0,
-    "max_gain_pct": 10.83,
+    "latest_price": null,
+    "max_drawdown_pct": null,
+    "max_gain_pct": null,
     "milestones": {},
-    "peak_price": 13.0,
+    "peak_price": 13,
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
-        "price": 13.0,
+        "price": 13,
         "return_pct": 10.83
       },
       {
         "at": "2026-11-17T01:40:31.296983+00:00",
-        "price": 13.0,
+        "price": 13,
         "return_pct": 10.83
       }
     ],
-    "return_pct": 10.83,
+    "return_pct": null,
     "risk_flags": [],
     "symbol": "LUNR",
-    "trough_price": 11.73
+    "trough_price": 11.73,
+    "price_validation_status": "unverified",
+    "price_validation_note": "Legacy stock price quarantined pending fresh independent quote validation",
+    "unverified_return_pct": 10.83
   },
   "stock:MARA": {
     "age_days": 0.01,
@@ -1280,7 +1289,7 @@
         "published_at": "2026-11-16T14:31:12Z",
         "publisher": "TIKR",
         "source_type": null,
-        "title": "43% Upside for MARA? Piper Sandler Thinks So, and Here\u2019s How",
+        "title": "43% Upside for MARA? Piper Sandler Thinks So, and Here’s How",
         "url": "https://www.tikr.com/blog/43-upside-for-mara-piper-sandler-thinks-so-and-heres-how?ref=yahoofinance&tlnk=yf-261116-jxcrxqrv"
       },
       {
@@ -1308,27 +1317,30 @@
     "initial_price": 6.99,
     "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 6.99,
-    "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.0,
+    "latest_price": null,
+    "max_drawdown_pct": null,
+    "max_gain_pct": null,
     "milestones": {},
     "peak_price": 6.99,
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 6.99,
-        "return_pct": 0.0
+        "return_pct": 0
       },
       {
         "at": "2026-11-17T01:40:31.296983+00:00",
         "price": 6.99,
-        "return_pct": 0.0
+        "return_pct": 0
       }
     ],
-    "return_pct": 0.0,
+    "return_pct": null,
     "risk_flags": [],
     "symbol": "MARA",
-    "trough_price": 6.99
+    "trough_price": 6.99,
+    "price_validation_status": "unverified",
+    "price_validation_note": "Legacy stock price quarantined pending fresh independent quote validation",
+    "unverified_return_pct": 0
   },
   "stock:RDW": {
     "age_days": 0.01,
@@ -1375,27 +1387,30 @@
     "initial_price": 7.73,
     "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 7.73,
-    "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.0,
+    "latest_price": null,
+    "max_drawdown_pct": null,
+    "max_gain_pct": null,
     "milestones": {},
     "peak_price": 7.73,
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 7.73,
-        "return_pct": 0.0
+        "return_pct": 0
       },
       {
         "at": "2026-11-17T01:40:31.296983+00:00",
         "price": 7.73,
-        "return_pct": 0.0
+        "return_pct": 0
       }
     ],
-    "return_pct": 0.0,
+    "return_pct": null,
     "risk_flags": [],
     "symbol": "RDW",
-    "trough_price": 7.73
+    "trough_price": 7.73,
+    "price_validation_status": "unverified",
+    "price_validation_note": "Legacy stock price quarantined pending fresh independent quote validation",
+    "unverified_return_pct": 0
   },
   "stock:RIOT": {
     "age_days": 0.05,
@@ -1406,7 +1421,7 @@
         "published_at": "2026-11-16T17:19:25Z",
         "publisher": "TIKR",
         "source_type": null,
-        "title": "Bernstein\u2019s $30 Target Says Riot Platforms\u2019 Selloff Went Too Far",
+        "title": "Bernstein’s $30 Target Says Riot Platforms’ Selloff Went Too Far",
         "url": "https://www.tikr.com/blog/bernsteins-30-target-says-riot-platforms-selloff-went-too-far?ref=yahoofinance&tlnk=yf-261116-x893r78m"
       },
       {
@@ -1442,9 +1457,9 @@
     "initial_price": 17.06,
     "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 17.52,
-    "max_drawdown_pct": 0.0,
-    "max_gain_pct": 2.7,
+    "latest_price": null,
+    "max_drawdown_pct": null,
+    "max_gain_pct": null,
     "milestones": {},
     "peak_price": 17.52,
     "price_history": [
@@ -1459,10 +1474,13 @@
         "return_pct": 2.7
       }
     ],
-    "return_pct": 2.7,
+    "return_pct": null,
     "risk_flags": [],
     "symbol": "RIOT",
-    "trough_price": 17.06
+    "trough_price": 17.06,
+    "price_validation_status": "unverified",
+    "price_validation_note": "Legacy stock price quarantined pending fresh independent quote validation",
+    "unverified_return_pct": 2.7
   },
   "stock:RKLB": {
     "age_days": 0.05,
@@ -1509,9 +1527,9 @@
     "initial_price": 57.37,
     "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 61.53,
-    "max_drawdown_pct": 0.0,
-    "max_gain_pct": 7.25,
+    "latest_price": null,
+    "max_drawdown_pct": null,
+    "max_gain_pct": null,
     "milestones": {},
     "peak_price": 61.53,
     "price_history": [
@@ -1526,10 +1544,13 @@
         "return_pct": 7.25
       }
     ],
-    "return_pct": 7.25,
+    "return_pct": null,
     "risk_flags": [],
     "symbol": "RKLB",
-    "trough_price": 57.37
+    "trough_price": 57.37,
+    "price_validation_status": "unverified",
+    "price_validation_note": "Legacy stock price quarantined pending fresh independent quote validation",
+    "unverified_return_pct": 7.25
   },
   "stock:TSLA": {
     "age_days": 0.01,
@@ -1556,7 +1577,7 @@
         "published_at": "2026-11-17T01:00:13Z",
         "publisher": "Fortune",
         "source_type": null,
-        "title": "Tesla board member Joe Gebbia: Nvidia should \u201creinstate\u201d Jensen Huang to let investigation play out",
+        "title": "Tesla board member Joe Gebbia: Nvidia should “reinstate” Jensen Huang to let investigation play out",
         "url": "https://finance.yahoo.com/video/tesla-board-member-joe-gebbia-010013441.html"
       }
     ],
@@ -1576,26 +1597,29 @@
     "initial_price": 390.22,
     "last_seen": "2026-11-17T01:40:31.296983+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 390.22,
-    "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.0,
+    "latest_price": null,
+    "max_drawdown_pct": null,
+    "max_gain_pct": null,
     "milestones": {},
     "peak_price": 390.22,
     "price_history": [
       {
         "at": "2026-11-17T01:24:08.246626+00:00",
         "price": 390.22,
-        "return_pct": 0.0
+        "return_pct": 0
       },
       {
         "at": "2026-11-17T01:40:31.296983+00:00",
         "price": 390.22,
-        "return_pct": 0.0
+        "return_pct": 0
       }
     ],
-    "return_pct": 0.0,
+    "return_pct": null,
     "risk_flags": [],
     "symbol": "TSLA",
-    "trough_price": 390.22
+    "trough_price": 390.22,
+    "price_validation_status": "unverified",
+    "price_validation_note": "Legacy stock price quarantined pending fresh independent quote validation",
+    "unverified_return_pct": 0
   }
 }
