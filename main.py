@@ -2248,7 +2248,37 @@ def research_data():
     records=list(paper.values()) if isinstance(paper,dict) else []
     fields=("relative_strength_vs_spy","relative_strength_vs_iwm","rs_rank","intraday_rvol_same_time",
             "same_time_relative_volume","anchored_vwap_status","anchored_vwap","opening_range_status","adx","plus_di","minus_di","adx_dmi_status",
-            "spread_pct","dollar_volume","liquidity_status","volatility_contraction_status","atr_contraction_pct","base_tightness_pct","catalyst_dilution_status","dilution_flags")
+            "spread_pct","dollar_volume","liquidity_status","volatility_contraction_status","atr_contraction_pct","base_tightness_pct",
+            "premarket_gap_pct","premarket_volume","premarket_rvol_same_time","premarket_high","premarket_low",
+            "cumulative_rvol_same_time","volume_acceleration_3bar","float_rotation_pct","float_shares","shares_outstanding",
+            "short_percent_float","higher_highs_higher_lows","pullback_from_session_high_pct","premarket_high_reclaimed",
+            "catalyst_labels","catalyst_dilution_status","dilution_flags","catalyst_headline_count",
+            "early_runner_research_score","early_runner_score_components")
+    # Cohort outcomes use only verified candidate records with a completed 5-day observation.
+    # A runner is defined conservatively as a +20% 5-day observed return; this is a research label, not a forecast.
+    cohort_rules = {
+        "Float rotation >=20%": lambda r: safe_float(r.get("float_rotation_pct"), 0) >= 20,
+        "Volume acceleration >=1.8x": lambda r: safe_float(r.get("volume_acceleration_3bar"), 0) >= 1.8,
+        "Cumulative RVOL >=1.5x": lambda r: safe_float(r.get("cumulative_rvol_same_time"), 0) >= 1.5,
+        "Premarket RVOL >=1.5x": lambda r: safe_float(r.get("premarket_rvol_same_time"), 0) >= 1.5,
+        "Higher highs / higher lows": lambda r: r.get("higher_highs_higher_lows") is True,
+        "Classified catalyst": lambda r: bool(r.get("catalyst_labels")),
+        "Early runner score >=50": lambda r: safe_float(r.get("early_runner_research_score"), 0) >= 50,
+    }
+    early_runner_cohorts = {}
+    for label, predicate in cohort_rules.items():
+        sample = [r for r in records if isinstance(r, dict)
+                  and r.get("price_validation_status") != "unverified"
+                  and isinstance((r.get("research_outcomes") or {}).get("5d"), dict)
+                  and predicate(r)]
+        returns = [safe_float((r.get("research_outcomes") or {}).get("5d", {}).get("return_pct"), 0) for r in sample]
+        runners = sum(1 for value in returns if value >= 20)
+        early_runner_cohorts[label] = {
+            "observations": len(sample), "runner_count": runners,
+            "runner_rate_pct": round(runners / len(sample) * 100, 1) if sample else None,
+            "average_5d_return_pct": round(sum(returns) / len(returns), 2) if returns else None,
+            "definition": "5-day sampled return >=20%; only completed, verified observations",
+        }
     massive_key=bool(os.getenv("MASSIVE_API_KEY","").strip())
     webull_keys=bool(os.getenv("WEBULL_APP_KEY","").strip() and os.getenv("WEBULL_APP_SECRET","").strip())
     return {"synced_at":synced,"last_scan_completed_at":completed,"scan_run_id":run_id,
@@ -2260,6 +2290,7 @@ def research_data():
                 "webull":("Webull: enabled" if WEBULL_QUOTE_ENABLED and webull_keys else
                     "Webull: authorization pending / provider disabled" if webull_keys else "Webull: credentials not configured")},
             "research_field_coverage":{key:sum(1 for r in records if isinstance(r,dict) and r.get(key) is not None) for key in fields},
+            "early_runner_cohorts":early_runner_cohorts,
             "research_outcomes_summary":{
                 "tracked":sum(1 for r in records if r.get("research_entry_price")),
                 "mfe_average_pct":round(sum(safe_float(r.get("research_max_favorable_pct")) for r in records if r.get("research_max_favorable_pct") is not None)/max(1,sum(1 for r in records if r.get("research_max_favorable_pct") is not None)),2),
