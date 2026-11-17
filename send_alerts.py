@@ -109,6 +109,14 @@ def update_paper_tracker(candidates, now):
     # Mark prior records absent until they are rediscovered in this scan.
     for existing in tracker.values():
         existing["currently_surfaced"] = False
+        if existing.get("asset_type") == "stock" and existing.get("price_validation_status") is None:
+            existing["price_validation_status"] = "unverified"
+            existing["price_validation_note"] = "Legacy stock price was not independently validated"
+            existing["unverified_return_pct"] = existing.get("return_pct")
+            existing["return_pct"] = None
+            existing["max_gain_pct"] = None
+            existing["max_drawdown_pct"] = None
+            existing["latest_price"] = None
 
     summaries = {}
     for item in candidates:
