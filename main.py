@@ -414,20 +414,27 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
         ema20 = float(tech.get("ema_20") or 0)
         atr = float(item.get("atr_14_true_range") or 0)
         extension_atr = (price - ema20) / atr if price > 0 and ema20 > 0 and atr > 0 else 0
-        late_signals = []
-        if float(item.get("daily_change_pct") or 0) >= 10: late_signals.append("daily move at least 10%")
-        if float(item.get("five_day_change_pct") or 0) >= 25: late_signals.append("five-day move at least 25%")
-        if float(item.get("intraday_change_pct") or 0) >= 8: late_signals.append("intraday move at least 8%")
-        if rsi is not None and float(rsi) >= 78: late_signals.append("RSI at least 78")
-        if extension_atr >= 2.5: late_signals.append("price at least 2.5 ATR above EMA20")
+        # Group correlated price-extension warnings: daily, multi-day and intraday
+        # gains are one momentum category, not three independent late-stage signals.
+        price_extension = []
+        if float(item.get("daily_change_pct") or 0) >= 10: price_extension.append("daily move at least 10%")
+        if float(item.get("five_day_change_pct") or 0) >= 25: price_extension.append("five-day move at least 25%")
+        if float(item.get("intraday_change_pct") or 0) >= 8: price_extension.append("intraday move at least 8%")
+        late_categories = []
+        if price_extension: late_categories.append("price extension: " + ", ".join(price_extension))
+        if rsi is not None and float(rsi) >= 78: late_categories.append("RSI at least 78")
+        if extension_atr >= 2.5: late_categories.append("price at least 2.5 ATR above EMA20")
+        late_signals = late_categories
 
+        # One volume category prevents daily and intraday relative volume from
+        # satisfying the two-signal early-setup requirement by themselves.
         early_signals = []
-        if float(item.get("relative_volume") or 0) >= 1.3: early_signals.append("daily relative volume building")
-        if float(item.get("intraday_relative_volume") or 0) >= 1.5: early_signals.append("intraday relative volume building")
-        if tech.get("bollinger_squeeze"): early_signals.append("Bollinger squeeze")
-        if tech.get("obv_trend_up_10d"): early_signals.append("OBV trend improving")
-        if item.get("above_session_vwap"): early_signals.append("holding above session VWAP")
-        if tech.get("ema_9_above_ema_20"): early_signals.append("short-term EMA trend positive")
+        if float(item.get("relative_volume") or 0) >= 1.3 or float(item.get("intraday_relative_volume") or 0) >= 1.5:
+            early_signals.append("volume accumulation: daily or intraday relative volume building")
+        if tech.get("bollinger_squeeze"): early_signals.append("volatility compression: Bollinger squeeze")
+        if tech.get("obv_trend_up_10d"): early_signals.append("accumulation: OBV trend improving")
+        if item.get("above_session_vwap") or tech.get("ema_9_above_ema_20"):
+            early_signals.append("price positioning: VWAP or short-term EMA trend positive")
 
         technical_confirmations = [
             bool(tech.get("ema_9_above_ema_20") and item.get("above_20d_average")),
@@ -498,32 +505,33 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
 
 
 def levels(price: float, atr: float, support: float) -> dict:
-    # Illustrative planning levels only; not personalized trade instructions.
-    # Use a volatility-aware stop, tightened to nearby support when appropriate.
-    # Cap initial risk distance at 10% to avoid unusably distant stop levels.
+    # Stops remain anchored below the signal price, but targets and risk
+    # percentages are calculated from the conservative upper entry reference.
     risk_unit = max(safe_float(atr), price * 0.02)
+    entry_low = price
+    entry_high = price + risk_unit * 0.25
     risk_distance = min(1.5 * risk_unit, price * 0.10)
     atr_stop = price - risk_distance
     support_value = safe_float(support)
     support_stop = support_value - 0.15 * risk_unit if 0 < support_value < price else 0.0
     usable_support_stop = support_stop if 0 < support_stop < price and (price - support_stop) <= price * 0.10 else 0.0
     stop_loss = max(atr_stop, usable_support_stop, price * 0.01)
-    risk_per_unit = max(0.0, price - stop_loss)
-    target_1 = price + 2.0 * risk_per_unit
-    target_2 = price + 3.0 * risk_per_unit
+    risk_per_unit = max(0.0, entry_high - stop_loss)
+    target_1 = entry_high + 2.0 * risk_per_unit
+    target_2 = entry_high + 3.0 * risk_per_unit
     return {
-        "watch_entry_low": round(price, 6),
-        "watch_entry_high": round(price + risk_unit * 0.25, 6),
+        "watch_entry_low": round(entry_low, 6),
+        "watch_entry_high": round(entry_high, 6),
         "invalidation_level": round(stop_loss, 6),
         "stop_loss": round(stop_loss, 6),
         "target_1": round(target_1, 6),
         "target_2": round(target_2, 6),
-        "risk_pct": round(risk_per_unit / price * 100, 2) if price > 0 else None,
-        "target_1_pct": round((target_1 / price - 1) * 100, 2) if price > 0 else None,
-        "target_2_pct": round((target_2 / price - 1) * 100, 2) if price > 0 else None,
+        "risk_pct": round(risk_per_unit / entry_high * 100, 2) if entry_high > 0 else None,
+        "target_1_pct": round((target_1 / entry_high - 1) * 100, 2) if entry_high > 0 else None,
+        "target_2_pct": round((target_2 / entry_high - 1) * 100, 2) if entry_high > 0 else None,
         "reward_risk_ratio": 2.0,
         "target_2_reward_risk_ratio": 3.0,
-        "method": "ATR-based stop, tightened to nearby support when appropriate; targets at 2R and 3R. Reassess if price/volatility changes.",
+        "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
     }
 
 
@@ -915,29 +923,29 @@ def scan_stock(symbol: str) -> Optional[dict]:
         five_day_change = (price / safe_float(close.iloc[-6], price) - 1) * 100
     breakout = price > safe_float(close.iloc[-21:-1].max())
     trend_up = price > safe_float(close.tail(20).mean())
-    # Score independent evidence groups once; cap secondary confirmations so
-    # correlated momentum/volume indicators cannot dominate the ranking.
-    score_components = {}
-    score_components["daily_momentum"] = 15 if daily_change >= 2 else 8 if daily_change >= 0.5 else 0
-    score_components["five_day_momentum"] = 15 if five_day_change >= 5 else 8 if five_day_change >= 2 else 0
-    score_components["daily_volume"] = 20 if relative_volume >= 2.5 else 14 if relative_volume >= 1.8 else 7 if relative_volume >= 1.3 else 0
-    score_components["breakout"] = 20 if breakout else 0
-    score_components["trend"] = 15 if trend_up else 0
-    intraday_group = (
-        (7 if intraday_change >= 2 else 4 if intraday_change >= 0.75 else 0)
-        + (5 if intraday_relative_volume >= 3 else 3 if intraday_relative_volume >= 2 else 0)
-        + (3 if intraday_breakout else 0)
-    )
-    score_components["intraday_confirmation"] = min(15, intraday_group)
+    # Five evidence families; correlated measurements compete inside each
+    # family rather than stacking. The family caps sum to 100.
+    daily_momentum_points = 25 if daily_change >= 2 else 14 if daily_change >= 0.5 else 0
+    five_day_momentum_points = 25 if five_day_change >= 5 else 14 if five_day_change >= 2 else 0
+    intraday_momentum_points = 25 if intraday_change >= 2 else 12 if intraday_change >= 0.75 else 0
+    score_components = {
+        "momentum": max(daily_momentum_points, five_day_momentum_points, intraday_momentum_points),
+        "volume": max(
+            25 if relative_volume >= 2.5 else 18 if relative_volume >= 1.8 else 9 if relative_volume >= 1.3 else 0,
+            25 if intraday_relative_volume >= 3 else 16 if intraday_relative_volume >= 2 else 0,
+        ),
+        "breakout": 20 if (breakout or intraday_breakout) else 0,
+        "trend": 15 if trend_up else 0,
+    }
     technical_group = (
-        (3 if technical.get("ema_9_above_ema_20") and trend_up else 0)
-        + (2 if technical.get("macd_histogram", 0) > 0 and technical.get("macd_histogram_rising") else 0)
-        + (1 if technical.get("rsi_14") is not None and 50 <= technical["rsi_14"] <= 70 else 0)
+        (4 if technical.get("ema_9_above_ema_20") and trend_up else 0)
+        + (3 if technical.get("macd_histogram", 0) > 0 and technical.get("macd_histogram_rising") else 0)
+        + (2 if technical.get("rsi_14") is not None and 50 <= technical["rsi_14"] <= 70 else 0)
         + (2 if vwap_metrics.get("vwap_reclaim") else 0)
-        + (2 if technical.get("bollinger_squeeze_expansion") else 0)
+        + (3 if technical.get("bollinger_squeeze_expansion") else 0)
         + (1 if technical.get("obv_trend_up_10d") else 0)
     )
-    score_components["technical_confirmation"] = min(8, technical_group)
+    score_components["technical_confirmation"] = min(15, technical_group)
     score = min(100, sum(score_components.values()))
 
     if score < 15:
@@ -1129,13 +1137,22 @@ def scan_crypto(symbol: str) -> Optional[dict]:
     atr = float(np.mean([highs[i] - lows[i] for i in range(-14, 0)]))
     support = min(lows[-12:])
 
-    score = 0
-    score += 15 if change_1h >= 1.5 else 8 if change_1h >= 0.5 else 0
-    score += 15 if change_24h >= 5 else 8 if change_24h >= 2 else 0
-    score += 20 if relative_volume >= 2.5 else 14 if relative_volume >= 1.8 else 7 if relative_volume >= 1.3 else 0
-    score += 20 if breakout else 0
-    score += 15 if trend_up else 0
-    score += 15 if change_1h > 0 and relative_volume >= 1.5 else 0
+    # Crypto uses the same evidence-family principle as stocks: one momentum
+    # score, one volume score, one breakout score, and one trend score.
+    momentum_points = max(
+        30 if change_1h >= 1.5 else 16 if change_1h >= 0.5 else 0,
+        30 if change_24h >= 5 else 16 if change_24h >= 2 else 0,
+    )
+    volume_points = 25 if relative_volume >= 2.5 else 18 if relative_volume >= 1.8 else 9 if relative_volume >= 1.3 else 0
+    breakout_points = 25 if breakout else 0
+    trend_points = 20 if trend_up else 0
+    score_components = {
+        "momentum": momentum_points,
+        "volume": volume_points,
+        "breakout": breakout_points,
+        "trend": trend_points,
+    }
+    score = min(100, sum(score_components.values()))
     if score < 15:
         return None
 
