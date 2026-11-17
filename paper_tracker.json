@@ -1,6 +1,6 @@
 {
   "crypto:AAVEUSDT": {
-    "age_days": 0.1,
+    "age_days": 0.13,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -29,10 +29,8 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 3.71,
+    "daily_change_pct": 3.76,
     "discovery_reasons": [
-      "Relative volume 4.7x",
-      "Prior-range breakout",
       "Positive daily momentum"
     ],
     "discovery_source": "core_scanner",
@@ -48,31 +46,42 @@
         "at": "2026-11-17T04:16:35.591187+00:00",
         "from": "LOW-CONVICTION WATCH",
         "to": "DEVELOPING SETUP"
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "from": "DEVELOPING SETUP",
+        "to": "LOW-CONVICTION WATCH"
       }
     ],
     "initial_price": 109.95,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
-    "last_stage": "DEVELOPING SETUP",
-    "latest_price": 112.51,
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 112.56,
     "levels": {
-      "invalidation_level": 109.1347,
+      "invalidation_level": 109.1832,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
       "risk_pct": 3.48,
-      "stop_loss": 109.1347,
-      "target_1": 120.94825,
+      "stop_loss": 109.1832,
+      "target_1": 121.002,
       "target_1_pct": 6.97,
-      "target_2": 124.8861,
+      "target_2": 124.9416,
       "target_2_pct": 10.45,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 113.07255,
-      "watch_entry_low": 112.51
+      "watch_entry_high": 113.1228,
+      "watch_entry_low": 112.56
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 2.33,
+    "max_gain_pct": 2.37,
     "milestones": {},
-    "peak_price": 112.51,
-    "price_as_of": "2026-11-17T04:52:00.142427+00:00",
+    "peak_price": 112.56,
+    "price_as_of": "2026-11-17T05:30:51.147880+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -89,21 +98,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 112.51,
         "return_pct": 2.33
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 112.56,
+        "return_pct": 2.37
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 36,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 2.33,
+    "return_pct": 2.37,
     "risk_flags": [],
+    "score": 28,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
-      "Momentum and confirmation are developing."
+      "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "AAVEUSDT",
     "technical_analysis": {},
     "trough_price": 109.95,
@@ -114,7 +131,7 @@
     "webull_status": "not_reported"
   },
   "crypto:ADAUSDT": {
-    "age_days": 0.17,
+    "age_days": 0.2,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -143,7 +160,7 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 0.86,
+    "daily_change_pct": 0.89,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -158,28 +175,34 @@
       }
     ],
     "initial_price": 0.151873,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.154311,
+    "latest_price": 0.154359,
     "levels": {
-      "invalidation_level": 0.150796,
+      "invalidation_level": 0.151108,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 2.76,
-      "stop_loss": 0.150796,
-      "target_1": 0.163656,
-      "target_1_pct": 5.53,
-      "target_2": 0.167942,
-      "target_2_pct": 8.29,
+      "risk_pct": 2.59,
+      "stop_loss": 0.151108,
+      "target_1": 0.163177,
+      "target_1_pct": 5.19,
+      "target_2": 0.167199,
+      "target_2_pct": 7.78,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 0.155083,
-      "watch_entry_low": 0.154311
+      "watch_entry_high": 0.155131,
+      "watch_entry_low": 0.154359
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 1.63,
+    "max_gain_pct": 1.64,
     "milestones": {},
-    "peak_price": 0.154346,
-    "price_as_of": "2026-11-17T04:51:51.440046+00:00",
+    "peak_price": 0.154359,
+    "price_as_of": "2026-11-17T05:30:42.445212+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -191,21 +214,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 0.154311,
         "return_pct": 1.61
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 0.154359,
+        "return_pct": 1.64
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 20,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 1.61,
+    "return_pct": 1.64,
     "risk_flags": [],
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
       "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "ADAUSDT",
     "technical_analysis": {},
     "trough_price": 0.151873,
@@ -270,7 +301,7 @@
     "trough_price": 0.01073925
   },
   "crypto:APTUSDT": {
-    "age_days": 0.02,
+    "age_days": 0.05,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -283,9 +314,9 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 1.88,
+    "daily_change_pct": 1.99,
     "discovery_reasons": [
-      "Relative volume 1.6x"
+      "Momentum / technical scan threshold"
     ],
     "discovery_source": "core_scanner",
     "first_grade": "EARLY WATCH",
@@ -295,31 +326,42 @@
         "at": "2026-11-17T04:16:35.591187+00:00",
         "from": null,
         "to": "EARLY WATCH"
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "from": "EARLY WATCH",
+        "to": "LOW-CONVICTION WATCH"
       }
     ],
     "initial_price": 0.4594,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
-    "last_stage": "EARLY WATCH",
-    "latest_price": 0.4598,
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 0.4603,
     "levels": {
-      "invalidation_level": 0.447421,
+      "invalidation_level": 0.447419,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 3.18,
-      "stop_loss": 0.447421,
-      "target_1": 0.491456,
-      "target_1_pct": 6.35,
-      "target_2": 0.506134,
-      "target_2_pct": 9.53,
+      "risk_pct": 3.28,
+      "stop_loss": 0.447419,
+      "target_1": 0.492966,
+      "target_1_pct": 6.56,
+      "target_2": 0.508149,
+      "target_2_pct": 9.85,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 0.462099,
-      "watch_entry_low": 0.4598
+      "watch_entry_high": 0.462601,
+      "watch_entry_low": 0.4603
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.09,
+    "max_gain_pct": 0.2,
     "milestones": {},
-    "peak_price": 0.4598,
-    "price_as_of": "2026-11-17T04:51:54.244955+00:00",
+    "peak_price": 0.4603,
+    "price_as_of": "2026-11-17T05:30:44.338150+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -331,21 +373,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 0.4598,
         "return_pct": 0.09
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 0.4603,
+        "return_pct": 0.2
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 20,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 0.09,
+    "return_pct": 0.2,
     "risk_flags": [],
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
-      "Some interest is present, but confirmation remains limited."
+      "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "APTUSDT",
     "technical_analysis": {},
     "trough_price": 0.4594,
@@ -356,7 +406,7 @@
     "webull_status": "not_reported"
   },
   "crypto:ARBUSDT": {
-    "age_days": 0.17,
+    "age_days": 0.2,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -385,7 +435,7 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 1.07,
+    "daily_change_pct": 0.76,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -397,31 +447,42 @@
         "at": "2026-11-17T00:44:31.089923+00:00",
         "from": null,
         "to": "EARLY WATCH"
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "from": "EARLY WATCH",
+        "to": "LOW-CONVICTION WATCH"
       }
     ],
     "initial_price": 0.131,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
-    "last_stage": "EARLY WATCH",
-    "latest_price": 0.1326,
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 0.1322,
     "levels": {
-      "invalidation_level": 0.129402,
+      "invalidation_level": 0.129403,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 2.9,
-      "stop_loss": 0.129402,
-      "target_1": 0.140985,
-      "target_1_pct": 5.79,
-      "target_2": 0.144845,
-      "target_2_pct": 8.69,
+      "risk_pct": 2.6,
+      "stop_loss": 0.129403,
+      "target_1": 0.139776,
+      "target_1_pct": 5.2,
+      "target_2": 0.143234,
+      "target_2_pct": 7.81,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 0.133263,
-      "watch_entry_low": 0.1326
+      "watch_entry_high": 0.132861,
+      "watch_entry_low": 0.1322
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
     "max_gain_pct": 1.83,
     "milestones": {},
     "peak_price": 0.1334,
-    "price_as_of": "2026-11-17T04:51:58.347703+00:00",
+    "price_as_of": "2026-11-17T05:30:49.337366+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -433,21 +494,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 0.1326,
         "return_pct": 1.22
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 0.1322,
+        "return_pct": 0.92
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 20,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 1.22,
+    "return_pct": 0.92,
     "risk_flags": [],
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
-      "Some interest is present, but confirmation remains limited."
+      "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "ARBUSDT",
     "technical_analysis": {},
     "trough_price": 0.131,
@@ -458,13 +527,12 @@
     "webull_status": "not_reported"
   },
   "crypto:ASTERUSDT": {
-    "age_days": 0.17,
+    "age_days": 0.2,
     "asset_type": "crypto",
     "catalysts": [],
     "currently_surfaced": true,
-    "daily_change_pct": 2.03,
+    "daily_change_pct": 2.63,
     "discovery_reasons": [
-      "Prior-range breakout",
       "Positive daily momentum"
     ],
     "discovery_source": "core_scanner",
@@ -490,31 +558,42 @@
         "at": "2026-11-17T04:16:35.591187+00:00",
         "from": "LOW-CONVICTION WATCH",
         "to": "DEVELOPING SETUP"
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "from": "DEVELOPING SETUP",
+        "to": "LOW-CONVICTION WATCH"
       }
     ],
     "initial_price": 0.57506,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
-    "last_stage": "DEVELOPING SETUP",
-    "latest_price": 0.5809,
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 0.58429,
     "levels": {
-      "invalidation_level": 0.563473,
+      "invalidation_level": 0.566761,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
       "risk_pct": 3.48,
-      "stop_loss": 0.563473,
-      "target_1": 0.624467,
+      "stop_loss": 0.566761,
+      "target_1": 0.628112,
       "target_1_pct": 6.97,
-      "target_2": 0.644799,
+      "target_2": 0.648562,
       "target_2_pct": 10.45,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 0.583804,
-      "watch_entry_low": 0.5809
+      "watch_entry_high": 0.587211,
+      "watch_entry_low": 0.58429
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 1.04,
+    "max_gain_pct": 1.61,
     "milestones": {},
-    "peak_price": 0.58106,
-    "price_as_of": "2026-11-17T04:52:03.447666+00:00",
+    "peak_price": 0.58429,
+    "price_as_of": "2026-11-17T05:30:54.145439+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -541,21 +620,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 0.5809,
         "return_pct": 1.02
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 0.58429,
+        "return_pct": 1.61
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 36,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 1.02,
+    "return_pct": 1.61,
     "risk_flags": [],
+    "score": 28,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
-      "Momentum and confirmation are developing."
+      "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "ASTERUSDT",
     "technical_analysis": {},
     "trough_price": 0.57506,
@@ -566,7 +653,7 @@
     "webull_status": "not_reported"
   },
   "crypto:AVAXUSDT": {
-    "age_days": 0.02,
+    "age_days": 0.05,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -595,7 +682,7 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 1.31,
+    "daily_change_pct": 1.15,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -610,28 +697,34 @@
       }
     ],
     "initial_price": 7.189,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 7.204,
+    "latest_price": 7.193,
     "levels": {
-      "invalidation_level": 7.028388,
+      "invalidation_level": 7.028421,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 2.92,
-      "stop_loss": 7.028388,
-      "target_1": 7.663284,
-      "target_1_pct": 5.85,
-      "target_2": 7.874916,
-      "target_2_pct": 8.77,
+      "risk_pct": 2.77,
+      "stop_loss": 7.028421,
+      "target_1": 7.630053,
+      "target_1_pct": 5.55,
+      "target_2": 7.830597,
+      "target_2_pct": 8.32,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 7.24002,
-      "watch_entry_low": 7.204
+      "watch_entry_high": 7.228965,
+      "watch_entry_low": 7.193
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
     "max_gain_pct": 0.21,
     "milestones": {},
     "peak_price": 7.204,
-    "price_as_of": "2026-11-17T04:51:52.146262+00:00",
+    "price_as_of": "2026-11-17T05:30:42.842142+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -643,21 +736,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 7.204,
         "return_pct": 0.21
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 7.193,
+        "return_pct": 0.06
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 20,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 0.21,
+    "return_pct": 0.06,
     "risk_flags": [],
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
       "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "AVAXUSDT",
     "technical_analysis": {},
     "trough_price": 7.189,
@@ -668,7 +769,7 @@
     "webull_status": "not_reported"
   },
   "crypto:BNBUSDT": {
-    "age_days": 0.14,
+    "age_days": 0.17,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -697,7 +798,7 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 0.64,
+    "daily_change_pct": 0.55,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -712,28 +813,34 @@
       }
     ],
     "initial_price": 590.47,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 594.43,
+    "latest_price": 593.9,
     "levels": {
-      "invalidation_level": 582.86671,
+      "invalidation_level": 586.3783,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 2.43,
-      "stop_loss": 582.86671,
-      "target_1": 626.47303,
-      "target_1_pct": 4.87,
-      "target_2": 641.00847,
-      "target_2_pct": 7.3,
+      "risk_pct": 1.76,
+      "stop_loss": 586.3783,
+      "target_1": 617.8519,
+      "target_1_pct": 3.52,
+      "target_2": 628.3431,
+      "target_2_pct": 5.27,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 597.40215,
-      "watch_entry_low": 594.43
+      "watch_entry_high": 596.8695,
+      "watch_entry_low": 593.9
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
     "max_gain_pct": 0.67,
     "milestones": {},
     "peak_price": 594.43,
-    "price_as_of": "2026-11-17T04:51:50.739780+00:00",
+    "price_as_of": "2026-11-17T05:30:41.140814+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -760,21 +867,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 594.43,
         "return_pct": 0.67
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 593.9,
+        "return_pct": 0.58
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 20,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 0.67,
+    "return_pct": 0.58,
     "risk_flags": [],
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
       "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "BNBUSDT",
     "technical_analysis": {},
     "trough_price": 590.47,
@@ -785,7 +900,7 @@
     "webull_status": "not_reported"
   },
   "crypto:BONKUSDT": {
-    "age_days": 0.17,
+    "age_days": 0.2,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -814,9 +929,9 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 1.8,
+    "daily_change_pct": 1.58,
     "discovery_reasons": [
-      "Prior-range breakout"
+      "Momentum / technical scan threshold"
     ],
     "discovery_source": "core_scanner",
     "first_grade": "LOW-CONVICTION WATCH",
@@ -831,12 +946,17 @@
         "at": "2026-11-17T04:16:35.591187+00:00",
         "from": "LOW-CONVICTION WATCH",
         "to": "DEVELOPING SETUP"
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "from": "DEVELOPING SETUP",
+        "to": "LOW-CONVICTION WATCH"
       }
     ],
     "initial_price": 2.321e-06,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
-    "last_stage": "DEVELOPING SETUP",
-    "latest_price": 2.377e-06,
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 2.372e-06,
     "levels": {
       "invalidation_level": 2e-06,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
@@ -851,11 +971,17 @@
       "watch_entry_high": 2e-06,
       "watch_entry_low": 2e-06
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
     "max_gain_pct": 2.76,
     "milestones": {},
     "peak_price": 2.385e-06,
-    "price_as_of": "2026-11-17T04:51:57.340984+00:00",
+    "price_as_of": "2026-11-17T05:30:47.341068+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -872,21 +998,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 2.377e-06,
         "return_pct": 2.41
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 2.372e-06,
+        "return_pct": 2.2
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 20,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 2.41,
+    "return_pct": 2.2,
     "risk_flags": [],
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
-      "Momentum and confirmation are developing."
+      "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "BONKUSDT",
     "technical_analysis": {},
     "trough_price": 2.321e-06,
@@ -897,7 +1031,7 @@
     "webull_status": "not_reported"
   },
   "crypto:BTCUSDT": {
-    "age_days": 0.17,
+    "age_days": 0.2,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -926,7 +1060,7 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 0.15,
+    "daily_change_pct": 0.22,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -941,28 +1075,34 @@
       }
     ],
     "initial_price": 64546.7,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 64908.3,
+    "latest_price": 64954.5,
     "levels": {
-      "invalidation_level": 63969.9751,
+      "invalidation_level": 64124.0365,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 1.94,
-      "stop_loss": 63969.9751,
-      "target_1": 67758.5743,
-      "target_1_pct": 3.87,
-      "target_2": 69021.4407,
-      "target_2_pct": 5.81,
+      "risk_pct": 1.77,
+      "stop_loss": 64124.0365,
+      "target_1": 67589.7445,
+      "target_1_pct": 3.54,
+      "target_2": 68744.9805,
+      "target_2_pct": 5.31,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 65232.8415,
-      "watch_entry_low": 64908.3
+      "watch_entry_high": 65279.2725,
+      "watch_entry_low": 64954.5
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.56,
+    "max_gain_pct": 0.63,
     "milestones": {},
-    "peak_price": 64908.3,
-    "price_as_of": "2026-11-17T04:51:49.339925+00:00",
+    "peak_price": 64954.5,
+    "price_as_of": "2026-11-17T05:30:40.037220+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -989,21 +1129,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 64908.3,
         "return_pct": 0.56
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 64954.5,
+        "return_pct": 0.63
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 20,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 0.56,
+    "return_pct": 0.63,
     "risk_flags": [],
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
       "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "BTCUSDT",
     "technical_analysis": {},
     "trough_price": 64546.7,
@@ -1014,7 +1162,7 @@
     "webull_status": "not_reported"
   },
   "crypto:DOGEUSDT": {
-    "age_days": 0.02,
+    "age_days": 0.05,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -1043,7 +1191,7 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 0.42,
+    "daily_change_pct": 0.57,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -1058,28 +1206,34 @@
       }
     ],
     "initial_price": 0.0592397,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.0591309,
+    "latest_price": 0.059223,
     "levels": {
-      "invalidation_level": 0.058315,
+      "invalidation_level": 0.058366,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 1.87,
-      "stop_loss": 0.058315,
-      "target_1": 0.06165,
-      "target_1_pct": 3.74,
-      "target_2": 0.062761,
-      "target_2_pct": 5.61,
+      "risk_pct": 1.94,
+      "stop_loss": 0.058366,
+      "target_1": 0.061826,
+      "target_1_pct": 3.88,
+      "target_2": 0.06298,
+      "target_2_pct": 5.81,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 0.059427,
-      "watch_entry_low": 0.059131
+      "watch_entry_high": 0.059519,
+      "watch_entry_low": 0.059223
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": -0.18,
     "max_gain_pct": 0.0,
     "milestones": {},
     "peak_price": 0.0592397,
-    "price_as_of": "2026-11-17T04:51:51.244670+00:00",
+    "price_as_of": "2026-11-17T05:30:41.846891+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -1091,21 +1245,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 0.0591309,
         "return_pct": -0.18
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 0.059223,
+        "return_pct": -0.03
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 20,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": -0.18,
+    "return_pct": -0.03,
     "risk_flags": [],
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
       "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "DOGEUSDT",
     "technical_analysis": {},
     "trough_price": 0.0591309,
@@ -1116,7 +1278,7 @@
     "webull_status": "not_reported"
   },
   "crypto:DOTUSDT": {
-    "age_days": 0.17,
+    "age_days": 0.2,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -1145,7 +1307,7 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 1.23,
+    "daily_change_pct": 1.01,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -1160,28 +1322,34 @@
       }
     ],
     "initial_price": 0.7287,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.7417,
+    "latest_price": 0.7401,
     "levels": {
-      "invalidation_level": 0.719449,
+      "invalidation_level": 0.72078,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 3.48,
-      "stop_loss": 0.719449,
-      "target_1": 0.797328,
-      "target_1_pct": 6.97,
-      "target_2": 0.823287,
-      "target_2_pct": 10.45,
+      "risk_pct": 3.1,
+      "stop_loss": 0.72078,
+      "target_1": 0.789842,
+      "target_1_pct": 6.19,
+      "target_2": 0.812863,
+      "target_2_pct": 9.29,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 0.745409,
-      "watch_entry_low": 0.7417
+      "watch_entry_high": 0.7438,
+      "watch_entry_low": 0.7401
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": -0.29,
     "max_gain_pct": 1.78,
     "milestones": {},
     "peak_price": 0.7417,
-    "price_as_of": "2026-11-17T04:51:52.845244+00:00",
+    "price_as_of": "2026-11-17T05:30:43.551593+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -1208,21 +1376,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 0.7417,
         "return_pct": 1.78
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 0.7401,
+        "return_pct": 1.56
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 20,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 1.78,
+    "return_pct": 1.56,
     "risk_flags": [],
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
       "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "DOTUSDT",
     "technical_analysis": {},
     "trough_price": 0.7266,
@@ -1233,7 +1409,7 @@
     "webull_status": "not_reported"
   },
   "crypto:ENAUSDT": {
-    "age_days": 0.02,
+    "age_days": 0.05,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -1262,9 +1438,9 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 1.48,
+    "daily_change_pct": 1.66,
     "discovery_reasons": [
-      "Relative volume 1.7x"
+      "Momentum / technical scan threshold"
     ],
     "discovery_source": "core_scanner",
     "first_grade": "EARLY WATCH",
@@ -1274,31 +1450,42 @@
         "at": "2026-11-17T04:16:35.591187+00:00",
         "from": null,
         "to": "EARLY WATCH"
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "from": "EARLY WATCH",
+        "to": "LOW-CONVICTION WATCH"
       }
     ],
     "initial_price": 0.1164,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
-    "last_stage": "EARLY WATCH",
-    "latest_price": 0.1163,
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 0.1165,
     "levels": {
-      "invalidation_level": 0.112951,
+      "invalidation_level": 0.113005,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 3.36,
-      "stop_loss": 0.112951,
-      "target_1": 0.124742,
-      "target_1_pct": 6.73,
-      "target_2": 0.128673,
-      "target_2_pct": 10.09,
+      "risk_pct": 3.48,
+      "stop_loss": 0.113005,
+      "target_1": 0.125238,
+      "target_1_pct": 6.97,
+      "target_2": 0.129315,
+      "target_2_pct": 10.45,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 0.116881,
-      "watch_entry_low": 0.1163
+      "watch_entry_high": 0.117083,
+      "watch_entry_low": 0.1165
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": -0.09,
-    "max_gain_pct": 0.0,
+    "max_gain_pct": 0.09,
     "milestones": {},
-    "peak_price": 0.1164,
-    "price_as_of": "2026-11-17T04:52:02.041313+00:00",
+    "peak_price": 0.1165,
+    "price_as_of": "2026-11-17T05:30:53.947249+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -1310,21 +1497,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 0.1163,
         "return_pct": -0.09
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 0.1165,
+        "return_pct": 0.09
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 20,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": -0.09,
+    "return_pct": 0.09,
     "risk_flags": [],
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
-      "Some interest is present, but confirmation remains limited."
+      "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "ENAUSDT",
     "technical_analysis": {},
     "trough_price": 0.1163,
@@ -1335,7 +1530,7 @@
     "webull_status": "not_reported"
   },
   "crypto:ETHUSDT": {
-    "age_days": 0.17,
+    "age_days": 0.2,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -1364,7 +1559,7 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 0.61,
+    "daily_change_pct": 1.14,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -1379,28 +1574,34 @@
       }
     ],
     "initial_price": 1813.37,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 1829.93,
+    "latest_price": 1839.47,
     "levels": {
-      "invalidation_level": 1803.37021,
+      "invalidation_level": 1803.34159,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 1.94,
-      "stop_loss": 1803.37021,
-      "target_1": 1910.49853,
-      "target_1_pct": 3.88,
-      "target_2": 1946.20797,
-      "target_2_pct": 5.83,
+      "risk_pct": 2.45,
+      "stop_loss": 1803.34159,
+      "target_1": 1939.31887,
+      "target_1_pct": 4.9,
+      "target_2": 1984.64463,
+      "target_2_pct": 7.36,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 1839.07965,
-      "watch_entry_low": 1829.93
+      "watch_entry_high": 1848.66735,
+      "watch_entry_low": 1839.47
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.91,
+    "max_gain_pct": 1.44,
     "milestones": {},
-    "peak_price": 1829.93,
-    "price_as_of": "2026-11-17T04:51:50.439184+00:00",
+    "peak_price": 1839.47,
+    "price_as_of": "2026-11-17T05:30:40.944514+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -1417,21 +1618,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 1829.93,
         "return_pct": 0.91
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 1839.47,
+        "return_pct": 1.44
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 20,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 0.91,
+    "return_pct": 1.44,
     "risk_flags": [],
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
       "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "ETHUSDT",
     "technical_analysis": {},
     "trough_price": 1813.37,
@@ -1442,7 +1651,7 @@
     "webull_status": "not_reported"
   },
   "crypto:FETUSDT": {
-    "age_days": 0.17,
+    "age_days": 0.2,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -1471,7 +1680,7 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 0.61,
+    "daily_change_pct": 0.68,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -1488,31 +1697,42 @@
         "at": "2026-11-17T04:16:35.591187+00:00",
         "from": "LOW-CONVICTION WATCH",
         "to": "EARLY WATCH"
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "from": "EARLY WATCH",
+        "to": "LOW-CONVICTION WATCH"
       }
     ],
     "initial_price": 0.1311,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
-    "last_stage": "EARLY WATCH",
-    "latest_price": 0.1326,
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 0.1327,
     "levels": {
-      "invalidation_level": 0.128802,
+      "invalidation_level": 0.130002,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 3.35,
-      "stop_loss": 0.128802,
-      "target_1": 0.142185,
-      "target_1_pct": 6.69,
-      "target_2": 0.146645,
-      "target_2_pct": 10.04,
+      "risk_pct": 2.52,
+      "stop_loss": 0.130002,
+      "target_1": 0.140087,
+      "target_1_pct": 5.04,
+      "target_2": 0.143448,
+      "target_2_pct": 7.56,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 0.133263,
-      "watch_entry_low": 0.1326
+      "watch_entry_high": 0.133364,
+      "watch_entry_low": 0.1327
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": -0.08,
-    "max_gain_pct": 1.14,
+    "max_gain_pct": 1.22,
     "milestones": {},
-    "peak_price": 0.1326,
-    "price_as_of": "2026-11-17T04:51:55.744119+00:00",
+    "peak_price": 0.1327,
+    "price_as_of": "2026-11-17T05:30:45.843390+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -1539,21 +1759,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 0.1326,
         "return_pct": 1.14
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 0.1327,
+        "return_pct": 1.22
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 20,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 1.14,
+    "return_pct": 1.22,
     "risk_flags": [],
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
-      "Some interest is present, but confirmation remains limited."
+      "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "FETUSDT",
     "technical_analysis": {},
     "trough_price": 0.131,
@@ -1564,11 +1792,11 @@
     "webull_status": "not_reported"
   },
   "crypto:GBPUSDT": {
-    "age_days": 0.02,
+    "age_days": 0.05,
     "asset_type": "crypto",
     "catalysts": [],
     "currently_surfaced": true,
-    "daily_change_pct": 0.07,
+    "daily_change_pct": 0.09,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -1583,28 +1811,34 @@
       }
     ],
     "initial_price": 1.31897,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 1.31863,
+    "latest_price": 1.31892,
     "levels": {
-      "invalidation_level": 1.312324,
+      "invalidation_level": 1.312323,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 0.97,
-      "stop_loss": 1.312324,
-      "target_1": 1.351021,
-      "target_1_pct": 1.95,
-      "target_2": 1.36392,
-      "target_2_pct": 2.92,
+      "risk_pct": 1.0,
+      "stop_loss": 1.312323,
+      "target_1": 1.351897,
+      "target_1_pct": 1.99,
+      "target_2": 1.365089,
+      "target_2_pct": 2.99,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 1.325223,
-      "watch_entry_low": 1.31863
+      "watch_entry_high": 1.325515,
+      "watch_entry_low": 1.31892
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": -0.03,
     "max_gain_pct": 0.0,
     "milestones": {},
     "peak_price": 1.31897,
-    "price_as_of": "2026-11-17T04:52:01.540556+00:00",
+    "price_as_of": "2026-11-17T05:30:53.439588+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -1616,21 +1850,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 1.31863,
         "return_pct": -0.03
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 1.31892,
+        "return_pct": -0.0
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 20,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": -0.03,
+    "return_pct": -0.0,
     "risk_flags": [],
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
       "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "GBPUSDT",
     "technical_analysis": {},
     "trough_price": 1.31863,
@@ -1641,11 +1883,11 @@
     "webull_status": "not_reported"
   },
   "crypto:HYPEUSDT": {
-    "age_days": 0.17,
+    "age_days": 0.2,
     "asset_type": "crypto",
     "catalysts": [],
     "currently_surfaced": true,
-    "daily_change_pct": 0.5,
+    "daily_change_pct": 1.0,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -1662,31 +1904,42 @@
         "at": "2026-11-17T04:16:35.591187+00:00",
         "from": "LOW-CONVICTION WATCH",
         "to": "EARLY WATCH"
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "from": "EARLY WATCH",
+        "to": "LOW-CONVICTION WATCH"
       }
     ],
     "initial_price": 69.11,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
-    "last_stage": "EARLY WATCH",
-    "latest_price": 70.09,
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 70.44,
     "levels": {
-      "invalidation_level": 67.9873,
+      "invalidation_level": 68.3268,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
       "risk_pct": 3.48,
-      "stop_loss": 67.9873,
-      "target_1": 75.34675,
+      "stop_loss": 68.3268,
+      "target_1": 75.723,
       "target_1_pct": 6.97,
-      "target_2": 77.7999,
+      "target_2": 78.1884,
       "target_2_pct": 10.45,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 70.44045,
-      "watch_entry_low": 70.09
+      "watch_entry_high": 70.7922,
+      "watch_entry_low": 70.44
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": -0.45,
-    "max_gain_pct": 1.59,
+    "max_gain_pct": 1.92,
     "milestones": {},
-    "peak_price": 70.21,
-    "price_as_of": "2026-11-17T04:52:00.941219+00:00",
+    "peak_price": 70.44,
+    "price_as_of": "2026-11-17T05:30:51.643397+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -1713,21 +1966,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 70.09,
         "return_pct": 1.42
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 70.44,
+        "return_pct": 1.92
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 20,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 1.42,
+    "return_pct": 1.92,
     "risk_flags": [],
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
-      "Some interest is present, but confirmation remains limited."
+      "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "HYPEUSDT",
     "technical_analysis": {},
     "trough_price": 68.8,
@@ -1738,7 +1999,7 @@
     "webull_status": "not_reported"
   },
   "crypto:INJUSDT": {
-    "age_days": 0.17,
+    "age_days": 0.2,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -1767,9 +2028,9 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 5.28,
+    "daily_change_pct": 5.94,
     "discovery_reasons": [
-      "Relative volume 2.1x",
+      "Relative volume 1.6x",
       "Prior-range breakout",
       "Positive daily momentum"
     ],
@@ -1794,28 +2055,34 @@
       }
     ],
     "initial_price": 6.858,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
     "last_stage": "DEVELOPING SETUP",
-    "latest_price": 7.263,
+    "latest_price": 7.309,
     "levels": {
-      "invalidation_level": 7.04511,
+      "invalidation_level": 7.08973,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
       "risk_pct": 3.48,
-      "stop_loss": 7.04511,
-      "target_1": 7.807725,
+      "stop_loss": 7.08973,
+      "target_1": 7.857175,
       "target_1_pct": 6.97,
-      "target_2": 8.06193,
+      "target_2": 8.11299,
       "target_2_pct": 10.45,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 7.299315,
-      "watch_entry_low": 7.263
+      "watch_entry_high": 7.345545,
+      "watch_entry_low": 7.309
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 5.91,
+    "max_gain_pct": 6.58,
     "milestones": {},
-    "peak_price": 7.263,
-    "price_as_of": "2026-11-17T04:51:54.148723+00:00",
+    "peak_price": 7.309,
+    "price_as_of": "2026-11-17T05:30:45.544992+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -1842,21 +2109,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 7.263,
         "return_pct": 5.91
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 7.309,
+        "return_pct": 6.58
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 84,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 5.91,
+    "return_pct": 6.58,
     "risk_flags": [],
+    "score": 76,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
       "Momentum and confirmation are developing."
     ],
+    "stage_signals": {},
     "symbol": "INJUSDT",
     "technical_analysis": {},
     "trough_price": 6.858,
@@ -1867,11 +2142,11 @@
     "webull_status": "not_reported"
   },
   "crypto:JUPUSDT": {
-    "age_days": 0.02,
+    "age_days": 0.05,
     "asset_type": "crypto",
     "catalysts": [],
     "currently_surfaced": true,
-    "daily_change_pct": 3.07,
+    "daily_change_pct": 3.83,
     "discovery_reasons": [
       "Positive daily momentum"
     ],
@@ -1886,28 +2161,34 @@
       }
     ],
     "initial_price": 0.24991,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.24795,
+    "latest_price": 0.24978,
     "levels": {
-      "invalidation_level": 0.240512,
+      "invalidation_level": 0.242287,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
       "risk_pct": 3.48,
-      "stop_loss": 0.240512,
-      "target_1": 0.266546,
+      "stop_loss": 0.242287,
+      "target_1": 0.268514,
       "target_1_pct": 6.97,
-      "target_2": 0.275224,
+      "target_2": 0.277256,
       "target_2_pct": 10.45,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 0.24919,
-      "watch_entry_low": 0.24795
+      "watch_entry_high": 0.251029,
+      "watch_entry_low": 0.24978
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": -0.78,
     "max_gain_pct": 0.0,
     "milestones": {},
     "peak_price": 0.24991,
-    "price_as_of": "2026-11-17T04:51:57.344099+00:00",
+    "price_as_of": "2026-11-17T05:30:48.139787+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -1919,21 +2200,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 0.24795,
         "return_pct": -0.78
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 0.24978,
+        "return_pct": -0.05
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 16,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": -0.78,
+    "return_pct": -0.05,
     "risk_flags": [],
+    "score": 8,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
       "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "JUPUSDT",
     "technical_analysis": {},
     "trough_price": 0.24795,
@@ -1944,13 +2233,13 @@
     "webull_status": "not_reported"
   },
   "crypto:LIGHTERUSDT": {
-    "age_days": 0.02,
+    "age_days": 0.05,
     "asset_type": "crypto",
     "catalysts": [],
     "currently_surfaced": true,
-    "daily_change_pct": 2.46,
+    "daily_change_pct": 1.98,
     "discovery_reasons": [
-      "Positive daily momentum"
+      "Prior-range breakout"
     ],
     "discovery_source": "core_scanner",
     "first_grade": "EARLY WATCH",
@@ -1960,31 +2249,42 @@
         "at": "2026-11-17T04:16:35.591187+00:00",
         "from": null,
         "to": "EARLY WATCH"
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "from": "EARLY WATCH",
+        "to": "DEVELOPING SETUP"
       }
     ],
     "initial_price": 3.048,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
-    "last_stage": "EARLY WATCH",
-    "latest_price": 3.046,
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
+    "last_stage": "DEVELOPING SETUP",
+    "latest_price": 3.032,
     "levels": {
-      "invalidation_level": 2.895036,
+      "invalidation_level": 2.895071,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 5.73,
-      "stop_loss": 2.895036,
-      "target_1": 3.423411,
-      "target_1_pct": 11.47,
-      "target_2": 3.599536,
-      "target_2_pct": 17.2,
+      "risk_pct": 5.23,
+      "stop_loss": 2.895071,
+      "target_1": 3.374321,
+      "target_1_pct": 10.46,
+      "target_2": 3.534071,
+      "target_2_pct": 15.69,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 3.071161,
-      "watch_entry_low": 3.046
+      "watch_entry_high": 3.054821,
+      "watch_entry_low": 3.032
     },
-    "max_drawdown_pct": -0.07,
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
+    "max_drawdown_pct": -0.52,
     "max_gain_pct": 0.0,
     "milestones": {},
     "peak_price": 3.048,
-    "price_as_of": "2026-11-17T04:52:01.448401+00:00",
+    "price_as_of": "2026-11-17T05:30:54.951781+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -1996,24 +2296,32 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 3.046,
         "return_pct": -0.07
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 3.032,
+        "return_pct": -0.52
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 75,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": -0.07,
+    "return_pct": -0.52,
     "risk_flags": [],
+    "score": 67,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
-      "Some interest is present, but confirmation remains limited."
+      "Momentum and confirmation are developing."
     ],
+    "stage_signals": {},
     "symbol": "LIGHTERUSDT",
     "technical_analysis": {},
-    "trough_price": 3.046,
+    "trough_price": 3.032,
     "webull_price": null,
     "webull_price_age_minutes": null,
     "webull_price_as_of": null,
@@ -2021,7 +2329,7 @@
     "webull_status": "not_reported"
   },
   "crypto:LINKUSDT": {
-    "age_days": 0.02,
+    "age_days": 0.05,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -2050,7 +2358,7 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 0.74,
+    "daily_change_pct": 0.75,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -2065,28 +2373,34 @@
       }
     ],
     "initial_price": 9.19027,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 9.20295,
+    "latest_price": 9.20366,
     "levels": {
-      "invalidation_level": 9.039811,
+      "invalidation_level": 9.039809,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 2.26,
-      "stop_loss": 9.039811,
-      "target_1": 9.667272,
-      "target_1_pct": 4.52,
-      "target_2": 9.876426,
-      "target_2_pct": 6.78,
+      "risk_pct": 2.27,
+      "stop_loss": 9.039809,
+      "target_1": 9.669417,
+      "target_1_pct": 4.54,
+      "target_2": 9.879286,
+      "target_2_pct": 6.81,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 9.248965,
-      "watch_entry_low": 9.20295
+      "watch_entry_high": 9.249678,
+      "watch_entry_low": 9.20366
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.14,
+    "max_gain_pct": 0.15,
     "milestones": {},
-    "peak_price": 9.20295,
-    "price_as_of": "2026-11-17T04:51:52.239457+00:00",
+    "peak_price": 9.20366,
+    "price_as_of": "2026-11-17T05:30:42.859191+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -2098,21 +2412,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 9.20295,
         "return_pct": 0.14
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 9.20366,
+        "return_pct": 0.15
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 20,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 0.14,
+    "return_pct": 0.15,
     "risk_flags": [],
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
       "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "LINKUSDT",
     "technical_analysis": {},
     "trough_price": 9.19027,
@@ -2198,7 +2520,7 @@
     "trough_price": 44.7
   },
   "crypto:NEARUSDT": {
-    "age_days": 0.02,
+    "age_days": 0.05,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -2227,9 +2549,8 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 3.15,
+    "daily_change_pct": 3.25,
     "discovery_reasons": [
-      "Relative volume 1.9x",
       "Prior-range breakout",
       "Positive daily momentum"
     ],
@@ -2241,31 +2562,42 @@
         "at": "2026-11-17T04:16:35.591187+00:00",
         "from": null,
         "to": "DEVELOPING SETUP"
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "from": "DEVELOPING SETUP",
+        "to": "EARLY WATCH"
       }
     ],
     "initial_price": 3.2486,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
-    "last_stage": "DEVELOPING SETUP",
-    "latest_price": 3.2572,
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
+    "last_stage": "EARLY WATCH",
+    "latest_price": 3.2604,
     "levels": {
-      "invalidation_level": 3.159484,
+      "invalidation_level": 3.162588,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
       "risk_pct": 3.48,
-      "stop_loss": 3.159484,
-      "target_1": 3.50149,
+      "stop_loss": 3.162588,
+      "target_1": 3.50493,
       "target_1_pct": 6.97,
-      "target_2": 3.615492,
+      "target_2": 3.619044,
       "target_2_pct": 10.45,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 3.273486,
-      "watch_entry_low": 3.2572
+      "watch_entry_high": 3.276702,
+      "watch_entry_low": 3.2604
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.26,
+    "max_gain_pct": 0.36,
     "milestones": {},
-    "peak_price": 3.2572,
-    "price_as_of": "2026-11-17T04:51:55.037505+00:00",
+    "peak_price": 3.2604,
+    "price_as_of": "2026-11-17T05:30:45.540777+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -2277,21 +2609,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 3.2572,
         "return_pct": 0.26
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 3.2604,
+        "return_pct": 0.36
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 61,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 0.26,
+    "return_pct": 0.36,
     "risk_flags": [],
+    "score": 53,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
-      "Momentum and confirmation are developing."
+      "Some interest is present, but confirmation remains limited."
     ],
+    "stage_signals": {},
     "symbol": "NEARUSDT",
     "technical_analysis": {},
     "trough_price": 3.2486,
@@ -2302,7 +2642,7 @@
     "webull_status": "not_reported"
   },
   "crypto:NIGHTUSDT": {
-    "age_days": 0.17,
+    "age_days": 0.2,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -2331,9 +2671,8 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 4.04,
+    "daily_change_pct": 3.03,
     "discovery_reasons": [
-      "Prior-range breakout",
       "Positive daily momentum"
     ],
     "discovery_source": "core_scanner",
@@ -2349,31 +2688,42 @@
         "at": "2026-11-17T04:16:35.591187+00:00",
         "from": "LOW-CONVICTION WATCH",
         "to": "DEVELOPING SETUP"
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "from": "DEVELOPING SETUP",
+        "to": "LOW-CONVICTION WATCH"
       }
     ],
     "initial_price": 0.0468,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
-    "last_stage": "DEVELOPING SETUP",
-    "latest_price": 0.04941,
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 0.04893,
     "levels": {
-      "invalidation_level": 0.04738,
+      "invalidation_level": 0.047088,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 4.76,
-      "stop_loss": 0.04738,
-      "target_1": 0.054486,
-      "target_1_pct": 9.52,
-      "target_2": 0.056855,
-      "target_2_pct": 14.28,
+      "risk_pct": 4.36,
+      "stop_loss": 0.047088,
+      "target_1": 0.053534,
+      "target_1_pct": 8.73,
+      "target_2": 0.055683,
+      "target_2_pct": 13.09,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 0.049748,
-      "watch_entry_low": 0.04941
+      "watch_entry_high": 0.049237,
+      "watch_entry_low": 0.04893
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
     "max_gain_pct": 5.58,
     "milestones": {},
     "peak_price": 0.04941,
-    "price_as_of": "2026-11-17T04:51:59.046405+00:00",
+    "price_as_of": "2026-11-17T05:30:50.638020+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -2400,21 +2750,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 0.04941,
         "return_pct": 5.58
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 0.04893,
+        "return_pct": 4.55
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 36,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 5.58,
+    "return_pct": 4.55,
     "risk_flags": [],
+    "score": 28,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
-      "Momentum and confirmation are developing."
+      "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "NIGHTUSDT",
     "technical_analysis": {},
     "trough_price": 0.0468,
@@ -2425,7 +2783,7 @@
     "webull_status": "not_reported"
   },
   "crypto:ONDOUSDT": {
-    "age_days": 0.17,
+    "age_days": 0.2,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -2474,28 +2832,34 @@
       }
     ],
     "initial_price": 0.30507,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.30878,
+    "latest_price": 0.30877,
     "levels": {
-      "invalidation_level": 0.301104,
+      "invalidation_level": 0.303104,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 2.97,
-      "stop_loss": 0.301104,
-      "target_1": 0.328764,
-      "target_1_pct": 5.94,
-      "target_2": 0.337985,
-      "target_2_pct": 8.91,
+      "risk_pct": 2.32,
+      "stop_loss": 0.303104,
+      "target_1": 0.324734,
+      "target_1_pct": 4.65,
+      "target_2": 0.331944,
+      "target_2_pct": 6.97,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 0.310324,
-      "watch_entry_low": 0.30878
+      "watch_entry_high": 0.310314,
+      "watch_entry_low": 0.30877
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
     "max_gain_pct": 1.28,
     "milestones": {},
     "peak_price": 0.30896,
-    "price_as_of": "2026-11-17T04:51:58.144242+00:00",
+    "price_as_of": "2026-11-17T05:30:48.944574+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -2512,21 +2876,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 0.30878,
         "return_pct": 1.22
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 0.30877,
+        "return_pct": 1.21
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 20,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 1.22,
+    "return_pct": 1.21,
     "risk_flags": [],
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
       "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "ONDOUSDT",
     "technical_analysis": {},
     "trough_price": 0.30507,
@@ -2537,7 +2909,7 @@
     "webull_status": "not_reported"
   },
   "crypto:OPUSDT": {
-    "age_days": 0.1,
+    "age_days": 0.13,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -2566,9 +2938,9 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 0.63,
+    "daily_change_pct": 0.38,
     "discovery_reasons": [
-      "Momentum / technical scan threshold"
+      "Relative volume 2.1x"
     ],
     "discovery_source": "core_scanner",
     "first_grade": "LOW-CONVICTION WATCH",
@@ -2578,31 +2950,42 @@
         "at": "2026-11-17T02:21:51.143636+00:00",
         "from": null,
         "to": "LOW-CONVICTION WATCH"
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "from": "LOW-CONVICTION WATCH",
+        "to": "EARLY WATCH"
       }
     ],
     "initial_price": 0.0791,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
-    "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.0797,
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
+    "last_stage": "EARLY WATCH",
+    "latest_price": 0.0795,
     "levels": {
       "invalidation_level": 0.078061,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 2.54,
+      "risk_pct": 2.3,
       "stop_loss": 0.078061,
-      "target_1": 0.084174,
-      "target_1_pct": 5.09,
-      "target_2": 0.086211,
-      "target_2_pct": 7.63,
+      "target_1": 0.08357,
+      "target_1_pct": 4.6,
+      "target_2": 0.085406,
+      "target_2_pct": 6.89,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 0.080098,
-      "watch_entry_low": 0.0797
+      "watch_entry_high": 0.079897,
+      "watch_entry_low": 0.0795
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
     "max_gain_pct": 0.88,
     "milestones": {},
     "peak_price": 0.0798,
-    "price_as_of": "2026-11-17T04:51:58.649133+00:00",
+    "price_as_of": "2026-11-17T05:30:49.241395+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -2619,21 +3002,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 0.0797,
         "return_pct": 0.76
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 0.0795,
+        "return_pct": 0.51
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 54,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 0.76,
+    "return_pct": 0.51,
     "risk_flags": [],
+    "score": 46,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
-      "Current evidence is below the early-watch threshold."
+      "Some interest is present, but confirmation remains limited."
     ],
+    "stage_signals": {},
     "symbol": "OPUSDT",
     "technical_analysis": {},
     "trough_price": 0.0791,
@@ -2714,7 +3105,7 @@
     "trough_price": 3852.36
   },
   "crypto:PEPEUSDT": {
-    "age_days": 0.17,
+    "age_days": 0.2,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -2743,7 +3134,7 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 0.98,
+    "daily_change_pct": 1.03,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -2760,31 +3151,42 @@
         "at": "2026-11-17T02:21:51.143636+00:00",
         "from": "LOW-CONVICTION WATCH",
         "to": "EARLY WATCH"
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "from": "EARLY WATCH",
+        "to": "LOW-CONVICTION WATCH"
       }
     ],
     "initial_price": 3.898e-06,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
-    "last_stage": "EARLY WATCH",
-    "latest_price": 3.935e-06,
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 3.937e-06,
     "levels": {
       "invalidation_level": 4e-06,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 3.48,
+      "risk_pct": 3.17,
       "stop_loss": 4e-06,
       "target_1": 4e-06,
-      "target_1_pct": 6.97,
+      "target_1_pct": 6.34,
       "target_2": 4e-06,
-      "target_2_pct": 10.45,
+      "target_2_pct": 9.52,
       "target_2_reward_risk_ratio": 3.0,
       "watch_entry_high": 4e-06,
       "watch_entry_low": 4e-06
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
     "max_gain_pct": 1.08,
     "milestones": {},
     "peak_price": 3.94e-06,
-    "price_as_of": "2026-11-17T04:51:57.442326+00:00",
+    "price_as_of": "2026-11-17T05:30:47.242483+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -2811,21 +3213,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 3.935e-06,
         "return_pct": 0.95
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 3.937e-06,
+        "return_pct": 1.0
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 20,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 0.95,
+    "return_pct": 1.0,
     "risk_flags": [],
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
-      "Some interest is present, but confirmation remains limited."
+      "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "PEPEUSDT",
     "technical_analysis": {},
     "trough_price": 3.898e-06,
@@ -2836,7 +3246,7 @@
     "webull_status": "not_reported"
   },
   "crypto:RENDERUSDT": {
-    "age_days": 0.17,
+    "age_days": 0.2,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -2857,7 +3267,7 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 1.09,
+    "daily_change_pct": 0.8,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -2874,31 +3284,42 @@
         "at": "2026-11-17T04:16:35.591187+00:00",
         "from": "LOW-CONVICTION WATCH",
         "to": "EARLY WATCH"
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "from": "EARLY WATCH",
+        "to": "LOW-CONVICTION WATCH"
       }
     ],
     "initial_price": 1.364,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
-    "last_stage": "EARLY WATCH",
-    "latest_price": 1.392,
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 1.388,
     "levels": {
-      "invalidation_level": 1.353824,
+      "invalidation_level": 1.354836,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 3.23,
-      "stop_loss": 1.353824,
-      "target_1": 1.489232,
-      "target_1_pct": 6.45,
-      "target_2": 1.534368,
-      "target_2_pct": 9.68,
+      "risk_pct": 2.87,
+      "stop_loss": 1.354836,
+      "target_1": 1.475148,
+      "target_1_pct": 5.75,
+      "target_2": 1.515252,
+      "target_2_pct": 8.62,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 1.39896,
-      "watch_entry_low": 1.392
+      "watch_entry_high": 1.39494,
+      "watch_entry_low": 1.388
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": -0.15,
     "max_gain_pct": 2.13,
     "milestones": {},
     "peak_price": 1.393,
-    "price_as_of": "2026-11-17T04:51:55.644197+00:00",
+    "price_as_of": "2026-11-17T05:30:45.439970+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -2925,21 +3346,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 1.392,
         "return_pct": 2.05
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 1.388,
+        "return_pct": 1.76
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 36,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 2.05,
+    "return_pct": 1.76,
     "risk_flags": [],
+    "score": 28,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
-      "Some interest is present, but confirmation remains limited."
+      "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "RENDERUSDT",
     "technical_analysis": {},
     "trough_price": 1.362,
@@ -2950,7 +3379,7 @@
     "webull_status": "not_reported"
   },
   "crypto:SEIUSDT": {
-    "age_days": 0.1,
+    "age_days": 0.13,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -2979,7 +3408,7 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 0.8,
+    "daily_change_pct": 0.41,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -2994,28 +3423,34 @@
       }
     ],
     "initial_price": 0.03887,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.03925,
+    "latest_price": 0.0391,
     "levels": {
-      "invalidation_level": 0.038442,
+      "invalidation_level": 0.038613,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 2.55,
-      "stop_loss": 0.038442,
-      "target_1": 0.041454,
-      "target_1_pct": 5.09,
-      "target_2": 0.042458,
-      "target_2_pct": 7.64,
+      "risk_pct": 1.74,
+      "stop_loss": 0.038613,
+      "target_1": 0.040661,
+      "target_1_pct": 3.48,
+      "target_2": 0.041344,
+      "target_2_pct": 5.21,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 0.039446,
-      "watch_entry_low": 0.03925
+      "watch_entry_high": 0.039296,
+      "watch_entry_low": 0.0391
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
     "max_gain_pct": 1.26,
     "milestones": {},
     "peak_price": 0.03936,
-    "price_as_of": "2026-11-17T04:51:54.143186+00:00",
+    "price_as_of": "2026-11-17T05:30:44.042854+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -3032,21 +3467,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 0.03925,
         "return_pct": 0.98
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 0.0391,
+        "return_pct": 0.59
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 20,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 0.98,
+    "return_pct": 0.59,
     "risk_flags": [],
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
       "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "SEIUSDT",
     "technical_analysis": {},
     "trough_price": 0.03887,
@@ -3057,7 +3500,7 @@
     "webull_status": "not_reported"
   },
   "crypto:SOLUSDT": {
-    "age_days": 0.17,
+    "age_days": 0.2,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -3086,9 +3529,9 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 1.75,
+    "daily_change_pct": 1.97,
     "discovery_reasons": [
-      "Momentum / technical scan threshold"
+      "Prior-range breakout"
     ],
     "discovery_source": "core_scanner",
     "first_grade": "LOW-CONVICTION WATCH",
@@ -3106,28 +3549,34 @@
       }
     ],
     "initial_price": 71.48,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
     "last_stage": "EARLY WATCH",
-    "latest_price": 72.77,
+    "latest_price": 72.93,
     "levels": {
-      "invalidation_level": 70.5869,
+      "invalidation_level": 70.7421,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
       "risk_pct": 3.48,
-      "stop_loss": 70.5869,
-      "target_1": 78.22775,
+      "stop_loss": 70.7421,
+      "target_1": 78.39975,
       "target_1_pct": 6.97,
-      "target_2": 80.7747,
+      "target_2": 80.9523,
       "target_2_pct": 10.45,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 73.13385,
-      "watch_entry_low": 72.77
+      "watch_entry_high": 73.29465,
+      "watch_entry_low": 72.93
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 1.83,
+    "max_gain_pct": 2.03,
     "milestones": {},
-    "peak_price": 72.79,
-    "price_as_of": "2026-11-17T04:51:50.544358+00:00",
+    "peak_price": 72.93,
+    "price_as_of": "2026-11-17T05:30:40.841980+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -3154,21 +3603,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 72.77,
         "return_pct": 1.8
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 72.93,
+        "return_pct": 2.03
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 54,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 1.8,
+    "return_pct": 2.03,
     "risk_flags": [],
+    "score": 46,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
       "Some interest is present, but confirmation remains limited."
     ],
+    "stage_signals": {},
     "symbol": "SOLUSDT",
     "technical_analysis": {},
     "trough_price": 71.48,
@@ -3179,7 +3636,7 @@
     "webull_status": "not_reported"
   },
   "crypto:SUIUSDT": {
-    "age_days": 0.02,
+    "age_days": 0.05,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -3208,7 +3665,7 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 0.97,
+    "daily_change_pct": 1.21,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -3220,31 +3677,42 @@
         "at": "2026-11-17T04:16:35.591187+00:00",
         "from": null,
         "to": "EARLY WATCH"
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "from": "EARLY WATCH",
+        "to": "LOW-CONVICTION WATCH"
       }
     ],
     "initial_price": 0.7268,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
-    "last_stage": "EARLY WATCH",
-    "latest_price": 0.7264,
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 0.7281,
     "levels": {
-      "invalidation_level": 0.709721,
+      "invalidation_level": 0.710216,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 2.78,
-      "stop_loss": 0.709721,
-      "target_1": 0.770654,
-      "target_1_pct": 5.56,
-      "target_2": 0.790966,
-      "target_2_pct": 8.35,
+      "risk_pct": 2.94,
+      "stop_loss": 0.710216,
+      "target_1": 0.77479,
+      "target_1_pct": 5.88,
+      "target_2": 0.796315,
+      "target_2_pct": 8.82,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 0.730032,
-      "watch_entry_low": 0.7264
+      "watch_entry_high": 0.731741,
+      "watch_entry_low": 0.7281
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": -0.06,
-    "max_gain_pct": 0.0,
+    "max_gain_pct": 0.18,
     "milestones": {},
-    "peak_price": 0.7268,
-    "price_as_of": "2026-11-17T04:51:53.143807+00:00",
+    "peak_price": 0.7281,
+    "price_as_of": "2026-11-17T05:30:43.865321+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -3256,21 +3724,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 0.7264,
         "return_pct": -0.06
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 0.7281,
+        "return_pct": 0.18
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 20,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": -0.06,
+    "return_pct": 0.18,
     "risk_flags": [],
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
-      "Some interest is present, but confirmation remains limited."
+      "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "SUIUSDT",
     "technical_analysis": {},
     "trough_price": 0.7264,
@@ -3281,7 +3757,7 @@
     "webull_status": "not_reported"
   },
   "crypto:TAOUSDT": {
-    "age_days": 0.17,
+    "age_days": 0.2,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -3302,7 +3778,7 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 1.84,
+    "daily_change_pct": 1.4,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -3317,28 +3793,34 @@
       }
     ],
     "initial_price": 190.5707,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 194.728,
+    "latest_price": 193.887,
     "levels": {
-      "invalidation_level": 186.588358,
+      "invalidation_level": 186.996651,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 4.85,
-      "stop_loss": 186.588358,
-      "target_1": 215.104995,
-      "target_1_pct": 9.69,
-      "target_2": 224.610541,
-      "target_2_pct": 14.54,
+      "risk_pct": 4.19,
+      "stop_loss": 186.996651,
+      "target_1": 211.52394,
+      "target_1_pct": 8.38,
+      "target_2": 219.699703,
+      "target_2_pct": 12.57,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 196.093904,
-      "watch_entry_low": 194.728
+      "watch_entry_high": 195.172414,
+      "watch_entry_low": 193.887
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": -0.14,
     "max_gain_pct": 2.18,
     "milestones": {},
     "peak_price": 194.728,
-    "price_as_of": "2026-11-17T04:51:56.141026+00:00",
+    "price_as_of": "2026-11-17T05:30:46.940570+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -3365,21 +3847,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 194.728,
         "return_pct": 2.18
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 193.887,
+        "return_pct": 1.74
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 36,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 2.18,
+    "return_pct": 1.74,
     "risk_flags": [],
+    "score": 28,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
       "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "TAOUSDT",
     "technical_analysis": {},
     "trough_price": 190.3,
@@ -3390,7 +3880,7 @@
     "webull_status": "not_reported"
   },
   "crypto:UNIUSDT": {
-    "age_days": 0.17,
+    "age_days": 0.2,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -3419,9 +3909,9 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 2.13,
+    "daily_change_pct": 2.35,
     "discovery_reasons": [
-      "Relative volume 1.9x",
+      "Relative volume 2.8x",
       "Prior-range breakout",
       "Positive daily momentum"
     ],
@@ -3441,28 +3931,34 @@
       }
     ],
     "initial_price": 5.1441,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
     "last_stage": "DEVELOPING SETUP",
-    "latest_price": 5.2708,
+    "latest_price": 5.2825,
     "levels": {
-      "invalidation_level": 5.112676,
+      "invalidation_level": 5.124025,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
       "risk_pct": 3.48,
-      "stop_loss": 5.112676,
-      "target_1": 5.66611,
+      "stop_loss": 5.124025,
+      "target_1": 5.678688,
       "target_1_pct": 6.97,
-      "target_2": 5.850588,
+      "target_2": 5.863575,
       "target_2_pct": 10.45,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 5.297154,
-      "watch_entry_low": 5.2708
+      "watch_entry_high": 5.308912,
+      "watch_entry_low": 5.2825
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 2.46,
+    "max_gain_pct": 2.69,
     "milestones": {},
-    "peak_price": 5.2708,
-    "price_as_of": "2026-11-17T04:52:01.441300+00:00",
+    "peak_price": 5.2825,
+    "price_as_of": "2026-11-17T05:30:53.445785+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -3479,21 +3975,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 5.2708,
         "return_pct": 2.46
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 5.2825,
+        "return_pct": 2.69
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 86,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 2.46,
+    "return_pct": 2.69,
     "risk_flags": [],
+    "score": 78,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
       "Momentum and confirmation are developing."
     ],
+    "stage_signals": {},
     "symbol": "UNIUSDT",
     "technical_analysis": {},
     "trough_price": 5.1441,
@@ -3546,13 +4050,12 @@
     "trough_price": 1
   },
   "crypto:VVVUSDT": {
-    "age_days": 0.17,
+    "age_days": 0.2,
     "asset_type": "crypto",
     "catalysts": [],
     "currently_surfaced": true,
-    "daily_change_pct": 5.34,
+    "daily_change_pct": 5.85,
     "discovery_reasons": [
-      "Relative volume 1.6x",
       "Prior-range breakout",
       "Positive daily momentum"
     ],
@@ -3572,28 +4075,34 @@
       }
     ],
     "initial_price": 20.19,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
     "last_stage": "DEVELOPING SETUP",
-    "latest_price": 21.224,
+    "latest_price": 21.326,
     "levels": {
-      "invalidation_level": 20.554464,
+      "invalidation_level": 20.68622,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 3.66,
-      "stop_loss": 20.554464,
-      "target_1": 22.897839,
-      "target_1_pct": 7.32,
-      "target_2": 23.678964,
-      "target_2_pct": 10.98,
+      "risk_pct": 3.48,
+      "stop_loss": 20.68622,
+      "target_1": 22.92545,
+      "target_1_pct": 6.97,
+      "target_2": 23.67186,
+      "target_2_pct": 10.45,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 21.335589,
-      "watch_entry_low": 21.224
+      "watch_entry_high": 21.43263,
+      "watch_entry_low": 21.326
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 5.12,
+    "max_gain_pct": 5.63,
     "milestones": {},
-    "peak_price": 21.224,
-    "price_as_of": "2026-11-17T04:51:59.942401+00:00",
+    "peak_price": 21.326,
+    "price_as_of": "2026-11-17T05:30:50.441849+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -3620,21 +4129,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 21.224,
         "return_pct": 5.12
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 21.326,
+        "return_pct": 5.63
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 75,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 5.12,
+    "return_pct": 5.63,
     "risk_flags": [],
+    "score": 67,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
       "Momentum and confirmation are developing."
     ],
+    "stage_signals": {},
     "symbol": "VVVUSDT",
     "technical_analysis": {},
     "trough_price": 20.19,
@@ -3645,7 +4162,7 @@
     "webull_status": "not_reported"
   },
   "crypto:WIFUSDT": {
-    "age_days": 0.17,
+    "age_days": 0.2,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -3674,7 +4191,7 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 0.0,
+    "daily_change_pct": -0.3,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -3691,31 +4208,42 @@
         "at": "2026-11-17T04:16:35.591187+00:00",
         "from": "LOW-CONVICTION WATCH",
         "to": "EARLY WATCH"
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "from": "EARLY WATCH",
+        "to": "LOW-CONVICTION WATCH"
       }
     ],
     "initial_price": 0.1344,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
-    "last_stage": "EARLY WATCH",
-    "latest_price": 0.1348,
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 0.1344,
     "levels": {
-      "invalidation_level": 0.130796,
+      "invalidation_level": 0.131797,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 3.45,
-      "stop_loss": 0.130796,
-      "target_1": 0.144831,
-      "target_1_pct": 6.91,
-      "target_2": 0.149509,
-      "target_2_pct": 10.36,
+      "risk_pct": 2.42,
+      "stop_loss": 0.131797,
+      "target_1": 0.141622,
+      "target_1_pct": 4.85,
+      "target_2": 0.144898,
+      "target_2_pct": 7.27,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 0.135474,
-      "watch_entry_low": 0.1348
+      "watch_entry_high": 0.135072,
+      "watch_entry_low": 0.1344
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": -0.74,
     "max_gain_pct": 0.52,
     "milestones": {},
     "peak_price": 0.1351,
-    "price_as_of": "2026-11-17T04:51:56.940473+00:00",
+    "price_as_of": "2026-11-17T05:30:46.736568+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -3742,21 +4270,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 0.1348,
         "return_pct": 0.3
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 0.1344,
+        "return_pct": 0.0
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 20,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 0.3,
+    "return_pct": 0.0,
     "risk_flags": [],
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
-      "Some interest is present, but confirmation remains limited."
+      "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "WIFUSDT",
     "technical_analysis": {},
     "trough_price": 0.1334,
@@ -3876,7 +4412,7 @@
         "url": "https://247wallst.com/investing/cryptocurrency/2026/11/12/bitcoin-gained-7-in-september-but-near-and-arbitrum-reportedly-surged-187-and-137/"
       }
     ],
-    "currently_surfaced": true,
+    "currently_surfaced": false,
     "daily_change_pct": 0.85,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
@@ -3945,7 +4481,7 @@
     "webull_status": "not_reported"
   },
   "crypto:XMRUSDT": {
-    "age_days": 0,
+    "age_days": 0.13,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -3973,11 +4509,12 @@
         "url": "https://beincrypto.com/altcoins-to-watch-market-crash-november-second-week/"
       }
     ],
-    "currently_surfaced": false,
-    "daily_change_pct": -0.02,
+    "currently_surfaced": true,
+    "daily_change_pct": 1.29,
     "discovery_reasons": [
-      "Relative volume 1.7x"
+      "Momentum / technical scan threshold"
     ],
+    "discovery_source": "core_scanner",
     "first_grade": "LOW-CONVICTION WATCH",
     "first_seen": "2026-11-17T02:21:51.143636+00:00",
     "grade_history": [
@@ -3985,37 +4522,82 @@
         "at": "2026-11-17T02:21:51.143636+00:00",
         "from": null,
         "to": "LOW-CONVICTION WATCH"
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "from": "LOW-CONVICTION WATCH",
+        "to": "EARLY WATCH"
       }
     ],
     "initial_price": 493.46,
-    "last_seen": "2026-11-17T02:21:51.143636+00:00",
-    "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 493.46,
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
+    "last_stage": "EARLY WATCH",
+    "latest_price": 499.94,
+    "levels": {
+      "invalidation_level": 488.16018,
+      "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
+      "reward_risk_ratio": 2.0,
+      "risk_pct": 2.84,
+      "stop_loss": 488.16018,
+      "target_1": 530.99874,
+      "target_1_pct": 5.68,
+      "target_2": 545.27826,
+      "target_2_pct": 8.53,
+      "target_2_reward_risk_ratio": 3.0,
+      "watch_entry_high": 502.4397,
+      "watch_entry_low": 499.94
+    },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.0,
+    "max_gain_pct": 1.31,
     "milestones": {},
-    "peak_price": 493.46,
-    "price_as_of": "2026-11-17T02:21:49.404654+00:00",
+    "peak_price": 499.94,
+    "price_as_of": "2026-11-17T05:30:51.938520+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
         "at": "2026-11-17T02:21:51.143636+00:00",
         "price": 493.46,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 499.94,
+        "return_pct": 1.31
       }
     ],
-    "price_observed_at": "2026-11-17T02:21:51.143636+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
-    "return_pct": 0.0,
+    "raw_score": 50,
+    "research_setup_status": null,
+    "research_signal_matches": [],
+    "return_pct": 1.31,
     "risk_flags": [],
+    "score": 42,
+    "score_components": {},
     "session_change_pct": null,
+    "stage_reasons": [
+      "Some interest is present, but confirmation remains limited."
+    ],
+    "stage_signals": {},
     "symbol": "XMRUSDT",
-    "trough_price": 493.46
+    "technical_analysis": {},
+    "trough_price": 493.46,
+    "webull_price": null,
+    "webull_price_age_minutes": null,
+    "webull_price_as_of": null,
+    "webull_price_difference_pct": null,
+    "webull_status": "not_reported"
   },
   "crypto:XRPUSDT": {
-    "age_days": 0.1,
+    "age_days": 0.13,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -4044,7 +4626,7 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 0.85,
+    "daily_change_pct": 1.09,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
     ],
@@ -4059,28 +4641,34 @@
       }
     ],
     "initial_price": 0.95525,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.96292,
+    "latest_price": 0.96513,
     "levels": {
-      "invalidation_level": 0.943111,
+      "invalidation_level": 0.946395,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 2.54,
-      "stop_loss": 0.943111,
-      "target_1": 1.016981,
-      "target_1_pct": 5.09,
-      "target_2": 1.041605,
-      "target_2_pct": 7.63,
+      "risk_pct": 2.43,
+      "stop_loss": 0.946395,
+      "target_1": 1.017078,
+      "target_1_pct": 4.86,
+      "target_2": 1.040639,
+      "target_2_pct": 7.29,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 0.967735,
-      "watch_entry_low": 0.96292
+      "watch_entry_high": 0.969956,
+      "watch_entry_low": 0.96513
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 0.94,
+    "max_gain_pct": 1.03,
     "milestones": {},
-    "peak_price": 0.96424,
-    "price_as_of": "2026-11-17T04:51:51.036907+00:00",
+    "peak_price": 0.96513,
+    "price_as_of": "2026-11-17T05:30:41.442248+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -4097,21 +4685,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 0.96292,
         "return_pct": 0.8
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 0.96513,
+        "return_pct": 1.03
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 20,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 0.8,
+    "return_pct": 1.03,
     "risk_flags": [],
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
       "Current evidence is below the early-watch threshold."
     ],
+    "stage_signals": {},
     "symbol": "XRPUSDT",
     "technical_analysis": {},
     "trough_price": 0.95525,
@@ -4122,7 +4718,7 @@
     "webull_status": "not_reported"
   },
   "crypto:ZECUSDT": {
-    "age_days": 0.17,
+    "age_days": 0.2,
     "asset_type": "crypto",
     "catalysts": [
       {
@@ -4151,9 +4747,10 @@
       }
     ],
     "currently_surfaced": true,
-    "daily_change_pct": 1.94,
+    "daily_change_pct": 2.53,
     "discovery_reasons": [
-      "Prior-range breakout"
+      "Prior-range breakout",
+      "Positive daily momentum"
     ],
     "discovery_source": "core_scanner",
     "first_grade": "LOW-CONVICTION WATCH",
@@ -4168,31 +4765,42 @@
         "at": "2026-11-17T04:16:35.591187+00:00",
         "from": "LOW-CONVICTION WATCH",
         "to": "DEVELOPING SETUP"
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "from": "DEVELOPING SETUP",
+        "to": "EARLY WATCH"
       }
     ],
     "initial_price": 899.95,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
-    "last_stage": "DEVELOPING SETUP",
-    "latest_price": 921.32,
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
+    "last_stage": "EARLY WATCH",
+    "latest_price": 926.66,
     "levels": {
-      "invalidation_level": 892.379643,
+      "invalidation_level": 898.8602,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 3.65,
-      "stop_loss": 892.379643,
-      "target_1": 993.670893,
-      "target_1_pct": 7.29,
-      "target_2": 1027.434643,
-      "target_2_pct": 10.94,
+      "risk_pct": 3.48,
+      "stop_loss": 898.8602,
+      "target_1": 996.1595,
+      "target_1_pct": 6.97,
+      "target_2": 1028.5926,
+      "target_2_pct": 10.45,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 926.143393,
-      "watch_entry_low": 921.32
+      "watch_entry_high": 931.2933,
+      "watch_entry_low": 926.66
     },
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
     "max_drawdown_pct": 0.0,
-    "max_gain_pct": 2.37,
+    "max_gain_pct": 2.97,
     "milestones": {},
-    "peak_price": 921.32,
-    "price_as_of": "2026-11-17T04:51:58.844812+00:00",
+    "peak_price": 926.66,
+    "price_as_of": "2026-11-17T05:30:50.139671+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -4219,21 +4827,29 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 921.32,
         "return_pct": 2.37
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 926.66,
+        "return_pct": 2.97
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 61,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": 2.37,
+    "return_pct": 2.97,
     "risk_flags": [],
+    "score": 53,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
-      "Momentum and confirmation are developing."
+      "Some interest is present, but confirmation remains limited."
     ],
+    "stage_signals": {},
     "symbol": "ZECUSDT",
     "technical_analysis": {},
     "trough_price": 899.95,
@@ -4244,13 +4860,13 @@
     "webull_status": "not_reported"
   },
   "crypto:ZROUSDT": {
-    "age_days": 0.02,
+    "age_days": 0.05,
     "asset_type": "crypto",
     "catalysts": [],
     "currently_surfaced": true,
-    "daily_change_pct": 3.76,
+    "daily_change_pct": 2.94,
     "discovery_reasons": [
-      "Relative volume 5.8x",
+      "Relative volume 2.2x",
       "Positive daily momentum"
     ],
     "discovery_source": "core_scanner",
@@ -4264,28 +4880,34 @@
       }
     ],
     "initial_price": 1.528,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
     "last_stage": "EARLY WATCH",
-    "latest_price": 1.516,
+    "latest_price": 1.504,
     "levels": {
-      "invalidation_level": 1.469714,
+      "invalidation_level": 1.45888,
       "method": "ATR-based stop, tightened to nearby support when appropriate; risk and 2R/3R targets measured from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 3.54,
-      "stop_loss": 1.469714,
-      "target_1": 1.631714,
-      "target_1_pct": 7.09,
-      "target_2": 1.685714,
-      "target_2_pct": 10.63,
+      "risk_pct": 3.48,
+      "stop_loss": 1.45888,
+      "target_1": 1.6168,
+      "target_1_pct": 6.97,
+      "target_2": 1.66944,
+      "target_2_pct": 10.45,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 1.523714,
-      "watch_entry_low": 1.516
+      "watch_entry_high": 1.51152,
+      "watch_entry_low": 1.504
     },
-    "max_drawdown_pct": -0.79,
+    "market_regime": "RISK-OFF",
+    "market_session": null,
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "not_reported",
+    "max_drawdown_pct": -1.57,
     "max_gain_pct": 0.0,
     "milestones": {},
     "peak_price": 1.528,
-    "price_as_of": "2026-11-17T04:51:59.847847+00:00",
+    "price_as_of": "2026-11-17T05:30:52.342676+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -4297,24 +4919,32 @@
         "at": "2026-11-17T04:52:06.679438+00:00",
         "price": 1.516,
         "return_pct": -0.79
+      },
+      {
+        "at": "2026-11-17T05:30:59.119616+00:00",
+        "price": 1.504,
+        "return_pct": -1.57
       }
     ],
-    "price_observed_at": "2026-11-17T04:52:06.679438+00:00",
+    "price_observed_at": "2026-11-17T05:30:59.119616+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
-    "price_validation_note": "Not applicable",
+    "price_validation_note": null,
     "price_validation_status": "not_required",
+    "raw_score": 54,
     "research_setup_status": null,
     "research_signal_matches": [],
-    "return_pct": -0.79,
+    "return_pct": -1.57,
     "risk_flags": [],
+    "score": 46,
     "score_components": {},
     "session_change_pct": null,
     "stage_reasons": [
       "Some interest is present, but confirmation remains limited."
     ],
+    "stage_signals": {},
     "symbol": "ZROUSDT",
     "technical_analysis": {},
-    "trough_price": 1.516,
+    "trough_price": 1.504,
     "webull_price": null,
     "webull_price_age_minutes": null,
     "webull_price_as_of": null,
@@ -4328,9 +4958,20 @@
     "discovery_reasons": [],
     "first_seen": "2026-11-17T04:52:06.679438+00:00",
     "initial_price": null,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
+    "market_session": {
+      "as_of": "2026-11-17T00:30:47.737066-05:00",
+      "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
+      "is_extended_session": false,
+      "is_regular_session": false,
+      "phase": "CLOSED \u2014 OVERNIGHT"
+    },
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "disabled",
     "max_drawdown_pct": null,
     "max_gain_pct": null,
     "milestones": {},
@@ -4535,9 +5176,20 @@
       }
     ],
     "initial_price": 11.73,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
+    "market_session": {
+      "as_of": "2026-11-17T00:30:46.642795-05:00",
+      "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
+      "is_extended_session": false,
+      "is_regular_session": false,
+      "phase": "CLOSED \u2014 OVERNIGHT"
+    },
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "disabled",
     "max_drawdown_pct": null,
     "max_gain_pct": null,
     "milestones": {},
@@ -4753,9 +5405,20 @@
       }
     ],
     "initial_price": 17.06,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
+    "market_session": {
+      "as_of": "2026-11-17T00:30:51.545418-05:00",
+      "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
+      "is_extended_session": false,
+      "is_regular_session": false,
+      "phase": "CLOSED \u2014 OVERNIGHT"
+    },
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "disabled",
     "max_drawdown_pct": null,
     "max_gain_pct": null,
     "milestones": {},
@@ -4831,9 +5494,20 @@
       }
     ],
     "initial_price": 57.37,
-    "last_seen": "2026-11-17T04:52:06.679438+00:00",
+    "last_seen": "2026-11-17T05:30:59.119616+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
+    "market_session": {
+      "as_of": "2026-11-17T00:30:39.353263-05:00",
+      "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
+      "is_extended_session": false,
+      "is_regular_session": false,
+      "phase": "CLOSED \u2014 OVERNIGHT"
+    },
+    "massive_price": null,
+    "massive_price_age_minutes": null,
+    "massive_price_as_of": null,
+    "massive_quote_status": "disabled",
     "max_drawdown_pct": null,
     "max_gain_pct": null,
     "milestones": {},

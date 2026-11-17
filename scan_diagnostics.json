@@ -8,14 +8,23 @@
       "stages": {
         "ACTIONABLE SETUP": 0,
         "BUY": 0,
-        "DEVELOPING SETUP": 9,
-        "EARLY WATCH": 12,
-        "LOW-CONVICTION WATCH": 16
+        "DEVELOPING SETUP": 4,
+        "EARLY WATCH": 6,
+        "LOW-CONVICTION WATCH": 27
       },
       "symbols_requested": 38
     },
+    "market_session": {
+      "as_of": "2026-11-17T00:30:59.011300-05:00",
+      "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
+      "is_extended_session": false,
+      "is_regular_session": false,
+      "phase": "CLOSED \u2014 OVERNIGHT"
+    },
+    "massive_live_quote_note": "Optional last-trade cross-check is disabled by default. Enable MASSIVE_LIVE_QUOTE_ENABLED=true only if the Massive Stocks plan includes /v2/last/trade; 15-minute delayed data is accepted only when its timestamp is within 45 minutes.",
+    "massive_live_quote_status": "disabled_pending_entitlement_check",
     "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history/data or score below the early-watch floor; provider-specific discovery failures are not always attributable to one symbol.",
-    "scan_duration_seconds": 19.87,
+    "scan_duration_seconds": 22.07,
     "stocks": {
       "candidates_returned": 4,
       "not_returned_or_below_early_watch_floor": 26,
@@ -33,7 +42,7 @@
       },
       "symbols_requested": 30
     },
-    "webull_quote_note": "Webull quote lookups are opt-in because the app authorization was observed pending; Yahoo/Stooq scanning continues independently. Set WEBULL_QUOTE_ENABLED=true only after Webull market-data authorization is confirmed.",
+    "webull_quote_note": "Webull quote lookups are opt-in because app authorization was observed pending; Yahoo/Stooq scanning continues independently. Enable only after Webull market-data authorization is confirmed.",
     "webull_quote_status": "disabled_pending_authorization"
   },
   "errors": [],
@@ -41,7 +50,7 @@
     "benchmarks": {
       "BTC-USD": {
         "above_20d_average": false,
-        "five_day_change_pct": -12.24
+        "five_day_change_pct": -12.18
       },
       "IWM": {
         "above_20d_average": false,
@@ -60,5 +69,5 @@
     "regime": "RISK-OFF",
     "score_adjustment": -8
   },
-  "timestamp": "2026-11-17T04:52:06.626403+00:00"
+  "timestamp": "2026-11-17T05:30:59.011252+00:00"
 }
