@@ -2199,6 +2199,8 @@ document.getElementById("stats").innerHTML=stats.map(x=>'<div class="metric"><di
 const outcomes=d.research_outcomes_summary||{}, forward=outcomes.forward_returns||{};
 const outcomeCards=[["Research tracked",outcomes.tracked||0],["Average favorable excursion",(outcomes.mfe_average_pct??0).toFixed(2)+"%"],["Average adverse excursion",(outcomes.mae_average_pct??0).toFixed(2)+"%"],["False breakouts",(outcomes.false_breakouts||0)+" / "+(outcomes.breakout_events||0)]];
 for(const h of ["1h","4h","24h","72h","5d","10d"])outcomeCards.push([h+" forward return",(forward[h]?.average_return_pct??"—")+"% · "+(forward[h]?.observations||0)+" obs"]);
+const cohorts=d.early_runner_cohorts||{};
+for(const [name,c] of Object.entries(cohorts))outcomeCards.push([name,c.observations+" obs · "+(c.runner_rate_pct===null?"—":c.runner_rate_pct+"% runners")]);
 document.getElementById("researchOutcomes").innerHTML=outcomeCards.map(x=>'<div class="metric"><div class="k">'+esc(x[0])+'</div><strong>'+esc(x[1])+'</strong></div>').join("");
 const coverage=d.research_field_coverage||{};
 const featureDefs=[
@@ -2209,9 +2211,15 @@ const featureDefs=[
 ["Anchored VWAP","Session-open anchored VWAP and price positioning; catalyst/swing anchors remain future extensions.",["anchored_vwap_status","anchored_vwap"]],
 ["ADX / DMI","14-period ADX, +DI and -DI from daily OHLC bars.",["adx","plus_di","minus_di","adx_dmi_status"]],
 ["Volatility contraction","ATR contraction versus prior ATR and 10-day base tightness.",["volatility_contraction_status","atr_contraction_pct","base_tightness_pct"]],
-["Catalyst and dilution","News/filings, shelf/offering/warrant and float-risk classification.",["catalyst_dilution_status","dilution_flags"]]
+["Catalyst and dilution","Headline catalyst classification plus SEC financing/offering flags; filing text still requires human review.",["catalyst_dilution_status","dilution_flags"]],
+["Float rotation","Session volume divided by reported public float; float freshness and provider coverage must be checked.",["float_rotation_pct","float_shares"]],
+["Premarket activity","Premarket gap, high/low and same-time historical premarket relative volume.",["premarket_gap_pct","premarket_rvol_same_time"]],
+["Cumulative RVOL","Session cumulative volume compared with prior sessions at the same clock time.",["cumulative_rvol_same_time"]],
+["Volume acceleration","Recent three-bar average volume versus the preceding three bars.",["volume_acceleration_3bar"]],
+["Intraday structure","Higher highs/higher lows, pullback from session high and premarket-high reclaim.",["higher_highs_higher_lows","pullback_from_session_high_pct","premarket_high_reclaimed"]],
+["Early runner research score","Transparent feature score for ranking research candidates; not a probability or BUY trigger.",["early_runner_research_score","early_runner_score_components"]]
 ];
-const features=featureDefs.map(([name,description,keys])=>{const covered=Math.max(0,...keys.map(k=>Number(coverage[k]||0)));const total=all.length;const status=name==="Catalyst and dilution"?"Existing / partial research":covered>0?"Collecting · "+covered+"/"+total+" records":"No measurements saved yet";return [name,description,status];});
+const features=featureDefs.map(([name,description,keys])=>{const covered=Math.max(0,...keys.map(k=>Number(coverage[k]||0)));const total=all.length;const status=covered>0?"Collecting · "+covered+"/"+total+" records":"No measurements saved yet";return [name,description,status];});
 document.getElementById("features").innerHTML=features.map(x=>'<div class="feature"><b>'+esc(x[0])+'</b><p>'+esc(x[1])+'</p><span class="status '+(x[2].startsWith("Existing")||x[2].startsWith("Collecting")?"partial":"")+'">'+esc(x[2])+'</span></div>').join("");
 const money=v=>{const n=Number(v);return Number.isFinite(n)&&n>0?n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:6}):"—"};const arr=v=>Array.isArray(v)?v.filter(Boolean).map(esc).join(" · "):esc(v||"—");
 const level=(o,k)=>money(o&&o[k]);
