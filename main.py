@@ -663,7 +663,11 @@ def stock_fundamental_snapshot(ticker) -> dict:
 
 WEBULL_QUOTE_CACHE = {}
 WEBULL_QUOTE_CACHE_LOCK = threading.Lock()
-WEBULL_QUOTE_SEMAPHORE = threading.BoundedSemaphore(4)
+WEBULL_QUOTE_SEMAPHORE = threading.BoundedSemaphore(2)
+# Webull OpenAPI token verification was observed remaining PENDING for ~200s.
+# Keep this optional provider off by default so it cannot hold up a complete scan.
+# Enable only after the Webull app's market-data authorization is confirmed.
+WEBULL_QUOTE_ENABLED = os.getenv("WEBULL_QUOTE_ENABLED", "false").strip().lower() in ("1", "true", "yes", "on")
 
 
 def webull_latest_bar(symbol: str) -> dict:
@@ -908,8 +912,9 @@ def scan_stock(symbol: str) -> Optional[dict]:
         os.getenv("WEBULL_APP_KEY", "").strip()
         and os.getenv("WEBULL_APP_SECRET", "").strip()
     )
+    webull_enabled = has_webull_credentials and WEBULL_QUOTE_ENABLED
 
-    if (intraday_fresh and intraday_price > 0) or has_webull_credentials:
+    if (intraday_fresh and intraday_price > 0) or webull_enabled:
         try:
             # Stooq can independently cross-check Webull even when Yahoo is down.
             secondary_quote = stooq_latest_quote(symbol)
@@ -920,14 +925,17 @@ def scan_stock(symbol: str) -> Optional[dict]:
         except Exception:
             secondary_quote = None
 
-    if has_webull_credentials:
+    if webull_enabled:
         try:
-            # Always attempt Webull, even when Yahoo intraday data is absent.
+            # Optional read-only Webull cross-check; explicitly enabled only after
+            # app authorization is confirmed. The scan remains usable without it.
             webull_quote = webull_latest_bar(symbol)
             webull_status = "fresh_quote_received"
         except Exception:
             # Missing entitlement, credentials, SDK, or endpoint must not stop a scan.
             webull_status = "unavailable_or_not_entitled"
+    elif has_webull_credentials:
+        webull_status = "disabled_pending_authorization"
 
     reference_quotes = []
     if intraday_fresh and intraday_price > 0:
@@ -991,7 +999,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
             validation_note = "Yahoo and Stooq live quotes disagree by more than 3%"
     elif intraday_fresh:
         validation_note = "Fresh Yahoo intraday quote available, but independent Stooq validation unavailable and Webull did not return a quote"
-    elif has_webull_credentials and not webull_quote:
+    elif webull_enabled and not webull_quote:
         validation_note = "Yahoo intraday quote unavailable; Webull quote request also unavailable or not entitled"
 
     if validation_passed:
@@ -1491,14 +1499,25 @@ def scan_cryptocurrencies(limit: int = Query(25, ge=1, le=100)):
 
 @app.get("/scan", dependencies=[Depends(require_site_login)])
 def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
-    stock_symbols = stock_universe()
-    crypto_symbols = crypto_universe()
+    scan_started = time.monotonic()
+    stock_symbols = stock_universe() if asset in ("all", "stocks") else []
+    crypto_symbols = crypto_universe() if asset in ("all", "crypto") else []
     stock_results, stock_errors = ([], [])
     crypto_results, crypto_errors = ([], [])
-    if asset in ("all", "stocks"):
+
+    # Run independent asset classes together, with a bounded worker pool per
+    # class. This prevents the crypto pass from waiting for every stock request.
+    if asset == "all":
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            stock_future = pool.submit(run_parallel, stock_symbols, scan_stock, 4)
+            crypto_future = pool.submit(run_parallel, crypto_symbols, scan_crypto, 4)
+            stock_results, stock_errors = stock_future.result()
+            crypto_results, crypto_errors = crypto_future.result()
+    elif asset == "stocks":
         stock_results, stock_errors = run_parallel(stock_symbols, scan_stock)
-    if asset in ("all", "crypto"):
+    elif asset == "crypto":
         crypto_results, crypto_errors = run_parallel(crypto_symbols, scan_crypto)
+
     results = sorted(stock_results + crypto_results, key=lambda item: item["score"], reverse=True)
     errors = stock_errors + crypto_errors
     regime = market_conditions()
@@ -1526,6 +1545,9 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
                 "stages": {stage: sum(1 for x in crypto_results if x.get("stage") == stage) for stage in ("BUY", "ACTIONABLE SETUP", "DEVELOPING SETUP", "EARLY WATCH", "LOW-CONVICTION WATCH")},
             },
             "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history/data or score below the early-watch floor; provider-specific discovery failures are not always attributable to one symbol.",
+            "webull_quote_status": "enabled" if WEBULL_QUOTE_ENABLED else "disabled_pending_authorization",
+            "webull_quote_note": "Webull quote lookups are opt-in because the app authorization was observed pending; Yahoo/Stooq scanning continues independently. Set WEBULL_QUOTE_ENABLED=true only after Webull market-data authorization is confirmed.",
+            "scan_duration_seconds": round(time.monotonic() - scan_started, 2),
         },
     }
 
