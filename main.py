@@ -978,9 +978,12 @@ def scan_stock(symbol: str) -> Optional[dict]:
     intraday_fresh = False
     vwap_metrics = {"session_vwap": None, "above_vwap": False, "vwap_reclaim": False}
     intraday_trend_up = False
+    intraday_started = time.monotonic()
     try:
         # Stooq is a daily-only backup; do not pretend it supplies intraday confirmation.
         intraday = ticker.history(period="5d", interval="15m", prepost=True, auto_adjust=True) if price_provider == "Yahoo Finance" else pd.DataFrame()
+        if price_provider == "Yahoo Finance":
+            record_scan_metric("yahoo_intraday_history", time.monotonic() - intraday_started)
         if not intraday.empty and len(intraday) >= 1:
             intraday = intraday.dropna(subset=["Close"])
             if not intraday.empty:
@@ -1005,6 +1008,8 @@ def scan_stock(symbol: str) -> Optional[dict]:
             if len(intraday_high) >= 21:
                 intraday_breakout = safe_float(intraday_close.iloc[-1]) > safe_float(intraday_high.iloc[-21:-1].max())
     except Exception:
+        if price_provider == "Yahoo Finance":
+            record_scan_metric("yahoo_intraday_history", time.monotonic() - intraday_started, "failure")
         # Keep the daily scan usable if intraday data is unavailable.
         pass
 
