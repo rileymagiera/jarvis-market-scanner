@@ -73,7 +73,7 @@ def now_iso() -> str:
 def discover_stock_symbols(limit: int = 35) -> list[str]:
     """Discover additional small/mid-cap movers from Yahoo's public screener."""
     found = {}
-    for screen in ("day_gainers", "most_actives"):
+    for screen in ("day_gainers", "most_actives", "small_cap_gainers"):
         try:
             response = HTTP.get(
                 "https://query1.finance.yahoo.com/v1/finance/screener/predefined/saved",
@@ -95,7 +95,8 @@ def discover_stock_symbols(limit: int = 35) -> list[str]:
                 if price < 0.50 or volume < 100_000:
                     continue
                 relative_volume = volume / average_volume if average_volume else 0
-                if change < 2 and relative_volume < 1.5:
+                # Keep quiet-but-unusual volume names in the discovery pool; scoring happens later.
+                if change < 0.5 and relative_volume < 1.15:
                     continue
                 rank = change + min(relative_volume, 10) * 2
                 found[symbol] = max(rank, found.get(symbol, float("-inf")))
@@ -126,9 +127,10 @@ def discover_crypto_symbols(limit: int = 25) -> list[str]:
             continue
         quote_volume = safe_float(ticker.get("quoteVolume"))
         change = safe_float(ticker.get("priceChangePercent"))
-        if quote_volume < 2_000_000 or change < 2 or change > 100:
+        # Do not require a coin to already be a 24h winner: include liquid flat/early movers.
+        if quote_volume < 1_000_000 or change < -10 or change > 150:
             continue
-        rank = change + min(np.log10(max(quote_volume, 1)), 9) * 2
+        rank = change * 0.65 + min(np.log10(max(quote_volume, 1)), 9) * 2
         ranked.append((rank, symbol))
     ranked.sort(reverse=True)
     return [symbol for _, symbol in ranked[:limit]]
@@ -204,9 +206,11 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
     if adjusted >= 75 and has_confirmation and regime["regime"] != "RISK-OFF":
         stage = "ACTIONABLE SETUP"
     elif adjusted >= 55 and has_confirmation:
-        stage = "CONFIRMATION"
-    else:
+        stage = "DEVELOPING SETUP"
+    elif adjusted >= 35:
         stage = "EARLY WATCH"
+    else:
+        stage = "LOW-CONVICTION WATCH"
     item["stage"] = stage
     item["signal"] = stage
 
@@ -369,7 +373,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
     score += 5 if intraday_breakout else 0
     score = min(score, 100)
 
-    if score < 25:
+    if score < 15:
         return None
     news = stock_news(symbol)
     risk_flags = []
@@ -392,6 +396,11 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "levels": levels(price, atr, support),
         "news": news,
         "risk_flags": risk_flags,
+        "research_notes": [
+            "Review latest SEC filings for financing, dilution, debt and material events.",
+            "Confirm headline timing and catalyst with a second independent source before acting.",
+            "Check float, shares outstanding, cash runway and upcoming earnings; these are not fully verified by this scan.",
+        ],
         "data_source": "Yahoo Finance daily + 15m intraday (pre/post-market when available)",
     }
 
@@ -465,7 +474,7 @@ def scan_crypto(symbol: str) -> Optional[dict]:
     score += 20 if breakout else 0
     score += 15 if trend_up else 0
     score += 15 if change_1h > 0 and relative_volume >= 1.5 else 0
-    if score < 25:
+    if score < 15:
         return None
 
     return {
@@ -566,7 +575,7 @@ fetch('/history/data').then(r=>r.json()).then(d=>{
  const cps=l.checkpoints||{};
  const obs=Object.values(cps).reduce((n,x)=>n+Number(x.observations||0),0);
  document.getElementById('stats').innerHTML=[
- ['Tracked now',vals.length],['Lifetime records',l.recommendations||0],['Checkpoint observations',obs],['Lifetime wins',Object.values(cps).reduce((n,x)=>n+Number(x.wins||0),0)]
+ ['Tracked candidates now',vals.length],['Lifetime tracked candidates',l.tracked_candidates||l.recommendations||0],['Checkpoint observations',obs],['Lifetime positive checkpoints',Object.values(cps).reduce((n,x)=>n+Number(x.wins||0),0)]
  ].map(x=>'<div class="card"><div class="muted">'+x[0]+'</div><div class="value">'+x[1]+'</div></div>').join('');
  document.getElementById('rows').innerHTML=vals.sort((a,b)=>(b.last_seen||'').localeCompare(a.last_seen||'')).map(x=>'<tr><td>'+x.asset_type.toUpperCase()+' '+x.symbol+'</td><td>'+new Date(x.first_seen).toLocaleDateString()+'</td><td class="'+cls(x.return_pct)+'">'+fmt(x.return_pct)+'</td><td class="pos">'+fmt(x.max_gain_pct)+'</td><td class="neg">'+fmt(x.max_drawdown_pct)+'</td><td>'+Number(x.age_days||0).toFixed(1)+'d</td></tr>').join('')||'<tr><td colspan="6">No paper history has synced yet. It will populate after the next successful hourly workflow.</td></tr>';
  document.getElementById('checks').innerHTML=Object.entries(cps).sort((a,b)=>Number(a[0])-Number(b[0])).map(([h,x])=>'<tr><td>'+h+' calendar days</td><td>'+x.observations+'</td><td>'+x.wins+'</td><td>'+x.losses+'</td><td>'+fmt(x.observations?x.total_return_pct/x.observations:0)+'</td></tr>').join('')||'<tr><td colspan="5">Checkpoint results will appear as records mature.</td></tr>';
@@ -652,4 +661,21 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
         "market_conditions": regime,
         "stock_candidates": len(stock_results),
         "crypto_candidates": len(crypto_results),
+        "diagnostics": {
+            "stocks": {
+                "symbols_requested": len(stock_symbols),
+                "candidates_returned": len(stock_results),
+                "scan_errors": len(stock_errors),
+                "not_returned_or_below_early_watch_floor": max(0, len(stock_symbols) - len(stock_results) - len(stock_errors)),
+                "stages": {stage: sum(1 for x in stock_results if x.get("stage") == stage) for stage in ("ACTIONABLE SETUP", "DEVELOPING SETUP", "EARLY WATCH", "LOW-CONVICTION WATCH")},
+            },
+            "crypto": {
+                "symbols_requested": len(crypto_symbols),
+                "candidates_returned": len(crypto_results),
+                "scan_errors": len(crypto_errors),
+                "not_returned_or_below_early_watch_floor": max(0, len(crypto_symbols) - len(crypto_results) - len(crypto_errors)),
+                "stages": {stage: sum(1 for x in crypto_results if x.get("stage") == stage) for stage in ("ACTIONABLE SETUP", "DEVELOPING SETUP", "EARLY WATCH", "LOW-CONVICTION WATCH")},
+            },
+            "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history/data or score below the early-watch floor; provider-specific discovery failures are not always attributable to one symbol.",
+        },
     }
