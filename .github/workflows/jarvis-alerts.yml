@@ -27,9 +27,13 @@ jobs:
       - name: Check out scanner
         uses: actions/checkout@v4
       - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-        uses: actions/setup-python@v5
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Install scanner dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
       - name: Record scan attempt start
         if: ${{ inputs.send_test_email != true }}
         run: |
@@ -60,8 +64,6 @@ jobs:
           JARVIS_GMAIL_APP_PASSWORD: ${{ secrets.JARVIS_GMAIL_APP_PASSWORD }}
           JARVIS_ALERT_TO: ${{ secrets.JARVIS_ALERT_TO }}
           JARVIS_HISTORY_SYNC_TOKEN: ${{ secrets.JARVIS_HISTORY_SYNC_TOKEN }}
-          JARVIS_SITE_USERNAME: ${{ secrets.JARVIS_SITE_USERNAME }}
-          JARVIS_SITE_PASSWORD: ${{ secrets.JARVIS_SITE_PASSWORD }}
           JARVIS_SCANNER_URL: https://jarvis-market-scanner.onrender.com
           ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
           ALPACA_API_SECRET: ${{ secrets.ALPACA_API_SECRET }}
@@ -71,8 +73,11 @@ jobs:
           test -n "$JARVIS_GMAIL_USER" || (echo "Missing JARVIS_GMAIL_USER" && exit 1)
           test -n "$JARVIS_GMAIL_APP_PASSWORD" || (echo "Missing JARVIS_GMAIL_APP_PASSWORD" && exit 1)
           test -n "$JARVIS_ALERT_TO" || (echo "Missing JARVIS_ALERT_TO" && exit 1)
-          test -n "$JARVIS_SITE_USERNAME" || (echo "Missing JARVIS_SITE_USERNAME" && exit 1)
-          test -n "$JARVIS_SITE_PASSWORD" || (echo "Missing JARVIS_SITE_PASSWORD" && exit 1)
+          if [ -n "$ALPACA_API_KEY" ] && [ -n "$ALPACA_API_SECRET" ]; then
+            echo "Alpaca credentials are configured for the local scanner."
+          else
+            echo "Alpaca credentials are missing; scan will report Alpaca as not configured."
+          fi
           python -m py_compile main.py send_alerts.py
           if [ "$SEND_TEST_EMAIL" = "true" ]; then
             python send_alerts.py --test
