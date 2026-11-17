@@ -4,6 +4,11 @@
     "alerted_stage": "DEVELOPING SETUP",
     "score": 67
   },
+  "crypto:FETUSDT": {
+    "alerted_at": "2026-11-17T14:27:46.490045+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 62
+  },
   "crypto:INJUSDT": {
     "alerted_at": "2026-11-17T13:32:34.964836+00:00",
     "alerted_stage": "DEVELOPING SETUP",
@@ -21,6 +26,11 @@
   },
   "crypto:SUIUSDT": {
     "alerted_at": "2026-11-17T13:32:34.964836+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 62
+  },
+  "crypto:UNIUSDT": {
+    "alerted_at": "2026-11-17T14:27:46.490045+00:00",
     "alerted_stage": "DEVELOPING SETUP",
     "score": 62
   },
