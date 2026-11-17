@@ -1167,6 +1167,7 @@ def advanced_research_metrics(frame: pd.DataFrame, intraday: pd.DataFrame, price
     opening = regular[[x.time() < datetime.strptime("09:45", "%H:%M").time() for x in local_idx[bars.index.get_indexer(regular.index)]]]
     if not opening.empty:
         or_high, or_low = safe_float(opening["High"].max()), safe_float(opening["Low"].min())
+        result["opening_range_high"], result["opening_range_low"] = round(or_high, 6), round(or_low, 6)
         last_price = safe_float(session["Close"].iloc[-1], price)
         after_open = regular[regular.index > opening.index[-1]]
         broke_up, broke_down = last_price > or_high, last_price < or_low
@@ -2156,6 +2157,7 @@ a{color:var(--accent);text-decoration:none}.muted,.sub{color:var(--muted);font-s
 <section class="hero"><div><div class="eyebrow">EXPERIMENTAL SIGNALS · NOT TRADE TRIGGERS</div><h2>Measure first. Promote only what earns it.</h2><p>This workspace evaluates additional momentum-entry signals alongside the existing scanner. It does not change BUY scoring, place trades, or treat unverified quotes as valid results.</p></div><div class="notice"><b>Research-only mode</b><br>Existing data is shown separately from measurements that still need to be added. Missing values stay blank rather than being guessed.<div id="sessionStatus" style="margin-top:9px;color:#c5d6e8">Checking market session and quote providers…</div></div></section>
 <div class="grid" id="stats"></div>
 <section class="section"><h2>Professional signal checklist</h2><div class="muted">A transparent status for each proposed research feature.</div><div class="features" id="features"></div></section>
+<section class="section"><h2>Signal outcome tracking</h2><div class="muted">Forward returns are the first completed scan at or after each horizon. Excursions and breakout failures use sampled scan observations, not tick-level or guaranteed execution data.</div><div class="grid" id="researchOutcomes"><div class="metric"><div class="k">Awaiting data</div><strong>—</strong></div></div></section>
 <section class="section"><h2>BUY opportunities &amp; research discoveries</h2><div class="muted">Potential plans are hypothetical reference levels from Jarvis. Stops and targets are not guaranteed fills. Existing BUY engine signals are kept separate from experimental research matches.</div>
 <div style="margin-top:16px"><h3 style="font-size:14px;margin:0 0 5px">Current Jarvis BUY signals</h3><div class="muted">Official scanner BUY-grade records with their saved entry, stop and target levels.</div><div class="scroll"><table style="min-width:900px"><thead><tr><th>Candidate</th><th>Origin</th><th>Trigger / reason</th><th>Entry range</th><th>Stop loss</th><th>Target 1</th><th>Target 2</th><th>R:R</th><th>Status</th></tr></thead><tbody id="buyLedger"><tr><td colspan="9" class="empty">Loading BUY records…</td></tr></tbody></table></div></div>
 <div style="margin-top:18px"><h3 style="font-size:14px;margin:0 0 5px">Research-layer discoveries</h3><div class="muted">Candidates explicitly matched by experimental research signals. They are not promoted to official BUYs by this tab.</div><div class="scroll"><table style="min-width:900px"><thead><tr><th>Candidate</th><th>Research signals matched</th><th>Jarvis grade</th><th>Entry range</th><th>Stop loss</th><th>Target 1</th><th>Target 2</th><th>Research status</th></tr></thead><tbody id="researchBuyLedger"><tr><td colspan="8" class="empty">Loading research matches…</td></tr></tbody></table></div></div>
@@ -2190,6 +2192,10 @@ const session=d.market_session||{}, providers=d.quote_provider_status||{};
 document.getElementById("sessionStatus").textContent="US equities: "+(session.phase||"session unknown")+" · "+(providers.massive_live_quotes||"Massive live quotes: status unknown")+" · "+(providers.webull||"Webull: status unknown")+" · "+(session.calendar_note||"");
 const stats=[["Tracked candidates",all.length],["Stocks",all.filter(x=>x.asset_type==="stock").length],["Crypto",all.filter(x=>x.asset_type==="crypto").length],["Price verified",verified.length],["Currently surfaced",all.filter(x=>x.currently_surfaced!==false).length]];
 document.getElementById("stats").innerHTML=stats.map(x=>'<div class="metric"><div class="k">'+esc(x[0])+'</div><strong>'+esc(x[1])+'</strong></div>').join("");
+const outcomes=d.research_outcomes_summary||{}, forward=outcomes.forward_returns||{};
+const outcomeCards=[["Research tracked",outcomes.tracked||0],["Average favorable excursion",(outcomes.mfe_average_pct??0).toFixed(2)+"%"],["Average adverse excursion",(outcomes.mae_average_pct??0).toFixed(2)+"%"],["False breakouts",(outcomes.false_breakouts||0)+" / "+(outcomes.breakout_events||0)]];
+for(const h of ["1h","4h","24h","72h","5d","10d"])outcomeCards.push([h+" forward return",(forward[h]?.average_return_pct??"—")+"% · "+(forward[h]?.observations||0)+" obs"]);
+document.getElementById("researchOutcomes").innerHTML=outcomeCards.map(x=>'<div class="metric"><div class="k">'+esc(x[0])+'</div><strong>'+esc(x[1])+'</strong></div>').join("");
 const coverage=d.research_field_coverage||{};
 const featureDefs=[
 ["Cross-sectional relative strength","Five-day performance versus SPY/IWM plus percentile rank across scanned stocks.",["relative_strength_vs_spy","relative_strength_vs_iwm","rs_rank"]],
@@ -2249,4 +2255,13 @@ def research_data():
                     "Massive live quotes: disabled by safety setting" if not MASSIVE_LIVE_QUOTE_ENABLED else "Massive live quotes: API key missing"),
                 "webull":("Webull: enabled" if WEBULL_QUOTE_ENABLED and webull_keys else
                     "Webull: authorization pending / provider disabled" if webull_keys else "Webull: credentials not configured")},
-            "research_field_coverage":{key:sum(1 for r in records if isinstance(r,dict) and r.get(key) is not None) for key in fields}}
+            "research_field_coverage":{key:sum(1 for r in records if isinstance(r,dict) and r.get(key) is not None) for key in fields},
+            "research_outcomes_summary":{
+                "tracked":sum(1 for r in records if r.get("research_entry_price")),
+                "mfe_average_pct":round(sum(safe_float(r.get("research_max_favorable_pct")) for r in records if r.get("research_max_favorable_pct") is not None)/max(1,sum(1 for r in records if r.get("research_max_favorable_pct") is not None)),2),
+                "mae_average_pct":round(sum(safe_float(r.get("research_max_adverse_pct")) for r in records if r.get("research_max_adverse_pct") is not None)/max(1,sum(1 for r in records if r.get("research_max_adverse_pct") is not None)),2),
+                "breakout_events":sum(1 for r in records if r.get("research_breakout_at")),
+                "false_breakouts":sum(1 for r in records if r.get("research_breakout_status")=="failed"),
+                "forward_returns":{h:{"observations":sum(1 for r in records if h in (r.get("research_outcomes") or {})),
+                    "average_return_pct":round(sum(safe_float((r.get("research_outcomes") or {}).get(h,{}).get("return_pct")) for r in records if h in (r.get("research_outcomes") or {}))/max(1,sum(1 for r in records if h in (r.get("research_outcomes") or {}))),2)} for h in ("1h","4h","24h","72h","5d","10d")}
+            }}
