@@ -93,10 +93,9 @@ def compute_early_runner_metrics(daily, intraday, price, fundamentals=None, news
         "sector_relative_strength_5d": None, "early_runner_research_score": 0,
         "early_runner_score_components": {},
     }
+    previous_close = None
     if daily is not None and not daily.empty and len(daily) >= 2:
         previous_close = _num(daily["Close"].iloc[-2])
-        if previous_close and previous_close > 0 and price and price > 0:
-            result["premarket_gap_pct"] = round((price / previous_close - 1) * 100, 3)
 
     float_data = _catalyst_assessment(news, fundamentals)
     result.update(float_data)
@@ -119,13 +118,25 @@ def compute_early_runner_metrics(daily, intraday, price, fundamentals=None, news
                 result["premarket_volume"] = round(pre_volume, 0)
                 result["premarket_high"] = round(_num(pre["High"].max(), 0), 6)
                 result["premarket_low"] = round(_num(pre["Low"].min(), 0), 6)
+                first_open = _num(pre["Open"].iloc[0]) if "Open" in pre.columns else None
+                if first_open and previous_close and previous_close > 0:
+                    result["premarket_gap_pct"] = round((first_open / previous_close - 1) * 100, 3)
                 past = bars[bars["_date"] < today]
-                prior_pre = past[[t.time() < datetime.strptime("09:30", "%H:%M").time()
-                                  for t in _local_index(past)]] if not past.empty else past
+                if not past.empty:
+                    past_times = _local_index(past)
+                    cutoff = _local_index(session)[-1].time()
+                    prior_pre = past[[t.time() < datetime.strptime("09:30", "%H:%M").time() and t.time() <= cutoff
+                                      for t in past_times]]
+                else:
+                    prior_pre = past
                 daily_pre = prior_pre.groupby("_date")["Volume"].sum() if not prior_pre.empty else pd.Series(dtype=float)
                 baseline = _num(daily_pre.median()) if len(daily_pre) >= 2 else None
                 if baseline and baseline > 0:
                     result["premarket_rvol_same_time"] = round(pre_volume / baseline, 2)
+            elif not regular.empty and previous_close and previous_close > 0 and "Open" in regular.columns:
+                first_open = _num(regular["Open"].iloc[0])
+                if first_open:
+                    result["premarket_gap_pct"] = round((first_open / previous_close - 1) * 100, 3)
             if not regular.empty:
                 current_time = session["_time"].iloc[-1]
                 prior = bars[(bars["_date"] < today) & (bars["_time"] <= current_time)]
