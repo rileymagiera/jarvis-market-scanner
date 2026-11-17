@@ -273,7 +273,7 @@ def update_paper_tracker(candidates, now):
             record["research_breakout_at"] = now.isoformat()
             record["research_breakout_level"] = breakout_level
             record["research_breakout_status"] = "pending"
-        elif record.get("research_breakout_status") == "pending" and record.get("research_breakout_at") != now.isoformat():
+        elif record.get("research_breakout_status") in ("pending", "held") and record.get("research_breakout_at") != now.isoformat():
             breakout_level = float(record.get("research_breakout_level") or 0)
             if breakout_level > 0 and price < breakout_level * 0.995:
                 record["research_breakout_status"] = "failed"
