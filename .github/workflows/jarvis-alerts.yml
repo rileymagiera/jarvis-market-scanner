@@ -2,8 +2,7 @@ name: Jarvis Market Alerts
 
 on:
   schedule:
-    - cron: "10 10 * * 1-5"
-      timezone: "America/Detroit"
+    - cron: "5 * * * *"
   workflow_dispatch:
     inputs:
       send_test_email:
