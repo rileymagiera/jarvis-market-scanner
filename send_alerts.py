@@ -425,8 +425,9 @@ def main():
         print("Daily no-new-setups status email sent.")
         return
 
+    has_buy_signal = any(item.get("stage") == "BUY" for item in selected)
     lines = [
-        "JARVIS MARKET SCANNER — NEW SETUPS",
+        "JARVIS MARKET SCANNER — BUY SIGNALS" if has_buy_signal else "JARVIS MARKET SCANNER — NEW SETUPS",
         "Generated: " + str(payload.get("timestamp", now.isoformat())),
         "",
         "Research watchlist only. Not personalized financial advice. No trades are placed.",
@@ -465,7 +466,11 @@ def main():
         lines.append("")
     lines += [f'Scan candidates: {payload.get("candidates_found", "n/a")}', 'Scan diagnostics: ' + json.dumps(payload.get('diagnostics') or {}, sort_keys=True), f'Scan errors: {len(payload.get("errors") or [])}']
     buy_count = sum(1 for item in selected if item.get("stage") == "BUY")
-    subject = f"Jarvis BUY signal: {selected[0].get('symbol')}" if buy_count == 1 and len(selected) == 1 else f"Jarvis: {buy_count} BUY signal(s), {len(selected)} new setup(s)"
+    subject = (
+        f"Jarvis BUY signal: {selected[0].get('symbol')}" if buy_count == 1 and len(selected) == 1
+        else f"Jarvis: {buy_count} BUY signal(s), {len(selected)} new setup(s)" if buy_count
+        else f"Jarvis: {len(selected)} new market setup(s)"
+    )
     email(subject, "\n".join(lines))
     state.update(updates)
     STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
