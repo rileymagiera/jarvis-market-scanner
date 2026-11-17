@@ -1,3 +1,33 @@
 {
+  "crypto:ASTERUSDT": {
+    "alerted_at": "2026-11-17T13:32:34.964836+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 67
+  },
+  "crypto:INJUSDT": {
+    "alerted_at": "2026-11-17T13:32:34.964836+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 92
+  },
+  "crypto:JUPUSDT": {
+    "alerted_at": "2026-11-17T13:32:34.964836+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 67
+  },
+  "crypto:SOLUSDT": {
+    "alerted_at": "2026-11-17T13:32:34.964836+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 71
+  },
+  "crypto:SUIUSDT": {
+    "alerted_at": "2026-11-17T13:32:34.964836+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 62
+  },
+  "crypto:XMRUSDT": {
+    "alerted_at": "2026-11-17T13:32:34.964836+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 78
+  },
   "daily_status_date": "2026-11-16"
 }

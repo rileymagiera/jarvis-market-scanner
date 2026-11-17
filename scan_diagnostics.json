@@ -1,30 +1,35 @@
 {
-  "candidates_found": 28,
+  "candidates_found": 39,
   "diagnostics": {
     "crypto": {
-      "candidates_returned": 25,
-      "not_returned_or_below_early_watch_floor": 13,
+      "candidates_returned": 36,
+      "not_returned_or_below_early_watch_floor": 2,
       "scan_errors": 0,
       "stages": {
         "ACTIONABLE SETUP": 0,
         "BUY": 0,
-        "DEVELOPING SETUP": 1,
-        "EARLY WATCH": 4,
-        "LOW-CONVICTION WATCH": 20
+        "DEVELOPING SETUP": 6,
+        "EARLY WATCH": 12,
+        "LOW-CONVICTION WATCH": 18
       },
       "symbols_requested": 38
     },
     "market_session": {
-      "as_of": "2026-11-17T05:54:05.784381-05:00",
+      "as_of": "2026-11-17T08:32:34.819605-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": true,
       "is_regular_session": false,
       "phase": "PRE-MARKET"
     },
+    "massive_fallback_policy": {
+      "max_requests_per_scan": 3,
+      "note": "Massive fallback is capped to three requests per scan; remaining Yahoo failures use Stooq to avoid serial rate-limit waits.",
+      "spacing_seconds": 12
+    },
     "massive_live_quote_note": "Optional last-trade cross-check is disabled by default. Enable MASSIVE_LIVE_QUOTE_ENABLED=true only if the Massive Stocks plan includes /v2/last/trade; 15-minute delayed data is accepted only when its timestamp is within 45 minutes.",
     "massive_live_quote_status": "disabled_pending_entitlement_check",
     "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history/data or score below the early-watch floor; provider-specific discovery failures are not always attributable to one symbol.",
-    "scan_duration_seconds": 204.15,
+    "scan_duration_seconds": 203.52,
     "stocks": {
       "candidates_returned": 3,
       "not_returned_or_below_early_watch_floor": 27,
@@ -42,6 +47,50 @@
       },
       "symbols_requested": 30
     },
+    "timing_breakdown": {
+      "asset_scans_wall_seconds": 200.65,
+      "market_conditions_seconds": 0.56,
+      "provider_activity": {
+        "market_conditions": {
+          "calls": 1,
+          "failures": 0,
+          "max_seconds": 0.56,
+          "total_seconds": 0.56
+        },
+        "scan_crypto_parallel_wall": {
+          "calls": 1,
+          "failures": 0,
+          "max_seconds": 8.2,
+          "total_seconds": 8.2
+        },
+        "scan_stock_parallel_wall": {
+          "calls": 1,
+          "failures": 0,
+          "max_seconds": 200.65,
+          "total_seconds": 200.65
+        },
+        "yahoo_daily_history": {
+          "calls": 30,
+          "failures": 0,
+          "max_seconds": 3.51,
+          "total_seconds": 17.11
+        },
+        "yahoo_discovery_screen": {
+          "calls": 6,
+          "failures": 6,
+          "max_seconds": 1.81,
+          "total_seconds": 10.19
+        },
+        "yahoo_intraday_history": {
+          "calls": 30,
+          "failures": 0,
+          "max_seconds": 1.09,
+          "total_seconds": 7.46
+        }
+      },
+      "total_seconds": 203.52,
+      "universe_discovery_seconds": 2.31
+    },
     "webull_quote_note": "Webull quote lookups are opt-in because app authorization was observed pending; Yahoo/Stooq scanning continues independently. Enable only after Webull market-data authorization is confirmed.",
     "webull_quote_status": "disabled_pending_authorization"
   },
@@ -50,7 +99,7 @@
     "benchmarks": {
       "BTC-USD": {
         "above_20d_average": false,
-        "five_day_change_pct": -10.09
+        "five_day_change_pct": -9.07
       },
       "IWM": {
         "above_20d_average": false,
@@ -69,5 +118,5 @@
     "regime": "RISK-OFF",
     "score_adjustment": -8
   },
-  "timestamp": "2026-11-17T10:54:05.784351+00:00"
+  "timestamp": "2026-11-17T13:32:34.819572+00:00"
 }
