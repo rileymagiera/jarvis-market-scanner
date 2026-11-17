@@ -4,7 +4,7 @@ import hmac
 import threading
 import time
 from pathlib import Path
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError as FutureTimeoutError
 from datetime import datetime, timezone, timedelta
 from zoneinfo import ZoneInfo
 from typing import Optional
@@ -274,29 +274,49 @@ def stooq_daily_history(symbol: str) -> pd.DataFrame:
     return frame.reset_index(drop=True)
 
 
+STOOQ_QUOTE_CACHE = {}
+STOOQ_QUOTE_CACHE_LOCK = threading.Lock()
+STOOQ_QUOTE_CACHE_TTL_SECONDS = 20
+
+
 def stooq_latest_quote(symbol: str) -> dict:
-    """Fetch an independent Stooq quote for cross-provider validation."""
-    response = HTTP.get(
-        "https://stooq.com/q/l/",
-        params={"s": f"{symbol.lower()}.us", "f": "sd2t2ohlcv", "h": "", "e": "csv"},
-        timeout=12,
-    )
-    response.raise_for_status()
-    quote = pd.read_csv(StringIO(response.text))
-    if quote.empty or not {"Date", "Time", "Close"}.issubset(quote.columns):
-        raise RuntimeError("Stooq quote response incomplete")
-    row = quote.iloc[0]
-    price = safe_float(row.get("Close"))
-    if price <= 0:
-        raise RuntimeError("Stooq quote has no usable price")
-    stamp = pd.Timestamp(f"{row['Date']} {row['Time']}")
-    if stamp.tzinfo is None:
-        stamp = stamp.tz_localize("America/New_York")
-    stamp = stamp.tz_convert("UTC")
-    age = (datetime.now(timezone.utc) - stamp.to_pydatetime()).total_seconds() / 60
-    if age < -5 or age > 60:
-        raise RuntimeError(f"Stooq quote stale: {age:.0f} minutes")
-    return {"price": price, "as_of": stamp.isoformat(), "age_minutes": round(age, 1)}
+    """Fetch an independent Stooq quote with a short timeout and tiny in-process cache."""
+    started = time.monotonic()
+    outcome = "failure"
+    try:
+        cache_key = symbol.upper()
+        with STOOQ_QUOTE_CACHE_LOCK:
+            cached = STOOQ_QUOTE_CACHE.get(cache_key)
+            if cached and (time.monotonic() - cached["cached_at"]) <= STOOQ_QUOTE_CACHE_TTL_SECONDS:
+                outcome = "success"
+                return cached["quote"]
+        response = HTTP.get(
+            "https://stooq.com/q/l/",
+            params={"s": f"{symbol.lower()}.us", "f": "sd2t2ohlcv", "h": "", "e": "csv"},
+            timeout=5,
+        )
+        response.raise_for_status()
+        quote = pd.read_csv(StringIO(response.text))
+        if quote.empty or not {"Date", "Time", "Close"}.issubset(quote.columns):
+            raise RuntimeError("Stooq quote response incomplete")
+        row = quote.iloc[0]
+        price = safe_float(row.get("Close"))
+        if price <= 0:
+            raise RuntimeError("Stooq quote has no usable price")
+        stamp = pd.Timestamp(f"{row['Date']} {row['Time']}")
+        if stamp.tzinfo is None:
+            stamp = stamp.tz_localize("America/New_York")
+        stamp = stamp.tz_convert("UTC")
+        age = (datetime.now(timezone.utc) - stamp.to_pydatetime()).total_seconds() / 60
+        if age < -5 or age > 60:
+            raise RuntimeError(f"Stooq quote stale: {age:.0f} minutes")
+        result = {"price": price, "as_of": stamp.isoformat(), "age_minutes": round(age, 1)}
+        with STOOQ_QUOTE_CACHE_LOCK:
+            STOOQ_QUOTE_CACHE[cache_key] = {"quote": result, "cached_at": time.monotonic()}
+        outcome = "success"
+        return result
+    finally:
+        record_scan_metric("stooq_quote_validation", time.monotonic() - started, outcome)
 
 
 MASSIVE_REQUEST_LOCK = threading.Lock()
@@ -322,6 +342,19 @@ def record_scan_metric(name: str, elapsed: float, outcome: str = "success") -> N
         metric["failures"] += int(outcome != "success")
         metric["total_seconds"] += max(0.0, float(elapsed))
         metric["max_seconds"] = max(metric["max_seconds"], float(elapsed))
+
+
+ENRICHMENT_EXECUTOR = ThreadPoolExecutor(max_workers=4, thread_name_prefix="jarvis-enrichment")
+
+
+def bounded_enrichment_call(callable_, timeout_seconds: float = 8.0):
+    """Keep optional news/profile enrichment from holding a stock scan indefinitely."""
+    future = ENRICHMENT_EXECUTOR.submit(callable_)
+    try:
+        return future.result(timeout=timeout_seconds)
+    except FutureTimeoutError as exc:
+        future.cancel()
+        raise TimeoutError(f"Optional provider enrichment exceeded {timeout_seconds:.0f}s budget") from exc
 
 
 def scan_metrics_snapshot() -> dict:
@@ -423,7 +456,7 @@ def stock_daily_history(symbol: str, ticker=None):
     ticker = ticker or yf.Ticker(symbol)
     started = time.monotonic()
     try:
-        frame = ticker.history(period="3mo", interval="1d", auto_adjust=True)
+        frame = ticker.history(period="3mo", interval="1d", auto_adjust=True, timeout=8)
         if not frame.empty and len(frame.dropna(subset=["Close", "Volume"])) >= 22:
             record_scan_metric("yahoo_daily_history", time.monotonic() - started)
             return frame, "Yahoo Finance"
@@ -458,7 +491,7 @@ def market_conditions() -> dict:
     for symbol in ("SPY", "QQQ", "IWM", "BTC-USD"):
         try:
             try:
-                hist = yf.Ticker(symbol).history(period="2mo", interval="1d", auto_adjust=True)
+                hist = yf.Ticker(symbol).history(period="2mo", interval="1d", auto_adjust=True, timeout=8)
                 if hist.empty or len(hist.dropna(subset=["Close"])) < 21:
                     raise RuntimeError("Yahoo returned insufficient benchmark history")
             except Exception:
@@ -663,9 +696,11 @@ SEC_TICKER_MAP = None
 def sec_recent_filings(symbol: str, days: int = 14) -> list[dict]:
     """Fetch recent material SEC filing metadata; filing contents remain for user review."""
     global SEC_TICKER_MAP
+    started = time.monotonic()
+    outcome = "failure"
     try:
         if SEC_TICKER_MAP is None:
-            mapping_response = HTTP.get("https://www.sec.gov/files/company_tickers.json", headers=SEC_HEADERS, timeout=15)
+            mapping_response = HTTP.get("https://www.sec.gov/files/company_tickers.json", headers=SEC_HEADERS, timeout=5)
             mapping_response.raise_for_status()
             mapping = mapping_response.json()
             SEC_TICKER_MAP = {
@@ -675,11 +710,12 @@ def sec_recent_filings(symbol: str, days: int = 14) -> list[dict]:
             }
         cik = SEC_TICKER_MAP.get(symbol.upper())
         if not cik:
+            outcome = "success"
             return []
         response = HTTP.get(
             f"https://data.sec.gov/submissions/CIK{cik}.json",
             headers=SEC_HEADERS,
-            timeout=15,
+            timeout=5,
         )
         response.raise_for_status()
         recent = (response.json().get("filings", {}).get("recent") or {})
@@ -710,15 +746,18 @@ def sec_recent_filings(symbol: str, days: int = 14) -> list[dict]:
             })
             if len(results) >= 3:
                 break
+        outcome = "success"
         return results
     except Exception:
-        # SEC enrichment is additive and must not interrupt price scanning.
         return []
-
+    finally:
+        record_scan_metric("sec_recent_filings", time.monotonic() - started, outcome)
 
 def stock_news(symbol: str) -> list[dict]:
+    started = time.monotonic()
+    outcome = "failure"
     try:
-        items = yf.Ticker(symbol).news or []
+        items = bounded_enrichment_call(lambda: yf.Ticker(symbol).news, timeout_seconds=8) or []
         headlines = []
         for item in items[:5]:
             node = item.get("content", item)
@@ -733,42 +772,48 @@ def stock_news(symbol: str) -> list[dict]:
                 "url": canonical.get("url") if isinstance(canonical, dict) else None,
                 "published_at": node.get("pubDate"),
             })
+        outcome = "success"
         return (headlines[:3] + sec_recent_filings(symbol))[:6]
     except Exception:
         return sec_recent_filings(symbol)
-
-
+    finally:
+        record_scan_metric("yahoo_stock_news", time.monotonic() - started, outcome)
 
 def stock_fundamental_snapshot(ticker) -> dict:
     """Best-effort public company snapshot; missing fields stay null, never inferred."""
+    started = time.monotonic()
+    outcome = "failure"
     try:
-        info = ticker.get_info() or {}
+        info = bounded_enrichment_call(ticker.get_info, timeout_seconds=8) or {}
+        fields = {
+            "market_cap": info.get("marketCap"),
+            "float_shares": info.get("floatShares"),
+            "shares_outstanding": info.get("sharesOutstanding"),
+            "short_percent_float": info.get("shortPercentOfFloat"),
+            "revenue_growth": info.get("revenueGrowth"),
+            "profit_margin": info.get("profitMargins"),
+            "operating_cashflow": info.get("operatingCashflow"),
+            "total_cash": info.get("totalCash"),
+            "total_debt": info.get("totalDebt"),
+            "next_earnings_timestamp": info.get("earningsTimestamp"),
+            "sector": info.get("sector"),
+            "industry": info.get("industry"),
+        }
+        available = {}
+        for key, value in fields.items():
+            if isinstance(value, np.generic):
+                value = value.item()
+            if isinstance(value, float) and not np.isfinite(value):
+                continue
+            if isinstance(value, (str, int, float, bool)):
+                available[key] = value
+        outcome = "success"
+        return {"status": "partial" if available else "unavailable", "fields": available,
+                "note": "Yahoo Finance company-profile fields; verify against filings because coverage and freshness vary."}
     except Exception:
         return {"status": "unavailable", "note": "Fundamental provider did not return a usable profile."}
-    fields = {
-        "market_cap": info.get("marketCap"),
-        "float_shares": info.get("floatShares"),
-        "shares_outstanding": info.get("sharesOutstanding"),
-        "short_percent_float": info.get("shortPercentOfFloat"),
-        "revenue_growth": info.get("revenueGrowth"),
-        "profit_margin": info.get("profitMargins"),
-        "operating_cashflow": info.get("operatingCashflow"),
-        "total_cash": info.get("totalCash"),
-        "total_debt": info.get("totalDebt"),
-        "next_earnings_timestamp": info.get("earningsTimestamp"),
-        "sector": info.get("sector"),
-        "industry": info.get("industry"),
-    }
-    available = {}
-    for key, value in fields.items():
-        if isinstance(value, np.generic):
-            value = value.item()
-        if isinstance(value, float) and not np.isfinite(value):
-            continue
-        if isinstance(value, (str, int, float, bool)):
-            available[key] = value
-    return {"status": "partial" if available else "unavailable", "fields": available,
-            "note": "Yahoo Finance company-profile fields; verify against filings because coverage and freshness vary."}
+    finally:
+        record_scan_metric("yahoo_fundamentals", time.monotonic() - started, outcome)
 
 WEBULL_QUOTE_CACHE = {}
 WEBULL_QUOTE_CACHE_LOCK = threading.Lock()
@@ -981,7 +1026,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
     intraday_started = time.monotonic()
     try:
         # Stooq is a daily-only backup; do not pretend it supplies intraday confirmation.
-        intraday = ticker.history(period="5d", interval="15m", prepost=True, auto_adjust=True) if price_provider == "Yahoo Finance" else pd.DataFrame()
+        intraday = ticker.history(period="5d", interval="15m", prepost=True, auto_adjust=True, timeout=8) if price_provider == "Yahoo Finance" else pd.DataFrame()
         if price_provider == "Yahoo Finance":
             record_scan_metric("yahoo_intraday_history", time.monotonic() - intraday_started)
         if not intraday.empty and len(intraday) >= 1:
