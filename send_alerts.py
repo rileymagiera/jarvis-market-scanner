@@ -166,6 +166,15 @@ def update_paper_tracker(candidates, now):
             record["price_as_of"] = item.get("price_as_of")
             record["price_freshness"] = item.get("price_freshness")
             record["last_stage"] = item.get("stage", item.get("signal", "WATCH"))
+            record["potential_stage"] = item.get("potential_stage")
+            record["score"] = int(item.get("score") or 0)
+            record["raw_score"] = item.get("raw_score")
+            record["daily_change_pct"] = item.get("daily_change_pct")
+            record["five_day_change_pct"] = item.get("five_day_change_pct")
+            record["stage_reasons"] = (item.get("stage_reasons") or [])[:10]
+            record["stage_signals"] = item.get("stage_signals") or {}
+            record["technical_analysis"] = item.get("technical_analysis") or {}
+            record["score_components"] = item.get("score_components") or {}
             record["last_seen"] = now.isoformat()
             record["unverified_return_pct"] = record.get("return_pct")
             record["return_pct"] = None
