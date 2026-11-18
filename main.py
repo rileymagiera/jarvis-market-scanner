@@ -14,7 +14,7 @@ import pandas as pd
 import requests
 from io import StringIO
 import yfinance as yf
-from early_runner import compute_early_runner_metrics, summarize_crypto_cross_section
+from early_runner import compute_early_runner_metrics, summarize_crypto_cross_section, set_crypto_relative_strength_coverage
 from fastapi import FastAPI, Query, Header, HTTPException, Depends
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.responses import HTMLResponse
@@ -2433,7 +2433,7 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
         crypto["crqs_sector_rank"] = ranked_sectors.index(sector) + 1 if sector in ranked_sectors else None
         crypto["crqs_sector_count"] = len(ranked_sectors)
         crypto["crqs_data_coverage"] = crypto.get("crqs_data_coverage") or {}
-        crypto["crqs_data_coverage"]["relative_strength_vs_btc"] = bool(relative is not None)
+        set_crypto_relative_strength_coverage(crypto["crqs_data_coverage"], relative)
         crypto["crqs_data_coverage"]["sector_activity"] = bool(stats.get("reliable"))
         crypto["crqs_data_coverage"]["sector_activity_sample_size"] = stats.get("sample_size", 0)
         crypto["crqs_data_coverage"]["sector_activity_coverage_pct"] = stats.get("coverage_pct")
