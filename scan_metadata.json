@@ -1,17 +1,17 @@
 {
-  "last_scan_started_at": "2026-11-18T05:00:38.643547+00:00",
+  "last_scan_started_at": "2026-11-18T06:00:39.152859+00:00",
   "last_attempt_status": "completed",
-  "run_id": "44241154206",
-  "run_number": "45",
-  "commit_sha": "0ae4e64479eea501485365f10144346748fa7177",
-  "last_scan_completed_at": "2026-11-18T05:01:04.254735+00:00",
+  "run_id": "44248129849",
+  "run_number": "46",
+  "commit_sha": "b444c2f444e6577fe001d6de3405fb463aa70986",
+  "last_scan_completed_at": "2026-11-18T06:01:02.722730+00:00",
   "last_attempt_error": null,
-  "scan_duration_seconds": 24.74,
+  "scan_duration_seconds": 22.39,
   "scan_errors": 1,
   "execution_environment": "github_actions_runner",
   "scan_audit": {
-    "audit_timestamp": "2026-11-18T05:01:04.254631+00:00",
-    "audit_run_id": "44241154206",
+    "audit_timestamp": "2026-11-18T06:01:02.722625+00:00",
+    "audit_run_id": "44248129849",
     "audit_status": "passed",
     "files_valid_json": [
       "diagnostics",
@@ -21,13 +21,13 @@
       "metadata"
     ],
     "file_validation_errors": [],
-    "candidates_total": 123,
+    "candidates_total": 141,
     "stocks_returned": 107,
     "stocks_price_verified": 107,
     "stocks_price_unverified": 0,
-    "crypto_returned": 16,
-    "crypto_price_verified": 15,
-    "crypto_price_unverified": 1,
+    "crypto_returned": 34,
+    "crypto_price_verified": 31,
+    "crypto_price_unverified": 3,
     "scan_errors": [
       {
         "error": "Yahoo failed (Yahoo returned insufficient daily history); Massive unavailable (MASSIVE_API_KEY is not configured); Stooq failed (Stooq returned incomplete daily history for LYCA)",
@@ -50,9 +50,9 @@
       "ACTIONABLE SETUP": 0,
       "BUY": 0,
       "DATA QUALITY \u2014 WATCH ONLY": 0,
-      "DEVELOPING SETUP": 0,
-      "EARLY WATCH": 1,
-      "LOW-CONVICTION WATCH": 15,
+      "DEVELOPING SETUP": 1,
+      "EARLY WATCH": 5,
+      "LOW-CONVICTION WATCH": 28,
       "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
     },
     "history_sync_reported": true
