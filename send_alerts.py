@@ -351,6 +351,34 @@ def update_paper_tracker(candidates, now):
         # Stock outcome clocks start only from fresh, timestamped live observations.
         # EOD/historical bars and stale prior-session closes are not forward-return samples.
         if observation_eligible:
+            # Rebase legacy stock research once, at the first fresh live quote.
+            # Older EOD/stale samples are retained for audit but excluded from new learning.
+            if asset_type == "stock" and not record.get("session_aware_tracking"):
+                legacy_early = record.get("early_runner_outcomes") or {}
+                legacy_research = record.get("research_outcomes") or {}
+                if legacy_early or legacy_research or record.get("milestones"):
+                    record["legacy_stock_outcomes_quarantined"] = {
+                        "early_runner_outcomes": legacy_early,
+                        "research_outcomes": legacy_research,
+                        "milestones": record.get("milestones") or {},
+                        "quarantined_at": now.isoformat(),
+                        "reason": "Pre-session-aware stock observations may include stale prior-session prices",
+                    }
+                    record["legacy_stock_outcomes_quarantined_flag"] = True
+                record["early_runner_snapshot_at"] = now.isoformat()
+                record["early_runner_entry_price"] = price
+                record["early_runner_initial_feature_snapshot"] = dict(record["research_feature_snapshot"])
+                record["early_runner_initial_signal_matches"] = list(item.get("early_runner_signal_matches") or [])
+                record["early_runner_outcomes"] = {}
+                record["research_tracking_started_at"] = now.isoformat()
+                record["research_entry_price"] = price
+                record["research_peak_price"] = price
+                record["research_trough_price"] = price
+                record["research_max_favorable_pct"] = 0.0
+                record["research_max_adverse_pct"] = 0.0
+                record["research_outcomes"] = {}
+                record["milestones"] = {}
+                record["session_aware_tracking"] = True
             # Freeze a separate feature snapshot at the start of this research cohort.
             # Later scans may update live fields but must not rewrite the features used for outcome attribution.
             if not record.get("early_runner_snapshot_at"):
