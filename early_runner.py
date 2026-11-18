@@ -195,3 +195,58 @@ def compute_early_runner_metrics(daily, intraday, price, fundamentals=None, news
         matches.append("Dilution / financing risk flag")
     result["early_runner_signal_matches"] = matches
     return result
+
+
+
+def summarize_crypto_cross_section(crypto_sectors, pair_map, tickers):
+    """Summarize broad exchange tickers; independent of the scanner's candidate filter."""
+    returns_by_sector = {}
+    expected_by_sector = {}
+    for symbol, sector in crypto_sectors.items():
+        base = str(symbol or "").upper()
+        for suffix in ("USDT", "USD", "USDC"):
+            if base.endswith(suffix):
+                base = base[:-len(suffix)]
+                break
+        base = {"XBT": "BTC", "XDG": "DOGE"}.get(base, base)
+        pair_id = pair_map.get(base)
+        if not pair_id:
+            continue
+        expected_by_sector[sector] = expected_by_sector.get(sector, 0) + 1
+        ticker = (tickers or {}).get(pair_id)
+        if not isinstance(ticker, dict):
+            continue
+        close_rows = ticker.get("c") or []
+        last = _num(close_rows[0] if close_rows else None)
+        opening = _num(ticker.get("o"))
+        if last is None or opening is None or last <= 0 or opening <= 0:
+            continue
+        returns_by_sector.setdefault(sector, []).append((last / opening - 1) * 100)
+
+    btc_pair = pair_map.get("BTC")
+    btc_ticker = (tickers or {}).get(btc_pair) if btc_pair else None
+    btc_close = (btc_ticker or {}).get("c") or []
+    btc_last = _num(btc_close[0] if btc_close else None)
+    btc_open = _num((btc_ticker or {}).get("o"))
+    btc_change = (btc_last / btc_open - 1) * 100 if btc_last and btc_open and btc_last > 0 and btc_open > 0 else None
+
+    stats = {}
+    for sector, expected in expected_by_sector.items():
+        values = returns_by_sector.get(sector, [])
+        average = sum(values) / len(values) if values else None
+        breadth = sum(value > 0 for value in values) / len(values) * 100 if values else None
+        coverage = len(values) / expected if expected else 0
+        stats[sector] = {
+            "avg_24h_change_pct": round(average, 2) if average is not None else None,
+            "positive_breadth_pct": round(breadth, 1) if breadth is not None else None,
+            "sample_size": len(values),
+            "universe_size": expected,
+            "coverage_pct": round(coverage * 100, 1),
+            "reliable": len(values) >= 3 and coverage >= 0.5,
+            "source": "Kraken full-market 24h ticker",
+        }
+    return {
+        "btc_change_pct": round(btc_change, 4) if btc_change is not None else None,
+        "btc_source": "Kraken full-market 24h ticker" if btc_change is not None else None,
+        "sector_stats": stats,
+    }
