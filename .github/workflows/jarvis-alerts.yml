@@ -86,6 +86,8 @@ jobs:
           fi
       - name: Finalize scan attempt status
         if: ${{ always() && inputs.send_test_email != true }}
+        env:
+          JARVIS_STEP_OUTCOME: ${{ steps.jarvis.outcome }}
         run: |
           python - <<'PY'
           import json, os
@@ -98,10 +100,10 @@ jobs:
               metadata = {}
           # A valid scanner response counts as a completed scan even if
           # the later email-delivery step fails.
-          if metadata.get("last_attempt_status") == "running":
+          if os.environ.get("JARVIS_STEP_OUTCOME") != "success":
               metadata["last_attempt_status"] = "failed"
               metadata["last_attempt_failed_at"] = datetime.now(timezone.utc).isoformat()
-              metadata["last_attempt_error"] = "Workflow ended before a valid scanner response was recorded."
+              metadata["last_attempt_error"] = "Jarvis scan or history persistence step failed; inspect the Run Jarvis step logs."
           metadata.setdefault("run_id", os.environ.get("GITHUB_RUN_ID"))
           metadata.setdefault("run_number", os.environ.get("GITHUB_RUN_NUMBER"))
           metadata.setdefault("commit_sha", os.environ.get("GITHUB_SHA"))
