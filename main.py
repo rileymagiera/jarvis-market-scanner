@@ -1961,6 +1961,61 @@ def scan_crypto(symbol: str) -> Optional[dict]:
     }
 
 
+def kraken_crypto_cross_section(crypto_sectors: dict) -> dict:
+    """Fetch a broad Kraken 24h cross-section independent of the scanner candidate filter."""
+    pair_map = kraken_pairs()
+    response = HTTP.get(f"{KRAKEN}/Ticker", timeout=20)
+    response.raise_for_status()
+    payload = response.json()
+    if payload.get("error"):
+        raise RuntimeError("Kraken breadth ticker: " + "; ".join(payload["error"]))
+    tickers = payload.get("result") or {}
+
+    returns_by_sector = {}
+    expected_by_sector = {}
+    for symbol, sector in crypto_sectors.items():
+        base = crypto_base(symbol)
+        pair_id = pair_map.get(base)
+        if not pair_id:
+            continue
+        expected_by_sector[sector] = expected_by_sector.get(sector, 0) + 1
+        ticker = tickers.get(pair_id)
+        if not ticker:
+            continue
+        last = safe_float((ticker.get("c") or [0])[0])
+        opening = safe_float(ticker.get("o"))
+        if last <= 0 or opening <= 0:
+            continue
+        change = (last / opening - 1) * 100
+        returns_by_sector.setdefault(sector, []).append(change)
+
+    btc_pair = pair_map.get("BTC")
+    btc_ticker = tickers.get(btc_pair) if btc_pair else None
+    btc_last = safe_float((btc_ticker.get("c") or [0])[0]) if btc_ticker else 0
+    btc_open = safe_float(btc_ticker.get("o")) if btc_ticker else 0
+    btc_change = (btc_last / btc_open - 1) * 100 if btc_last > 0 and btc_open > 0 else None
+
+    stats = {}
+    for sector, expected in expected_by_sector.items():
+        values = returns_by_sector.get(sector, [])
+        average = float(np.mean(values)) if values else None
+        breadth = sum(value > 0 for value in values) / len(values) * 100 if values else None
+        coverage = len(values) / expected if expected else 0
+        reliable = len(values) >= 3 and coverage >= 0.5
+        stats[sector] = {
+            "avg_24h_change_pct": round(average, 2) if average is not None else None,
+            "positive_breadth_pct": round(breadth, 1) if breadth is not None else None,
+            "sample_size": len(values),
+            "universe_size": expected,
+            "coverage_pct": round(coverage * 100, 1),
+            "reliable": reliable,
+            "source": "Kraken full-market 24h ticker",
+        }
+    return {"btc_change_pct": round(btc_change, 4) if btc_change is not None else None,
+            "btc_source": "Kraken full-market 24h ticker" if btc_change is not None else None,
+            "sector_stats": stats}
+
+
 def run_parallel(symbols: list[str], scanner, workers: int = 6) -> tuple[list, list]:
     results, errors = [], []
     parallel_started = time.monotonic()
@@ -2364,10 +2419,9 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
                        key=lambda x: x["relative_strength_vs_spy"])
     for rank, item in enumerate(ranked_rs, 1):
         item["rs_rank"] = round(rank/len(ranked_rs)*100, 1) if ranked_rs else None
-    # Crypto cross-sectional intelligence: BTC-relative strength and sector rotation.
+    # Crypto cross-sectional intelligence uses Kraken's full ticker universe,
+    # not the filtered list of symbols that happened to qualify as candidates.
     crypto_items = [x for x in results if x.get("asset_type") == "crypto"]
-    btc = next((x for x in crypto_items if x.get("symbol", "").upper().startswith("BTC")), None)
-    btc_change = safe_float(btc.get("daily_change_pct")) if btc else None
     crypto_sectors = {
         "BTCUSDT":"Bitcoin", "ETHUSDT":"Ethereum", "SOLUSDT":"Layer 1", "BNBUSDT":"Layer 1", "AVAXUSDT":"Layer 1", "ADAUSDT":"Layer 1", "DOTUSDT":"Layer 1", "SUIUSDT":"Layer 1", "SEIUSDT":"Layer 1", "APTUSDT":"Layer 1", "NEARUSDT":"Layer 1",
         "ARBUSDT":"Layer 2", "OPUSDT":"Layer 2", "POLUSDT":"Layer 2",
@@ -2376,27 +2430,44 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
         "DOGEUSDT":"Memecoin", "WIFUSDT":"Memecoin", "PEPEUSDT":"Memecoin", "BONKUSDT":"Memecoin",
         "XRPUSDT":"Payments", "TRXUSDT":"Payments", "TONUSDT":"Consumer / Social", "XLMUSDT":"Payments", "ZECUSDT":"Privacy",
     }
-    sector_members = {}
+    try:
+        crypto_cross_section = kraken_crypto_cross_section(crypto_sectors)
+    except Exception as exc:
+        crypto_cross_section = {"btc_change_pct": None, "btc_source": None, "sector_stats": {}}
+        print(f"CRYPTO_CROSS_SECTION unavailable: {type(exc).__name__}: {str(exc)[:180]}", flush=True)
+    btc_change = crypto_cross_section.get("btc_change_pct")
+    sector_stats = crypto_cross_section.get("sector_stats") or {}
+    # Candidate-derived fallback is diagnostic only; it cannot earn sector points.
+    if not sector_stats:
+        fallback_members = {}
+        for candidate in crypto_items:
+            symbol = candidate.get("symbol", "").upper()
+            sector = crypto_sectors.get(symbol, "Other")
+            fallback_members.setdefault(sector, []).append(candidate)
+        for sector, members in fallback_members.items():
+            values = [safe_float(x.get("daily_change_pct"), np.nan) for x in members]
+            values = [v for v in values if np.isfinite(v)]
+            sector_stats[sector] = {
+                "avg_24h_change_pct": round(float(np.mean(values)), 2) if values else None,
+                "positive_breadth_pct": round(sum(v > 0 for v in values) / len(values) * 100, 1) if values else None,
+                "sample_size": len(values), "universe_size": None, "coverage_pct": None,
+                "reliable": False, "source": "candidate-only fallback; insufficient for sector scoring",
+            }
+    ranked_sectors = sorted(
+        (sector for sector, stats in sector_stats.items() if stats.get("reliable")),
+        key=lambda sector: safe_float(sector_stats[sector].get("avg_24h_change_pct"), -999),
+        reverse=True,
+    )
     for crypto in crypto_items:
-        crypto_sector = crypto_sectors.get(crypto.get("symbol", "").upper(), "Other")
-        crypto["crypto_sector"] = crypto_sector
-        sector_members.setdefault(crypto_sector, []).append(crypto)
-    sector_stats = {}
-    for sector, members in sector_members.items():
-        returns = [safe_float(x.get("daily_change_pct"), np.nan) for x in members]
-        returns = [v for v in returns if np.isfinite(v)]
-        avg_return = float(np.mean(returns)) if returns else None
-        positive_breadth = sum(v > 0 for v in returns) / len(returns) if returns else None
-        sector_stats[sector] = {"avg_24h_change_pct": round(avg_return, 2) if avg_return is not None else None, "positive_breadth_pct": round(positive_breadth * 100, 1) if positive_breadth is not None else None, "sample_size": len(returns)}
-    ranked_sectors = sorted(sector_stats, key=lambda s: safe_float(sector_stats[s].get("avg_24h_change_pct"), -999), reverse=True)
-    for crypto in crypto_items:
-        sector = crypto.get("crypto_sector", "Other")
-        stats = sector_stats.get(sector, {})
+        sector = crypto_sectors.get(crypto.get("symbol", "").upper(), "Other")
+        stats = sector_stats.get(sector, {"sample_size": 0, "reliable": False, "source": "no sector benchmark"})
         relative = round(safe_float(crypto.get("daily_change_pct")) - btc_change, 2) if btc_change is not None else None
         rs_points = 15 if relative is not None and relative >= 5 else 10 if relative is not None and relative >= 2 else 5 if relative is not None and relative > 0 else 0
         sector_avg = stats.get("avg_24h_change_pct")
         sector_breadth = stats.get("positive_breadth_pct")
-        sector_points = 10 if sector_avg is not None and sector_avg >= 3 and sector_breadth is not None and sector_breadth >= 60 else 5 if sector_avg is not None and sector_avg > 0 and sector_breadth is not None and sector_breadth >= 50 else 0
+        sector_points = 0
+        if stats.get("reliable"):
+            sector_points = 10 if sector_avg is not None and sector_avg >= 3 and sector_breadth is not None and sector_breadth >= 60 else 5 if sector_avg is not None and sector_avg > 0 and sector_breadth is not None and sector_breadth >= 50 else 0
         components = crypto.get("crqs_components") or {}
         components["relative_strength"] = rs_points
         components["sector_activity"] = sector_points
@@ -2407,7 +2478,9 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
         crypto["crqs_sector_count"] = len(ranked_sectors)
         crypto["crqs_data_coverage"] = crypto.get("crqs_data_coverage") or {}
         crypto["crqs_data_coverage"]["relative_strength_vs_btc"] = bool(relative is not None)
-        crypto["crqs_data_coverage"]["sector_activity"] = bool(stats.get("sample_size", 0) > 0)
+        crypto["crqs_data_coverage"]["sector_activity"] = bool(stats.get("reliable"))
+        crypto["crqs_data_coverage"]["sector_activity_sample_size"] = stats.get("sample_size", 0)
+        crypto["crqs_data_coverage"]["sector_activity_coverage_pct"] = stats.get("coverage_pct")
         crypto["crqs"] = min(74, sum(safe_float(v) for v in components.values()))
         penalty = safe_float(crypto.get("crqs_entry_penalty"))
         crypto["crqs_entry_score"] = max(0, min(74, crypto["crqs"] - penalty))
@@ -2415,9 +2488,14 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
         crypto["crqs_tier"] = "Elite Runner" if score >= 65 else "High Conviction" if score >= 58 else "Developing Runner" if score >= 50 else "Early Discovery" if score >= 42 else "Watch" if score >= 32 else "Low Quality"
         crypto["crqs_features"] = crypto.get("crqs_features") or {}
         crypto["crqs_features"]["btc_24h_change_pct"] = btc_change
+        crypto["crqs_features"]["btc_24h_benchmark_source"] = crypto_cross_section.get("btc_source")
         crypto["crqs_features"]["crypto_sector"] = sector
         crypto["crqs_features"]["sector_avg_24h_change_pct"] = stats.get("avg_24h_change_pct")
         crypto["crqs_features"]["sector_positive_breadth_pct"] = stats.get("positive_breadth_pct")
+        crypto["crqs_features"]["sector_sample_size"] = stats.get("sample_size")
+        crypto["crqs_features"]["sector_universe_size"] = stats.get("universe_size")
+        crypto["crqs_features"]["sector_coverage_pct"] = stats.get("coverage_pct")
+        crypto["crqs_features"]["sector_benchmark_source"] = stats.get("source")
     for item in results:
         matches = []
         if item.get("asset_type") == "stock":
