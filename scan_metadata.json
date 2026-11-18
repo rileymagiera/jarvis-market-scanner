@@ -1,17 +1,17 @@
 {
-  "last_scan_started_at": "2026-11-18T03:34:13.442028+00:00",
+  "last_scan_started_at": "2026-11-18T03:41:39.550327+00:00",
   "last_attempt_status": "completed",
-  "run_id": "44231291792",
-  "run_number": "40",
-  "commit_sha": "ed869fdf72a3726ed44b61349aaea4878fc740da",
-  "last_scan_completed_at": "2026-11-18T03:34:45.923955+00:00",
+  "run_id": "44232139878",
+  "run_number": "41",
+  "commit_sha": "6ede869a3206b1a5e3fd63f73308220240a8cd7c",
+  "last_scan_completed_at": "2026-11-18T03:42:02.526529+00:00",
   "last_attempt_error": null,
-  "scan_duration_seconds": 31.47,
+  "scan_duration_seconds": 20.99,
   "scan_errors": 1,
   "execution_environment": "github_actions_runner",
   "scan_audit": {
-    "audit_timestamp": "2026-11-18T03:34:45.923838+00:00",
-    "audit_run_id": "44231291792",
+    "audit_timestamp": "2026-11-18T03:42:02.526410+00:00",
+    "audit_run_id": "44232139878",
     "audit_status": "passed",
     "files_valid_json": [
       "diagnostics",
@@ -26,8 +26,8 @@
     "stocks_price_verified": 105,
     "stocks_price_unverified": 2,
     "crypto_returned": 15,
-    "crypto_price_verified": 15,
-    "crypto_price_unverified": 0,
+    "crypto_price_verified": 12,
+    "crypto_price_unverified": 3,
     "scan_errors": [
       {
         "error": "Yahoo failed (Yahoo returned insufficient daily history); Massive unavailable (MASSIVE_API_KEY is not configured); Stooq failed (Stooq returned incomplete daily history for LYCA)",
@@ -50,8 +50,8 @@
       "BUY": 0,
       "DEVELOPING SETUP": 0,
       "EARLY WATCH": 0,
-      "LOW-CONVICTION WATCH": 15,
-      "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
+      "LOW-CONVICTION WATCH": 12,
+      "PRICE UNVERIFIED \u2014 WATCH ONLY": 3
     },
     "history_sync_reported": true
   }
