@@ -1,36 +1,48 @@
 {
-  "candidates_found": 82,
+  "candidates_found": 112,
   "diagnostics": {
     "alpaca_quote_status": {
       "candidate_status_counts": {
-        "unavailable": 52
+        "unavailable": 83
       },
       "credentials_configured": true,
       "feed": "iex",
       "provider_activity": {
-        "calls": 98,
+        "calls": 146,
         "error_counts": {
-          "RuntimeError: Alpaca quote has no valid two-sided market": 33,
+          "RuntimeError: Alpaca quote has no valid two-sided market": 53,
+          "RuntimeError: Alpaca quote spread too wide: 10.20%": 1,
           "RuntimeError: Alpaca quote spread too wide: 10.37%": 1,
           "RuntimeError: Alpaca quote spread too wide: 10.40%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 10.48%": 1,
           "RuntimeError: Alpaca quote spread too wide: 10.76%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 10.81%": 1,
           "RuntimeError: Alpaca quote spread too wide: 10.88%": 1,
           "RuntimeError: Alpaca quote spread too wide: 11.16%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 11.25%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 11.33%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 11.49%": 1,
           "RuntimeError: Alpaca quote spread too wide: 11.98%": 1,
           "RuntimeError: Alpaca quote spread too wide: 12.25%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 12.36%": 1,
           "RuntimeError: Alpaca quote spread too wide: 129.61%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 13.35%": 1,
           "RuntimeError: Alpaca quote spread too wide: 13.41%": 1,
           "RuntimeError: Alpaca quote spread too wide: 15.21%": 1,
-          "RuntimeError: Alpaca quote spread too wide: 16.78%": 1,
           "RuntimeError: Alpaca quote spread too wide: 17.15%": 1,
           "RuntimeError: Alpaca quote spread too wide: 17.62%": 1,
           "RuntimeError: Alpaca quote spread too wide: 21.92%": 1,
-          "RuntimeError: Alpaca quote spread too wide: 27.50%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 27.36%": 1,
           "RuntimeError: Alpaca quote spread too wide: 27.82%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 27.84%": 1,
           "RuntimeError: Alpaca quote spread too wide: 27.98%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 28.35%": 1,
           "RuntimeError: Alpaca quote spread too wide: 28.46%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 28.48%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 28.50%": 1,
           "RuntimeError: Alpaca quote spread too wide: 28.81%": 1,
           "RuntimeError: Alpaca quote spread too wide: 28.86%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 29.03%": 1,
           "RuntimeError: Alpaca quote spread too wide: 29.06%": 1,
           "RuntimeError: Alpaca quote spread too wide: 29.21%": 1,
           "RuntimeError: Alpaca quote spread too wide: 29.27%": 1,
@@ -41,60 +53,76 @@
           "RuntimeError: Alpaca quote spread too wide: 29.72%": 1,
           "RuntimeError: Alpaca quote spread too wide: 29.73%": 1,
           "RuntimeError: Alpaca quote spread too wide: 29.81%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 29.91%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 30.05%": 1,
           "RuntimeError: Alpaca quote spread too wide: 30.23%": 1,
           "RuntimeError: Alpaca quote spread too wide: 30.54%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 30.56%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 30.97%": 1,
           "RuntimeError: Alpaca quote spread too wide: 31.31%": 1,
           "RuntimeError: Alpaca quote spread too wide: 31.45%": 1,
           "RuntimeError: Alpaca quote spread too wide: 31.52%": 1,
           "RuntimeError: Alpaca quote spread too wide: 31.85%": 1,
           "RuntimeError: Alpaca quote spread too wide: 31.98%": 1,
           "RuntimeError: Alpaca quote spread too wide: 32.00%": 1,
-          "RuntimeError: Alpaca quote spread too wide: 32.32%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 33.11%": 1,
           "RuntimeError: Alpaca quote spread too wide: 33.51%": 1,
           "RuntimeError: Alpaca quote spread too wide: 33.77%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 34.13%": 1,
           "RuntimeError: Alpaca quote spread too wide: 34.17%": 1,
           "RuntimeError: Alpaca quote spread too wide: 34.23%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 35.34%": 1,
           "RuntimeError: Alpaca quote spread too wide: 35.42%": 1,
           "RuntimeError: Alpaca quote spread too wide: 36.52%": 1,
           "RuntimeError: Alpaca quote spread too wide: 36.84%": 1,
           "RuntimeError: Alpaca quote spread too wide: 37.15%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 37.35%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 37.67%": 1,
           "RuntimeError: Alpaca quote spread too wide: 38.39%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 41.18%": 1,
           "RuntimeError: Alpaca quote spread too wide: 42.49%": 1,
           "RuntimeError: Alpaca quote spread too wide: 43.78%": 1,
           "RuntimeError: Alpaca quote spread too wide: 44.18%": 1,
           "RuntimeError: Alpaca quote spread too wide: 44.82%": 1,
           "RuntimeError: Alpaca quote spread too wide: 46.52%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 46.91%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 5.86%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 58.43%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 59.48%": 1,
           "RuntimeError: Alpaca quote spread too wide: 66.11%": 1,
           "RuntimeError: Alpaca quote spread too wide: 8.76%": 2,
           "RuntimeError: Alpaca quote spread too wide: 9.22%": 1,
           "RuntimeError: Alpaca quote spread too wide: 9.39%": 1,
+          "RuntimeError: Alpaca quote spread too wide: 9.88%": 1,
           "RuntimeError: Alpaca quote spread too wide: 9.93%": 1,
-          "RuntimeError: Alpaca quote stale: 185.1 minutes": 1,
-          "RuntimeError: Alpaca quote stale: 196.4 minutes": 1,
-          "RuntimeError: Alpaca quote stale: 206.5 minutes": 1,
-          "RuntimeError: Alpaca quote stale: 239.2 minutes": 1,
-          "RuntimeError: Alpaca quote stale: 239.4 minutes": 1
+          "RuntimeError: Alpaca quote stale: 196.9 minutes": 1,
+          "RuntimeError: Alpaca quote stale: 208.2 minutes": 1,
+          "RuntimeError: Alpaca quote stale: 218.3 minutes": 1,
+          "RuntimeError: Alpaca quote stale: 251.0 minutes": 1,
+          "RuntimeError: Alpaca quote stale: 251.1 minutes": 1,
+          "RuntimeError: Alpaca quote stale: 251.2 minutes": 1,
+          "RuntimeError: Alpaca quote stale: 251.4 minutes": 1
         },
-        "failures": 98,
-        "max_seconds": 0.12,
-        "total_seconds": 1.79
+        "failures": 146,
+        "max_seconds": 0.58,
+        "total_seconds": 8.01
       }
     },
     "crypto": {
-      "candidates_returned": 30,
-      "not_returned_or_below_early_watch_floor": 8,
+      "candidates_returned": 29,
+      "not_returned_or_below_early_watch_floor": 9,
       "scan_errors": 0,
       "stages": {
         "ACTIONABLE SETUP": 0,
         "BUY": 0,
         "DEVELOPING SETUP": 0,
         "EARLY WATCH": 2,
-        "LOW-CONVICTION WATCH": 28
+        "LOW-CONVICTION WATCH": 27
       },
       "symbols_requested": 38
     },
     "market_session": {
-      "as_of": "2026-11-17T20:00:26.594145-05:00",
+      "as_of": "2026-11-17T20:12:30.109265-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -108,10 +136,10 @@
     "massive_live_quote_note": "Optional last-trade cross-check is disabled by default. Enable MASSIVE_LIVE_QUOTE_ENABLED=true only if the Massive Stocks plan includes /v2/last/trade; 15-minute delayed data is accepted only when its timestamp is within 45 minutes.",
     "massive_live_quote_status": "disabled_pending_entitlement_check",
     "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history/data or score below the early-watch floor; provider-specific discovery failures are not always attributable to one symbol.",
-    "scan_duration_seconds": 13.88,
+    "scan_duration_seconds": 30.46,
     "stocks": {
-      "candidates_returned": 52,
-      "not_returned_or_below_early_watch_floor": 46,
+      "candidates_returned": 83,
+      "not_returned_or_below_early_watch_floor": 63,
       "scan_errors": 1,
       "stages": {
         "ACTIONABLE SETUP": 0,
@@ -122,38 +150,50 @@
         "EARLY WATCH": 0,
         "LATE RUNNER \u2014 CHASE RISK": 0,
         "LOW-CONVICTION WATCH": 0,
-        "PRICE UNVERIFIED \u2014 WATCH ONLY": 52
+        "PRICE UNVERIFIED \u2014 WATCH ONLY": 83
       },
-      "symbols_requested": 99
+      "symbols_requested": 147
     },
     "timing_breakdown": {
-      "asset_scans_wall_seconds": 12.74,
-      "market_conditions_seconds": 0.73,
+      "asset_scans_wall_seconds": 28.72,
+      "market_conditions_seconds": 1.14,
       "provider_activity": {
         "alpaca_quote_validation": {
-          "calls": 98,
+          "calls": 146,
           "error_counts": {
-            "RuntimeError: Alpaca quote has no valid two-sided market": 33,
+            "RuntimeError: Alpaca quote has no valid two-sided market": 53,
+            "RuntimeError: Alpaca quote spread too wide: 10.20%": 1,
             "RuntimeError: Alpaca quote spread too wide: 10.37%": 1,
             "RuntimeError: Alpaca quote spread too wide: 10.40%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 10.48%": 1,
             "RuntimeError: Alpaca quote spread too wide: 10.76%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 10.81%": 1,
             "RuntimeError: Alpaca quote spread too wide: 10.88%": 1,
             "RuntimeError: Alpaca quote spread too wide: 11.16%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 11.25%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 11.33%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 11.49%": 1,
             "RuntimeError: Alpaca quote spread too wide: 11.98%": 1,
             "RuntimeError: Alpaca quote spread too wide: 12.25%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 12.36%": 1,
             "RuntimeError: Alpaca quote spread too wide: 129.61%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 13.35%": 1,
             "RuntimeError: Alpaca quote spread too wide: 13.41%": 1,
             "RuntimeError: Alpaca quote spread too wide: 15.21%": 1,
-            "RuntimeError: Alpaca quote spread too wide: 16.78%": 1,
             "RuntimeError: Alpaca quote spread too wide: 17.15%": 1,
             "RuntimeError: Alpaca quote spread too wide: 17.62%": 1,
             "RuntimeError: Alpaca quote spread too wide: 21.92%": 1,
-            "RuntimeError: Alpaca quote spread too wide: 27.50%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 27.36%": 1,
             "RuntimeError: Alpaca quote spread too wide: 27.82%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 27.84%": 1,
             "RuntimeError: Alpaca quote spread too wide: 27.98%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 28.35%": 1,
             "RuntimeError: Alpaca quote spread too wide: 28.46%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 28.48%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 28.50%": 1,
             "RuntimeError: Alpaca quote spread too wide: 28.81%": 1,
             "RuntimeError: Alpaca quote spread too wide: 28.86%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 29.03%": 1,
             "RuntimeError: Alpaca quote spread too wide: 29.06%": 1,
             "RuntimeError: Alpaca quote spread too wide: 29.21%": 1,
             "RuntimeError: Alpaca quote spread too wide: 29.27%": 1,
@@ -164,50 +204,66 @@
             "RuntimeError: Alpaca quote spread too wide: 29.72%": 1,
             "RuntimeError: Alpaca quote spread too wide: 29.73%": 1,
             "RuntimeError: Alpaca quote spread too wide: 29.81%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 29.91%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 30.05%": 1,
             "RuntimeError: Alpaca quote spread too wide: 30.23%": 1,
             "RuntimeError: Alpaca quote spread too wide: 30.54%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 30.56%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 30.97%": 1,
             "RuntimeError: Alpaca quote spread too wide: 31.31%": 1,
             "RuntimeError: Alpaca quote spread too wide: 31.45%": 1,
             "RuntimeError: Alpaca quote spread too wide: 31.52%": 1,
             "RuntimeError: Alpaca quote spread too wide: 31.85%": 1,
             "RuntimeError: Alpaca quote spread too wide: 31.98%": 1,
             "RuntimeError: Alpaca quote spread too wide: 32.00%": 1,
-            "RuntimeError: Alpaca quote spread too wide: 32.32%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 33.11%": 1,
             "RuntimeError: Alpaca quote spread too wide: 33.51%": 1,
             "RuntimeError: Alpaca quote spread too wide: 33.77%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 34.13%": 1,
             "RuntimeError: Alpaca quote spread too wide: 34.17%": 1,
             "RuntimeError: Alpaca quote spread too wide: 34.23%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 35.34%": 1,
             "RuntimeError: Alpaca quote spread too wide: 35.42%": 1,
             "RuntimeError: Alpaca quote spread too wide: 36.52%": 1,
             "RuntimeError: Alpaca quote spread too wide: 36.84%": 1,
             "RuntimeError: Alpaca quote spread too wide: 37.15%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 37.35%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 37.67%": 1,
             "RuntimeError: Alpaca quote spread too wide: 38.39%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 41.18%": 1,
             "RuntimeError: Alpaca quote spread too wide: 42.49%": 1,
             "RuntimeError: Alpaca quote spread too wide: 43.78%": 1,
             "RuntimeError: Alpaca quote spread too wide: 44.18%": 1,
             "RuntimeError: Alpaca quote spread too wide: 44.82%": 1,
             "RuntimeError: Alpaca quote spread too wide: 46.52%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 46.91%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 5.86%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 58.43%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 59.48%": 1,
             "RuntimeError: Alpaca quote spread too wide: 66.11%": 1,
             "RuntimeError: Alpaca quote spread too wide: 8.76%": 2,
             "RuntimeError: Alpaca quote spread too wide: 9.22%": 1,
             "RuntimeError: Alpaca quote spread too wide: 9.39%": 1,
+            "RuntimeError: Alpaca quote spread too wide: 9.88%": 1,
             "RuntimeError: Alpaca quote spread too wide: 9.93%": 1,
-            "RuntimeError: Alpaca quote stale: 185.1 minutes": 1,
-            "RuntimeError: Alpaca quote stale: 196.4 minutes": 1,
-            "RuntimeError: Alpaca quote stale: 206.5 minutes": 1,
-            "RuntimeError: Alpaca quote stale: 239.2 minutes": 1,
-            "RuntimeError: Alpaca quote stale: 239.4 minutes": 1
+            "RuntimeError: Alpaca quote stale: 196.9 minutes": 1,
+            "RuntimeError: Alpaca quote stale: 208.2 minutes": 1,
+            "RuntimeError: Alpaca quote stale: 218.3 minutes": 1,
+            "RuntimeError: Alpaca quote stale: 251.0 minutes": 1,
+            "RuntimeError: Alpaca quote stale: 251.1 minutes": 1,
+            "RuntimeError: Alpaca quote stale: 251.2 minutes": 1,
+            "RuntimeError: Alpaca quote stale: 251.4 minutes": 1
           },
-          "failures": 98,
-          "max_seconds": 0.12,
-          "total_seconds": 1.79
+          "failures": 146,
+          "max_seconds": 0.58,
+          "total_seconds": 8.01
         },
         "market_conditions": {
           "calls": 1,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.73,
-          "total_seconds": 0.73
+          "max_seconds": 1.14,
+          "total_seconds": 1.14
         },
         "massive_daily_fallback": {
           "calls": 1,
@@ -220,91 +276,91 @@
           "calls": 1,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 3.06,
-          "total_seconds": 3.06
+          "max_seconds": 4.84,
+          "total_seconds": 4.84
         },
         "scan_stock_parallel_wall": {
           "calls": 1,
           "error_counts": {},
           "failures": 1,
-          "max_seconds": 12.74,
-          "total_seconds": 12.74
+          "max_seconds": 28.72,
+          "total_seconds": 28.72
         },
         "sec_recent_filings": {
-          "calls": 52,
+          "calls": 83,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.31,
-          "total_seconds": 2.9
+          "max_seconds": 0.3,
+          "total_seconds": 4.91
         },
         "stooq_daily_fallback": {
           "calls": 1,
           "error_counts": {},
           "failures": 1,
-          "max_seconds": 0.1,
-          "total_seconds": 0.1
+          "max_seconds": 0.13,
+          "total_seconds": 0.13
         },
         "stooq_quote_validation": {
-          "calls": 57,
+          "calls": 84,
           "error_counts": {
             "HTTPError: 404 Client Error: Not Found for url: https://stooq.com/q/l/?s=pltr.us&f=sd2t2ohlcv&h=&e=csv": 1,
             "HTTPError: 404 Client Error: Not Found for url: https://stooq.com/q/l/?s=rklb.us&f=sd2t2ohlcv&h=&e=csv": 1,
             "HTTPError: 404 Client Error: Not Found for url: https://stooq.com/q/l/?s=soun.us&f=sd2t2ohlcv&h=&e=csv": 1,
-            "RuntimeError: Stooq quote circuit open; independent validation unavailable": 54
+            "RuntimeError: Stooq quote circuit open; independent validation unavailable": 81
           },
-          "failures": 57,
-          "max_seconds": 0.56,
-          "total_seconds": 1.59
+          "failures": 84,
+          "max_seconds": 0.62,
+          "total_seconds": 1.77
         },
         "stooq_quote_validation_skipped": {
-          "calls": 54,
+          "calls": 81,
           "error_counts": {
-            "circuit_open: HTTPError: 404 Client Error: Not Found for url: https://stooq.com/q/l/?s=soun.us&f=sd2t2ohlcv&h=&e=csv": 1,
-            "circuit_open: RuntimeError: Stooq quote circuit open; independent validation unavailable": 52,
+            "circuit_open: HTTPError: 404 Client Error: Not Found for url: https://stooq.com/q/l/?s=rklb.us&f=sd2t2ohlcv&h=&e=csv": 1,
+            "circuit_open: RuntimeError: Stooq quote circuit open; independent validation unavailable": 79,
             "circuit_open: per-scan attempt budget reached": 1
           },
-          "failures": 54,
+          "failures": 81,
           "max_seconds": 0.0,
           "total_seconds": 0.0
         },
         "yahoo_daily_history": {
-          "calls": 99,
+          "calls": 147,
           "error_counts": {},
           "failures": 1,
-          "max_seconds": 0.5,
-          "total_seconds": 16.2
+          "max_seconds": 0.91,
+          "total_seconds": 38.74
         },
         "yahoo_discovery_screen": {
           "calls": 6,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.24,
-          "total_seconds": 1.12
+          "max_seconds": 0.41,
+          "total_seconds": 2.07
         },
         "yahoo_fundamentals": {
-          "calls": 28,
+          "calls": 44,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.33,
-          "total_seconds": 5.65
+          "max_seconds": 0.52,
+          "total_seconds": 15.88
         },
         "yahoo_intraday_history": {
-          "calls": 98,
+          "calls": 146,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.15,
-          "total_seconds": 8.78
+          "max_seconds": 0.23,
+          "total_seconds": 19.66
         },
         "yahoo_stock_news": {
-          "calls": 52,
+          "calls": 83,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.89,
-          "total_seconds": 13.65
+          "max_seconds": 1.95,
+          "total_seconds": 27.78
         }
       },
-      "total_seconds": 13.88,
-      "universe_discovery_seconds": 0.41
+      "total_seconds": 30.46,
+      "universe_discovery_seconds": 0.59
     },
     "webull_quote_note": "Webull quote lookups are opt-in because app authorization was observed pending; Yahoo/Stooq scanning continues independently. Enable only after Webull market-data authorization is confirmed.",
     "webull_quote_status": "disabled_pending_authorization"
@@ -319,7 +375,7 @@
     "benchmarks": {
       "BTC-USD": {
         "above_20d_average": false,
-        "five_day_change_pct": -9.33
+        "five_day_change_pct": -9.53
       },
       "IWM": {
         "above_20d_average": false,
@@ -338,5 +394,5 @@
     "regime": "RISK-OFF",
     "score_adjustment": -8
   },
-  "timestamp": "2026-11-18T01:00:26.594098+00:00"
+  "timestamp": "2026-11-18T01:12:30.109210+00:00"
 }
