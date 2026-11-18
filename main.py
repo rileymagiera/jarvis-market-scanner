@@ -2867,6 +2867,8 @@ def research_data():
             completed=meta.get("last_scan_completed_at"); run_id=meta.get("run_id")
             source="temporary_render_fallback"
     records=list(paper.values()) if isinstance(paper,dict) else []
+    # Exclude stock outcomes sampled from EOD, historical, stale, or unknown price data.
+    outcome_records=[r for r in records if r.get("asset_type") != "stock" or (r.get("data_quality") or {}).get("data_type") == "live"]
     fields=("relative_strength_vs_spy","relative_strength_vs_iwm","rs_rank","intraday_rvol_same_time",
             "same_time_relative_volume","anchored_vwap_status","anchored_vwap","opening_range_status","adx","plus_di","minus_di","adx_dmi_status",
             "spread_pct","dollar_volume","liquidity_status","volatility_contraction_status","atr_contraction_pct","base_tightness_pct",
@@ -2890,7 +2892,7 @@ def research_data():
     }
     early_runner_cohorts = {}
     for label, predicate in cohort_rules.items():
-        sample = [r for r in records if isinstance(r, dict)
+        sample = [r for r in outcome_records if isinstance(r, dict)
                   and r.get("price_validation_status") != "unverified"
                   and isinstance(r.get("early_runner_initial_feature_snapshot"), dict)
                   and isinstance((r.get("early_runner_outcomes") or {}).get("5d"), dict)
@@ -2916,11 +2918,11 @@ def research_data():
             "research_field_coverage":{key:sum(1 for r in records if isinstance(r,dict) and r.get(key) is not None) for key in fields},
             "early_runner_cohorts":early_runner_cohorts,
             "research_outcomes_summary":{
-                "tracked":sum(1 for r in records if r.get("research_entry_price")),
-                "mfe_average_pct":round(sum(safe_float(r.get("research_max_favorable_pct")) for r in records if r.get("research_max_favorable_pct") is not None)/max(1,sum(1 for r in records if r.get("research_max_favorable_pct") is not None)),2),
-                "mae_average_pct":round(sum(safe_float(r.get("research_max_adverse_pct")) for r in records if r.get("research_max_adverse_pct") is not None)/max(1,sum(1 for r in records if r.get("research_max_adverse_pct") is not None)),2),
-                "breakout_events":sum(1 for r in records if r.get("research_breakout_at")),
-                "false_breakouts":sum(1 for r in records if r.get("research_breakout_status")=="failed"),
-                "forward_returns":{h:{"observations":sum(1 for r in records if h in (r.get("research_outcomes") or {})),
-                    "average_return_pct":round(sum(safe_float((r.get("research_outcomes") or {}).get(h,{}).get("return_pct")) for r in records if h in (r.get("research_outcomes") or {}))/max(1,sum(1 for r in records if h in (r.get("research_outcomes") or {}))),2)} for h in ("1h","4h","24h","72h","5d","10d")}
+                "tracked":sum(1 for r in outcome_records if r.get("research_entry_price")),
+                "mfe_average_pct":round(sum(safe_float(r.get("research_max_favorable_pct")) for r in outcome_records if r.get("research_max_favorable_pct") is not None)/max(1,sum(1 for r in outcome_records if r.get("research_max_favorable_pct") is not None)),2),
+                "mae_average_pct":round(sum(safe_float(r.get("research_max_adverse_pct")) for r in outcome_records if r.get("research_max_adverse_pct") is not None)/max(1,sum(1 for r in outcome_records if r.get("research_max_adverse_pct") is not None)),2),
+                "breakout_events":sum(1 for r in outcome_records if r.get("research_breakout_at")),
+                "false_breakouts":sum(1 for r in outcome_records if r.get("research_breakout_status")=="failed"),
+                "forward_returns":{h:{"observations":sum(1 for r in outcome_records if h in (r.get("research_outcomes") or {})),
+                    "average_return_pct":round(sum(safe_float((r.get("research_outcomes") or {}).get(h,{}).get("return_pct")) for r in outcome_records if h in (r.get("research_outcomes") or {}))/max(1,sum(1 for r in outcome_records if h in (r.get("research_outcomes") or {}))),2)} for h in ("1h","4h","24h","72h","5d","10d")}
             }}
