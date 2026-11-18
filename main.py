@@ -14,7 +14,7 @@ import pandas as pd
 import requests
 from io import StringIO
 import yfinance as yf
-from early_runner import compute_early_runner_metrics, summarize_crypto_cross_section, set_crypto_relative_strength_coverage
+from early_runner import compute_early_runner_metrics, summarize_crypto_cross_section, set_crypto_relative_strength_coverage, build_data_quality_record
 from fastapi import FastAPI, Query, Header, HTTPException, Depends
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.responses import HTMLResponse
@@ -850,6 +850,17 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
             stage, reasons = "LOW-CONVICTION WATCH", ["Current evidence is below the early-watch threshold."]
         item["stage_reasons"] = reasons
 
+    # Data-quality policy: delayed, EOD, historical or unknown prices remain research-only.
+    data_quality = item.get("data_quality") or {}
+    if not data_quality.get("buy_eligible", False) and stage in ("BUY", "ACTIONABLE SETUP"):
+        item["potential_stage"] = stage
+        item["signal_blocked_reason"] = "Selected price is not confirmed live data for the current session"
+        item["stage_reasons"] = [
+            f"Research grade: {stage}.",
+            f"DATA QUALITY HOLD: {data_quality.get('data_type', 'unknown').upper()} data cannot support a live BUY/actionable signal."
+        ]
+        stage = "DATA QUALITY — WATCH ONLY"
+
     # BUY readiness: record every gating condition without relaxing the signal rules.
     if item.get("asset_type") == "stock":
         buy_gate_checks = {
@@ -863,6 +874,8 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
             "no_risk_flags": not bool(item.get("risk_flags")),
             "not_chase_risk": len(late_signals) < 2,
             "price_verified": bool(item.get("price_validation_passed", False)),
+            "live_data_quality": bool(data_quality.get("buy_eligible", False)),
+            "live_data_quality": bool(data_quality.get("buy_eligible", False)),
         }
         buy_gate_reasons = {
             "score_82": f"Score {adjusted}/100; needs 82",
@@ -875,6 +888,8 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
             "no_risk_flags": "Risk flags present",
             "not_chase_risk": "Late-runner / chase-risk gate triggered",
             "price_verified": item.get("price_validation_note") or "Price not independently verified",
+            "live_data_quality": "Selected price is not confirmed live data for the current session",
+            "live_data_quality": "Selected price is not confirmed live data for the current session",
         }
     else:
         buy_gate_checks = {
@@ -1659,12 +1674,41 @@ def scan_stock(symbol: str) -> Optional[dict]:
         risk_flags.append("Price not independently verified; actionable alerts blocked")
     if any(item.get("form") in {"S-1", "S-3", "424B1", "424B3", "424B5"} for item in news):
         risk_flags.append("Potential offering/registration filing detected; review the SEC document")
+    received_at = now_iso()
+    selected_observed_at = selected_price_as_of or pd.Timestamp(frame.index[-1]).isoformat()
+    selected_age_seconds = None
+    try:
+        selected_age_seconds = (datetime.now(timezone.utc) - pd.Timestamp(selected_observed_at).to_pydatetime().replace(tzinfo=pd.Timestamp(selected_observed_at).tzinfo or timezone.utc)).total_seconds()
+    except (TypeError, ValueError, OverflowError):
+        selected_age_seconds = None
+    data_quality = build_data_quality_record(
+        "stock", selected_data_source, selected_price_freshness, selected_observed_at,
+        received_at, equity_session, validation_passed,
+        alpaca_quote.get("feed") if alpaca_quote else None,
+        selected_age_seconds, validation_note
+    )
+    daily_bar_as_of = pd.Timestamp(frame.index[-1]).isoformat()
+    daily_data_quality = build_data_quality_record(
+        "stock", price_provider, "daily_bar_unverified", daily_bar_as_of,
+        received_at, equity_session, False, None, None,
+        "Daily OHLCV history; not an intraday quote"
+    )
+    intraday_data_quality = build_data_quality_record(
+        "stock", "Yahoo Finance intraday bars", "intraday_bar_unclassified",
+        intraday_as_of.isoformat() if intraday_as_of is not None else None,
+        received_at, equity_session, False, None, None,
+        "Yahoo intraday bar delay entitlement is not independently confirmed"
+    )
     return {
         "symbol": symbol,
         "asset_type": "stock",
         "price": round(price, 4),
         "price_as_of": selected_price_as_of or pd.Timestamp(frame.index[-1]).isoformat(),
         "price_freshness": selected_price_freshness,
+        "data_quality": data_quality,
+        "daily_data_quality": daily_data_quality,
+        "intraday_data_quality": intraday_data_quality,
+        "price_age_seconds": selected_age_seconds,
         "price_validation_passed": validation_passed,
         "price_validation_note": validation_note,
         "secondary_price": round(secondary_quote["price"], 4) if secondary_quote else None,
@@ -1928,12 +1972,37 @@ def scan_crypto(symbol: str) -> Optional[dict]:
     if score < 15:
         return None
 
+    received_at = now_iso()
+    data_quality = build_data_quality_record(
+        "crypto", provider, ticker.get("price_freshness"),
+        ticker.get("price_as_of"), received_at, {"phase": "24/7 CRYPTO"},
+        bool(ticker.get("price_validation_passed")), None,
+        ticker.get("price_age_seconds"), ticker.get("price_validation_note")
+    )
+    latest_closed_bar_at = None
+    try:
+        latest_closed_bar_at = datetime.fromtimestamp(float(bars[-2][0]), timezone.utc).isoformat()
+    except (IndexError, TypeError, ValueError, OverflowError):
+        pass
+    hourly_data_quality = {
+        "data_source": provider + " hourly OHLCV",
+        "data_type": "historical" if latest_closed_bar_at else "unknown",
+        "observed_at": latest_closed_bar_at,
+        "received_at": received_at,
+        "age_seconds": round((datetime.now(timezone.utc) - datetime.fromisoformat(latest_closed_bar_at)).total_seconds(), 1) if latest_closed_bar_at else None,
+        "session": "24/7 CRYPTO",
+        "verification_status": "verified" if latest_closed_bar_at else "unknown",
+        "buy_eligible": False,
+        "note": "Closed hourly candles are historical indicator inputs, not a live entry quote."
+    }
     return {
         "symbol": symbol,
         "asset_type": "crypto",
         "price": price,
         "price_as_of": ticker.get("price_as_of"),
         "price_freshness": "exchange_timestamped_ticker" if ticker.get("price_validation_passed") else "timestamp_missing_or_stale",
+        "data_quality": data_quality,
+        "hourly_data_quality": hourly_data_quality,
         "price_validation_passed": bool(ticker.get("price_validation_passed")),
         "price_validation_note": ticker.get("price_validation_note") or "No exchange timestamp validation available",
         "price_validation_method": ticker.get("price_validation_method"),
@@ -2490,14 +2559,14 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
                 "candidates_returned": len(stock_results),
                 "scan_errors": len(stock_errors),
                 "not_returned_or_below_early_watch_floor": max(0, len(stock_symbols) - len(stock_results) - len(stock_errors)),
-                "stages": {stage: sum(1 for x in stock_results if x.get("stage") == stage) for stage in ("BUY", "ACTIONABLE SETUP", "DEVELOPING RUNNER", "DEVELOPING SETUP", "EARLY SETUP", "EARLY WATCH", "LATE RUNNER — CHASE RISK", "LOW-CONVICTION WATCH", "PRICE UNVERIFIED — WATCH ONLY")},
+                "stages": {stage: sum(1 for x in stock_results if x.get("stage") == stage) for stage in ("BUY", "ACTIONABLE SETUP", "DEVELOPING RUNNER", "DEVELOPING SETUP", "EARLY SETUP", "EARLY WATCH", "LATE RUNNER — CHASE RISK", "LOW-CONVICTION WATCH", "PRICE UNVERIFIED — WATCH ONLY", "DATA QUALITY — WATCH ONLY")},
             },
             "crypto": {
                 "symbols_requested": len(crypto_symbols),
                 "candidates_returned": len(crypto_results),
                 "scan_errors": len(crypto_errors),
                 "not_returned_or_below_early_watch_floor": max(0, len(crypto_symbols) - len(crypto_results) - len(crypto_errors)),
-                    "stages": {stage: sum(1 for x in crypto_results if x.get("stage") == stage) for stage in ("BUY", "ACTIONABLE SETUP", "DEVELOPING SETUP", "EARLY WATCH", "LOW-CONVICTION WATCH", "PRICE UNVERIFIED — WATCH ONLY")},
+                    "stages": {stage: sum(1 for x in crypto_results if x.get("stage") == stage) for stage in ("BUY", "ACTIONABLE SETUP", "DEVELOPING SETUP", "EARLY WATCH", "LOW-CONVICTION WATCH", "PRICE UNVERIFIED — WATCH ONLY", "DATA QUALITY — WATCH ONLY")},
                 "price_validation": {
                     "verified": sum(1 for x in crypto_results if x.get("price_validation_passed")),
                     "unverified": sum(1 for x in crypto_results if not x.get("price_validation_passed")),
