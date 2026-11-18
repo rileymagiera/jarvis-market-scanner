@@ -125,6 +125,11 @@
     "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
     "score": 85
   },
+  "stock:LVWR": {
+    "alerted_at": "2026-11-18T12:44:02.755330+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 63
+  },
   "stock:MMLP": {
     "alerted_at": "2026-11-18T12:01:02.292956+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
