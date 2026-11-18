@@ -14,7 +14,7 @@ import pandas as pd
 import requests
 from io import StringIO
 import yfinance as yf
-from early_runner import compute_early_runner_metrics
+from early_runner import compute_early_runner_metrics, summarize_crypto_cross_section
 from fastapi import FastAPI, Query, Header, HTTPException, Depends
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.responses import HTMLResponse
@@ -1962,58 +1962,14 @@ def scan_crypto(symbol: str) -> Optional[dict]:
 
 
 def kraken_crypto_cross_section(crypto_sectors: dict) -> dict:
-    """Fetch a broad Kraken 24h cross-section independent of the scanner candidate filter."""
+    """Fetch broad Kraken 24h tickers, then summarize independently of candidate selection."""
     pair_map = kraken_pairs()
     response = HTTP.get(f"{KRAKEN}/Ticker", timeout=20)
     response.raise_for_status()
     payload = response.json()
     if payload.get("error"):
         raise RuntimeError("Kraken breadth ticker: " + "; ".join(payload["error"]))
-    tickers = payload.get("result") or {}
-
-    returns_by_sector = {}
-    expected_by_sector = {}
-    for symbol, sector in crypto_sectors.items():
-        base = crypto_base(symbol)
-        pair_id = pair_map.get(base)
-        if not pair_id:
-            continue
-        expected_by_sector[sector] = expected_by_sector.get(sector, 0) + 1
-        ticker = tickers.get(pair_id)
-        if not ticker:
-            continue
-        last = safe_float((ticker.get("c") or [0])[0])
-        opening = safe_float(ticker.get("o"))
-        if last <= 0 or opening <= 0:
-            continue
-        change = (last / opening - 1) * 100
-        returns_by_sector.setdefault(sector, []).append(change)
-
-    btc_pair = pair_map.get("BTC")
-    btc_ticker = tickers.get(btc_pair) if btc_pair else None
-    btc_last = safe_float((btc_ticker.get("c") or [0])[0]) if btc_ticker else 0
-    btc_open = safe_float(btc_ticker.get("o")) if btc_ticker else 0
-    btc_change = (btc_last / btc_open - 1) * 100 if btc_last > 0 and btc_open > 0 else None
-
-    stats = {}
-    for sector, expected in expected_by_sector.items():
-        values = returns_by_sector.get(sector, [])
-        average = float(np.mean(values)) if values else None
-        breadth = sum(value > 0 for value in values) / len(values) * 100 if values else None
-        coverage = len(values) / expected if expected else 0
-        reliable = len(values) >= 3 and coverage >= 0.5
-        stats[sector] = {
-            "avg_24h_change_pct": round(average, 2) if average is not None else None,
-            "positive_breadth_pct": round(breadth, 1) if breadth is not None else None,
-            "sample_size": len(values),
-            "universe_size": expected,
-            "coverage_pct": round(coverage * 100, 1),
-            "reliable": reliable,
-            "source": "Kraken full-market 24h ticker",
-        }
-    return {"btc_change_pct": round(btc_change, 4) if btc_change is not None else None,
-            "btc_source": "Kraken full-market 24h ticker" if btc_change is not None else None,
-            "sector_stats": stats}
+    return summarize_crypto_cross_section(crypto_sectors, pair_map, payload.get("result") or {})
 
 
 def run_parallel(symbols: list[str], scanner, workers: int = 6) -> tuple[list, list]:
