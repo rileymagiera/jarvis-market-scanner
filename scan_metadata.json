@@ -1,17 +1,17 @@
 {
-  "last_scan_started_at": "2026-11-18T04:00:41.474093+00:00",
+  "last_scan_started_at": "2026-11-18T05:00:38.643547+00:00",
   "last_attempt_status": "completed",
-  "run_id": "44234268030",
-  "run_number": "44",
-  "commit_sha": "bcc3a153a154f2a1ff5c14560bb4f97180dd2063",
-  "last_scan_completed_at": "2026-11-18T04:01:05.712272+00:00",
+  "run_id": "44241154206",
+  "run_number": "45",
+  "commit_sha": "0ae4e64479eea501485365f10144346748fa7177",
+  "last_scan_completed_at": "2026-11-18T05:01:04.254735+00:00",
   "last_attempt_error": null,
-  "scan_duration_seconds": 23.21,
+  "scan_duration_seconds": 24.74,
   "scan_errors": 1,
   "execution_environment": "github_actions_runner",
   "scan_audit": {
-    "audit_timestamp": "2026-11-18T04:01:05.712120+00:00",
-    "audit_run_id": "44234268030",
+    "audit_timestamp": "2026-11-18T05:01:04.254631+00:00",
+    "audit_run_id": "44241154206",
     "audit_status": "passed",
     "files_valid_json": [
       "diagnostics",
@@ -21,13 +21,13 @@
       "metadata"
     ],
     "file_validation_errors": [],
-    "candidates_total": 131,
+    "candidates_total": 123,
     "stocks_returned": 107,
-    "stocks_price_verified": 105,
-    "stocks_price_unverified": 2,
-    "crypto_returned": 24,
-    "crypto_price_verified": 20,
-    "crypto_price_unverified": 4,
+    "stocks_price_verified": 107,
+    "stocks_price_unverified": 0,
+    "crypto_returned": 16,
+    "crypto_price_verified": 15,
+    "crypto_price_unverified": 1,
     "scan_errors": [
       {
         "error": "Yahoo failed (Yahoo returned insufficient daily history); Massive unavailable (MASSIVE_API_KEY is not configured); Stooq failed (Stooq returned incomplete daily history for LYCA)",
@@ -37,21 +37,23 @@
     "stock_stage_counts": {
       "ACTIONABLE SETUP": 0,
       "BUY": 0,
+      "DATA QUALITY \u2014 WATCH ONLY": 0,
       "DEVELOPING RUNNER": 16,
       "DEVELOPING SETUP": 0,
-      "EARLY SETUP": 26,
+      "EARLY SETUP": 27,
       "EARLY WATCH": 8,
       "LATE RUNNER \u2014 CHASE RISK": 8,
-      "LOW-CONVICTION WATCH": 47,
-      "PRICE UNVERIFIED \u2014 WATCH ONLY": 2
+      "LOW-CONVICTION WATCH": 48,
+      "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
     },
     "crypto_stage_counts": {
       "ACTIONABLE SETUP": 0,
       "BUY": 0,
-      "DEVELOPING SETUP": 1,
+      "DATA QUALITY \u2014 WATCH ONLY": 0,
+      "DEVELOPING SETUP": 0,
       "EARLY WATCH": 1,
-      "LOW-CONVICTION WATCH": 18,
-      "PRICE UNVERIFIED \u2014 WATCH ONLY": 4
+      "LOW-CONVICTION WATCH": 15,
+      "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
     },
     "history_sync_reported": true
   }
