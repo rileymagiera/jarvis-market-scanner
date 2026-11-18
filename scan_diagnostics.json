@@ -1,14 +1,14 @@
 {
-  "candidates_found": 122,
+  "candidates_found": 110,
   "diagnostics": {
     "alpaca_quote_status": {
       "candidate_status_counts": {
-        "unavailable": 84
+        "unavailable": 73
       },
       "credentials_configured": true,
       "feed": "iex",
       "provider_activity": {
-        "calls": 98,
+        "calls": 97,
         "error_counts": {
           "RuntimeError: Alpaca quote has no valid two-sided market": 34,
           "RuntimeError: Alpaca quote spread too wide: 10.37%": 1,
@@ -64,36 +64,36 @@
           "RuntimeError: Alpaca quote spread too wide: 44.82%": 1,
           "RuntimeError: Alpaca quote spread too wide: 46.52%": 1,
           "RuntimeError: Alpaca quote spread too wide: 66.11%": 1,
-          "RuntimeError: Alpaca quote spread too wide: 8.76%": 2,
+          "RuntimeError: Alpaca quote spread too wide: 8.76%": 1,
           "RuntimeError: Alpaca quote spread too wide: 9.22%": 1,
           "RuntimeError: Alpaca quote spread too wide: 9.39%": 1,
           "RuntimeError: Alpaca quote spread too wide: 9.93%": 1,
-          "RuntimeError: Alpaca quote stale: 103.4 minutes": 1,
-          "RuntimeError: Alpaca quote stale: 113.5 minutes": 1,
-          "RuntimeError: Alpaca quote stale: 146.2 minutes": 1,
-          "RuntimeError: Alpaca quote stale: 146.4 minutes": 1,
-          "RuntimeError: Alpaca quote stale: 92.0 minutes": 1
+          "RuntimeError: Alpaca quote stale: 125.5 minutes": 1,
+          "RuntimeError: Alpaca quote stale: 136.8 minutes": 1,
+          "RuntimeError: Alpaca quote stale: 146.9 minutes": 1,
+          "RuntimeError: Alpaca quote stale: 179.6 minutes": 1,
+          "RuntimeError: Alpaca quote stale: 179.8 minutes": 1
         },
-        "failures": 98,
-        "max_seconds": 0.16,
-        "total_seconds": 4.73
+        "failures": 97,
+        "max_seconds": 0.13,
+        "total_seconds": 3.63
       }
     },
     "crypto": {
-      "candidates_returned": 38,
-      "not_returned_or_below_early_watch_floor": 0,
+      "candidates_returned": 37,
+      "not_returned_or_below_early_watch_floor": 1,
       "scan_errors": 0,
       "stages": {
         "ACTIONABLE SETUP": 0,
         "BUY": 0,
-        "DEVELOPING SETUP": 3,
-        "EARLY WATCH": 8,
-        "LOW-CONVICTION WATCH": 27
+        "DEVELOPING SETUP": 8,
+        "EARLY WATCH": 17,
+        "LOW-CONVICTION WATCH": 12
       },
       "symbols_requested": 38
     },
     "market_session": {
-      "as_of": "2026-11-17T18:27:31.868129-05:00",
+      "as_of": "2026-11-17T19:00:52.529559-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": true,
       "is_regular_session": false,
@@ -107,11 +107,11 @@
     "massive_live_quote_note": "Optional last-trade cross-check is disabled by default. Enable MASSIVE_LIVE_QUOTE_ENABLED=true only if the Massive Stocks plan includes /v2/last/trade; 15-minute delayed data is accepted only when its timestamp is within 45 minutes.",
     "massive_live_quote_status": "disabled_pending_entitlement_check",
     "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history/data or score below the early-watch floor; provider-specific discovery failures are not always attributable to one symbol.",
-    "scan_duration_seconds": 23.66,
+    "scan_duration_seconds": 17.75,
     "stocks": {
-      "candidates_returned": 84,
-      "not_returned_or_below_early_watch_floor": 14,
-      "scan_errors": 1,
+      "candidates_returned": 73,
+      "not_returned_or_below_early_watch_floor": 24,
+      "scan_errors": 2,
       "stages": {
         "ACTIONABLE SETUP": 0,
         "BUY": 0,
@@ -121,16 +121,16 @@
         "EARLY WATCH": 0,
         "LATE RUNNER \u2014 CHASE RISK": 0,
         "LOW-CONVICTION WATCH": 0,
-        "PRICE UNVERIFIED \u2014 WATCH ONLY": 84
+        "PRICE UNVERIFIED \u2014 WATCH ONLY": 73
       },
       "symbols_requested": 99
     },
     "timing_breakdown": {
-      "asset_scans_wall_seconds": 22.02,
-      "market_conditions_seconds": 1.02,
+      "asset_scans_wall_seconds": 16.57,
+      "market_conditions_seconds": 0.61,
       "provider_activity": {
         "alpaca_quote_validation": {
-          "calls": 98,
+          "calls": 97,
           "error_counts": {
             "RuntimeError: Alpaca quote has no valid two-sided market": 34,
             "RuntimeError: Alpaca quote spread too wide: 10.37%": 1,
@@ -186,31 +186,31 @@
             "RuntimeError: Alpaca quote spread too wide: 44.82%": 1,
             "RuntimeError: Alpaca quote spread too wide: 46.52%": 1,
             "RuntimeError: Alpaca quote spread too wide: 66.11%": 1,
-            "RuntimeError: Alpaca quote spread too wide: 8.76%": 2,
+            "RuntimeError: Alpaca quote spread too wide: 8.76%": 1,
             "RuntimeError: Alpaca quote spread too wide: 9.22%": 1,
             "RuntimeError: Alpaca quote spread too wide: 9.39%": 1,
             "RuntimeError: Alpaca quote spread too wide: 9.93%": 1,
-            "RuntimeError: Alpaca quote stale: 103.4 minutes": 1,
-            "RuntimeError: Alpaca quote stale: 113.5 minutes": 1,
-            "RuntimeError: Alpaca quote stale: 146.2 minutes": 1,
-            "RuntimeError: Alpaca quote stale: 146.4 minutes": 1,
-            "RuntimeError: Alpaca quote stale: 92.0 minutes": 1
+            "RuntimeError: Alpaca quote stale: 125.5 minutes": 1,
+            "RuntimeError: Alpaca quote stale: 136.8 minutes": 1,
+            "RuntimeError: Alpaca quote stale: 146.9 minutes": 1,
+            "RuntimeError: Alpaca quote stale: 179.6 minutes": 1,
+            "RuntimeError: Alpaca quote stale: 179.8 minutes": 1
           },
-          "failures": 98,
-          "max_seconds": 0.16,
-          "total_seconds": 4.73
+          "failures": 97,
+          "max_seconds": 0.13,
+          "total_seconds": 3.63
         },
         "market_conditions": {
           "calls": 1,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 1.02,
-          "total_seconds": 1.02
+          "max_seconds": 0.61,
+          "total_seconds": 0.61
         },
         "massive_daily_fallback": {
-          "calls": 1,
+          "calls": 2,
           "error_counts": {},
-          "failures": 1,
+          "failures": 2,
           "max_seconds": 0.0,
           "total_seconds": 0.0
         },
@@ -218,48 +218,49 @@
           "calls": 1,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 5.04,
-          "total_seconds": 5.04
+          "max_seconds": 5.47,
+          "total_seconds": 5.47
         },
         "scan_stock_parallel_wall": {
           "calls": 1,
           "error_counts": {},
           "failures": 1,
-          "max_seconds": 22.02,
-          "total_seconds": 22.02
+          "max_seconds": 16.57,
+          "total_seconds": 16.57
         },
         "sec_recent_filings": {
-          "calls": 84,
+          "calls": 73,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.26,
-          "total_seconds": 5.1
+          "max_seconds": 0.34,
+          "total_seconds": 4.66
         },
         "stooq_daily_fallback": {
-          "calls": 1,
+          "calls": 2,
           "error_counts": {},
-          "failures": 1,
-          "max_seconds": 0.12,
-          "total_seconds": 0.12
+          "failures": 2,
+          "max_seconds": 0.55,
+          "total_seconds": 0.67
         },
         "stooq_quote_validation": {
           "calls": 54,
           "error_counts": {
             "HTTPError: 404 Client Error: Not Found for url: https://stooq.com/q/l/?s=asts.us&f=sd2t2ohlcv&h=&e=csv": 1,
-            "HTTPError: 404 Client Error: Not Found for url: https://stooq.com/q/l/?s=pltr.us&f=sd2t2ohlcv&h=&e=csv": 1,
+            "HTTPError: 404 Client Error: Not Found for url: https://stooq.com/q/l/?s=rklb.us&f=sd2t2ohlcv&h=&e=csv": 1,
             "HTTPError: 404 Client Error: Not Found for url: https://stooq.com/q/l/?s=soun.us&f=sd2t2ohlcv&h=&e=csv": 1,
             "RuntimeError: Stooq quote circuit open; independent validation unavailable": 51
           },
           "failures": 54,
-          "max_seconds": 0.66,
-          "total_seconds": 1.91
+          "max_seconds": 0.57,
+          "total_seconds": 1.09
         },
         "stooq_quote_validation_skipped": {
           "calls": 51,
           "error_counts": {
-            "circuit_open: HTTPError: 404 Client Error: Not Found for url: https://stooq.com/q/l/?s=pltr.us&f=sd2t2ohlcv&h=&e=csv": 1,
-            "circuit_open: RuntimeError: Stooq quote circuit open; independent validation unavailable": 49,
-            "circuit_open: per-scan attempt budget reached": 1
+            "circuit_open: HTTPError: 404 Client Error: Not Found for url: https://stooq.com/q/l/?s=asts.us&f=sd2t2ohlcv&h=&e=csv": 1,
+            "circuit_open: HTTPError: 404 Client Error: Not Found for url: https://stooq.com/q/l/?s=rklb.us&f=sd2t2ohlcv&h=&e=csv": 1,
+            "circuit_open: HTTPError: 404 Client Error: Not Found for url: https://stooq.com/q/l/?s=soun.us&f=sd2t2ohlcv&h=&e=csv": 1,
+            "circuit_open: RuntimeError: Stooq quote circuit open; independent validation unavailable": 48
           },
           "failures": 51,
           "max_seconds": 0.0,
@@ -268,46 +269,50 @@
         "yahoo_daily_history": {
           "calls": 99,
           "error_counts": {},
-          "failures": 1,
-          "max_seconds": 0.88,
-          "total_seconds": 25.63
+          "failures": 2,
+          "max_seconds": 0.48,
+          "total_seconds": 16.42
         },
         "yahoo_discovery_screen": {
           "calls": 6,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.49,
-          "total_seconds": 2.28
+          "max_seconds": 0.3,
+          "total_seconds": 1.26
         },
         "yahoo_fundamentals": {
-          "calls": 51,
+          "calls": 52,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.52,
-          "total_seconds": 17.62
+          "max_seconds": 0.39,
+          "total_seconds": 11.4
         },
         "yahoo_intraday_history": {
-          "calls": 98,
+          "calls": 97,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.23,
-          "total_seconds": 12.22
+          "max_seconds": 0.17,
+          "total_seconds": 8.59
         },
         "yahoo_stock_news": {
-          "calls": 84,
+          "calls": 73,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.66,
-          "total_seconds": 24.11
+          "max_seconds": 0.65,
+          "total_seconds": 20.95
         }
       },
-      "total_seconds": 23.66,
-      "universe_discovery_seconds": 0.63
+      "total_seconds": 17.75,
+      "universe_discovery_seconds": 0.56
     },
     "webull_quote_note": "Webull quote lookups are opt-in because app authorization was observed pending; Yahoo/Stooq scanning continues independently. Enable only after Webull market-data authorization is confirmed.",
     "webull_quote_status": "disabled_pending_authorization"
   },
   "errors": [
+    {
+      "error": "Yahoo failed (database is locked); Massive unavailable (MASSIVE_API_KEY is not configured); Stooq failed (Stooq returned incomplete daily history for PLTR)",
+      "symbol": "PLTR"
+    },
     {
       "error": "Yahoo failed (Yahoo returned insufficient daily history); Massive unavailable (MASSIVE_API_KEY is not configured); Stooq failed (Stooq returned incomplete daily history for LYCA)",
       "symbol": "LYCA"
@@ -317,7 +322,7 @@
     "benchmarks": {
       "BTC-USD": {
         "above_20d_average": false,
-        "five_day_change_pct": -8.95
+        "five_day_change_pct": -9.09
       },
       "IWM": {
         "above_20d_average": false,
@@ -336,5 +341,5 @@
     "regime": "RISK-OFF",
     "score_adjustment": -8
   },
-  "timestamp": "2026-11-17T23:27:31.868053+00:00"
+  "timestamp": "2026-11-18T00:00:52.529510+00:00"
 }
