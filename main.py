@@ -2179,6 +2179,33 @@ def github_history_state() -> dict:
     return result
 
 
+
+def latest_history_state() -> dict:
+    """Choose the newest complete history snapshot; GitHub remains the durable fallback."""
+    durable = github_history_state()
+    try:
+        snapshot = json.loads(HISTORY_SNAPSHOT.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        snapshot = {}
+    if not (isinstance(snapshot.get("paper_tracker"), dict) and isinstance(snapshot.get("lifetime"), dict)):
+        return durable
+    def stamp(value):
+        try:
+            parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+            return parsed.replace(tzinfo=timezone.utc) if parsed.tzinfo is None else parsed.astimezone(timezone.utc)
+        except (TypeError, ValueError, OverflowError):
+            return None
+    snapshot_time = stamp(snapshot.get("last_scan_completed_at") or snapshot.get("synced_at"))
+    durable_time = stamp(durable.get("last_scan_completed_at") or durable.get("synced_at")) if durable else None
+    if durable and (snapshot_time is None or (durable_time is not None and durable_time >= snapshot_time)):
+        return durable
+    return {"paper_tracker": snapshot["paper_tracker"], "lifetime": snapshot["lifetime"],
+            "buy_signals": snapshot.get("buy_signals", []),
+            "last_scan_completed_at": snapshot.get("last_scan_completed_at"),
+            "scan_run_id": snapshot.get("scan_run_id"), "synced_at": snapshot.get("synced_at"),
+            "history_source": "newest_render_snapshot"}
+
+
 @app.get("/history", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
 def history_page():
     return HTMLResponse("""<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Jarvis History</title><style>
@@ -2381,26 +2408,19 @@ fetch('/history/data?refresh='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)
  
 @app.get("/history/data", dependencies=[Depends(require_site_login)])
 def history_data():
-    durable = github_history_state()
-    if durable:
-        return {"last_scan_completed_at":durable.get("last_scan_completed_at"),
-                "scan_run_id":durable.get("scan_run_id"),"paper_tracker":durable["paper_tracker"],
-                "lifetime":durable["lifetime"],"buy_signals":durable["buy_signals"],"history_source":"github"}
+    state = latest_history_state()
+    if state:
+        return {"last_scan_completed_at": state.get("last_scan_completed_at"),
+                "scan_run_id": state.get("scan_run_id"), "paper_tracker": state.get("paper_tracker", {}),
+                "lifetime": state.get("lifetime", {}), "buy_signals": state.get("buy_signals", []),
+                "history_source": state.get("history_source", "github")}
     def read_state(path):
         try: return json.loads(path.read_text(encoding="utf-8"))
-        except (OSError,json.JSONDecodeError): return {}
-    snapshot=read_state(HISTORY_SNAPSHOT)
-    if isinstance(snapshot.get("paper_tracker"),dict) and isinstance(snapshot.get("lifetime"),dict):
-        paper=snapshot["paper_tracker"]; lifetime=snapshot["lifetime"]; buys=snapshot.get("buy_signals",[])
-        completed=snapshot.get("last_scan_completed_at"); run_id=snapshot.get("scan_run_id")
-        source="temporary_render_snapshot"
-    else:
-        paper=read_state(PAPER_STATE); lifetime=read_state(PAPER_LIFETIME_STATE)
-        buys=read_state(BUY_SIGNAL_STATE).get("signals",[])
-        meta=read_state(APP_DIR/"scan_metadata.json"); completed=meta.get("last_scan_completed_at")
-        run_id=meta.get("run_id"); source="temporary_render_fallback"
-    return {"last_scan_completed_at":completed,"scan_run_id":run_id,"paper_tracker":paper,
-            "lifetime":lifetime,"buy_signals":buys,"history_source":source}
+        except (OSError, json.JSONDecodeError): return {}
+    paper=read_state(PAPER_STATE); lifetime=read_state(PAPER_LIFETIME_STATE)
+    buys=read_state(BUY_SIGNAL_STATE).get("signals", []); meta=read_state(APP_DIR/"scan_metadata.json")
+    return {"last_scan_completed_at": meta.get("last_scan_completed_at"), "scan_run_id": meta.get("run_id"),
+            "paper_tracker": paper, "lifetime": lifetime, "buy_signals": buys, "history_source": "local_fallback"}
 
 
 @app.post("/history/sync")
@@ -2826,11 +2846,11 @@ fetch("/research/data").then(r=>{if(!r.ok)throw Error();return r.json()}).then(r
 
 @app.get("/research/data", dependencies=[Depends(require_site_login)])
 def research_data():
-    durable=github_history_state()
+    durable=latest_history_state()
     if durable:
         paper=durable["paper_tracker"]; lifetime=durable["lifetime"]; buys=durable["buy_signals"]
         synced=durable.get("synced_at"); completed=durable.get("last_scan_completed_at")
-        run_id=durable.get("scan_run_id"); source="github"
+        run_id=durable.get("scan_run_id"); source=durable.get("history_source", "github")
     else:
         def read_state(path):
             try: return json.loads(path.read_text(encoding="utf-8"))
