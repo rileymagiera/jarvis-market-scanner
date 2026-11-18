@@ -430,6 +430,30 @@ def update_paper_tracker(candidates, now):
                 asset_stats["losses"] += int(checkpoint_return < 0)
                 asset_stats["flat"] += int(checkpoint_return == 0)
                 asset_stats["total_return_pct"] = round(float(asset_stats["total_return_pct"]) + checkpoint_return, 2)
+        # Persist the full research feature snapshot for verified/normal records too.
+        research_fields = (
+            "relative_strength_vs_spy", "relative_strength_vs_iwm", "rs_rank",
+            "intraday_rvol_same_time", "same_time_relative_volume",
+            "anchored_vwap", "anchored_vwap_status", "opening_range_high", "opening_range_low",
+            "opening_range_status", "adx", "plus_di", "minus_di", "adx_dmi_status",
+            "spread_pct", "dollar_volume", "liquidity_status",
+            "volatility_contraction_status", "atr_contraction_pct", "base_tightness_pct",
+            "premarket_gap_pct", "premarket_volume", "premarket_rvol_same_time",
+            "premarket_high", "premarket_low", "cumulative_rvol_same_time",
+            "volume_acceleration_3bar", "float_rotation_pct", "float_shares",
+            "shares_outstanding", "short_percent_float", "higher_highs_higher_lows",
+            "pullback_from_session_high_pct", "premarket_high_reclaimed",
+            "catalyst_labels", "catalyst_dilution_status", "dilution_flags",
+            "catalyst_headline_count", "early_runner_research_score", "early_runner_score_components",
+            "crqs", "crqs_tier", "crqs_components", "crqs_data_coverage", "crqs_entry_score", "crqs_entry_penalty", "crqs_features", "crqs_relative_strength_vs_btc_24h_pct", "crqs_sector_activity", "crqs_sector_rank", "crqs_sector_count", "crypto_sector", "buy_readiness",
+        )
+        for field in research_fields:
+            record[field] = item.get(field)
+        record["research_feature_snapshot"] = {field: item.get(field) for field in research_fields}
+        record["research_signal_matches"] = item.get("research_signal_matches") or []
+        record["buy_readiness"] = item.get("buy_readiness") or {}
+        record["early_runner_signal_matches"] = item.get("early_runner_signal_matches") or []
+        record["early_runner_research_score"] = item.get("early_runner_research_score")
         record["last_seen"] = now.isoformat()
         record["last_stage"] = stage
         record["currently_surfaced"] = True
