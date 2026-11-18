@@ -1,7 +1,7 @@
 import unittest
 import pandas as pd
 
-from early_runner import compute_early_runner_metrics, summarize_crypto_cross_section
+from early_runner import compute_early_runner_metrics, summarize_crypto_cross_section, set_crypto_relative_strength_coverage
 
 
 class EarlyRunnerMetricsTests(unittest.TestCase):
@@ -26,6 +26,15 @@ class EarlyRunnerMetricsTests(unittest.TestCase):
 
 
 class CryptoCrossSectionTests(unittest.TestCase):
+    def test_legacy_and_canonical_relative_strength_flags_match(self):
+        coverage = {"relative_strength_vs_btc": False, "market_relative_strength": False}
+        set_crypto_relative_strength_coverage(coverage, 0.37)
+        self.assertTrue(coverage["relative_strength_vs_btc"])
+        self.assertTrue(coverage["market_relative_strength"])
+        set_crypto_relative_strength_coverage(coverage, None)
+        self.assertFalse(coverage["relative_strength_vs_btc"])
+        self.assertFalse(coverage["market_relative_strength"])
+
     def test_btc_benchmark_exists_without_btc_candidate(self):
         sectors = {"BTCUSDT": "Bitcoin", "SOLUSDT": "Layer 1", "BNBUSDT": "Layer 1",
                    "AVAXUSDT": "Layer 1", "ADAUSDT": "Layer 1"}
