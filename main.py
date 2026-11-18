@@ -99,11 +99,15 @@ def market_session_status(now=None) -> dict:
         "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
     }
 
-def discover_stock_symbols(limit: int = 70) -> list[str]:
-    """Discover US small/mid-cap momentum names across Yahoo screens concurrently."""
-    found = {}
-    # Run independent screens concurrently: the previous serial 6 x 15s timeout
-    # could consume 90 seconds before the actual symbol scan even began.
+def discover_stock_symbols(limit: int = 120) -> list[str]:
+    """Discover a broad stock universe while keeping the existing quality pool first.
+
+    The strict pool preserves the previous discovery rules. A separate, lower-
+    threshold early-candidate pool widens research coverage; it does not change
+    technical scoring, stage assignment, or BUY confirmation.
+    """
+    strict_found = {}
+    early_found = {}
     screens = (
         "small_cap_gainers",
         "aggressive_small_caps",
@@ -118,7 +122,7 @@ def discover_stock_symbols(limit: int = 70) -> list[str]:
         try:
             response = requests.get(
                 "https://query1.finance.yahoo.com/v1/finance/screener/predefined/saved",
-                params={"formatted": "false", "scrIds": screen, "count": 100, "start": 0},
+                params={"formatted": "false", "scrIds": screen, "count": 150, "start": 0},
                 headers={"User-Agent": "JarvisMarketScanner/2.0"},
                 timeout=12,
             )
@@ -127,37 +131,66 @@ def discover_stock_symbols(limit: int = 70) -> list[str]:
             record_scan_metric("yahoo_discovery_screen", time.monotonic() - started)
             return results[0].get("quotes", []) if results else []
         except Exception as exc:
-            # Discovery is additive: one unavailable screen must not stop the scan.
             record_scan_metric("yahoo_discovery_screen", time.monotonic() - started, "failure")
             print(f"Yahoo discovery screen {screen} failed: {type(exc).__name__}")
             return []
 
     with ThreadPoolExecutor(max_workers=len(screens)) as pool:
-        screen_quotes = pool.map(fetch_screen, screens)
+        screen_quotes = list(pool.map(fetch_screen, screens))
 
     for quotes in screen_quotes:
         for quote in quotes:
             symbol = str(quote.get("symbol") or "").upper()
+            if not symbol or not symbol.replace(".", "").replace("-", "").isalnum():
+                continue
             market_cap = safe_float(quote.get("marketCap"))
             price = safe_float(quote.get("regularMarketPrice"))
             volume = safe_float(quote.get("regularMarketVolume"))
             average_volume = safe_float(quote.get("averageDailyVolume3Month"))
             change = safe_float(quote.get("regularMarketChangePercent"))
-            if not symbol or market_cap < 10_000_000 or market_cap > 25_000_000_000:
+            if market_cap <= 0 or price <= 0 or volume <= 0:
                 continue
-            if price < 0.25 or volume < 50_000 or price * volume < 250_000:
-                continue
-            relative_volume = volume / average_volume if average_volume else 0
-            # Retain modest movers and unusual-volume names; the technical score
-            # and grade system decide whether they deserve an early-watch label.
-            if change < -3 and relative_volume < 1.5:
-                continue
-            rank = change + min(relative_volume, 10) * 2
-            found[symbol] = max(rank, found.get(symbol, float("-inf")))
+            relative_volume = volume / average_volume if average_volume > 0 else 0.0
+            rank = change + min(relative_volume, 12) * 2
 
-    ranked = sorted(found, key=found.get, reverse=True)
-    return ranked[:limit]
+            # Original, stricter discovery lane. Preserve these candidates and
+            # their ordering ahead of the expanded early-research lane.
+            if (
+                10_000_000 <= market_cap <= 25_000_000_000
+                and price >= 0.25
+                and volume >= 50_000
+                and price * volume >= 250_000
+                and not (change < -3 and relative_volume < 1.5)
+            ):
+                strict_found[symbol] = max(rank, strict_found.get(symbol, float("-inf")))
 
+            # Broader research-only lane: admits smaller/cheaper and earlier
+            # volume names, but still excludes extremely thin or deeply falling
+            # names with no relative-volume evidence.
+            if (
+                5_000_000 <= market_cap <= 50_000_000_000
+                and price >= 0.10
+                and volume >= 10_000
+                and price * volume >= 50_000
+                and not (change < -8 and relative_volume < 0.75)
+            ):
+                early_rank = rank + (2 if relative_volume >= 1.2 else 0)
+                early_found[symbol] = max(early_rank, early_found.get(symbol, float("-inf")))
+
+    strict_ranked = sorted(strict_found, key=strict_found.get, reverse=True)
+    early_ranked = sorted(
+        (symbol for symbol in early_found if symbol not in strict_found),
+        key=early_found.get,
+        reverse=True,
+    )
+    strict_slots = min(70, limit)
+    selected = strict_ranked[:strict_slots]
+    remaining = max(0, limit - len(selected))
+    selected.extend(early_ranked[:remaining])
+    record_scan_metric("stock_discovery_strict_candidates", len(strict_found))
+    record_scan_metric("stock_discovery_early_candidates", len(early_found))
+    record_scan_metric("stock_discovery_selected", len(selected))
+    return selected
 
 KRAKEN = "https://api.kraken.com/0/public"
 KRAKEN_PAIR_MAP = None
