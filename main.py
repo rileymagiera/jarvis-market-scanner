@@ -1837,8 +1837,7 @@ def scan_crypto(symbol: str) -> Optional[dict]:
     atr = float(np.mean([highs[i] - lows[i] for i in range(-14, 0)]))
     support = min(lows[-12:])
 
-    # Crypto uses the same evidence-family principle as stocks: one momentum
-    # score, one volume score, one breakout score, and one trend score.
+    # Keep the legacy score during a parallel CRQS validation period.
     momentum_points = max(
         30 if change_1h >= 1.5 else 16 if change_1h >= 0.5 else 0,
         30 if change_24h >= 5 else 16 if change_24h >= 2 else 0,
@@ -1846,13 +1845,30 @@ def scan_crypto(symbol: str) -> Optional[dict]:
     volume_points = 25 if relative_volume >= 2.5 else 18 if relative_volume >= 1.8 else 9 if relative_volume >= 1.3 else 0
     breakout_points = 25 if breakout else 0
     trend_points = 20 if trend_up else 0
-    score_components = {
-        "momentum": momentum_points,
-        "volume": volume_points,
-        "breakout": breakout_points,
-        "trend": trend_points,
-    }
+    score_components = {"momentum": momentum_points, "volume": volume_points, "breakout": breakout_points, "trend": trend_points}
     score = min(100, sum(score_components.values()))
+
+    # Crypto Runner Quality Score (CRQS), independent of legacy score and BUY logic.
+    four_hour_change = (closes[-1] / closes[-5] - 1) * 100 if len(closes) >= 5 and closes[-5] else 0.0
+    positive_volume_bars = sum(1 for v in volumes[-6:] if v > 0)
+    volume_consistency = positive_volume_bars / 6.0
+    quote_volume = safe_float(ticker.get("quoteVolume"))
+    momentum_crqs = (8 if change_1h >= 1.0 else 4 if change_1h > 0 else 0) + (7 if four_hour_change >= 2.0 else 3 if four_hour_change > 0 else 0) + (5 if change_24h >= 3 else 2 if change_24h > 0 else 0) + (5 if breakout else 0)
+    volume_crqs = (8 if relative_volume >= 2.5 else 5 if relative_volume >= 1.5 else 0) + (4 if volume_consistency >= 0.8 else 2 if volume_consistency >= 0.5 else 0) + (5 if quote_volume >= 5_000_000 else 3 if quote_volume >= 1_000_000 else 0) + (3 if relative_volume >= 1.5 and abs(change_1h) <= 5 else 0)
+    higher_lows = len(lows) >= 6 and lows[-1] > lows[-4] and lows[-4] > lows[-6]
+    structure_crqs = (5 if higher_lows else 0) + (5 if breakout else 0) + (5 if trend_up else 0) + (5 if abs(change_1h) <= 3 and change_24h > 0 else 0)
+    # Relative strength vs BTC/market and sector/adoption metrics are unavailable in this scan and receive zero.
+    relative_strength_crqs = 0
+    news = crypto_news(symbol)
+    catalyst_crqs = 4 if news else 0
+    # Missing spread/depth/token-unlock data receives no credit. Timestamp validation earns integrity credit.
+    risk_crqs = (3 if ticker.get("price_validation_passed") else 0) + (2 if len(highs) >= 5 and (max(highs[-5:])-min(lows[-5:]))/max(price, 1e-12) < 0.12 else 0
+    crqs_components = {"momentum_ignition": momentum_crqs, "volume_liquidity": volume_crqs, "market_structure": structure_crqs, "relative_strength": relative_strength_crqs, "catalyst_narrative": catalyst_crqs, "risk_integrity": risk_crqs}
+    crqs = min(100, sum(crqs_components.values()))
+    entry_penalty = 20 if change_24h >= 25 else 12 if change_24h >= 15 else 0
+    entry_score = max(0, min(100, crqs - entry_penalty))
+    crqs_tier = "Elite Runner" if crqs >= 90 else "High Conviction" if crqs >= 80 else "Developing Runner" if crqs >= 70 else "Early Discovery" if crqs >= 60 else "Watch" if crqs >= 45 else "Low Quality"
+    crqs_data_coverage = {"relative_strength_vs_btc": False, "market_relative_strength": False, "sector_activity": False, "spread_and_depth": False, "token_unlock_supply_risk": False, "news_catalyst": True, "hourly_ohlcv": True, "exchange_price_validation": bool(ticker.get("price_validation_passed"))}
     if score < 15:
         return None
 
@@ -1874,10 +1890,17 @@ def scan_crypto(symbol: str) -> Optional[dict]:
         "breakout_24h": bool(breakout),
         "above_24h_average": bool(trend_up),
         "quote_volume_24h": round(safe_float(ticker.get("quoteVolume")), 2),
+        "crqs": crqs,
+        "crqs_tier": crqs_tier,
+        "crqs_components": crqs_components,
+        "crqs_data_coverage": crqs_data_coverage,
+        "crqs_entry_score": entry_score,
+        "crqs_entry_penalty": entry_penalty,
+        "crqs_features": {"four_hour_change_pct": round(four_hour_change, 2), "higher_lows": bool(higher_lows), "volume_consistency_6h": round(volume_consistency, 3), "news_count": len(news)},
         "score": score,
         "signal": "HIGH INTEREST" if score >= 75 else "WATCH" if score >= 50 else "EARLY WATCH",
         "levels": levels(price, atr, support),
-        "news": crypto_news(symbol),
+        "news": news,
         "data_source": f"{provider} + Yahoo Finance headlines",
     }
 
