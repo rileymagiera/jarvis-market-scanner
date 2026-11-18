@@ -887,7 +887,7 @@ def main():
                 f'{runner.get("symbol")} | Premarket score {runner.get("premarket_alert_score")}/100 | {runner.get("premarket_alert_status")}',
                 f'Gap: {runner.get("premarket_gap_pct", "n/a")}% | Premarket volume: {runner.get("premarket_volume", "n/a")} | RVOL: {runner.get("premarket_rvol_same_time", "n/a")}x',
                 f'Quote: {runner.get("price", "n/a")} at {runner.get("price_as_of", "n/a")} | Source: {runner.get("data_source", "n/a")}',
-                f'Research score: {runner.get("early_runner_research_score", "n/a")} | Catalyst: {runner.get("catalyst_labels") or "none classified"} | Dilution: {runner.get("dilution_flags") or "none flagged"',
+                f'Research score: {runner.get("early_runner_research_score", "n/a")} | Catalyst: {runner.get("catalyst_labels") or "none classified"} | Dilution: {runner.get("dilution_flags") or "none flagged"}',
                 "",
             ]
     for item in sorted(selected, key=lambda x: int(x.get("score") or 0), reverse=True):
