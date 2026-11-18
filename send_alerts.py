@@ -703,7 +703,6 @@ def select_premarket_alerts(candidates, state, now):
         selected.append(item)
         history[key] = {"score": rank, "alerted_at": now.isoformat(), "status": status}
     selected.sort(key=lambda x: x.get("premarket_alert_score", 0), reverse=True)
-    state["premarket_alert_history"] = history
     return selected[:10]
 
 
@@ -776,7 +775,6 @@ def main():
     except Exception as exc:
         print(f"History sync failed; committed tracker files remain available: {type(exc).__name__}: {exc}")
     market = payload.get("market_conditions") or {}
-    premarket_selected = select_premarket_alerts(payload["candidates"], state, now)
     selected, updates = [], {}
     for item in payload["candidates"]:
         # Research alerts may use delayed/EOD/historical data, but their
@@ -812,6 +810,8 @@ def main():
     if not notification_window:
         print(f"Outside notification window ({local_now.isoformat()}); scan and paper tracking saved without email.")
         return
+
+    premarket_selected = select_premarket_alerts(payload["candidates"], state, now)
 
     if not selected:
         if premarket_selected:
@@ -876,6 +876,20 @@ def main():
         "Verify current price, liquidity, news and risk before making any decision.",
         "",
     ]
+    if premarket_selected:
+        lines += [
+            "",
+            "=== PREMARKET EARLY RUNNERS (RESEARCH ONLY) ===",
+            "Hourly scan; no schedule changes. Premarket prices may be provisional.",
+        ]
+        for runner in premarket_selected:
+            lines += [
+                f'{runner.get("symbol")} | Premarket score {runner.get("premarket_alert_score")}/100 | {runner.get("premarket_alert_status")}',
+                f'Gap: {runner.get("premarket_gap_pct", "n/a")}% | Premarket volume: {runner.get("premarket_volume", "n/a")} | RVOL: {runner.get("premarket_rvol_same_time", "n/a")}x',
+                f'Quote: {runner.get("price", "n/a")} at {runner.get("price_as_of", "n/a")} | Source: {runner.get("data_source", "n/a")}',
+                f'Research score: {runner.get("early_runner_research_score", "n/a")} | Catalyst: {runner.get("catalyst_labels") or "none classified"} | Dilution: {runner.get("dilution_flags") or "none flagged"',
+                "",
+            ]
     for item in sorted(selected, key=lambda x: int(x.get("score") or 0), reverse=True):
         lines += [
             f'{item.get("asset_type", "asset").upper()} {item.get("symbol", "")} | Score {item.get("score", "n/a")}/100 | {item.get("stage", item.get("signal", "WATCH"))}',
@@ -918,6 +932,8 @@ def main():
         else f"Jarvis: {len(selected)} new market setup(s)"
     )
     email(subject, "\n".join(lines))
+    for runner in premarket_selected:
+        state.setdefault("premarket_alert_history", {})[runner.get("symbol", "").upper()] = {"score": runner.get("premarket_alert_score", 0), "alerted_at": now.isoformat(), "status": runner.get("premarket_alert_status")}
     state.update(updates)
     STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(f"Sent {len(selected)} alert(s).")
