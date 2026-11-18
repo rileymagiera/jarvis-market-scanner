@@ -850,6 +850,62 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
             stage, reasons = "LOW-CONVICTION WATCH", ["Current evidence is below the early-watch threshold."]
         item["stage_reasons"] = reasons
 
+    # BUY readiness: record every gating condition without relaxing the signal rules.
+    if item.get("asset_type") == "stock":
+        buy_gate_checks = {
+            "score_82": adjusted >= 82,
+            "volume_confirmed": buy_volume_confirmed,
+            "breakout_confirmed": buy_breakout_confirmed,
+            "two_technical_confirmations": buy_technical_count >= 2,
+            "market_not_risk_off": regime["regime"] != "RISK-OFF",
+            "fresh_intraday_confirmation": bool(item.get("intraday_confirmation_available", False)),
+            "five_bar_intraday_trend_up": bool(item.get("intraday_trend_up_5bars")),
+            "no_risk_flags": not bool(item.get("risk_flags")),
+            "not_chase_risk": len(late_signals) < 2,
+            "price_verified": bool(item.get("price_validation_passed", False)),
+        }
+        buy_gate_reasons = {
+            "score_82": f"Score {adjusted}/100; needs 82",
+            "volume_confirmed": f"Relative volume {float(item.get('relative_volume') or 0):.2f}x; intraday {float(item.get('intraday_relative_volume') or 0):.2f}x",
+            "breakout_confirmed": "20-day or intraday breakout required",
+            "two_technical_confirmations": f"{buy_technical_count}/6 technical confirmations",
+            "market_not_risk_off": f"Market regime is {regime['regime']}",
+            "fresh_intraday_confirmation": "Fresh intraday confirmation unavailable",
+            "five_bar_intraday_trend_up": "Five-bar intraday trend is not positive",
+            "no_risk_flags": "Risk flags present",
+            "not_chase_risk": "Late-runner / chase-risk gate triggered",
+            "price_verified": item.get("price_validation_note") or "Price not independently verified",
+        }
+    else:
+        buy_gate_checks = {
+            "score_82": adjusted >= 82,
+            "volume_1_8x": float(item.get("relative_volume") or 0) >= 1.8,
+            "24h_breakout": bool(item.get("breakout_24h")),
+            "above_24h_average": bool(item.get("above_24h_average")),
+            "positive_hourly_momentum": float(item.get("hourly_change_pct") or 0) > 0,
+            "not_extended": not crypto_late,
+            "market_not_risk_off": regime["regime"] != "RISK-OFF",
+            "price_verified": bool(item.get("price_validation_passed", False)),
+        }
+        buy_gate_reasons = {
+            "score_82": f"Score {adjusted}/100; needs 82",
+            "volume_1_8x": f"Relative volume {float(item.get('relative_volume') or 0):.2f}x; needs 1.8x",
+            "24h_breakout": "24-hour breakout not confirmed",
+            "above_24h_average": "Price is not above its 24-hour average",
+            "positive_hourly_momentum": "Hourly momentum is not positive",
+            "not_extended": "Crypto price is extended (18% daily or 8% hourly)",
+            "market_not_risk_off": f"Market regime is {regime['regime']}",
+            "price_verified": item.get("price_validation_note") or "Price not independently verified",
+        }
+    item["buy_readiness"] = {
+        "passed": sum(bool(v) for v in buy_gate_checks.values()),
+        "total": len(buy_gate_checks),
+        "percent": round(100 * sum(bool(v) for v in buy_gate_checks.values()) / len(buy_gate_checks)),
+        "all_gates_passed": all(buy_gate_checks.values()),
+        "checks": buy_gate_checks,
+        "missing_conditions": [buy_gate_reasons[k] for k, v in buy_gate_checks.items() if not v],
+    }
+
     if item.get("asset_type") in ("stock", "crypto") and not item.get("price_validation_passed", False):
         # Keep promising research candidates visible, but never present an unverified
         # quote as an actionable signal. Preserve the evidence grade for ranking.
