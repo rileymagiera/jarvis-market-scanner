@@ -1,9 +1,9 @@
 {
-  "last_scan_started_at": "2026-11-18T13:00:35.120378+00:00",
+  "last_scan_started_at": "2026-11-18T13:25:39.576882+00:00",
   "last_attempt_status": "failed",
-  "run_id": "44309310155",
-  "run_number": "55",
-  "commit_sha": "fb733f91c05a759452b12b9ae7176a8c388730a1",
+  "run_id": "44313517092",
+  "run_number": "56",
+  "commit_sha": "4b162604810e11a37bfc1d7f2ea73af3e7c13549",
   "last_scan_completed_at": "2026-11-18T12:44:02.754391+00:00",
   "last_attempt_error": "Jarvis scan or history persistence step failed; inspect the Run Jarvis step logs.",
   "scan_duration_seconds": 20.84,
@@ -57,5 +57,5 @@
     },
     "history_sync_reported": true
   },
-  "last_attempt_failed_at": "2026-11-18T13:00:35.225282+00:00"
+  "last_attempt_failed_at": "2026-11-18T13:25:39.672194+00:00"
 }
