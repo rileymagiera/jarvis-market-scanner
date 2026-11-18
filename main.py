@@ -2364,6 +2364,60 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
                        key=lambda x: x["relative_strength_vs_spy"])
     for rank, item in enumerate(ranked_rs, 1):
         item["rs_rank"] = round(rank/len(ranked_rs)*100, 1) if ranked_rs else None
+    # Crypto cross-sectional intelligence: BTC-relative strength and sector rotation.
+    crypto_items = [x for x in results if x.get("asset_type") == "crypto"]
+    btc = next((x for x in crypto_items if x.get("symbol", "").upper().startswith("BTC")), None)
+    btc_change = safe_float(btc.get("daily_change_pct")) if btc else None
+    crypto_sectors = {
+        "BTCUSDT":"Bitcoin", "ETHUSDT":"Ethereum", "SOLUSDT":"Layer 1", "BNBUSDT":"Layer 1", "AVAXUSDT":"Layer 1", "ADAUSDT":"Layer 1", "DOTUSDT":"Layer 1", "SUIUSDT":"Layer 1", "SEIUSDT":"Layer 1", "APTUSDT":"Layer 1", "NEARUSDT":"Layer 1",
+        "ARBUSDT":"Layer 2", "OPUSDT":"Layer 2", "POLUSDT":"Layer 2",
+        "LINKUSDT":"Oracle / Infrastructure", "RENDERUSDT":"AI / Compute", "FETUSDT":"AI / Compute", "TAOUSDT":"AI / Compute",
+        "JUPUSDT":"DeFi", "INJUSDT":"DeFi", "ONDOUSDT":"RWA",
+        "DOGEUSDT":"Memecoin", "WIFUSDT":"Memecoin", "PEPEUSDT":"Memecoin", "BONKUSDT":"Memecoin",
+        "XRPUSDT":"Payments", "TRXUSDT":"Payments", "TONUSDT":"Consumer / Social", "XLMUSDT":"Payments", "ZECUSDT":"Privacy",
+    }
+    sector_members = {}
+    for crypto in crypto_items:
+        crypto_sector = crypto_sectors.get(crypto.get("symbol", "").upper(), "Other")
+        crypto["crypto_sector"] = crypto_sector
+        sector_members.setdefault(crypto_sector, []).append(crypto)
+    sector_stats = {}
+    for sector, members in sector_members.items():
+        returns = [safe_float(x.get("daily_change_pct"), np.nan) for x in members]
+        returns = [v for v in returns if np.isfinite(v)]
+        avg_return = float(np.mean(returns)) if returns else None
+        positive_breadth = sum(v > 0 for v in returns) / len(returns) if returns else None
+        sector_stats[sector] = {"avg_24h_change_pct": round(avg_return, 2) if avg_return is not None else None, "positive_breadth_pct": round(positive_breadth * 100, 1) if positive_breadth is not None else None, "sample_size": len(returns)}
+    ranked_sectors = sorted(sector_stats, key=lambda s: safe_float(sector_stats[s].get("avg_24h_change_pct"), -999), reverse=True)
+    for crypto in crypto_items:
+        sector = crypto.get("crypto_sector", "Other")
+        stats = sector_stats.get(sector, {})
+        relative = round(safe_float(crypto.get("daily_change_pct")) - btc_change, 2) if btc_change is not None else None
+        rs_points = 15 if relative is not None and relative >= 5 else 10 if relative is not None and relative >= 2 else 5 if relative is not None and relative > 0 else 0
+        sector_avg = stats.get("avg_24h_change_pct")
+        sector_breadth = stats.get("positive_breadth_pct")
+        sector_points = 10 if sector_avg is not None and sector_avg >= 3 and sector_breadth is not None and sector_breadth >= 60 else 5 if sector_avg is not None and sector_avg > 0 and sector_breadth is not None and sector_breadth >= 50 else 0
+        components = crypto.get("crqs_components") or {}
+        components["relative_strength"] = rs_points
+        components["sector_activity"] = sector_points
+        crypto["crqs_components"] = components
+        crypto["crqs_relative_strength_vs_btc_24h_pct"] = relative
+        crypto["crqs_sector_activity"] = stats
+        crypto["crqs_sector_rank"] = ranked_sectors.index(sector) + 1 if sector in ranked_sectors else None
+        crypto["crqs_sector_count"] = len(ranked_sectors)
+        crypto["crqs_data_coverage"] = crypto.get("crqs_data_coverage") or {}
+        crypto["crqs_data_coverage"]["relative_strength_vs_btc"] = bool(relative is not None)
+        crypto["crqs_data_coverage"]["sector_activity"] = bool(stats.get("sample_size", 0) > 0)
+        crypto["crqs"] = min(74, sum(safe_float(v) for v in components.values()))
+        penalty = safe_float(crypto.get("crqs_entry_penalty"))
+        crypto["crqs_entry_score"] = max(0, min(74, crypto["crqs"] - penalty))
+        score = crypto["crqs"]
+        crypto["crqs_tier"] = "Elite Runner" if score >= 65 else "High Conviction" if score >= 58 else "Developing Runner" if score >= 50 else "Early Discovery" if score >= 42 else "Watch" if score >= 32 else "Low Quality"
+        crypto["crqs_features"] = crypto.get("crqs_features") or {}
+        crypto["crqs_features"]["btc_24h_change_pct"] = btc_change
+        crypto["crqs_features"]["crypto_sector"] = sector
+        crypto["crqs_features"]["sector_avg_24h_change_pct"] = stats.get("avg_24h_change_pct")
+        crypto["crqs_features"]["sector_positive_breadth_pct"] = stats.get("positive_breadth_pct")
     for item in results:
         matches = []
         if item.get("asset_type") == "stock":
