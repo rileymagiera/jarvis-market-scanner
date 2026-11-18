@@ -723,6 +723,8 @@ def apply_history_runner_learning(candidates, tracker):
     for asset in ("stock", "crypto"):
         eligible = [r for r in records if r.get("asset_type") == asset
                     and r.get("price_validation_status") == "verified"
+                    and (asset != "stock" or (r.get("data_quality") or {}).get("data_type") == "live")
+                    and not r.get("legacy_stock_outcomes_quarantined_flag")
                     and isinstance(r.get("early_runner_initial_feature_snapshot"), dict)
                     and isinstance((r.get("early_runner_outcomes") or {}).get("5d"), dict)]
         outcomes = [safe_float((r.get("early_runner_outcomes") or {}).get("5d", {}).get("return_pct"), None)
