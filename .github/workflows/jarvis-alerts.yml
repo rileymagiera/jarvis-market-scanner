@@ -131,7 +131,7 @@ jobs:
           }
           metadata = parsed.get("metadata", {})
           metadata["scan_audit"] = audit
-          Path("scan_metadata.json").write_text(json.dumps(metadata, indent=2) + "\\n", encoding="utf-8")
+          Path("scan_metadata.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
           summary = Path(os.environ["GITHUB_STEP_SUMMARY"])
           lines = [
               "## Jarvis Scan Audit",
@@ -144,7 +144,7 @@ jobs:
           ]
           if audit["scan_errors"]:
               lines.append("- Error detail: " + "; ".join(f"{e.get('symbol','?')}: {e.get('error','unknown')}" for e in audit["scan_errors"]))
-          summary.write_text("\\n".join(lines) + "\\n", encoding="utf-8")
+          summary.write_text("\n".join(lines) + "\n", encoding="utf-8")
           if errors or not d.get("timestamp"):
               print("AUDIT FAILURE:", errors or "Diagnostics timestamp missing")
               raise SystemExit(1)
