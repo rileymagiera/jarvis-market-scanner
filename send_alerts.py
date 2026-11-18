@@ -118,6 +118,26 @@ def update_paper_tracker(candidates, now):
                 old_asset_checkpoint["flat"] += int(old_return == 0)
                 old_asset_checkpoint["total_return_pct"] = round(old_asset_checkpoint["total_return_pct"] + old_return, 2)
 
+    # One-time migration for lifetime recommendation accounting.
+    for existing in tracker.values():
+        if "lifetime_recommendation_counted" not in existing:
+            has_baseline = existing.get("initial_price") is not None
+            was_unverified_promotion = (
+                existing.get("asset_type") == "stock"
+                and has_baseline
+                and "quarantined_initial_price" in existing
+                and existing.get("quarantined_initial_price") is None
+            )
+            if was_unverified_promotion:
+                lifetime["recommendations"] = int(lifetime.get("recommendations", 0)) + 1
+                asset_stats = lifetime.setdefault("by_asset", {}).setdefault(
+                    "stock", {"recommendations": 0}
+                )
+                asset_stats["recommendations"] = int(asset_stats.get("recommendations", 0)) + 1
+                existing["lifetime_recommendation_counted"] = True
+            else:
+                existing["lifetime_recommendation_counted"] = bool(has_baseline)
+
     # Mark prior records absent until they are rediscovered in this scan.
     for existing in tracker.values():
         existing["currently_surfaced"] = False
@@ -149,6 +169,7 @@ def update_paper_tracker(candidates, now):
                     "peak_price": None, "trough_price": None, "milestones": {},
                     "price_history": [], "discovery_reasons": [], "catalysts": [],
                     "risk_flags": [], "currently_surfaced": True,
+                    "lifetime_recommendation_counted": False,
                 }
             record["price_validation_status"] = "unverified"
             record["price_validation_note"] = item.get("price_validation_note", "Independent quote validation unavailable")
@@ -206,6 +227,13 @@ def update_paper_tracker(candidates, now):
             tracker[key] = record
             continue
         if record and record.get("price_validation_status") == "unverified":
+            if asset_type == "stock" and record.get("initial_price") is None and not record.get("lifetime_recommendation_counted", False):
+                lifetime["recommendations"] = int(lifetime.get("recommendations", 0)) + 1
+                asset_stats = lifetime.setdefault("by_asset", {}).setdefault(
+                    "stock", {"recommendations": 0}
+                )
+                asset_stats["recommendations"] = int(asset_stats.get("recommendations", 0)) + 1
+                record["lifetime_recommendation_counted"] = True
             record["quarantined_initial_price"] = record.get("initial_price")
             record["quarantined_return_pct"] = record.get("unverified_return_pct")
             record["first_seen"] = now.isoformat()
@@ -227,6 +255,7 @@ def update_paper_tracker(candidates, now):
                 "first_grade": item.get("stage", item.get("signal", "WATCH")),
                 "grade_history": [{"from": None, "to": item.get("stage", item.get("signal", "WATCH")), "at": now.isoformat()}],
                 "price_history": [], "discovery_reasons": [], "catalysts": [], "risk_flags": [],
+                "lifetime_recommendation_counted": True,
             }
             lifetime["recommendations"] = int(lifetime.get("recommendations", 0)) + 1
             asset_stats = lifetime.setdefault("by_asset", {}).setdefault(asset_type, {"recommendations": 0})
@@ -392,6 +421,21 @@ def update_paper_tracker(candidates, now):
         record["currently_surfaced"] = True
         tracker[key] = record
         summaries[key] = record
+
+    # Persist a per-record reconciliation without inventing outcome checkpoints.
+    retained_stock = [r for r in tracker.values() if r.get("asset_type") == "stock"]
+    stock_baselines = [r for r in retained_stock if r.get("initial_price") is not None]
+    uncounted_baselines = [r for r in stock_baselines if not r.get("lifetime_recommendation_counted", False)]
+    lifetime["integrity"] = {
+        "checked_at": now.isoformat(),
+        "retained_stock_baselines": len(stock_baselines),
+        "retained_stock_counted_baselines": len(stock_baselines) - len(uncounted_baselines),
+        "retained_stock_uncounted_baselines": len(uncounted_baselines),
+        "unverified_stock_without_baseline": sum(
+            1 for r in retained_stock
+            if r.get("price_validation_status") == "unverified" and r.get("initial_price") is None
+        ),
+    }
 
     # Keep one year of detailed recommendations; lifetime aggregates remain cumulative.
     cutoff = now - timedelta(days=365)
