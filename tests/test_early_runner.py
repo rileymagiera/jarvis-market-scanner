@@ -1,7 +1,7 @@
 import unittest
 import pandas as pd
 
-from early_runner import compute_early_runner_metrics, summarize_crypto_cross_section, set_crypto_relative_strength_coverage
+from early_runner import compute_early_runner_metrics, summarize_crypto_cross_section, set_crypto_relative_strength_coverage, build_data_quality_record
 
 
 class EarlyRunnerMetricsTests(unittest.TestCase):
@@ -23,6 +23,54 @@ class EarlyRunnerMetricsTests(unittest.TestCase):
         self.assertIsNone(result["float_rotation_pct"])
         self.assertIsNone(result["cumulative_rvol_same_time"])
         self.assertEqual(result["early_runner_research_score"], 0)
+
+
+    def test_data_quality_distinguishes_live_delayed_eod_and_unknown(self):
+        received = "2026-11-18T04:00:00+00:00"
+        live = build_data_quality_record(
+            "stock", "Yahoo + Alpaca", "fresh_multi_provider_cross_checked",
+            "2026-11-18T03:59:00+00:00", received,
+            {"phase": "REGULAR SESSION"}, True, "iex"
+        )
+        delayed = build_data_quality_record(
+            "stock", "Yahoo + Massive", "fresh_multi_provider_cross_checked",
+            "2026-11-18T03:59:00+00:00", received,
+            {"phase": "REGULAR SESSION"}, True, None
+        )
+        eod = build_data_quality_record(
+            "stock", "Yahoo + Alpaca prior-session daily close cross-check",
+            "prior_session_close_cross_checked", "2026-11-17T21:00:00+00:00",
+            received, {"phase": "CLOSED — OVERNIGHT"}, True, "iex"
+        )
+        unknown = build_data_quality_record(
+            "stock", "Yahoo Finance daily; live quote unverified",
+            "daily_bar_unverified", "2026-11-18T03:00:00+00:00",
+            received, {"phase": "REGULAR SESSION"}, False
+        )
+        self.assertEqual(live["data_type"], "live")
+        self.assertTrue(live["buy_eligible"])
+        self.assertEqual(delayed["data_type"], "delayed")
+        self.assertFalse(delayed["buy_eligible"])
+        self.assertEqual(eod["data_type"], "eod")
+        self.assertFalse(eod["buy_eligible"])
+        self.assertEqual(unknown["data_type"], "historical")
+        self.assertFalse(unknown["buy_eligible"])
+
+    def test_crypto_live_timestamp_is_required_for_buy_eligibility(self):
+        received = "2026-11-18T04:00:00+00:00"
+        fresh = build_data_quality_record(
+            "crypto", "Kraken Spot public API", "exchange_timestamped_ticker",
+            "2026-11-18T03:59:00+00:00", received, {}, True, None, 60
+        )
+        stale = build_data_quality_record(
+            "crypto", "Kraken Spot public API", "timestamp_missing_or_stale",
+            "2026-11-18T03:40:00+00:00", received, {}, False, None, 1200
+        )
+        self.assertEqual(fresh["data_type"], "live")
+        self.assertTrue(fresh["buy_eligible"])
+        self.assertEqual(stale["verification_status"], "stale")
+        self.assertFalse(stale["buy_eligible"])
+
 
 
 class CryptoCrossSectionTests(unittest.TestCase):
