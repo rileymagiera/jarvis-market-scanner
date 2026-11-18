@@ -413,6 +413,32 @@ def update_buy_signal_history(candidates, now, scan_errors=None):
         stage = item.get("stage", item.get("signal", "WATCH"))
         price = float(item.get("price") or 0)
         price_ok = price > 0 and not (asset == "stock" and not item.get("price_validation_passed", False))
+        if not price_ok:
+            continue
+
+        # Continue measuring previously issued BUY signals even after they are
+        # closed or no longer meet today's BUY filter. A signal outcome belongs
+        # to the original signal timestamp, not to how long it stays active.
+        for prior in signals:
+            if prior.get("asset_type") != asset or prior.get("symbol") != symbol:
+                continue
+            try:
+                prior_age = max(0, (now - datetime.fromisoformat(prior["at"])).total_seconds())
+                prior_entry = float(prior.get("entry_price") or 0)
+            except (KeyError, TypeError, ValueError):
+                continue
+            if prior_entry <= 0:
+                continue
+            prior.setdefault("outcomes", {})
+            prior_change = (price / prior_entry - 1) * 100
+            for horizon, seconds in horizons.items():
+                if prior_age >= seconds and horizon not in prior["outcomes"]:
+                    prior["outcomes"][horizon] = {
+                        "at": now.isoformat(), "elapsed_seconds": int(prior_age),
+                        "price": price, "return_pct": round(prior_change, 3),
+                        "sampling_note": "First completed scan at or after the target horizon; not an exact-time fill"
+                    }
+
         if stage != "BUY":
             signal_id = active.pop(key, None)
             old = by_id.get(signal_id)
