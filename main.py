@@ -1862,7 +1862,7 @@ def scan_crypto(symbol: str) -> Optional[dict]:
     news = crypto_news(symbol)
     catalyst_crqs = 4 if news else 0
     # Missing spread/depth/token-unlock data receives no credit. Timestamp validation earns integrity credit.
-    risk_crqs = (3 if ticker.get("price_validation_passed") else 0) + (2 if len(highs) >= 5 and (max(highs[-5:])-min(lows[-5:]))/max(price, 1e-12) < 0.12 else 0
+    risk_crqs = (3 if ticker.get("price_validation_passed") else 0) + (2 if len(highs) >= 5 and (max(highs[-5:])-min(lows[-5:]))/max(price, 1e-12) < 0.12 else 0)
     crqs_components = {"momentum_ignition": momentum_crqs, "volume_liquidity": volume_crqs, "market_structure": structure_crqs, "relative_strength": relative_strength_crqs, "catalyst_narrative": catalyst_crqs, "risk_integrity": risk_crqs}
     crqs = min(100, sum(crqs_components.values()))
     entry_penalty = 20 if change_24h >= 25 else 12 if change_24h >= 15 else 0
