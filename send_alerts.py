@@ -424,16 +424,17 @@ def update_paper_tracker(candidates, now):
             record["return_pct"] = round((price / initial - 1) * 100, 2)
             record["max_gain_pct"] = round((float(record["peak_price"]) / initial - 1) * 100, 2)
             record["max_drawdown_pct"] = round((float(record["trough_price"]) / initial - 1) * 100, 2)
-            stage = item.get("stage", item.get("signal", "WATCH"))
+        stage = item.get("stage", item.get("signal", "WATCH"))
         record.setdefault("first_grade", stage)
         history = record.setdefault("grade_history", [])
         previous = record.get("last_stage")
         if not history: history.append({"from": None, "to": record["first_grade"], "at": record.get("first_seen", now.isoformat())})
         if previous and previous != stage: history.append({"from": previous, "to": stage, "at": now.isoformat()})
         record["grade_history"] = history[-100:]
-        prices = record.setdefault("price_history", [])
-        prices.append({"at": now.isoformat(), "price": price, "return_pct": record["return_pct"]})
-        record["price_history"] = prices[-168:]
+        if observation_eligible:
+            prices = record.setdefault("price_history", [])
+            prices.append({"at": now.isoformat(), "price": price, "return_pct": record["return_pct"]})
+            record["price_history"] = prices[-168:]
         reasons, catalysts = _history_context(item)
         record["discovery_reasons"] = reasons
         record["catalysts"] = catalysts
