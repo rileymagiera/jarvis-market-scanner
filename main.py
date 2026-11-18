@@ -875,7 +875,6 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
             "not_chase_risk": len(late_signals) < 2,
             "price_verified": bool(item.get("price_validation_passed", False)),
             "live_data_quality": bool(data_quality.get("buy_eligible", False)),
-            "live_data_quality": bool(data_quality.get("buy_eligible", False)),
         }
         buy_gate_reasons = {
             "score_82": f"Score {adjusted}/100; needs 82",
@@ -889,7 +888,6 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
             "not_chase_risk": "Late-runner / chase-risk gate triggered",
             "price_verified": item.get("price_validation_note") or "Price not independently verified",
             "live_data_quality": "Selected price is not confirmed live data for the current session",
-            "live_data_quality": "Selected price is not confirmed live data for the current session",
         }
     else:
         buy_gate_checks = {
@@ -901,6 +899,7 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
             "not_extended": not crypto_late,
             "market_not_risk_off": regime["regime"] != "RISK-OFF",
             "price_verified": bool(item.get("price_validation_passed", False)),
+            "live_data_quality": bool(data_quality.get("buy_eligible", False)),
         }
         buy_gate_reasons = {
             "score_82": f"Score {adjusted}/100; needs 82",
@@ -911,6 +910,7 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
             "not_extended": "Crypto price is extended (18% daily or 8% hourly)",
             "market_not_risk_off": f"Market regime is {regime['regime']}",
             "price_verified": item.get("price_validation_note") or "Price not independently verified",
+            "live_data_quality": "Selected price is not confirmed live data for the current session",
         }
     item["buy_readiness"] = {
         "passed": sum(bool(v) for v in buy_gate_checks.values()),
