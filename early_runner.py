@@ -237,7 +237,8 @@ def build_data_quality_record(asset_type, price_source, price_freshness, observe
     elif "fresh_multi_provider" in freshness:
         if "massive" in source or str(provider_feed or "").lower() == "delayed_sip":
             data_type = "delayed"
-        elif "alpaca" in source and str(provider_feed or "").lower() in {"iex", "sip"}:
+        elif ("alpaca" in source and str(provider_feed or "").lower() in {"iex", "sip"}
+              and age_seconds is not None and -30 <= age_seconds <= 120):
             data_type = "live"
     elif "fresh_webull" in freshness:
         # Webull's subscription delay entitlement is not currently confirmed in Jarvis.
