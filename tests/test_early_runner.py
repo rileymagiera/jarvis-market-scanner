@@ -56,6 +56,22 @@ class EarlyRunnerMetricsTests(unittest.TestCase):
         self.assertEqual(unknown["data_type"], "historical")
         self.assertFalse(unknown["buy_eligible"])
 
+    def test_research_stages_survive_non_live_data_but_buy_is_blocked(self):
+        delayed = {"data_type": "delayed", "buy_eligible": False}
+        blocked = apply_entry_quality_gate("BUY", delayed, True, {"all_gates_passed": False})
+        self.assertEqual(blocked["stage"], "ACTIONABLE SETUP")
+        self.assertEqual(blocked["potential_stage"], "BUY")
+        self.assertEqual(blocked["entry_status"], "WAITING FOR LIVE ENTRY CONFIRMATION")
+
+        watch = apply_entry_quality_gate("EARLY SETUP", delayed, True, {})
+        self.assertEqual(watch["stage"], "EARLY SETUP")
+        self.assertEqual(watch["entry_status"], "RESEARCH ONLY — DELAYED DATA")
+
+    def test_unverified_price_does_not_hide_research_candidate(self):
+        result = apply_entry_quality_gate("DEVELOPING RUNNER", {"data_type": "unknown"}, False, {})
+        self.assertEqual(result["stage"], "DEVELOPING RUNNER")
+        self.assertEqual(result["entry_status"], "RESEARCH ONLY — PRICE UNVERIFIED")
+
     def test_crypto_live_timestamp_is_required_for_buy_eligibility(self):
         received = "2026-11-18T04:00:00+00:00"
         fresh = build_data_quality_record(
