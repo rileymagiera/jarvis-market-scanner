@@ -1,17 +1,17 @@
 {
-  "last_scan_started_at": "2026-11-18T07:00:42.145569+00:00",
+  "last_scan_started_at": "2026-11-18T08:00:43.268479+00:00",
   "last_attempt_status": "completed",
-  "run_id": "44255495038",
-  "run_number": "47",
-  "commit_sha": "ac9d82088b70171884a347ee721a2cf28e9736fe",
-  "last_scan_completed_at": "2026-11-18T07:01:09.931670+00:00",
+  "run_id": "44263279965",
+  "run_number": "48",
+  "commit_sha": "178f9fea402604496fa86afd67e05de711b79c81",
+  "last_scan_completed_at": "2026-11-18T08:01:11.196958+00:00",
   "last_attempt_error": null,
-  "scan_duration_seconds": 26.94,
-  "scan_errors": 2,
+  "scan_duration_seconds": 26.43,
+  "scan_errors": 1,
   "execution_environment": "github_actions_runner",
   "scan_audit": {
-    "audit_timestamp": "2026-11-18T07:01:09.931542+00:00",
-    "audit_run_id": "44255495038",
+    "audit_timestamp": "2026-11-18T08:01:11.196834+00:00",
+    "audit_run_id": "44263279965",
     "audit_status": "passed",
     "files_valid_json": [
       "diagnostics",
@@ -21,18 +21,14 @@
       "metadata"
     ],
     "file_validation_errors": [],
-    "candidates_total": 136,
+    "candidates_total": 139,
     "stocks_returned": 107,
     "stocks_price_verified": 107,
     "stocks_price_unverified": 0,
-    "crypto_returned": 29,
-    "crypto_price_verified": 25,
-    "crypto_price_unverified": 4,
+    "crypto_returned": 32,
+    "crypto_price_verified": 30,
+    "crypto_price_unverified": 2,
     "scan_errors": [
-      {
-        "error": "Yahoo failed (database is locked); Massive unavailable (MASSIVE_API_KEY is not configured); Stooq failed (Stooq returned incomplete daily history for PLTR)",
-        "symbol": "PLTR"
-      },
       {
         "error": "Yahoo failed (Yahoo returned insufficient daily history); Massive unavailable (MASSIVE_API_KEY is not configured); Stooq failed (Stooq returned incomplete daily history for LYCA)",
         "symbol": "LYCA"
@@ -54,9 +50,9 @@
       "ACTIONABLE SETUP": 0,
       "BUY": 0,
       "DATA QUALITY \u2014 WATCH ONLY": 0,
-      "DEVELOPING SETUP": 0,
-      "EARLY WATCH": 3,
-      "LOW-CONVICTION WATCH": 26,
+      "DEVELOPING SETUP": 2,
+      "EARLY WATCH": 1,
+      "LOW-CONVICTION WATCH": 29,
       "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
     },
     "history_sync_reported": true
