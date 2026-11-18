@@ -1730,6 +1730,8 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "five_day_change_pct": round(five_day_change, 2),
         "relative_volume": round(relative_volume, 2),
         "intraday_change_pct": round(intraday_change, 2),
+        "intraday_price": round(intraday_price, 4) if intraday_price > 0 else None,
+        "intraday_as_of": intraday_as_of.isoformat() if intraday_as_of is not None else None,
         "intraday_relative_volume": round(intraday_relative_volume, 2),
         "intraday_breakout": bool(intraday_breakout),
         "breakout_20d": bool(breakout),
@@ -2074,7 +2076,7 @@ def home():
         "status": "online",
         "version": "2.0.0",
         "features": ["stock momentum", "crypto momentum", "relative volume", "breakout detection", "news headlines", "illustrative risk levels"],
-        "endpoints": ["/health", "/scan", "/scan/stocks", "/scan/crypto", "/symbols"],
+        "endpoints": ["/health", "/scan", "/scan/premarket", "/scan/stocks", "/scan/crypto", "/symbols"],
     }
 
 
@@ -2373,6 +2375,68 @@ def symbols():
         "crypto": crypto_universe(),
     }
 
+
+@app.get("/scan/premarket", dependencies=[Depends(require_site_login)])
+def scan_premarket(limit: int = Query(150, ge=20, le=200)):
+    """Dedicated research-only premarket early-runner ranking; does not change BUY gates."""
+    scan_started = time.monotonic()
+    reset_scan_metrics()
+    universe = stock_universe()[:limit]
+    prefetch_alpaca_snapshots(universe)
+    results, errors = run_parallel(universe, scan_stock, workers=6)
+    session = market_session_status()
+    ranked = []
+    for item in results:
+        gap = safe_float(item.get("premarket_gap_pct"), 0.0)
+        pre_volume = safe_float(item.get("premarket_volume"), 0.0)
+        pre_rvol = safe_float(item.get("premarket_rvol_same_time"), 0.0)
+        # Broad discovery criteria; the displayed quote is labeled by its source/freshness below.
+        if gap < 2.5 and not (pre_volume >= 25000 and pre_rvol >= 1.25):
+            continue
+n        catalyst = bool(item.get("catalyst_labels"))
+        runner_score = safe_float(item.get("early_runner_research_score"), 0.0)
+        score = min(100, max(0, round(
+            min(max(gap, 0), 25) * 1.2
+            + min(pre_rvol, 10) * 4
+            + min(pre_volume / 10000, 10) * 1.0
+            + runner_score * 0.25
+            + (12 if catalyst else 0)
+            - (15 if item.get("dilution_flags") else 0)
+        )))
+        item["premarket_rank_score"] = score
+        item["premarket_alert_status"] = (
+            "PREMARKET VERIFIED" if item.get("price_validation_passed") and item.get("data_quality", {}).get("verification_status") == "verified"
+            else "PREMARKET PROVISIONAL — SINGLE / UNCONFIRMED SOURCE"
+        )
+        item["premarket_quote"] = {
+            "price": item.get("intraday_price") if item.get("intraday_price") else None,
+            "as_of": item.get("intraday_as_of"),
+            "source": "Yahoo Finance extended-hours intraday bars",
+            "fresh": bool(item.get("intraday_quote_available")),
+            "verification": item["premarket_alert_status"],
+        }
+        item["premarket_reasons"] = [
+            f"Gap {gap:+.2f}%" if item.get("premarket_gap_pct") is not None else None,
+            f"Premarket RVOL {pre_rvol:.2f}x" if pre_rvol else None,
+            f"Premarket volume {pre_volume:,.0f}" if pre_volume else None,
+            "Headline catalyst detected" if catalyst else None,
+            "Financing/dilution risk flagged" if item.get("dilution_flags") else None,
+        ]
+        item["premarket_reasons"] = [x for x in item["premarket_reasons"] if x]
+        ranked.append(item)
+    ranked.sort(key=lambda x: x.get("premarket_rank_score", 0), reverse=True)
+    return {
+        "scanner": "Jarvis Premarket Early Runner",
+        "version": "1.0",
+        "timestamp": now_iso(),
+        "market_session": session,
+        "symbols_requested": len(universe),
+        "candidates_found": len(ranked),
+        "candidates": ranked[:50],
+        "errors": errors,
+        "duration_seconds": round(time.monotonic() - scan_started, 2),
+        "notice": "Research-only premarket ranking. Quotes may be provisional, delayed, or stale. This endpoint never changes regular BUY eligibility or places trades.",
+    }
 
 @app.get("/scan/stocks", dependencies=[Depends(require_site_login)])
 def scan_stocks(limit: int = Query(30, ge=1, le=100)):
