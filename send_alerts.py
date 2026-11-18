@@ -53,6 +53,15 @@ def sync_history_to_site(paper, lifetime, now, buy_signals=None, scan_metadata=N
     print(f"History synced to website: {result.get('records', 0)} records.")
 
 
+def safe_float(value, default=0.0):
+    """Convert optional market-data values safely; reject NaN and infinity."""
+    try:
+        number = float(value)
+        return number if math.isfinite(number) else default
+    except (TypeError, ValueError, OverflowError):
+        return default
+
+
 def _history_context(item):
     reasons = []
     rv = float(item.get("relative_volume") or 0)
