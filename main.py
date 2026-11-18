@@ -850,14 +850,14 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
             stage, reasons = "LOW-CONVICTION WATCH", ["Current evidence is below the early-watch threshold."]
         item["stage_reasons"] = reasons
 
-    if item.get("asset_type") == "stock" and not item.get("price_validation_passed", False):
+    if item.get("asset_type") in ("stock", "crypto") and not item.get("price_validation_passed", False):
         # Keep promising research candidates visible, but never present an unverified
         # quote as an actionable signal. Preserve the evidence grade for ranking.
         item["potential_stage"] = stage
         item["signal_blocked_reason"] = item.get("price_validation_note", "Independent quote validation unavailable")
         item["stage_reasons"] = [
             f"Research grade: {stage}.",
-            "WATCH ONLY: fresh independent price confirmation is unavailable; BUY/actionable status is blocked."
+            f"WATCH ONLY: {item.get('asset_type', 'asset').upper()} price validation is unavailable or stale; BUY/actionable status is blocked."
         ]
         stage = "PRICE UNVERIFIED — WATCH ONLY"
 
@@ -1715,10 +1715,24 @@ def coinbase_crypto_market_data(symbol: str):
     volume = safe_float(stats.get("volume"))
     if price <= 0 or opening <= 0:
         raise RuntimeError(f"Coinbase returned incomplete market data for {product}")
+    stamp = pd.Timestamp(ticker.get("time")) if ticker.get("time") else None
+    if stamp is not None and pd.notna(stamp):
+        if stamp.tzinfo is None: stamp = stamp.tz_localize("UTC")
+        stamp = stamp.tz_convert("UTC")
+        as_of = stamp.isoformat()
+        age_seconds = (datetime.now(timezone.utc) - stamp.to_pydatetime()).total_seconds()
+    else:
+        as_of, age_seconds = None, None
+    passed = bool(as_of and age_seconds is not None and -30 <= age_seconds <= 300 and price > 0)
     normalized = {
         "lastPrice": price,
         "priceChangePercent": (price / opening - 1) * 100,
         "quoteVolume": volume * price,
+        "price_as_of": as_of,
+        "price_age_seconds": round(age_seconds, 1) if age_seconds is not None else None,
+        "price_validation_passed": passed,
+        "price_validation_note": "Fresh Coinbase ticker timestamp" if passed else "Coinbase ticker timestamp missing or older than 5 minutes",
+        "price_validation_method": "coinbase_ticker_timestamp",
     }
     return normalized, bars, "Coinbase Exchange public API"
 
@@ -1757,10 +1771,34 @@ def kraken_crypto_market_data(symbol: str):
     raw = bars_rows[0] if bars_rows else []
     # Kraken returns [time, open, high, low, close, vwap, volume, count].
     bars = [[row[0], row[1], row[2], row[3], row[4], row[6]] for row in raw if len(row) >= 8]
+    # Kraken's ticker payload has no quote timestamp. Cross-check its last
+    # price against the newest public trade and use that trade's exchange time.
+    trades_response = HTTP.get(f"{KRAKEN}/Trades", params={"pair": pair_id}, timeout=12)
+    trades_response.raise_for_status()
+    trades_payload = trades_response.json()
+    if trades_payload.get("error"):
+        raise RuntimeError("Kraken Trades: " + "; ".join(trades_payload["error"]))
+    trade_rows = [value for key, value in (trades_payload.get("result") or {}).items() if key != "last"]
+    latest_trade = trade_rows[0][0] if trade_rows and trade_rows[0] else None
+    trade_price = safe_float(latest_trade[0]) if latest_trade else 0.0
+    trade_epoch = safe_float(latest_trade[2]) if latest_trade and len(latest_trade) > 2 else 0.0
+    age_seconds = datetime.now(timezone.utc).timestamp() - trade_epoch if trade_epoch > 0 else None
+    difference_pct = abs(price / trade_price - 1) * 100 if trade_price > 0 else None
+    passed = bool(age_seconds is not None and -30 <= age_seconds <= 300 and difference_pct is not None and difference_pct <= 0.5)
     normalized = {
         "lastPrice": price,
         "priceChangePercent": (price / opening - 1) * 100,
         "quoteVolume": volume * vwap,
+        "price_as_of": datetime.fromtimestamp(trade_epoch, timezone.utc).isoformat() if trade_epoch > 0 else None,
+        "price_age_seconds": round(age_seconds, 1) if age_seconds is not None else None,
+        "price_validation_passed": passed,
+        "price_validation_note": (
+            "Fresh Kraken last trade cross-check passed"
+            if passed else
+            f"Kraken ticker not validated: trade age={round(age_seconds, 1) if age_seconds is not None else 'unknown'}s; ticker/trade difference={round(difference_pct, 3) if difference_pct is not None else 'unknown'}%"
+        ),
+        "price_validation_method": "kraken_latest_trade_cross_check",
+        "price_cross_check_difference_pct": round(difference_pct, 4) if difference_pct is not None else None,
     }
     return normalized, bars, "Kraken Spot public API"
 
@@ -1822,8 +1860,14 @@ def scan_crypto(symbol: str) -> Optional[dict]:
         "symbol": symbol,
         "asset_type": "crypto",
         "price": price,
-        "price_as_of": datetime.now(timezone.utc).isoformat(),
-        "price_freshness": "live_ticker_snapshot",
+        "price_as_of": ticker.get("price_as_of"),
+        "price_freshness": "exchange_timestamped_ticker" if ticker.get("price_validation_passed") else "timestamp_missing_or_stale",
+        "price_validation_passed": bool(ticker.get("price_validation_passed")),
+        "price_validation_note": ticker.get("price_validation_note") or "No exchange timestamp validation available",
+        "price_validation_method": ticker.get("price_validation_method"),
+        "price_age_seconds": ticker.get("price_age_seconds"),
+        "price_cross_check_difference_pct": ticker.get("price_cross_check_difference_pct"),
+        "price_source": provider,
         "daily_change_pct": round(change_24h, 2),
         "hourly_change_pct": round(change_1h, 2),
         "relative_volume": round(relative_volume, 2),
@@ -2269,7 +2313,12 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
                 "candidates_returned": len(crypto_results),
                 "scan_errors": len(crypto_errors),
                 "not_returned_or_below_early_watch_floor": max(0, len(crypto_symbols) - len(crypto_results) - len(crypto_errors)),
-                "stages": {stage: sum(1 for x in crypto_results if x.get("stage") == stage) for stage in ("BUY", "ACTIONABLE SETUP", "DEVELOPING SETUP", "EARLY WATCH", "LOW-CONVICTION WATCH")},
+                    "stages": {stage: sum(1 for x in crypto_results if x.get("stage") == stage) for stage in ("BUY", "ACTIONABLE SETUP", "DEVELOPING SETUP", "EARLY WATCH", "LOW-CONVICTION WATCH", "PRICE UNVERIFIED — WATCH ONLY")},
+                "price_validation": {
+                    "verified": sum(1 for x in crypto_results if x.get("price_validation_passed")),
+                    "unverified": sum(1 for x in crypto_results if not x.get("price_validation_passed")),
+                    "methods": {method: sum(1 for x in crypto_results if x.get("price_validation_method") == method) for method in ("kraken_latest_trade_cross_check", "coinbase_ticker_timestamp")},
+                },
             },
             "alpaca_quote_status": {
                 "credentials_configured": bool(os.getenv("ALPACA_API_KEY", "").strip() and os.getenv("ALPACA_API_SECRET", "").strip()),
