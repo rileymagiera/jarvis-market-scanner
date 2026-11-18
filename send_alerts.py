@@ -727,6 +727,8 @@ def main():
     for item in payload["candidates"]:
         if item.get("asset_type") in ("stock", "crypto") and not item.get("price_validation_passed", False):
             continue
+        if item.get("data_quality", {}).get("buy_eligible") is not True:
+            continue
         score = int(item.get("score") or 0)
         volume = float(item.get("relative_volume") or 0)
         intraday_volume = float(item.get("intraday_relative_volume") or 0)
