@@ -656,6 +656,57 @@ def update_buy_signal_history(candidates, now, scan_errors=None):
     return state["signals"]
 
 
+
+def select_premarket_alerts(candidates, state, now):
+    """Select notable premarket research candidates without changing BUY gates."""
+    history = state.setdefault("premarket_alert_history", {})
+    selected = []
+    for item in candidates:
+        if item.get("asset_type") != "stock":
+            continue
+        gap = safe_float(item.get("premarket_gap_pct"), 0.0)
+        pre_volume = safe_float(item.get("premarket_volume"), 0.0)
+        pre_rvol = safe_float(item.get("premarket_rvol_same_time"), 0.0)
+        runner = safe_float(item.get("early_runner_research_score"), 0.0)
+        catalyst = bool(item.get("catalyst_labels"))
+        dilution = bool(item.get("dilution_flags"))
+        qualifies = (
+            gap >= 4.0
+            or (gap >= 2.5 and pre_rvol >= 2.0 and pre_volume >= 25000)
+            or (gap >= 1.5 and runner >= 65 and pre_volume >= 10000)
+        )
+        if not qualifies:
+            continue
+        rank = min(100, max(0, round(
+            min(max(gap, 0), 25) * 1.5
+            + min(pre_rvol, 10) * 4
+            + min(pre_volume / 10000, 10)
+            + runner * 0.25
+            + (10 if catalyst else 0)
+            - (18 if dilution else 0)
+        )))
+        key = item.get("symbol", "").upper()
+        previous = history.get(key, {})
+        previous_score = int(previous.get("score", 0))
+        last_alerted = previous.get("alerted_at")
+        elapsed_hours = 999.0
+        if last_alerted:
+            try:
+                elapsed_hours = (now - datetime.fromisoformat(last_alerted)).total_seconds() / 3600
+            except (ValueError, TypeError):
+                pass
+        if elapsed_hours < 8 and rank < previous_score + 10:
+            continue
+        status = "PREMARKET VERIFIED" if item.get("price_validation_passed") else "PREMARKET PROVISIONAL — NOT INDEPENDENTLY VERIFIED"
+        item["premarket_alert_score"] = rank
+        item["premarket_alert_status"] = status
+        selected.append(item)
+        history[key] = {"score": rank, "alerted_at": now.isoformat(), "status": status}
+    selected.sort(key=lambda x: x.get("premarket_alert_score", 0), reverse=True)
+    state["premarket_alert_history"] = history
+    return selected[:10]
+
+
 def main():
     if "--test" in sys.argv:
         email("Jarvis email test", "Jarvis successfully sent a test email. Email delivery is connected. This test does not confirm market scanning. Jarvis is recommendation-only and never places trades.")
@@ -725,6 +776,7 @@ def main():
     except Exception as exc:
         print(f"History sync failed; committed tracker files remain available: {type(exc).__name__}: {exc}")
     market = payload.get("market_conditions") or {}
+    premarket_selected = select_premarket_alerts(payload["candidates"], state, now)
     selected, updates = [], {}
     for item in payload["candidates"]:
         # Research alerts may use delayed/EOD/historical data, but their
@@ -762,6 +814,25 @@ def main():
         return
 
     if not selected:
+        if premarket_selected:
+            lines = [
+                "JARVIS PREMARKET EARLY RUNNER WATCH",
+                "Generated: " + str(payload.get("timestamp", now.isoformat())),
+                "Hourly scan only — no schedule changes. Research alerts; no trades are placed.",
+                "",
+            ]
+            for item in premarket_selected:
+                lines += [
+                    f"{item.get('symbol')} | Premarket score {item.get('premarket_alert_score')}/100 | {item.get('premarket_alert_status')}",
+                    f"Gap: {item.get('premarket_gap_pct', 'n/a')}% | Premarket volume: {item.get('premarket_volume', 'n/a')} | RVOL: {item.get('premarket_rvol_same_time', 'n/a')}x",
+                    f"Price: {item.get('price', 'n/a')} | Timestamp: {item.get('price_as_of', 'n/a')} | Source: {item.get('data_source', 'n/a')}",
+                    f"Runner research score: {item.get('early_runner_research_score', 'n/a')} | Catalyst: {item.get('catalyst_labels') or 'none classified'} | Dilution flags: {item.get('dilution_flags') or 'none flagged'}",
+                    "",
+                ]
+            email("Jarvis premarket early runners", "\\n".join(lines))
+            STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+            print(f"Premarket alerts sent: {len(premarket_selected)}")
+            return
         # Send one heartbeat per local Eastern calendar day.
         daily_key = local_now.date().isoformat()
         if state.get("daily_status_date") == daily_key:
