@@ -1,9 +1,9 @@
 {
-  "candidates_found": 119,
+  "candidates_found": 30,
   "diagnostics": {
     "alpaca_quote_status": {
       "candidate_status_counts": {
-        "no_fresh_trade_or_usable_quote": 98
+        "no_fresh_trade_or_usable_quote": 9
       },
       "credentials_configured": true,
       "feed": "iex",
@@ -11,8 +11,8 @@
         "calls": 3,
         "error_counts": {},
         "failures": 0,
-        "max_seconds": 0.41,
-        "total_seconds": 0.52
+        "max_seconds": 0.34,
+        "total_seconds": 0.48
       }
     },
     "crypto": {
@@ -32,18 +32,18 @@
         "BUY": 0,
         "DATA QUALITY \u2014 WATCH ONLY": 0,
         "DEVELOPING SETUP": 0,
-        "EARLY WATCH": 2,
-        "LOW-CONVICTION WATCH": 19,
+        "EARLY WATCH": 3,
+        "LOW-CONVICTION WATCH": 18,
         "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
       },
       "symbols_requested": 40
     },
     "market_session": {
-      "as_of": "2026-11-18T09:01:05.666405-05:00",
+      "as_of": "2026-11-18T10:01:12.591511-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
-      "is_extended_session": true,
-      "is_regular_session": false,
-      "phase": "PRE-MARKET"
+      "is_extended_session": false,
+      "is_regular_session": true,
+      "phase": "REGULAR SESSION"
     },
     "massive_fallback_policy": {
       "max_requests_per_scan": 3,
@@ -53,42 +53,42 @@
     "massive_live_quote_note": "Optional last-trade cross-check is disabled by default. Enable MASSIVE_LIVE_QUOTE_ENABLED=true only if the Massive Stocks plan includes /v2/last/trade; 15-minute delayed data is accepted only when its timestamp is within 45 minutes.",
     "massive_live_quote_status": "disabled_pending_entitlement_check",
     "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history/data or score below the early-watch floor; provider-specific discovery failures are not always attributable to one symbol.",
-    "scan_duration_seconds": 23.97,
+    "scan_duration_seconds": 35.38,
     "stocks": {
-      "candidates_returned": 98,
-      "not_returned_or_below_early_watch_floor": 42,
-      "scan_errors": 6,
+      "candidates_returned": 9,
+      "not_returned_or_below_early_watch_floor": 10,
+      "scan_errors": 125,
       "stages": {
         "ACTIONABLE SETUP": 0,
         "BUY": 0,
         "DATA QUALITY \u2014 WATCH ONLY": 0,
-        "DEVELOPING RUNNER": 19,
+        "DEVELOPING RUNNER": 1,
         "DEVELOPING SETUP": 0,
-        "EARLY SETUP": 16,
-        "EARLY WATCH": 10,
-        "LATE RUNNER \u2014 CHASE RISK": 8,
-        "LOW-CONVICTION WATCH": 45,
+        "EARLY SETUP": 0,
+        "EARLY WATCH": 2,
+        "LATE RUNNER \u2014 CHASE RISK": 0,
+        "LOW-CONVICTION WATCH": 6,
         "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
       },
-      "symbols_requested": 146
+      "symbols_requested": 144
     },
     "timing_breakdown": {
-      "asset_scans_wall_seconds": 22.91,
-      "market_conditions_seconds": 0.59,
+      "asset_scans_wall_seconds": 33.31,
+      "market_conditions_seconds": 1.27,
       "provider_activity": {
         "alpaca_snapshot_batch": {
           "calls": 3,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.41,
-          "total_seconds": 0.52
+          "max_seconds": 0.34,
+          "total_seconds": 0.48
         },
         "market_conditions": {
           "calls": 1,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.59,
-          "total_seconds": 0.59
+          "max_seconds": 1.27,
+          "total_seconds": 1.27
         },
         "massive_daily_fallback": {
           "calls": 1,
@@ -101,68 +101,68 @@
           "calls": 1,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 5.89,
-          "total_seconds": 5.89
+          "max_seconds": 6.87,
+          "total_seconds": 6.87
         },
         "scan_stock_parallel_wall": {
           "calls": 1,
           "error_counts": {},
           "failures": 1,
-          "max_seconds": 22.39,
-          "total_seconds": 22.39
+          "max_seconds": 32.83,
+          "total_seconds": 32.83
         },
         "sec_recent_filings": {
-          "calls": 103,
+          "calls": 133,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 2.07,
-          "total_seconds": 19.22
+          "max_seconds": 0.37,
+          "total_seconds": 6.95
         },
         "stooq_daily_fallback": {
           "calls": 1,
           "error_counts": {},
           "failures": 1,
-          "max_seconds": 0.48,
-          "total_seconds": 0.48
+          "max_seconds": 0.55,
+          "total_seconds": 0.55
         },
         "yahoo_daily_history": {
-          "calls": 146,
+          "calls": 144,
           "error_counts": {},
           "failures": 1,
-          "max_seconds": 0.54,
-          "total_seconds": 22.72
+          "max_seconds": 0.87,
+          "total_seconds": 40.82
         },
         "yahoo_discovery_screen": {
           "calls": 6,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.25,
-          "total_seconds": 1.16
+          "max_seconds": 0.43,
+          "total_seconds": 2.13
         },
         "yahoo_fundamentals": {
-          "calls": 63,
+          "calls": 77,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.3,
-          "total_seconds": 12.09
+          "max_seconds": 0.61,
+          "total_seconds": 28.92
         },
         "yahoo_intraday_history": {
-          "calls": 145,
+          "calls": 143,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.16,
-          "total_seconds": 12.17
+          "max_seconds": 0.37,
+          "total_seconds": 20.1
         },
         "yahoo_stock_news": {
-          "calls": 103,
+          "calls": 133,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 2.29,
-          "total_seconds": 38.42
+          "max_seconds": 0.67,
+          "total_seconds": 37.76
         }
       },
-      "total_seconds": 23.97,
-      "universe_discovery_seconds": 0.34
+      "total_seconds": 35.38,
+      "universe_discovery_seconds": 0.63
     },
     "webull_quote_note": "Webull quote lookups are opt-in because app authorization was observed pending; Yahoo/Stooq scanning continues independently. Enable only after Webull market-data authorization is confirmed.",
     "webull_quote_status": "disabled_pending_authorization"
@@ -170,51 +170,527 @@
   "errors": [
     {
       "error": "'bid'",
-      "symbol": "NVDA"
+      "symbol": "RKLB"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "RGTI"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "QBTS"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "BBAI"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "HIMS"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "ONDS"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "LUNR"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "RDW"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "SMCI"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "JOBY"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "MARA"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "TSLA"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "AMD"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "CLSK"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "RIOT"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "SERV"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "TEM"
     },
     {
       "error": "'bid'",
       "symbol": "OPEN"
     },
     {
-      "error": "Yahoo failed (Yahoo returned insufficient daily history); Massive unavailable (MASSIVE_API_KEY is not configured); Stooq failed (Stooq returned incomplete daily history for LYCA)",
-      "symbol": "LYCA"
+      "error": "'bid'",
+      "symbol": "OKLO"
     },
     {
       "error": "'bid'",
-      "symbol": "NIO"
+      "symbol": "BRBR"
     },
     {
       "error": "'bid'",
-      "symbol": "NBIS"
+      "symbol": "SMR"
     },
     {
       "error": "'bid'",
-      "symbol": "BBD"
+      "symbol": "AES"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "FIRY"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "USAR"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "CAPR"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "BORR"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "ABSI"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "VITL"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "LAES"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "UAMY"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "EOSE"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "ANGX"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "PAL"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "RXRX"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "PACB"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "MP"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "CSHR"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "ANRO"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "NRXP"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "KURA"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "NUAI"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "BFLY"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "HUYA"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "SVRA"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "TMC"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "CRML"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "PLUG"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "BEAM"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "SDGR"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "LYFT"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "MEC"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "SRFM"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "SG"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "NNE"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "CTMX"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "NTLA"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "BLMN"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "IRTC"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "SSTK"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "AMPX"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "RGEN"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "OFRM"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "IHRT"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "CELH"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "ASPI"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "IAM"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "TENB"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "FSLY"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "MPT"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "FLNC"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "AESI"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "CALM"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "PRAA"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "BLSH"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "HSAI"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "KLAR"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "XTND"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "CSIQ"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "CIFR"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "CBRL"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "BURL"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "ULCC"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "VSAT"
+    },
+    {
+      "error": "Yahoo failed (Yahoo returned insufficient daily history); Massive unavailable (MASSIVE_API_KEY is not configured); Stooq failed (Stooq returned incomplete daily history for WWB)",
+      "symbol": "WWB"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "ANTX"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "OWLT"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "TTWO"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "FEAM"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "JELD"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "NMRA"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "CDXS"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "RBLX"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "NXDT"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "TDUP"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "XMTR"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "BOOT"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "FIX"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "VYGR"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "KLC"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "VIK"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "ALAB"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "QLYS"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "KTB"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "CLS"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "CECO"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "ALGT"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "CSW"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "OKTA"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "BJRI"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "MRCY"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "SPHR"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "MSA"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "DY"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "EBS"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "SHAK"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "HUMA"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "FOXF"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "ZBIO"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "WW"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "CHH"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "BBW"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "KRT"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "CRVS"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "ARW"
+    },
+    {
+      "error": "'bid'",
+      "symbol": "FIP"
     }
   ],
   "market_conditions": {
     "benchmarks": {
       "BTC-USD": {
         "above_20d_average": false,
-        "five_day_change_pct": -6.41
+        "five_day_change_pct": -6.59
       },
       "IWM": {
         "above_20d_average": false,
-        "five_day_change_pct": -4.11
+        "five_day_change_pct": -4.13
       },
       "QQQ": {
         "above_20d_average": false,
-        "five_day_change_pct": -2.64
+        "five_day_change_pct": -4.2
       },
       "SPY": {
         "above_20d_average": false,
-        "five_day_change_pct": -2.33
+        "five_day_change_pct": -3.42
       }
     },
     "note": "Benchmark context is a caution/confirmation input, not a standalone buy or sell signal.",
     "regime": "RISK-OFF",
     "score_adjustment": -8
   },
-  "timestamp": "2026-11-18T14:01:05.666289+00:00"
+  "timestamp": "2026-11-18T15:01:12.591432+00:00"
 }

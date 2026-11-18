@@ -141,6 +141,11 @@
       "score": 12,
       "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
+    "EVTL": {
+      "alerted_at": "2026-11-18T15:01:12.593127+00:00",
+      "score": 9,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
     "FIX": {
       "alerted_at": "2026-11-18T13:30:14.288657+00:00",
       "score": 9,
@@ -159,6 +164,11 @@
     "GLAS": {
       "alerted_at": "2026-11-18T13:30:14.288657+00:00",
       "score": 38,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
+    "GRRR": {
+      "alerted_at": "2026-11-18T15:01:12.593127+00:00",
+      "score": 7,
       "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
     "IAM": {
@@ -309,6 +319,11 @@
     "SNAP": {
       "alerted_at": "2026-11-18T13:30:14.288657+00:00",
       "score": 11,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
+    "STDN": {
+      "alerted_at": "2026-11-18T15:01:12.593127+00:00",
+      "score": 8,
       "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
     "TME": {
@@ -532,4 +547,4 @@
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 87
   }
-}
+}\n
