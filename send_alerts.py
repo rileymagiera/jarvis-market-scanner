@@ -220,7 +220,7 @@ def update_paper_tracker(candidates, now):
                 "pullback_from_session_high_pct", "premarket_high_reclaimed",
                 "catalyst_labels", "catalyst_dilution_status", "dilution_flags",
                 "catalyst_headline_count", "early_runner_research_score", "early_runner_score_components",
-                "crqs", "crqs_tier", "crqs_components", "crqs_data_coverage", "crqs_entry_score", "crqs_entry_penalty", "crqs_features", "buy_readiness",
+                "crqs", "crqs_tier", "crqs_components", "crqs_data_coverage", "crqs_entry_score", "crqs_entry_penalty", "crqs_features", "crqs_relative_strength_vs_btc_24h_pct", "crqs_sector_activity", "crqs_sector_rank", "crqs_sector_count", "crypto_sector", "buy_readiness",
             )
             for field in research_fields:
                 record[field] = item.get(field)
