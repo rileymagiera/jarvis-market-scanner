@@ -1,9 +1,7 @@
 name: Jarvis Market Alerts
 
 on:
-  # Re-register the hourly schedule on the default branch.
-  schedule:
-    - cron: "17 * * * *"
+  # cron-job.org is the sole scheduler and triggers this workflow via workflow_dispatch.
   workflow_dispatch:
     inputs:
       send_test_email:
