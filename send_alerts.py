@@ -657,6 +657,65 @@ def update_buy_signal_history(candidates, now, scan_errors=None):
 
 
 
+def apply_history_runner_learning(candidates, tracker):
+    """Research-only historical pattern bonus; never alters BUY gates."""
+    records = list((tracker or {}).values()) if isinstance(tracker, dict) else []
+    rules = {
+        "float_rotation_20pct": lambda f: safe_float(f.get("float_rotation_pct")) >= 20,
+        "volume_acceleration_1_8x": lambda f: safe_float(f.get("volume_acceleration_3bar")) >= 1.8,
+        "cumulative_rvol_1_5x": lambda f: safe_float(f.get("cumulative_rvol_same_time")) >= 1.5,
+        "premarket_rvol_1_5x": lambda f: safe_float(f.get("premarket_rvol_same_time")) >= 1.5,
+        "higher_highs_lows": lambda f: f.get("higher_highs_higher_lows") is True,
+        "catalyst_present": lambda f: bool(f.get("catalyst_labels")),
+        "early_runner_score_50": lambda f: safe_float(f.get("early_runner_research_score")) >= 50,
+        "crqs_50": lambda f: safe_float(f.get("crqs")) >= 50,
+        "crypto_hourly_momentum": lambda f: safe_float(f.get("hourly_change_pct")) >= 1,
+        "crypto_24h_momentum": lambda f: safe_float(f.get("daily_change_pct")) >= 3,
+    }
+    cohort_stats = {}
+    for asset in ("stock", "crypto"):
+        eligible = [r for r in records if r.get("asset_type") == asset
+                    and r.get("price_validation_status") == "verified"
+                    and isinstance(r.get("early_runner_initial_feature_snapshot"), dict)
+                    and isinstance((r.get("early_runner_outcomes") or {}).get("5d"), dict)]
+        outcomes = [safe_float((r.get("early_runner_outcomes") or {}).get("5d", {}).get("return_pct"), None)
+                    for r in eligible]
+        outcomes = [v for v in outcomes if v is not None]
+        baseline = sum(v >= 20 for v in outcomes) / len(outcomes) if outcomes else 0.25
+        asset_cohorts = {}
+        for name, predicate in rules.items():
+            sample = [r for r in eligible if predicate(r.get("early_runner_initial_feature_snapshot") or {})]
+            values = [safe_float((r.get("early_runner_outcomes") or {}).get("5d", {}).get("return_pct"), None)
+                      for r in sample]
+            values = [v for v in values if v is not None]
+            count = len(values)
+            winners = sum(v >= 20 for v in values)
+            # Shrink small cohort rates toward asset-wide baseline to reduce noise.
+            rate = (winners + baseline * 8) / (count + 8) if count else baseline
+            asset_cohorts[name] = {"n": count, "runner_rate_pct": round(rate * 100, 1),
+                                  "baseline_rate_pct": round(baseline * 100, 1)}
+        cohort_stats[asset] = asset_cohorts
+    for item in candidates or []:
+        features = dict(item)
+        matched = []
+        for name, predicate in rules.items():
+            if not predicate(features):
+                continue
+            cohort = (cohort_stats.get(item.get("asset_type")) or {}).get(name) or {}
+            if cohort.get("n", 0) < 8:
+                continue
+            uplift = cohort["runner_rate_pct"] - cohort["baseline_rate_pct"]
+            matched.append({"feature": name, **cohort, "uplift_pct_points": round(uplift, 1)})
+        positive = [m["uplift_pct_points"] for m in matched if m["uplift_pct_points"] > 0]
+        bonus = min(10, round(sum(positive) / len(positive) * 0.5)) if positive else 0
+        item["history_runner_learning"] = {
+            "score_bonus": bonus, "matched_features": matched,
+            "minimum_cohort_size": 8, "research_only": True,
+        }
+        item["history_runner_learning_score"] = bonus
+    return candidates
+
+
 def select_premarket_alerts(candidates, state, now):
     """Select notable premarket research candidates without changing BUY gates."""
     history = state.setdefault("premarket_alert_history", {})
@@ -682,6 +741,7 @@ def select_premarket_alerts(candidates, state, now):
             + min(pre_rvol, 10) * 4
             + min(pre_volume / 10000, 10)
             + runner * 0.25
+            + safe_float(item.get("history_runner_learning_score"), 0.0)
             + (10 if catalyst else 0)
             - (18 if dilution else 0)
         )))
@@ -767,6 +827,7 @@ def main():
     now = datetime.now(timezone.utc)
     local_now = now.astimezone(ZoneInfo("America/Detroit"))
     paper, paper_lifetime = update_paper_tracker(payload["candidates"], now)
+    apply_history_runner_learning(payload["candidates"], paper)
     buy_signals = update_buy_signal_history(payload["candidates"], now, payload.get("errors") or [])
     # Keep the live history page current without waiting for a Render redeploy.
     # The committed JSON files remain the recovery source if the site restarts.
