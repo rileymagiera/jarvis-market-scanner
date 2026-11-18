@@ -187,9 +187,12 @@ def discover_stock_symbols(limit: int = 120) -> list[str]:
     selected = strict_ranked[:strict_slots]
     remaining = max(0, limit - len(selected))
     selected.extend(early_ranked[:remaining])
-    record_scan_metric("stock_discovery_strict_candidates", len(strict_found))
-    record_scan_metric("stock_discovery_early_candidates", len(early_found))
-    record_scan_metric("stock_discovery_selected", len(selected))
+    print(
+        "Stock discovery:",
+        f"strict={len(strict_found)}",
+        f"early={len(early_found)}",
+        f"selected={len(selected)}",
+    )
     return selected
 
 KRAKEN = "https://api.kraken.com/0/public"
