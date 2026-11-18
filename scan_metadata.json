@@ -1,17 +1,17 @@
 {
-  "last_scan_started_at": "2026-11-18T03:45:57.353440+00:00",
+  "last_scan_started_at": "2026-11-18T03:54:51.943448+00:00",
   "last_attempt_status": "completed",
-  "run_id": "44232653206",
-  "run_number": "42",
-  "commit_sha": "f1222a07ca4a29b4d786b905df91d4f36f53862e",
-  "last_scan_completed_at": "2026-11-18T03:46:23.314974+00:00",
+  "run_id": "44233634907",
+  "run_number": "43",
+  "commit_sha": "11f75166e8ce593227e10f5e6b3c944990566739",
+  "last_scan_completed_at": "2026-11-18T03:55:13.834266+00:00",
   "last_attempt_error": null,
-  "scan_duration_seconds": 25.4,
-  "scan_errors": 1,
+  "scan_duration_seconds": 20.91,
+  "scan_errors": 2,
   "execution_environment": "github_actions_runner",
   "scan_audit": {
-    "audit_timestamp": "2026-11-18T03:46:23.314895+00:00",
-    "audit_run_id": "44232653206",
+    "audit_timestamp": "2026-11-18T03:55:13.834145+00:00",
+    "audit_run_id": "44233634907",
     "audit_status": "passed",
     "files_valid_json": [
       "diagnostics",
@@ -26,9 +26,13 @@
     "stocks_price_verified": 105,
     "stocks_price_unverified": 2,
     "crypto_returned": 15,
-    "crypto_price_verified": 14,
-    "crypto_price_unverified": 1,
+    "crypto_price_verified": 13,
+    "crypto_price_unverified": 2,
     "scan_errors": [
+      {
+        "error": "Yahoo failed (database is locked); Massive unavailable (MASSIVE_API_KEY is not configured); Stooq failed (Stooq returned incomplete daily history for RKLB)",
+        "symbol": "RKLB"
+      },
       {
         "error": "Yahoo failed (Yahoo returned insufficient daily history); Massive unavailable (MASSIVE_API_KEY is not configured); Stooq failed (Stooq returned incomplete daily history for LYCA)",
         "symbol": "LYCA"
@@ -40,8 +44,8 @@
       "DEVELOPING RUNNER": 16,
       "DEVELOPING SETUP": 0,
       "EARLY SETUP": 26,
-      "EARLY WATCH": 7,
-      "LATE RUNNER \u2014 CHASE RISK": 9,
+      "EARLY WATCH": 8,
+      "LATE RUNNER \u2014 CHASE RISK": 8,
       "LOW-CONVICTION WATCH": 47,
       "PRICE UNVERIFIED \u2014 WATCH ONLY": 2
     },
@@ -50,8 +54,8 @@
       "BUY": 0,
       "DEVELOPING SETUP": 0,
       "EARLY WATCH": 0,
-      "LOW-CONVICTION WATCH": 14,
-      "PRICE UNVERIFIED \u2014 WATCH ONLY": 1
+      "LOW-CONVICTION WATCH": 13,
+      "PRICE UNVERIFIED \u2014 WATCH ONLY": 2
     },
     "history_sync_reported": true
   }
