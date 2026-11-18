@@ -2519,8 +2519,8 @@ def research_data():
             "average_5d_return_pct": round(sum(returns) / len(returns), 2) if returns else None,
             "definition": "5-day sampled return >=20%; only completed, verified observations",
         }
-    massive_key=bool(os.getenv("MASSIVE_API_KEY","").strip()))
-    webull_keys=bool(os.getenv("WEBULL_APP_KEY","").strip() and os.getenv("WEBULL_APP_SECRET","").strip()))
+    massive_key=bool(os.getenv("MASSIVE_API_KEY","").strip())
+    webull_keys=bool(os.getenv("WEBULL_APP_KEY","").strip() and os.getenv("WEBULL_APP_SECRET","").strip())
     return {"synced_at":synced,"last_scan_completed_at":completed,"scan_run_id":run_id,
             "history_source":source,"paper_tracker":paper,"lifetime":lifetime,"buy_signals":buys,
             "market_session":market_session_status(),
