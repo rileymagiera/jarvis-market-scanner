@@ -2241,6 +2241,16 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 <section class="section"><h2>Discovery reasons & catalysts</h2><div class="scroll"><table><thead><tr><th>Candidate</th><th>Signals</th><th>Latest headline / filing</th><th>Risk flags</th></tr></thead><tbody id="catalysts"></tbody></table></div></section>
 <section class="section"><h2>Not in latest scan</h2><div class="tiny">Previously tracked, but absent from the latest scan. Last recorded prices may be stale; this is not a sell signal.</div><div class="scroll"><table><thead><tr><th>Candidate</th><th>Last seen</th><th>Last return</th><th>Best gain</th><th>Last grade</th></tr></thead><tbody id="faded"></tbody></table></div></section>
 <p class="tiny section">Data may be delayed or incomplete. Candidate discovery is not the same as an actionable alert.</p></div></details></main><script>
+(function(){
+ const el=document.getElementById('updated');
+ if(el)el.textContent='Overview independent check running…';
+ fetch('/history/data?bootstrap='+Date.now(),{cache:'no-store'})
+ .then(r=>{if(!r.ok)throw Error('History API HTTP '+r.status);return r.json()})
+ .then(d=>{if(el)el.textContent='Independent check OK · '+Object.keys(d.paper_tracker||{}).length+' saved records · waiting for dashboard script';})
+ .catch(e=>{if(el)el.textContent='Independent check failed · '+(e.message||e);});
+})();
+</script>
+<script>
 window.addEventListener('error',function(ev){const el=document.getElementById('updated');if(el)el.textContent='Overview JavaScript error: '+(ev.message||'script error');});
 window.addEventListener('unhandledrejection',function(ev){const el=document.getElementById('updated');if(el)el.textContent='Overview promise error: '+(ev.reason&&ev.reason.message||ev.reason||'unknown');});
 const status=document.getElementById('updated');if(status)status.textContent='Overview script started · fetching history…';
@@ -2335,7 +2345,7 @@ document.getElementById('catalysts').innerHTML=all.filter(x=>(x.discovery_reason
 const faded=all.filter(x=>x.currently_surfaced===false).sort((a,b)=>(b.last_seen||'').localeCompare(a.last_seen||''));document.getElementById('faded').innerHTML=faded.slice(0,40).map(x=>'<tr><td>'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'</td><td>'+date(x.last_seen)+'</td><td class="'+cl(x.return_pct)+'">'+pct(x.return_pct)+'</td><td class="pos">'+pct(x.max_gain_pct)+'</td><td>'+e(x.last_stage||'—')+'</td></tr>').join('')||'<tr><td colspan="5">No candidates currently absent from the latest scan.</td></tr>';
 }
 fetch('/history/data?refresh='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('History request failed: HTTP '+r.status);return r.json()}).then(d=>{try{render(d)}catch(err){console.error('Jarvis history render error:',err);document.getElementById('updated').textContent='History data received, but dashboard render failed: '+(err&&err.message||err);}}).catch(err=>{console.error('Jarvis history data load error:',err);document.getElementById('updated').textContent='History data load failed: '+(err&&err.message||err);});
-</script></body></html>""")
+</script></body></html>""",headers={"Cache-Control":"no-store, no-cache, must-revalidate, max-age=0","Pragma":"no-cache","Expires":"0"})
  
  
 @app.get("/history/data", dependencies=[Depends(require_site_login)])
