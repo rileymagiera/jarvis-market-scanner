@@ -282,6 +282,43 @@ def build_data_quality_record(asset_type, price_source, price_freshness, observe
         ),
     }
 
+
+def apply_entry_quality_gate(stage, data_quality, price_validation_passed, buy_readiness):
+    """Keep research discovery visible while requiring verified live data for BUY."""
+    result = {
+        "stage": stage,
+        "potential_stage": None,
+        "entry_status": "RESEARCH ONLY",
+        "signal_blocked_reason": None,
+    }
+    quality = data_quality or {}
+    readiness = buy_readiness or {}
+    if stage == "BUY":
+        if (readiness.get("all_gates_passed") is True
+                and price_validation_passed is True
+                and quality.get("buy_eligible") is True):
+            result["entry_status"] = "LIVE DATA VERIFIED — BUY GATES PASSED"
+        else:
+            result["potential_stage"] = "BUY"
+            result["stage"] = "ACTIONABLE SETUP"
+            if not price_validation_passed:
+                result["entry_status"] = "WAITING FOR INDEPENDENT PRICE VALIDATION"
+                result["signal_blocked_reason"] = "Independent current-price validation is unavailable or stale"
+            elif quality.get("buy_eligible") is not True:
+                kind = str(quality.get("data_type") or "unknown").upper()
+                result["entry_status"] = "WAITING FOR LIVE ENTRY CONFIRMATION"
+                result["signal_blocked_reason"] = f"Selected price is {kind}; live timestamped data is required for BUY"
+            else:
+                result["entry_status"] = "BUY GATES INCOMPLETE"
+                result["signal_blocked_reason"] = "One or more strict BUY readiness checks did not pass"
+    elif not price_validation_passed:
+        result["entry_status"] = "RESEARCH ONLY — PRICE UNVERIFIED"
+        result["signal_blocked_reason"] = "Candidate remains visible for discovery; current price is not independently verified"
+    elif quality.get("buy_eligible") is not True:
+        result["entry_status"] = f"RESEARCH ONLY — {str(quality.get('data_type') or 'unknown').upper()} DATA"
+        result["signal_blocked_reason"] = "Candidate remains visible for discovery; this data type cannot confirm a live entry"
+    return result
+
 def set_crypto_relative_strength_coverage(coverage, relative):
     """Keep legacy and canonical flags aligned for BTC-relative strength coverage."""
     available = relative is not None
