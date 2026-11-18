@@ -315,7 +315,7 @@ def update_paper_tracker(candidates, now):
                 "shares_outstanding", "short_percent_float", "higher_highs_higher_lows",
                 "pullback_from_session_high_pct", "premarket_high_reclaimed",
                 "catalyst_labels", "catalyst_dilution_status", "dilution_flags",
-                "catalyst_headline_count", "early_runner_research_score", "early_runner_score_components",
+                "catalyst_headline_count", "early_runner_research_score", "early_runner_score_components", "buy_readiness",
         )
         for field in research_fields:
             record[field] = item.get(field)
