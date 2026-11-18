@@ -2519,7 +2519,8 @@ const featureDefs=[
 ["Cumulative RVOL","Session cumulative volume compared with prior sessions at the same clock time.",["cumulative_rvol_same_time"]],
 ["Volume acceleration","Recent three-bar average volume versus the preceding three bars.",["volume_acceleration_3bar"]],
 ["Intraday structure","Higher highs/higher lows, pullback from session high and premarket-high reclaim.",["higher_highs_higher_lows","pullback_from_session_high_pct","premarket_high_reclaimed"]],
-["Early runner research score","Transparent feature score for ranking research candidates; not a probability or BUY trigger.",["early_runner_research_score","early_runner_score_components"]]
+["Early runner research score","Transparent feature score for ranking research candidates; not a probability or BUY trigger.",["early_runner_research_score","early_runner_score_components"]],
+["Crypto Runner Quality Score (CRQS)","Crypto-specific quality score, tier, component breakdown, entry penalty, and data-coverage flags.",["crqs","crqs_tier","crqs_components","crqs_data_coverage","crqs_entry_score","crqs_entry_penalty","crqs_features"]]
 ];
 const features=featureDefs.map(([name,description,keys])=>{const covered=Math.max(0,...keys.map(k=>Number(coverage[k]||0)));const total=all.length;const status=covered>0?"Collecting · "+covered+"/"+total+" records":"No measurements saved yet";return [name,description,status];});
 document.getElementById("features").innerHTML=features.map(x=>'<div class="feature"><b>'+esc(x[0])+'</b><p>'+esc(x[1])+'</p><span class="status '+(x[2].startsWith("Existing")||x[2].startsWith("Collecting")?"partial":"")+'">'+esc(x[2])+'</span></div>').join("");
@@ -2569,7 +2570,8 @@ def research_data():
             "cumulative_rvol_same_time","volume_acceleration_3bar","float_rotation_pct","float_shares","shares_outstanding",
             "short_percent_float","higher_highs_higher_lows","pullback_from_session_high_pct","premarket_high_reclaimed",
             "catalyst_labels","catalyst_dilution_status","dilution_flags","catalyst_headline_count",
-            "early_runner_research_score","early_runner_score_components")
+            "early_runner_research_score","early_runner_score_components",
+            "crqs","crqs_tier","crqs_components","crqs_data_coverage","crqs_entry_score","crqs_entry_penalty","crqs_features")
     # Cohort outcomes use only verified candidate records with a completed 5-day observation.
     # A runner is defined conservatively as a +20% 5-day observed return; this is a research label, not a forecast.
     cohort_rules = {
