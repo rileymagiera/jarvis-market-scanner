@@ -1,17 +1,17 @@
 {
-  "last_scan_started_at": "2026-11-18T11:00:39.276443+00:00",
+  "last_scan_started_at": "2026-11-18T12:00:39.475695+00:00",
   "last_attempt_status": "completed",
-  "run_id": "44290627390",
-  "run_number": "52",
-  "commit_sha": "1119701003579b1de700b009a01e6de8d52e626d",
-  "last_scan_completed_at": "2026-11-18T11:01:06.832708+00:00",
+  "run_id": "44299772173",
+  "run_number": "53",
+  "commit_sha": "805c4870f798be82aad73be6a4c02d9328b79966",
+  "last_scan_completed_at": "2026-11-18T12:01:02.291889+00:00",
   "last_attempt_error": null,
-  "scan_duration_seconds": 26.65,
+  "scan_duration_seconds": 21.78,
   "scan_errors": 1,
   "execution_environment": "github_actions_runner",
   "scan_audit": {
-    "audit_timestamp": "2026-11-18T11:01:06.832583+00:00",
-    "audit_run_id": "44290627390",
+    "audit_timestamp": "2026-11-18T12:01:02.291710+00:00",
+    "audit_run_id": "44299772173",
     "audit_status": "passed",
     "files_valid_json": [
       "diagnostics",
@@ -21,12 +21,12 @@
       "metadata"
     ],
     "file_validation_errors": [],
-    "candidates_total": 122,
-    "stocks_returned": 103,
-    "stocks_price_verified": 103,
+    "candidates_total": 126,
+    "stocks_returned": 105,
+    "stocks_price_verified": 105,
     "stocks_price_unverified": 0,
-    "crypto_returned": 19,
-    "crypto_price_verified": 17,
+    "crypto_returned": 21,
+    "crypto_price_verified": 19,
     "crypto_price_unverified": 2,
     "scan_errors": [
       {
@@ -41,18 +41,18 @@
       "DEVELOPING RUNNER": 17,
       "DEVELOPING SETUP": 0,
       "EARLY SETUP": 22,
-      "EARLY WATCH": 9,
-      "LATE RUNNER \u2014 CHASE RISK": 9,
-      "LOW-CONVICTION WATCH": 46,
+      "EARLY WATCH": 8,
+      "LATE RUNNER \u2014 CHASE RISK": 8,
+      "LOW-CONVICTION WATCH": 50,
       "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
     },
     "crypto_stage_counts": {
       "ACTIONABLE SETUP": 0,
       "BUY": 0,
       "DATA QUALITY \u2014 WATCH ONLY": 0,
-      "DEVELOPING SETUP": 0,
-      "EARLY WATCH": 0,
-      "LOW-CONVICTION WATCH": 19,
+      "DEVELOPING SETUP": 1,
+      "EARLY WATCH": 2,
+      "LOW-CONVICTION WATCH": 18,
       "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
     },
     "history_sync_reported": true

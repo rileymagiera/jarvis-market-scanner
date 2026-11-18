@@ -54,12 +54,37 @@
     "alerted_stage": "DEVELOPING SETUP",
     "score": 62
   },
+  "crypto:USELESSUSDT": {
+    "alerted_at": "2026-11-18T12:01:02.292956+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 67
+  },
   "crypto:XMRUSDT": {
     "alerted_at": "2026-11-17T13:32:34.964836+00:00",
     "alerted_stage": "DEVELOPING SETUP",
     "score": 78
   },
   "daily_status_date": "2026-11-17",
+  "stock:ACM": {
+    "alerted_at": "2026-11-18T12:01:02.292956+00:00",
+    "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
+    "score": 85
+  },
+  "stock:AS": {
+    "alerted_at": "2026-11-18T12:01:02.292956+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 63
+  },
+  "stock:ASMB": {
+    "alerted_at": "2026-11-18T12:01:02.292956+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 65
+  },
+  "stock:BILL": {
+    "alerted_at": "2026-11-18T12:01:02.292956+00:00",
+    "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
+    "score": 85
+  },
   "stock:CXW": {
     "alerted_at": "2026-11-17T20:42:43.611462+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
@@ -69,6 +94,16 @@
     "alerted_at": "2026-11-17T20:42:43.611462+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 87
+  },
+  "stock:EMPD": {
+    "alerted_at": "2026-11-18T12:01:02.292956+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 62
+  },
+  "stock:ENR": {
+    "alerted_at": "2026-11-18T12:01:02.292956+00:00",
+    "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
+    "score": 85
   },
   "stock:FIGR": {
     "alerted_at": "2026-11-17T15:24:43.538715+00:00",
@@ -85,10 +120,25 @@
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 63
   },
+  "stock:LUXE": {
+    "alerted_at": "2026-11-18T12:01:02.292956+00:00",
+    "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
+    "score": 85
+  },
+  "stock:MMLP": {
+    "alerted_at": "2026-11-18T12:01:02.292956+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 62
+  },
   "stock:MNSO": {
     "alerted_at": "2026-11-17T20:42:43.611462+00:00",
     "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
     "score": 78
+  },
+  "stock:OMF": {
+    "alerted_at": "2026-11-18T12:01:02.292956+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 63
   },
   "stock:PCG": {
     "alerted_at": "2026-11-18T01:30:30.596618+00:00",
@@ -105,15 +155,35 @@
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 85
   },
+  "stock:QVCG": {
+    "alerted_at": "2026-11-18T12:01:02.292956+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 86
+  },
+  "stock:RYTM": {
+    "alerted_at": "2026-11-18T12:01:02.292956+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 71
+  },
   "stock:SA": {
     "alerted_at": "2026-11-17T20:42:43.611462+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 61
   },
+  "stock:SENEA": {
+    "alerted_at": "2026-11-18T12:01:02.292956+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 60
+  },
   "stock:SLS": {
     "alerted_at": "2026-11-17T20:42:43.611462+00:00",
     "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
     "score": 85
+  },
+  "stock:SMWB": {
+    "alerted_at": "2026-11-18T12:01:02.292956+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 78
   },
   "stock:TIMB": {
     "alerted_at": "2026-11-17T15:24:43.538715+00:00",
@@ -124,6 +194,21 @@
     "alerted_at": "2026-11-17T15:24:43.538715+00:00",
     "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
     "score": 85
+  },
+  "stock:TXMD": {
+    "alerted_at": "2026-11-18T12:01:02.292956+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 83
+  },
+  "stock:UNFI": {
+    "alerted_at": "2026-11-18T12:01:02.292956+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 71
+  },
+  "stock:VIK": {
+    "alerted_at": "2026-11-18T12:01:02.292956+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 90
   },
   "stock:VIV": {
     "alerted_at": "2026-11-17T15:24:43.538715+00:00",
