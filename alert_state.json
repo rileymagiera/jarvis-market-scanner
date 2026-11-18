@@ -31,6 +31,11 @@
       "score": 7,
       "status": "PREMARKET VERIFIED"
     },
+    "CRWV": {
+      "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+      "score": 29,
+      "status": "PREMARKET VERIFIED"
+    },
     "CSHR": {
       "alerted_at": "2026-11-18T18:01:11.833239+00:00",
       "score": 0,
@@ -39,6 +44,11 @@
     "EMPD": {
       "alerted_at": "2026-11-18T19:01:00.184725+00:00",
       "score": 22,
+      "status": "PREMARKET VERIFIED"
+    },
+    "EROC": {
+      "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+      "score": 10,
       "status": "PREMARKET VERIFIED"
     },
     "FEAM": {
@@ -56,6 +66,16 @@
       "score": 26,
       "status": "PREMARKET VERIFIED"
     },
+    "IONQ": {
+      "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+      "score": 16,
+      "status": "PREMARKET VERIFIED"
+    },
+    "IREN": {
+      "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+      "score": 14,
+      "status": "PREMARKET VERIFIED"
+    },
     "ITG": {
       "alerted_at": "2026-11-18T18:01:11.833239+00:00",
       "score": 36,
@@ -68,6 +88,11 @@
     },
     "MARA": {
       "alerted_at": "2026-11-18T18:01:11.833239+00:00",
+      "score": 6,
+      "status": "PREMARKET VERIFIED"
+    },
+    "MCRB": {
+      "alerted_at": "2026-11-18T21:01:14.253122+00:00",
       "score": 6,
       "status": "PREMARKET VERIFIED"
     },
@@ -107,10 +132,30 @@
       "status": "PREMARKET VERIFIED"
     }
   },
+  "stock:ABX": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 62
+  },
+  "stock:ACCO": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 85
+  },
   "stock:AES": {
     "alerted_at": "2026-11-18T18:01:11.833239+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 62
+  },
+  "stock:AKAM": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 61
+  },
+  "stock:AMD": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 81
   },
   "stock:ANTX": {
     "alerted_at": "2026-11-18T20:01:00.164852+00:00",
@@ -118,9 +163,9 @@
     "score": 80
   },
   "stock:ATEN": {
-    "alerted_at": "2026-11-18T18:01:11.833239+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 62
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
+    "score": 85
   },
   "stock:BIP": {
     "alerted_at": "2026-11-18T19:01:00.184725+00:00",
@@ -137,38 +182,73 @@
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 64
   },
+  "stock:BOOT": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 66
+  },
   "stock:BRBR": {
     "alerted_at": "2026-11-18T18:01:11.833239+00:00",
     "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
     "score": 81
   },
   "stock:CAKE": {
-    "alerted_at": "2026-11-18T20:01:00.164852+00:00",
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 65
+    "score": 90
+  },
+  "stock:CAL": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 63
   },
   "stock:CALM": {
-    "alerted_at": "2026-11-18T18:01:11.833239+00:00",
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 87
+  },
+  "stock:CBRL": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 87
+  },
+  "stock:CDXS": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 61
   },
-  "stock:CBRL": {
-    "alerted_at": "2026-11-18T20:01:00.164852+00:00",
+  "stock:COCO": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 62
+    "score": 84
   },
   "stock:CRI": {
-    "alerted_at": "2026-11-18T20:01:00.164852+00:00",
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 62
+    "score": 87
   },
   "stock:FIRY": {
-    "alerted_at": "2026-11-18T18:01:11.833239+00:00",
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 62
+    "score": 87
   },
   "stock:FROG": {
-    "alerted_at": "2026-11-18T19:01:00.184725+00:00",
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 87
+  },
+  "stock:FUN": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 82
+  },
+  "stock:GNRC": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 63
+  },
+  "stock:HUYA": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 62
   },
@@ -183,9 +263,9 @@
     "score": 85
   },
   "stock:JJSF": {
-    "alerted_at": "2026-11-18T18:01:11.833239+00:00",
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 60
+    "score": 85
   },
   "stock:KHC": {
     "alerted_at": "2026-11-18T19:01:00.184725+00:00",
@@ -198,14 +278,39 @@
     "score": 64
   },
   "stock:MFP": {
-    "alerted_at": "2026-11-18T18:01:11.833239+00:00",
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 61
+    "score": 86
+  },
+  "stock:NFE": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 62
   },
   "stock:NL": {
     "alerted_at": "2026-11-18T18:01:11.833239+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 61
+  },
+  "stock:NTSK": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 61
+  },
+  "stock:NUAI": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 83
+  },
+  "stock:OKTA": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 78
+  },
+  "stock:PAL": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 62
   },
   "stock:PCG": {
     "alerted_at": "2026-11-18T18:01:11.833239+00:00",
@@ -218,7 +323,27 @@
     "score": 76
   },
   "stock:PRGO": {
-    "alerted_at": "2026-11-18T18:09:36.530310+00:00",
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 86
+  },
+  "stock:PVH": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 83
+  },
+  "stock:QVCG": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 86
+  },
+  "stock:RARE": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 89
+  },
+  "stock:RDWR": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 61
   },
@@ -232,19 +357,69 @@
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 62
   },
+  "stock:SG": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 64
+  },
+  "stock:SHOE": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 61
+  },
   "stock:SLS": {
     "alerted_at": "2026-11-18T18:01:11.833239+00:00",
     "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
     "score": 78
+  },
+  "stock:SRRK": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 67
+  },
+  "stock:SVRA": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 60
   },
   "stock:TTWO": {
     "alerted_at": "2026-11-18T19:01:00.184725+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 60
   },
-  "stock:VIK": {
-    "alerted_at": "2026-11-18T18:01:11.833239+00:00",
+  "stock:UI": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 62
+    "score": 64
+  },
+  "stock:ULCC": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 64
+  },
+  "stock:UPBD": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 60
+  },
+  "stock:VIA": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 85
+  },
+  "stock:VIK": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 89
+  },
+  "stock:WSM": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 61
+  },
+  "stock:ZIP": {
+    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 67
   }
 }
