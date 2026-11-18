@@ -725,10 +725,8 @@ def main():
     market = payload.get("market_conditions") or {}
     selected, updates = [], {}
     for item in payload["candidates"]:
-        if item.get("asset_type") in ("stock", "crypto") and not item.get("price_validation_passed", False):
-            continue
-        if item.get("data_quality", {}).get("buy_eligible") is not True:
-            continue
+        # Research alerts may use delayed/EOD/historical data, but their
+        # freshness label is included below. BUY stage is independently gated.
         score = int(item.get("score") or 0)
         volume = float(item.get("relative_volume") or 0)
         intraday_volume = float(item.get("intraday_relative_volume") or 0)
@@ -812,6 +810,7 @@ def main():
             f'Price: {item.get("price", "n/a")} | Daily/24h change: {item.get("daily_change_pct", "n/a")}% | Relative volume: {item.get("relative_volume", "n/a")}x',
             f'Intraday 15m change: {item.get("intraday_change_pct", "n/a")}% | Intraday relative volume: {item.get("intraday_relative_volume", "n/a")}x | Intraday breakout: {item.get("intraday_breakout", False)}',
             f'Breakout: {item.get("breakout_20d", item.get("breakout_24h", False))} | Source: {item.get("data_source", "n/a")}',
+            f'PRICE QUALITY: {(item.get("data_quality") or {}).get("data_type", "unknown").upper()} | Validation: {item.get("price_validation_status", "unknown")} | Entry: {item.get("entry_status", "RESEARCH ONLY")}',
         ]
         levels = item.get("levels") or {}
         if levels and item.get("stage") == "BUY":
