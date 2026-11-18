@@ -2737,7 +2737,8 @@ def research_data():
             "short_percent_float","higher_highs_higher_lows","pullback_from_session_high_pct","premarket_high_reclaimed",
             "catalyst_labels","catalyst_dilution_status","dilution_flags","catalyst_headline_count",
             "early_runner_research_score","early_runner_score_components",
-            "crqs","crqs_tier","crqs_components","crqs_data_coverage","crqs_entry_score","crqs_entry_penalty","crqs_features")
+            "crqs","crqs_tier","crqs_components","crqs_data_coverage","crqs_entry_score","crqs_entry_penalty","crqs_features",
+             "data_quality","daily_data_quality","intraday_data_quality","hourly_data_quality")
     # Cohort outcomes use only verified candidate records with a completed 5-day observation.
     # A runner is defined conservatively as a +20% 5-day observed return; this is a research label, not a forecast.
     cohort_rules = {
