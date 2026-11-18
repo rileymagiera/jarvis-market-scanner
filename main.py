@@ -2034,7 +2034,21 @@ def github_history_state() -> dict:
         try:
             response = HTTP.get(base + path, headers=headers, params={"ref":"main"}, timeout=(3,12))
             response.raise_for_status()
-            state[key] = json.loads(base64.b64decode(response.json()["content"]).decode("utf-8"))
+            file_meta = response.json()
+            encoded = file_meta.get("content") or ""
+            if file_meta.get("encoding") == "base64" and encoded.strip():
+                raw_text = base64.b64decode(encoded).decode("utf-8")
+            else:
+                # GitHub Contents API omits content for larger files. Fetch the blob
+                # directly by SHA so the research dashboard can read large histories.
+                blob_url = f"https://api.github.com/repos/rileymagiera/jarvis-market-scanner/git/blobs/{file_meta['sha']}"
+                blob_response = HTTP.get(blob_url, headers=headers, timeout=(3,20))
+                blob_response.raise_for_status()
+                blob_meta = blob_response.json()
+                if blob_meta.get("encoding") != "base64" or not blob_meta.get("content"):
+                    raise ValueError("GitHub blob returned no base64 content")
+                raw_text = base64.b64decode(blob_meta["content"]).decode("utf-8")
+            state[key] = json.loads(raw_text)
         except Exception as exc:
             status = getattr(getattr(exc, "response", None), "status_code", None)
             print(f"JARVIS_HISTORY_DIAGNOSTIC source=fallback reason=github_read_failed file={path} status={status or 'unknown'} error_type={type(exc).__name__}", flush=True)
