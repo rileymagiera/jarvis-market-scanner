@@ -2168,9 +2168,9 @@ a{color:var(--accent);text-decoration:none}.muted,.sub{color:var(--muted);font-s
 </section>
 <section class="section"><h2>Candidate research ledger</h2><div class="muted">Latest saved records; metrics appear only after the scanner actually records them.</div><div class="scroll"><table><thead><tr><th>Asset</th><th>Grade</th><th>Price validation</th><th>Relative strength</th><th>Same-time RVOL</th><th>VWAP / opening range</th><th>ADX / DMI</th><th>Liquidity / spread</th><th>Catalyst / dilution</th></tr></thead><tbody id="ledger"><tr><td colspan="9" class="empty">Loading…</td></tr></tbody></table></div></section>
 <section class="section"><h2>How we will judge the signals</h2><div class="features">
-<div class="feature"><b>Forward returns</b><p>1h, 4h, 24h, 72h, 5-day and 10-day observations where verified timestamps and prices exist.</p><span class="status">To be instrumented</span></div>
-<div class="feature"><b>Favorable / adverse excursion</b><p>Measure the best upside and worst pullback after each signal, not only the final return.</p><span class="status">To be instrumented</span></div>
-<div class="feature"><b>False-breakout rate</b><p>Record failed breaks, retests, spread and slippage assumptions.</p><span class="status">To be instrumented</span></div>
+<div class="feature"><b>Forward returns</b><p>1h, 4h, 24h, 72h, 5-day and 10-day observations where verified timestamps and prices exist.</p><span class="status partial">Sampling enabled · waiting for completed scan horizons</span></div>
+<div class="feature"><b>Favorable / adverse excursion</b><p>Measure the best upside and worst pullback after each signal, not only the final return.</p><span class="status partial">Sampling enabled · waiting for completed scan horizons</span></div>
+<div class="feature"><b>False-breakout rate</b><p>Record failed breaks, retests, spread and slippage assumptions.</p><span class="status partial">Sampling enabled · waiting for completed scan horizons</span></div>
 <div class="feature"><b>Promotion gate</b><p>No research signal enters BUY scoring until enough verified observations show an improvement after costs.</p><span class="status partial">BUY rules remain unchanged</span></div>
 </div></section>
 <div class="foot">All research is observational and hypothetical. Quotes may be delayed or incomplete. Nothing here represents an executed trade or guaranteed fill.</div></main>
