@@ -1,12 +1,29 @@
 {
   "by_asset": {
     "crypto": {
-      "recommendations": 48
+      "checkpoints": {
+        "1": {
+          "flat": 0,
+          "losses": 0,
+          "observations": 14,
+          "total_return_pct": 40.64,
+          "wins": 14
+        }
+      },
+      "recommendations": 49
     },
     "stock": {
       "recommendations": 68
     }
   },
-  "checkpoints": {},
-  "recommendations": 116
+  "checkpoints": {
+    "1": {
+      "flat": 0,
+      "losses": 0,
+      "observations": 14,
+      "total_return_pct": 40.64,
+      "wins": 14
+    }
+  },
+  "recommendations": 117
 }
