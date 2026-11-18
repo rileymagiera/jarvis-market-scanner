@@ -1,17 +1,17 @@
 {
-  "last_scan_started_at": "2026-11-18T17:00:43.402237+00:00",
+  "last_scan_started_at": "2026-11-18T18:00:43.609974+00:00",
   "last_attempt_status": "completed",
-  "run_id": "44353693048",
-  "run_number": "61",
-  "commit_sha": "13d41b59c9003f9ac3342b89b5df47c5edebdebf",
-  "last_scan_completed_at": "2026-11-18T17:01:04.397027+00:00",
+  "run_id": "44364866079",
+  "run_number": "62",
+  "commit_sha": "e024fec186e245b97dc3beea5e8f2a16799b5360",
+  "last_scan_completed_at": "2026-11-18T18:01:11.832167+00:00",
   "last_attempt_error": null,
-  "scan_duration_seconds": 20.06,
-  "scan_errors": 99,
+  "scan_duration_seconds": 27.52,
+  "scan_errors": 0,
   "execution_environment": "github_actions_runner",
   "scan_audit": {
-    "audit_timestamp": "2026-11-18T17:01:04.396937+00:00",
-    "audit_run_id": "44353693048",
+    "audit_timestamp": "2026-11-18T18:01:11.832028+00:00",
+    "audit_run_id": "44364866079",
     "audit_status": "passed",
     "files_valid_json": [
       "diagnostics",
@@ -21,430 +21,33 @@
       "metadata"
     ],
     "file_validation_errors": [],
-    "candidates_total": 29,
-    "stocks_returned": 4,
-    "stocks_price_verified": 4,
+    "candidates_total": 148,
+    "stocks_returned": 115,
+    "stocks_price_verified": 115,
     "stocks_price_unverified": 0,
-    "crypto_returned": 25,
-    "crypto_price_verified": 25,
-    "crypto_price_unverified": 0,
-    "scan_errors": [
-      {
-        "error": "'bid'",
-        "symbol": "AMD"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "RIOT"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "OPEN"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "BRBR"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "ANTX"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "AES"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "FIRY"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "VITL"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "CSHR"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "NFE"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "BLSH"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "PAL"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "OWLT"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "TENB"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "FSLY"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "FUN"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "ABSI"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "HUYA"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "JRVR"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "IRTC"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "CAPR"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "MFP"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "QVCG"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "XTND"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "VUZI"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "SG"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "QLYS"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "NTSK"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "SLS"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "IIIV"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "LAES"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "CWH"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "MIST"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "COCO"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "ANRO"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "NRXP"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "JJSF"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "ATEN"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "CALM"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "LULU"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "BIPC"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "S"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "WBTN"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "MPT"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "ANGX"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "ASYS"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "AKAM"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "AOMR"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "KTB"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "GNRC"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "CELH"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "LYFT"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "SVRA"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "BOBS"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "SHOE"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "CAL"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "TTGT"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "BURL"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "ARHS"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "RXRX"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "PACB"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "CBRL"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "M"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "ITG"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "BOOT"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "TDUP"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "LDI"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "PRGO"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "SAIL"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "FROG"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "TTWO"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "TSQ"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "FEAM"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "BIP"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "RBLX"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "VIK"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "OKTA"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "LAB"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "ACR"
-      },
-      {
-        "error": "Yahoo failed (Yahoo returned insufficient daily history); Massive unavailable (MASSIVE_API_KEY is not configured); Stooq failed (Stooq returned incomplete daily history for WWB)",
-        "symbol": "WWB"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "FLWS"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "BRCC"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "ZS"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "NMRA"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "FIX"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "DDS"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "WSM"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "SN"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "CCL"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "CLS"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "HWKN"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "ICMB"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "CMG"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "UI"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "RKT"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "RC"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "HLN"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "PCG"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "SITC"
-      }
-    ],
+    "crypto_returned": 33,
+    "crypto_price_verified": 31,
+    "crypto_price_unverified": 2,
+    "scan_errors": [],
     "stock_stage_counts": {
       "ACTIONABLE SETUP": 0,
       "BUY": 0,
       "DATA QUALITY \u2014 WATCH ONLY": 0,
-      "DEVELOPING RUNNER": 0,
+      "DEVELOPING RUNNER": 23,
       "DEVELOPING SETUP": 0,
-      "EARLY SETUP": 0,
-      "EARLY WATCH": 0,
-      "LATE RUNNER \u2014 CHASE RISK": 1,
-      "LOW-CONVICTION WATCH": 3,
+      "EARLY SETUP": 15,
+      "EARLY WATCH": 12,
+      "LATE RUNNER \u2014 CHASE RISK": 3,
+      "LOW-CONVICTION WATCH": 62,
       "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
     },
     "crypto_stage_counts": {
       "ACTIONABLE SETUP": 0,
       "BUY": 0,
       "DATA QUALITY \u2014 WATCH ONLY": 0,
-      "DEVELOPING SETUP": 1,
-      "EARLY WATCH": 2,
-      "LOW-CONVICTION WATCH": 22,
+      "DEVELOPING SETUP": 0,
+      "EARLY WATCH": 6,
+      "LOW-CONVICTION WATCH": 27,
       "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
     },
     "history_sync_reported": true
