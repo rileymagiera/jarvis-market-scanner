@@ -1,17 +1,17 @@
 {
-  "last_scan_started_at": "2026-11-18T16:00:44.733940+00:00",
+  "last_scan_started_at": "2026-11-18T17:00:43.402237+00:00",
   "last_attempt_status": "completed",
-  "run_id": "44342097146",
-  "run_number": "60",
-  "commit_sha": "a7df1fae4662bd1b0d9a43332ecb132f4f44131b",
-  "last_scan_completed_at": "2026-11-18T16:01:05.942613+00:00",
+  "run_id": "44353693048",
+  "run_number": "61",
+  "commit_sha": "13d41b59c9003f9ac3342b89b5df47c5edebdebf",
+  "last_scan_completed_at": "2026-11-18T17:01:04.397027+00:00",
   "last_attempt_error": null,
-  "scan_duration_seconds": 19.61,
-  "scan_errors": 98,
+  "scan_duration_seconds": 20.06,
+  "scan_errors": 99,
   "execution_environment": "github_actions_runner",
   "scan_audit": {
-    "audit_timestamp": "2026-11-18T16:01:05.942524+00:00",
-    "audit_run_id": "44342097146",
+    "audit_timestamp": "2026-11-18T17:01:04.396937+00:00",
+    "audit_run_id": "44353693048",
     "audit_status": "passed",
     "files_valid_json": [
       "diagnostics",
@@ -21,29 +21,17 @@
       "metadata"
     ],
     "file_validation_errors": [],
-    "candidates_total": 32,
-    "stocks_returned": 16,
-    "stocks_price_verified": 16,
+    "candidates_total": 29,
+    "stocks_returned": 4,
+    "stocks_price_verified": 4,
     "stocks_price_unverified": 0,
-    "crypto_returned": 16,
-    "crypto_price_verified": 16,
+    "crypto_returned": 25,
+    "crypto_price_verified": 25,
     "crypto_price_unverified": 0,
     "scan_errors": [
       {
         "error": "'bid'",
-        "symbol": "ONDS"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "RDW"
-      },
-      {
-        "error": "'bid'",
         "symbol": "AMD"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "MARA"
       },
       {
         "error": "'bid'",
@@ -55,7 +43,7 @@
       },
       {
         "error": "'bid'",
-        "symbol": "SMR"
+        "symbol": "BRBR"
       },
       {
         "error": "'bid'",
@@ -63,31 +51,11 @@
       },
       {
         "error": "'bid'",
-        "symbol": "BRBR"
-      },
-      {
-        "error": "'bid'",
         "symbol": "AES"
       },
       {
         "error": "'bid'",
-        "symbol": "CSHR"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "PAL"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "MIST"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "TENB"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "BLSH"
+        "symbol": "FIRY"
       },
       {
         "error": "'bid'",
@@ -95,19 +63,27 @@
       },
       {
         "error": "'bid'",
-        "symbol": "HUYA"
+        "symbol": "CSHR"
       },
       {
         "error": "'bid'",
-        "symbol": "NTSK"
+        "symbol": "NFE"
       },
       {
         "error": "'bid'",
-        "symbol": "LAES"
+        "symbol": "BLSH"
       },
       {
         "error": "'bid'",
-        "symbol": "NRXP"
+        "symbol": "PAL"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "OWLT"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "TENB"
       },
       {
         "error": "'bid'",
@@ -115,15 +91,19 @@
       },
       {
         "error": "'bid'",
+        "symbol": "FUN"
+      },
+      {
+        "error": "'bid'",
         "symbol": "ABSI"
       },
       {
         "error": "'bid'",
-        "symbol": "ANGX"
+        "symbol": "HUYA"
       },
       {
         "error": "'bid'",
-        "symbol": "SVRA"
+        "symbol": "JRVR"
       },
       {
         "error": "'bid'",
@@ -131,59 +111,7 @@
       },
       {
         "error": "'bid'",
-        "symbol": "S"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "QVCG"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "QLYS"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "ANRO"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "SG"
-      },
-      {
-        "error": "'bid'",
         "symbol": "CAPR"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "VUZI"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "ACCV"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "USAR"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "MP"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "CDXS"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "MPT"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "FUN"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "SAIL"
       },
       {
         "error": "'bid'",
@@ -191,19 +119,31 @@
       },
       {
         "error": "'bid'",
-        "symbol": "FROG"
+        "symbol": "QVCG"
       },
       {
         "error": "'bid'",
-        "symbol": "NUAI"
+        "symbol": "XTND"
       },
       {
         "error": "'bid'",
-        "symbol": "CAMT"
+        "symbol": "VUZI"
       },
       {
         "error": "'bid'",
-        "symbol": "KLAR"
+        "symbol": "SG"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "QLYS"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "NTSK"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "SLS"
       },
       {
         "error": "'bid'",
@@ -211,11 +151,75 @@
       },
       {
         "error": "'bid'",
-        "symbol": "OFRM"
+        "symbol": "LAES"
       },
       {
         "error": "'bid'",
-        "symbol": "RXRX"
+        "symbol": "CWH"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "MIST"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "COCO"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "ANRO"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "NRXP"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "JJSF"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "ATEN"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "CALM"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "LULU"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "BIPC"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "S"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "WBTN"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "MPT"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "ANGX"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "ASYS"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "AKAM"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "AOMR"
       },
       {
         "error": "'bid'",
@@ -227,79 +231,7 @@
       },
       {
         "error": "'bid'",
-        "symbol": "BORR"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "CALM"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "IOND"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "RBRK"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "ABEO"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "PACB"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "RGEN"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "BURL"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "BLMN"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "BOOT"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "SDGR"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "RDWR"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "ZIP"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "CABA"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "CAL"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "JJSF"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "IBRX"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "XTND"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "CBRL"
+        "symbol": "CELH"
       },
       {
         "error": "'bid'",
@@ -307,15 +239,75 @@
       },
       {
         "error": "'bid'",
-        "symbol": "BJRI"
+        "symbol": "SVRA"
       },
       {
         "error": "'bid'",
-        "symbol": "NXDT"
+        "symbol": "BOBS"
       },
       {
         "error": "'bid'",
-        "symbol": "SRRK"
+        "symbol": "SHOE"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "CAL"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "TTGT"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "BURL"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "ARHS"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "RXRX"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "PACB"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "CBRL"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "M"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "ITG"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "BOOT"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "TDUP"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "LDI"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "PRGO"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "SAIL"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "FROG"
       },
       {
         "error": "'bid'",
@@ -323,15 +315,19 @@
       },
       {
         "error": "'bid'",
-        "symbol": "RBLX"
-      },
-      {
-        "error": "Yahoo failed (Yahoo returned insufficient daily history); Massive unavailable (MASSIVE_API_KEY is not configured); Stooq failed (Stooq returned incomplete daily history for WWB)",
-        "symbol": "WWB"
+        "symbol": "TSQ"
       },
       {
         "error": "'bid'",
         "symbol": "FEAM"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "BIP"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "RBLX"
       },
       {
         "error": "'bid'",
@@ -343,27 +339,15 @@
       },
       {
         "error": "'bid'",
-        "symbol": "BIRD"
+        "symbol": "LAB"
       },
       {
         "error": "'bid'",
         "symbol": "ACR"
       },
       {
-        "error": "'bid'",
-        "symbol": "FIX"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "ZS"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "DBI"
-      },
-      {
-        "error": "'bid'",
-        "symbol": "CLS"
+        "error": "Yahoo failed (Yahoo returned insufficient daily history); Massive unavailable (MASSIVE_API_KEY is not configured); Stooq failed (Stooq returned incomplete daily history for WWB)",
+        "symbol": "WWB"
       },
       {
         "error": "'bid'",
@@ -371,15 +355,23 @@
       },
       {
         "error": "'bid'",
-        "symbol": "BDC"
+        "symbol": "BRCC"
       },
       {
         "error": "'bid'",
-        "symbol": "CSW"
+        "symbol": "ZS"
       },
       {
         "error": "'bid'",
-        "symbol": "OTTR"
+        "symbol": "NMRA"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "FIX"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "DDS"
       },
       {
         "error": "'bid'",
@@ -387,39 +379,51 @@
       },
       {
         "error": "'bid'",
-        "symbol": "RNA"
+        "symbol": "SN"
       },
       {
         "error": "'bid'",
-        "symbol": "PHIN"
+        "symbol": "CCL"
       },
       {
         "error": "'bid'",
-        "symbol": "BLND"
+        "symbol": "CLS"
       },
       {
         "error": "'bid'",
-        "symbol": "OMCL"
+        "symbol": "HWKN"
       },
       {
         "error": "'bid'",
-        "symbol": "ALAB"
+        "symbol": "ICMB"
       },
       {
         "error": "'bid'",
-        "symbol": "KEYS"
+        "symbol": "CMG"
       },
       {
         "error": "'bid'",
-        "symbol": "COHR"
+        "symbol": "UI"
       },
       {
         "error": "'bid'",
-        "symbol": "NCMI"
+        "symbol": "RKT"
       },
       {
         "error": "'bid'",
-        "symbol": "SPCE"
+        "symbol": "RC"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "HLN"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "PCG"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "SITC"
       }
     ],
     "stock_stage_counts": {
@@ -428,10 +432,10 @@
       "DATA QUALITY \u2014 WATCH ONLY": 0,
       "DEVELOPING RUNNER": 0,
       "DEVELOPING SETUP": 0,
-      "EARLY SETUP": 3,
-      "EARLY WATCH": 1,
+      "EARLY SETUP": 0,
+      "EARLY WATCH": 0,
       "LATE RUNNER \u2014 CHASE RISK": 1,
-      "LOW-CONVICTION WATCH": 11,
+      "LOW-CONVICTION WATCH": 3,
       "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
     },
     "crypto_stage_counts": {
@@ -439,8 +443,8 @@
       "BUY": 0,
       "DATA QUALITY \u2014 WATCH ONLY": 0,
       "DEVELOPING SETUP": 1,
-      "EARLY WATCH": 1,
-      "LOW-CONVICTION WATCH": 14,
+      "EARLY WATCH": 2,
+      "LOW-CONVICTION WATCH": 22,
       "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
     },
     "history_sync_reported": true
