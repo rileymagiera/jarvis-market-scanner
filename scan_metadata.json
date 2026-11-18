@@ -1,12 +1,12 @@
 {
-  "last_scan_started_at": "2026-11-18T01:30:04.691272+00:00",
+  "last_scan_started_at": "2026-11-18T01:46:21.939872+00:00",
   "last_attempt_status": "completed",
-  "run_id": "44216188484",
-  "run_number": "32",
-  "commit_sha": "4a49aeedf9de523bae20f39425926f41a56e43fc",
-  "last_scan_completed_at": "2026-11-18T01:30:30.595771+00:00",
+  "run_id": "44218301089",
+  "run_number": "33",
+  "commit_sha": "a5eee27fdcbad40c0f32bf311206da379f9c451e",
+  "last_scan_completed_at": "2026-11-18T01:46:44.786654+00:00",
   "last_attempt_error": null,
-  "scan_duration_seconds": 25.3,
+  "scan_duration_seconds": 21.81,
   "scan_errors": 1,
   "execution_environment": "github_actions_runner"
 }
