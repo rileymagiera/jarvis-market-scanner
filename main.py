@@ -14,7 +14,7 @@ import pandas as pd
 import requests
 from io import StringIO
 import yfinance as yf
-from early_runner import compute_early_runner_metrics, summarize_crypto_cross_section, set_crypto_relative_strength_coverage, build_data_quality_record
+from early_runner import compute_early_runner_metrics, summarize_crypto_cross_section, set_crypto_relative_strength_coverage, build_data_quality_record, apply_entry_quality_gate
 from fastapi import FastAPI, Query, Header, HTTPException, Depends
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.responses import HTMLResponse
@@ -850,16 +850,8 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
             stage, reasons = "LOW-CONVICTION WATCH", ["Current evidence is below the early-watch threshold."]
         item["stage_reasons"] = reasons
 
-    # Data-quality policy: delayed, EOD, historical or unknown prices remain research-only.
+    # Data freshness is an entry-confirmation gate, not a discovery filter.
     data_quality = item.get("data_quality") or {}
-    if not data_quality.get("buy_eligible", False) and stage in ("BUY", "ACTIONABLE SETUP"):
-        item["potential_stage"] = stage
-        item["signal_blocked_reason"] = "Selected price is not confirmed live data for the current session"
-        item["stage_reasons"] = [
-            f"Research grade: {stage}.",
-            f"DATA QUALITY HOLD: {data_quality.get('data_type', 'unknown').upper()} data cannot support a live BUY/actionable signal."
-        ]
-        stage = "DATA QUALITY — WATCH ONLY"
 
     # BUY readiness: record every gating condition without relaxing the signal rules.
     if item.get("asset_type") == "stock":
@@ -921,16 +913,18 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
         "missing_conditions": [buy_gate_reasons[k] for k, v in buy_gate_checks.items() if not v],
     }
 
-    if item.get("asset_type") in ("stock", "crypto") and not item.get("price_validation_passed", False):
-        # Keep promising research candidates visible, but never present an unverified
-        # quote as an actionable signal. Preserve the evidence grade for ranking.
-        item["potential_stage"] = stage
-        item["signal_blocked_reason"] = item.get("price_validation_note", "Independent quote validation unavailable")
-        item["stage_reasons"] = [
-            f"Research grade: {stage}.",
-            f"WATCH ONLY: {item.get('asset_type', 'asset').upper()} price validation is unavailable or stale; BUY/actionable status is blocked."
-        ]
-        stage = "PRICE UNVERIFIED — WATCH ONLY"
+    # Preserve the evidence-based discovery stage. Only a BUY candidate is
+    # downgraded when strict entry-quality checks are incomplete.
+    entry_gate = apply_entry_quality_gate(
+        stage, data_quality, bool(item.get("price_validation_passed", False)),
+        item.get("buy_readiness") or {},
+    )
+    stage = entry_gate["stage"]
+    item["potential_stage"] = entry_gate["potential_stage"] or item.get("potential_stage")
+    item["entry_status"] = entry_gate["entry_status"]
+    item["signal_blocked_reason"] = entry_gate["signal_blocked_reason"] or item.get("signal_blocked_reason")
+    if entry_gate["signal_blocked_reason"]:
+        item["stage_reasons"] = list(item.get("stage_reasons") or []) + [entry_gate["signal_blocked_reason"]]
 
     item["stage"] = stage
     item["signal"] = stage
