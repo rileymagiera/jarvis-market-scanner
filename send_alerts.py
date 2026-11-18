@@ -888,6 +888,7 @@ def main():
                     f"Gap: {item.get('premarket_gap_pct', 'n/a')}% | Premarket volume: {item.get('premarket_volume', 'n/a')} | RVOL: {item.get('premarket_rvol_same_time', 'n/a')}x",
                     f"Price: {item.get('price', 'n/a')} | Timestamp: {item.get('price_as_of', 'n/a')} | Source: {item.get('data_source', 'n/a')}",
                     f"Runner research score: {item.get('early_runner_research_score', 'n/a')} | Catalyst: {item.get('catalyst_labels') or 'none classified'} | Dilution flags: {item.get('dilution_flags') or 'none flagged'}",
+                    f"History-learning bonus: +{item.get('history_runner_learning_score', 0)}/10 | Matched cohorts: {[m.get('feature') for m in (item.get('history_runner_learning') or {}).get('matched_features', [])] or 'no qualified historical matches'}",
                     "",
                 ]
             email("Jarvis premarket early runners", "\\n".join(lines))
@@ -949,6 +950,7 @@ def main():
                 f'Gap: {runner.get("premarket_gap_pct", "n/a")}% | Premarket volume: {runner.get("premarket_volume", "n/a")} | RVOL: {runner.get("premarket_rvol_same_time", "n/a")}x',
                 f'Quote: {runner.get("price", "n/a")} at {runner.get("price_as_of", "n/a")} | Source: {runner.get("data_source", "n/a")}',
                 f'Research score: {runner.get("early_runner_research_score", "n/a")} | Catalyst: {runner.get("catalyst_labels") or "none classified"} | Dilution: {runner.get("dilution_flags") or "none flagged"}',
+                f'History-learning bonus: +{runner.get("history_runner_learning_score", 0)}/10 | Matches: {[m.get("feature") for m in (runner.get("history_runner_learning") or {}).get("matched_features", [])] or "no qualified historical matches"}',
                 "",
             ]
     for item in sorted(selected, key=lambda x: int(x.get("score") or 0), reverse=True):
