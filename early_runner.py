@@ -198,6 +198,14 @@ def compute_early_runner_metrics(daily, intraday, price, fundamentals=None, news
 
 
 
+def set_crypto_relative_strength_coverage(coverage, relative):
+    """Keep legacy and canonical flags aligned for BTC-relative strength coverage."""
+    available = relative is not None
+    coverage["relative_strength_vs_btc"] = available
+    coverage["market_relative_strength"] = available
+    return coverage
+
+
 def summarize_crypto_cross_section(crypto_sectors, pair_map, tickers):
     """Summarize broad exchange tickers; independent of the scanner's candidate filter."""
     returns_by_sector = {}
