@@ -188,5 +188,22 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add alert_state.json paper_tracker.json paper_tracker_lifetime.json buy_signal_history.json scan_diagnostics.json scan_metadata.json
             git commit -m "Update Jarvis alert state"
-            git push
+            # A concurrent repository commit can make the first push non-fast-forward.
+            # Retry by rebasing; if state-file conflicts occur, preserve this completed scan's
+            # generated state and merge the newer branch head before pushing again.
+            for attempt in 1 2 3; do
+              if git push origin HEAD:main; then
+                echo "Jarvis state pushed successfully (attempt $attempt)."
+                exit 0
+              fi
+              echo "Push attempt $attempt rejected; reconciling with origin/main."
+              git fetch origin main
+              if git rebase origin/main; then
+                continue
+              fi
+              git rebase --abort || true
+              git merge --no-edit -X ours origin/main
+            done
+            echo "Unable to persist Jarvis state after 3 push attempts."
+            exit 1
           fi
