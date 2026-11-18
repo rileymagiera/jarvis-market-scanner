@@ -228,6 +228,9 @@ def update_paper_tracker(candidates, now):
                 "catalyst_headline_count", "early_runner_research_score", "early_runner_score_components",
                 "crqs", "crqs_tier", "crqs_components", "crqs_data_coverage", "crqs_entry_score", "crqs_entry_penalty", "crqs_features", "crqs_relative_strength_vs_btc_24h_pct", "crqs_sector_activity", "crqs_sector_rank", "crqs_sector_count", "crypto_sector", "buy_readiness",
                 "data_quality", "daily_data_quality", "intraday_data_quality", "hourly_data_quality", "entry_status", "signal_blocked_reason", "potential_stage",
+                "hourly_change_pct", "daily_change_pct", "higher_lows", "breakout_24h", "above_24h_average",
+                "trend_up", "relative_volume", "change_1h_pct", "change_24h_pct", "price_validation_passed",
+                "price_validation_method", "price_validation_status",
             )
             for field in research_fields:
                 record[field] = item.get(field)
@@ -335,61 +338,74 @@ def update_paper_tracker(candidates, now):
         record["early_runner_signal_matches"] = item.get("early_runner_signal_matches") or []
         record["early_runner_research_score"] = item.get("early_runner_research_score")
         record["research_feature_snapshot"] = {field: item.get(field) for field in research_fields}
-        # Freeze a separate feature snapshot at the start of this research cohort.
-        # Later scans may update live fields but must not rewrite the features used for outcome attribution.
-        if not record.get("early_runner_snapshot_at"):
-            record["early_runner_snapshot_at"] = now.isoformat()
-            record["early_runner_entry_price"] = price
-            record["early_runner_initial_feature_snapshot"] = dict(record["research_feature_snapshot"])
-            record["early_runner_initial_signal_matches"] = list(item.get("early_runner_signal_matches") or [])
-            record["early_runner_outcomes"] = {}
-        early_entry = safe_float(record.get("early_runner_entry_price"))
-        early_started = datetime.fromisoformat(record["early_runner_snapshot_at"])
-        early_age = max(0, (now - early_started).total_seconds())
-        record.setdefault("early_runner_outcomes", {})
-        for horizon, seconds in {"1h": 3600, "4h": 14400, "1d": 86400, "3d": 259200, "5d": 432000}.items():
-            if early_age >= seconds and horizon not in record["early_runner_outcomes"] and early_entry > 0:
-                record["early_runner_outcomes"][horizon] = {
-                    "at": now.isoformat(), "elapsed_seconds": int(early_age),
-                    "price": price, "return_pct": round((price / early_entry - 1) * 100, 3),
-                    "sampling_note": "First completed scan after feature snapshot at or beyond target horizon; not an exact-time fill"
+        data_quality_for_outcomes = item.get("data_quality") or {}
+        observation_eligible = bool(item.get("price_validation_passed")) and (
+            asset_type != "stock" or (
+                data_quality_for_outcomes.get("data_type") == "live"
+                and safe_float(data_quality_for_outcomes.get("age_seconds"), 999999) <= 900
+                and str(data_quality_for_outcomes.get("session") or "").upper() in {
+                    "REGULAR SESSION", "PRE-MARKET", "AFTER-HOURS"
                 }
-        record["research_tracking_started_at"] = record.get("research_tracking_started_at") or record.get("first_seen") or now.isoformat()
-        research_entry = float(record.get("research_entry_price") or record.get("initial_price") or price)
-        record["research_entry_price"] = research_entry
-        sample_high = float(item.get("research_sample_high") or price)
-        sample_low = float(item.get("research_sample_low") or price)
-        record["research_peak_price"] = max(float(record.get("research_peak_price") or research_entry), sample_high, price)
-        record["research_trough_price"] = min(float(record.get("research_trough_price") or research_entry), sample_low, price)
-        if research_entry > 0:
-            record["research_max_favorable_pct"] = round((record["research_peak_price"] / research_entry - 1) * 100, 3)
-            record["research_max_adverse_pct"] = round((record["research_trough_price"] / research_entry - 1) * 100, 3)
-        research_age = max(0, (now - datetime.fromisoformat(record["research_tracking_started_at"])).total_seconds())
-        record.setdefault("research_outcomes", {})
-        research_horizons = {"1h": 3600, "4h": 14400, "24h": 86400, "72h": 259200, "5d": 432000, "10d": 864000}
-        for horizon, seconds in research_horizons.items():
-            if research_age >= seconds and horizon not in record["research_outcomes"] and research_entry > 0:
-                record["research_outcomes"][horizon] = {
-                    "at": now.isoformat(), "elapsed_seconds": int(research_age),
-                    "price": price, "return_pct": round((price / research_entry - 1) * 100, 3),
-                    "sampling_note": "First completed scan at or after the target horizon; not an exact-time fill"
-                }
-        # Track false breakouts conservatively: a later completed scan must close
-        # below the recorded breakout level by at least 0.5%.
-        opening_status = str(item.get("opening_range_status") or "").lower()
-        breakout_now = bool(item.get("breakout_20d") or "15m upside breakout" in opening_status)
-        if breakout_now and not record.get("research_breakout_at"):
-            breakout_level = float(item.get("opening_range_high") or item.get("resistance_20d") or price)
-            record["research_breakout_at"] = now.isoformat()
-            record["research_breakout_level"] = breakout_level
-            record["research_breakout_status"] = "pending"
-        elif record.get("research_breakout_status") in ("pending", "held") and record.get("research_breakout_at") != now.isoformat():
-            breakout_level = float(record.get("research_breakout_level") or 0)
-            if breakout_level > 0 and price < breakout_level * 0.995:
-                record["research_breakout_status"] = "failed"
-                record["research_false_breakout_at"] = now.isoformat()
-            elif breakout_level > 0 and price >= breakout_level:
-                record["research_breakout_status"] = "held"
+            )
+        )
+        # Stock outcome clocks start only from fresh, timestamped live observations.
+        # EOD/historical bars and stale prior-session closes are not forward-return samples.
+        if observation_eligible:
+    # Freeze a separate feature snapshot at the start of this research cohort.
+    # Later scans may update live fields but must not rewrite the features used for outcome attribution.
+    if not record.get("early_runner_snapshot_at"):
+        record["early_runner_snapshot_at"] = now.isoformat()
+        record["early_runner_entry_price"] = price
+        record["early_runner_initial_feature_snapshot"] = dict(record["research_feature_snapshot"])
+        record["early_runner_initial_signal_matches"] = list(item.get("early_runner_signal_matches") or [])
+        record["early_runner_outcomes"] = {}
+    early_entry = safe_float(record.get("early_runner_entry_price"))
+    early_started = datetime.fromisoformat(record["early_runner_snapshot_at"])
+    early_age = max(0, (now - early_started).total_seconds())
+    record.setdefault("early_runner_outcomes", {})
+    for horizon, seconds in {"1h": 3600, "4h": 14400, "1d": 86400, "3d": 259200, "5d": 432000}.items():
+        if early_age >= seconds and horizon not in record["early_runner_outcomes"] and early_entry > 0:
+            record["early_runner_outcomes"][horizon] = {
+                "at": now.isoformat(), "elapsed_seconds": int(early_age),
+                "price": price, "return_pct": round((price / early_entry - 1) * 100, 3),
+                "sampling_note": "First completed scan after feature snapshot at or beyond target horizon; not an exact-time fill"
+            }
+    record["research_tracking_started_at"] = record.get("research_tracking_started_at") or record.get("first_seen") or now.isoformat()
+    research_entry = float(record.get("research_entry_price") or record.get("initial_price") or price)
+    record["research_entry_price"] = research_entry
+    sample_high = float(item.get("research_sample_high") or price)
+    sample_low = float(item.get("research_sample_low") or price)
+    record["research_peak_price"] = max(float(record.get("research_peak_price") or research_entry), sample_high, price)
+    record["research_trough_price"] = min(float(record.get("research_trough_price") or research_entry), sample_low, price)
+    if research_entry > 0:
+        record["research_max_favorable_pct"] = round((record["research_peak_price"] / research_entry - 1) * 100, 3)
+        record["research_max_adverse_pct"] = round((record["research_trough_price"] / research_entry - 1) * 100, 3)
+    research_age = max(0, (now - datetime.fromisoformat(record["research_tracking_started_at"])).total_seconds())
+    record.setdefault("research_outcomes", {})
+    research_horizons = {"1h": 3600, "4h": 14400, "24h": 86400, "72h": 259200, "5d": 432000, "10d": 864000}
+    for horizon, seconds in research_horizons.items():
+        if research_age >= seconds and horizon not in record["research_outcomes"] and research_entry > 0:
+            record["research_outcomes"][horizon] = {
+                "at": now.isoformat(), "elapsed_seconds": int(research_age),
+                "price": price, "return_pct": round((price / research_entry - 1) * 100, 3),
+                "sampling_note": "First completed scan at or after the target horizon; not an exact-time fill"
+            }
+    # Track false breakouts conservatively: a later completed scan must close
+    # below the recorded breakout level by at least 0.5%.
+    opening_status = str(item.get("opening_range_status") or "").lower()
+    breakout_now = bool(item.get("breakout_20d") or "15m upside breakout" in opening_status)
+    if breakout_now and not record.get("research_breakout_at"):
+        breakout_level = float(item.get("opening_range_high") or item.get("resistance_20d") or price)
+        record["research_breakout_at"] = now.isoformat()
+        record["research_breakout_level"] = breakout_level
+        record["research_breakout_status"] = "pending"
+    elif record.get("research_breakout_status") in ("pending", "held") and record.get("research_breakout_at") != now.isoformat():
+        breakout_level = float(record.get("research_breakout_level") or 0)
+        if breakout_level > 0 and price < breakout_level * 0.995:
+            record["research_breakout_status"] = "failed"
+            record["research_false_breakout_at"] = now.isoformat()
+        elif breakout_level > 0 and price >= breakout_level:
+            record["research_breakout_status"] = "held"
         record["research_setup_status"] = item.get("research_setup_status")
         record["discovery_source"] = "research_layer" if record["research_signal_matches"] else "core_scanner"
         record["price_as_of"] = item.get("price_as_of") or now.isoformat()
@@ -398,16 +414,17 @@ def update_paper_tracker(candidates, now):
         record["daily_data_quality"] = item.get("daily_data_quality") or {}
         record["intraday_data_quality"] = item.get("intraday_data_quality") or {}
         record["hourly_data_quality"] = item.get("hourly_data_quality") or {}
-        record["price_observed_at"] = now.isoformat()
-        record["peak_price"] = max(float(record.get("peak_price") or price), price)
-        record["trough_price"] = min(float(record.get("trough_price") or price), price)
-        first_seen = datetime.fromisoformat(record["first_seen"])
-        age_days = max(0, (now - first_seen).total_seconds() / 86400)
-        record["age_days"] = round(age_days, 2)
-        record["return_pct"] = round((price / initial - 1) * 100, 2)
-        record["max_gain_pct"] = round((float(record["peak_price"]) / initial - 1) * 100, 2)
-        record["max_drawdown_pct"] = round((float(record["trough_price"]) / initial - 1) * 100, 2)
-        stage = item.get("stage", item.get("signal", "WATCH"))
+        if observation_eligible:
+            record["price_observed_at"] = now.isoformat()
+            record["peak_price"] = max(float(record.get("peak_price") or price), price)
+            record["trough_price"] = min(float(record.get("trough_price") or price), price)
+            first_seen = datetime.fromisoformat(record["first_seen"])
+            age_days = max(0, (now - first_seen).total_seconds() / 86400)
+            record["age_days"] = round(age_days, 2)
+            record["return_pct"] = round((price / initial - 1) * 100, 2)
+            record["max_gain_pct"] = round((float(record["peak_price"]) / initial - 1) * 100, 2)
+            record["max_drawdown_pct"] = round((float(record["trough_price"]) / initial - 1) * 100, 2)
+            stage = item.get("stage", item.get("signal", "WATCH"))
         record.setdefault("first_grade", stage)
         history = record.setdefault("grade_history", [])
         previous = record.get("last_stage")
@@ -421,31 +438,32 @@ def update_paper_tracker(candidates, now):
         record["discovery_reasons"] = reasons
         record["catalysts"] = catalysts
         record["risk_flags"] = (item.get("risk_flags") or [])[:8]
-        for horizon in (1, 3, 5, 20):
-            milestone = str(horizon)
-            if age_days >= horizon and milestone not in record["milestones"]:
-                checkpoint_return = record["return_pct"]
-                record["milestones"][milestone] = checkpoint_return
-                stats = lifetime.setdefault("checkpoints", {}).setdefault(
-                    milestone, {"observations": 0, "wins": 0, "losses": 0, "flat": 0, "total_return_pct": 0.0}
-                )
-                stats["observations"] += 1
-                stats["wins"] += int(checkpoint_return > 0)
-                stats["losses"] += int(checkpoint_return < 0)
-                stats["flat"] += int(checkpoint_return == 0)
-                stats["total_return_pct"] = round(float(stats["total_return_pct"]) + checkpoint_return, 2)
-                asset_checkpoints = lifetime.setdefault("by_asset", {}).setdefault(
-                    asset_type, {"recommendations": 0}
-                ).setdefault("checkpoints", {})
-                asset_stats = asset_checkpoints.setdefault(
-                    milestone, {"observations": 0, "wins": 0, "losses": 0, "flat": 0, "total_return_pct": 0.0}
-                )
-                asset_stats["observations"] += 1
-                asset_stats["wins"] += int(checkpoint_return > 0)
-                asset_stats["losses"] += int(checkpoint_return < 0)
-                asset_stats["flat"] += int(checkpoint_return == 0)
-                asset_stats["total_return_pct"] = round(float(asset_stats["total_return_pct"]) + checkpoint_return, 2)
-        # Persist the full research feature snapshot for verified/normal records too.
+        if observation_eligible:
+            for horizon in (1, 3, 5, 20):
+                milestone = str(horizon)
+                if age_days >= horizon and milestone not in record["milestones"]:
+                    checkpoint_return = record["return_pct"]
+                    record["milestones"][milestone] = checkpoint_return
+                    stats = lifetime.setdefault("checkpoints", {}).setdefault(
+                        milestone, {"observations": 0, "wins": 0, "losses": 0, "flat": 0, "total_return_pct": 0.0}
+                    )
+                    stats["observations"] += 1
+                    stats["wins"] += int(checkpoint_return > 0)
+                    stats["losses"] += int(checkpoint_return < 0)
+                    stats["flat"] += int(checkpoint_return == 0)
+                    stats["total_return_pct"] = round(float(stats["total_return_pct"]) + checkpoint_return, 2)
+                    asset_checkpoints = lifetime.setdefault("by_asset", {}).setdefault(
+                        asset_type, {"recommendations": 0}
+                    ).setdefault("checkpoints", {})
+                    asset_stats = asset_checkpoints.setdefault(
+                        milestone, {"observations": 0, "wins": 0, "losses": 0, "flat": 0, "total_return_pct": 0.0}
+                    )
+                    asset_stats["observations"] += 1
+                    asset_stats["wins"] += int(checkpoint_return > 0)
+                    asset_stats["losses"] += int(checkpoint_return < 0)
+                    asset_stats["flat"] += int(checkpoint_return == 0)
+                    asset_stats["total_return_pct"] = round(float(asset_stats["total_return_pct"]) + checkpoint_return, 2)
+            # Persist the full research feature snapshot for verified/normal records too.
         research_fields = (
             "relative_strength_vs_spy", "relative_strength_vs_iwm", "rs_rank",
             "intraday_rvol_same_time", "same_time_relative_volume",
