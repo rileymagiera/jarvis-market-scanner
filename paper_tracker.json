@@ -397,7 +397,7 @@
       }
     ],
     "cumulative_rvol_same_time": null,
-    "currently_surfaced": true,
+    "currently_surfaced": false,
     "daily_change_pct": -1.29,
     "dilution_flags": null,
     "discovery_reasons": [
@@ -1302,7 +1302,7 @@
       }
     ],
     "cumulative_rvol_same_time": null,
-    "currently_surfaced": true,
+    "currently_surfaced": false,
     "daily_change_pct": -1.32,
     "dilution_flags": null,
     "discovery_reasons": [
@@ -1615,7 +1615,7 @@
   "crypto:BNBUSDT": {
     "adx": null,
     "adx_dmi_status": null,
-    "age_days": 1.02,
+    "age_days": 1.03,
     "anchored_vwap": null,
     "anchored_vwap_status": null,
     "asset_type": "crypto",
@@ -1652,7 +1652,7 @@
     ],
     "cumulative_rvol_same_time": null,
     "currently_surfaced": true,
-    "daily_change_pct": -0.66,
+    "daily_change_pct": -0.85,
     "dilution_flags": null,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
@@ -1703,7 +1703,15 @@
       "volume_acceleration_3bar": null
     },
     "early_runner_initial_signal_matches": [],
-    "early_runner_outcomes": {},
+    "early_runner_outcomes": {
+      "1h": {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "elapsed_seconds": 3629,
+        "price": 591.53,
+        "return_pct": -0.635,
+        "sampling_note": "First completed scan after feature snapshot at or beyond target horizon; not an exact-time fill"
+      }
+    },
     "early_runner_research_score": null,
     "early_runner_score_components": null,
     "early_runner_signal_matches": [],
@@ -1732,34 +1740,34 @@
     "higher_highs_higher_lows": null,
     "initial_price": 590.47,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 592.67,
+    "latest_price": 591.53,
     "levels": {
       "calculation": {
-        "atr_14": 4.702143,
-        "atr_stop": 574.8899,
-        "entry_buffer": 2.96335,
-        "risk_distance": 17.7801,
-        "risk_per_unit": 17.09136,
-        "risk_unit": 11.8534,
+        "atr_14": 4.487143,
+        "atr_stop": 573.7841,
+        "entry_buffer": 2.95765,
+        "risk_distance": 17.7459,
+        "risk_per_unit": 15.94224,
+        "risk_unit": 11.8306,
         "stop_source": "nearby support",
         "support_reference": 580.32,
-        "support_stop": 578.54199,
-        "two_percent_price_floor": 11.8534
+        "support_stop": 578.54541,
+        "two_percent_price_floor": 11.8306
       },
-      "invalidation_level": 578.54199,
+      "invalidation_level": 578.54541,
       "method": "ATR(14)-based risk unit; stop uses 1.5x risk distance and may tighten to nearby support; targets are 2R and 3R from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 2.87,
-      "stop_loss": 578.54199,
-      "target_1": 629.81607,
-      "target_1_pct": 5.74,
-      "target_2": 646.90743,
-      "target_2_pct": 8.61,
+      "risk_pct": 2.68,
+      "stop_loss": 578.54541,
+      "target_1": 626.37213,
+      "target_1_pct": 5.36,
+      "target_2": 642.31437,
+      "target_2_pct": 8.05,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 595.63335,
-      "watch_entry_low": 592.67
+      "watch_entry_high": 594.48765,
+      "watch_entry_low": 591.53
     },
     "liquidity_status": null,
     "market_regime": "RISK-OFF",
@@ -1785,7 +1793,7 @@
     "premarket_low": null,
     "premarket_rvol_same_time": null,
     "premarket_volume": null,
-    "price_as_of": "2026-11-18T01:46:24.269924+00:00",
+    "price_as_of": "2026-11-18T02:00:35.676037+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -1862,9 +1870,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 592.67,
         "return_pct": 0.37
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 591.53,
+        "return_pct": 0.18
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
     "price_validation_note": null,
     "price_validation_status": "not_required",
@@ -1945,7 +1958,7 @@
     "research_signal_matches": [],
     "research_tracking_started_at": "2026-11-17T01:24:08.246626+00:00",
     "research_trough_price": 590.47,
-    "return_pct": 0.37,
+    "return_pct": 0.18,
     "risk_flags": [],
     "rs_rank": null,
     "same_time_relative_volume": null,
@@ -1973,7 +1986,7 @@
   "crypto:BONKUSDT": {
     "adx": null,
     "adx_dmi_status": null,
-    "age_days": 1.04,
+    "age_days": 1.05,
     "anchored_vwap": null,
     "anchored_vwap_status": null,
     "asset_type": "crypto",
@@ -2010,7 +2023,7 @@
     ],
     "cumulative_rvol_same_time": null,
     "currently_surfaced": true,
-    "daily_change_pct": -1.04,
+    "daily_change_pct": -1.29,
     "dilution_flags": null,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
@@ -2061,7 +2074,15 @@
       "volume_acceleration_3bar": null
     },
     "early_runner_initial_signal_matches": [],
-    "early_runner_outcomes": {},
+    "early_runner_outcomes": {
+      "1h": {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "elapsed_seconds": 3629,
+        "price": 2.368e-06,
+        "return_pct": -1.045,
+        "sampling_note": "First completed scan after feature snapshot at or beyond target horizon; not an exact-time fill"
+      }
+    },
     "early_runner_research_score": null,
     "early_runner_score_components": null,
     "early_runner_signal_matches": [],
@@ -2090,9 +2111,9 @@
     "higher_highs_higher_lows": null,
     "initial_price": 2.321e-06,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 2.374e-06,
+    "latest_price": 2.368e-06,
     "levels": {
       "calculation": {
         "atr_14": 0.0,
@@ -2143,7 +2164,7 @@
     "premarket_low": null,
     "premarket_rvol_same_time": null,
     "premarket_volume": null,
-    "price_as_of": "2026-11-18T01:46:26.737997+00:00",
+    "price_as_of": "2026-11-18T02:00:37.331578+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -2235,9 +2256,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 2.374e-06,
         "return_pct": 2.28
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 2.368e-06,
+        "return_pct": 2.02
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
     "price_validation_note": null,
     "price_validation_status": "not_required",
@@ -2318,7 +2344,7 @@
     "research_signal_matches": [],
     "research_tracking_started_at": "2026-11-17T00:44:31.089923+00:00",
     "research_trough_price": 2.321e-06,
-    "return_pct": 2.28,
+    "return_pct": 2.02,
     "risk_flags": [],
     "rs_rank": null,
     "same_time_relative_volume": null,
@@ -2382,7 +2408,7 @@
       }
     ],
     "cumulative_rvol_same_time": null,
-    "currently_surfaced": true,
+    "currently_surfaced": false,
     "daily_change_pct": -0.73,
     "dilution_flags": null,
     "discovery_reasons": [
@@ -2834,7 +2860,7 @@
   "crypto:DOGEUSDT": {
     "adx": null,
     "adx_dmi_status": null,
-    "age_days": 0.9,
+    "age_days": 0.91,
     "anchored_vwap": null,
     "anchored_vwap_status": null,
     "asset_type": "crypto",
@@ -2871,7 +2897,7 @@
     ],
     "cumulative_rvol_same_time": null,
     "currently_surfaced": true,
-    "daily_change_pct": -1.24,
+    "daily_change_pct": -1.49,
     "dilution_flags": null,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
@@ -2922,7 +2948,15 @@
       "volume_acceleration_3bar": null
     },
     "early_runner_initial_signal_matches": [],
-    "early_runner_outcomes": {},
+    "early_runner_outcomes": {
+      "1h": {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "elapsed_seconds": 3629,
+        "price": 0.0591503,
+        "return_pct": -0.826,
+        "sampling_note": "First completed scan after feature snapshot at or beyond target horizon; not an exact-time fill"
+      }
+    },
     "early_runner_research_score": null,
     "early_runner_score_components": null,
     "early_runner_signal_matches": [],
@@ -2951,34 +2985,34 @@
     "higher_highs_higher_lows": null,
     "initial_price": 0.0592397,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.0592995,
+    "latest_price": 0.0591503,
     "levels": {
       "calculation": {
-        "atr_14": 0.00074,
-        "atr_stop": 0.057521,
+        "atr_14": 0.0007,
+        "atr_stop": 0.057376,
         "entry_buffer": 0.000296,
-        "risk_distance": 0.001779,
-        "risk_per_unit": 0.002075,
-        "risk_unit": 0.001186,
+        "risk_distance": 0.001775,
+        "risk_per_unit": 0.00207,
+        "risk_unit": 0.001183,
         "stop_source": "ATR stop",
         "support_reference": 0.057388,
-        "support_stop": 0.05721,
-        "two_percent_price_floor": 0.001186
+        "support_stop": 0.057211,
+        "two_percent_price_floor": 0.001183
       },
-      "invalidation_level": 0.057521,
+      "invalidation_level": 0.057376,
       "method": "ATR(14)-based risk unit; stop uses 1.5x risk distance and may tighten to nearby support; targets are 2R and 3R from the upper entry reference.",
       "reward_risk_ratio": 2.0,
       "risk_pct": 3.48,
-      "stop_loss": 0.057521,
-      "target_1": 0.063747,
+      "stop_loss": 0.057376,
+      "target_1": 0.063587,
       "target_1_pct": 6.97,
-      "target_2": 0.065822,
+      "target_2": 0.065657,
       "target_2_pct": 10.45,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 0.059596,
-      "watch_entry_low": 0.059299
+      "watch_entry_high": 0.059446,
+      "watch_entry_low": 0.05915
     },
     "liquidity_status": null,
     "market_regime": "RISK-OFF",
@@ -3002,7 +3036,7 @@
     "premarket_low": null,
     "premarket_rvol_same_time": null,
     "premarket_volume": null,
-    "price_as_of": "2026-11-18T01:46:25.054818+00:00",
+    "price_as_of": "2026-11-18T02:00:35.879491+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -3084,9 +3118,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 0.0592995,
         "return_pct": 0.1
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 0.0591503,
+        "return_pct": -0.15
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
     "price_validation_note": null,
     "price_validation_status": "not_required",
@@ -3137,7 +3176,7 @@
       "volatility_contraction_status": null,
       "volume_acceleration_3bar": null
     },
-    "research_max_adverse_pct": 0.0,
+    "research_max_adverse_pct": -0.151,
     "research_max_favorable_pct": 0.681,
     "research_outcomes": {
       "1h": {
@@ -3159,8 +3198,8 @@
     "research_setup_status": null,
     "research_signal_matches": [],
     "research_tracking_started_at": "2026-11-17T04:16:35.591187+00:00",
-    "research_trough_price": 0.0592397,
-    "return_pct": 0.1,
+    "research_trough_price": 0.0591503,
+    "return_pct": -0.15,
     "risk_flags": [],
     "rs_rank": null,
     "same_time_relative_volume": null,
@@ -3224,7 +3263,7 @@
       }
     ],
     "cumulative_rvol_same_time": null,
-    "currently_surfaced": true,
+    "currently_surfaced": false,
     "daily_change_pct": -1.67,
     "dilution_flags": null,
     "discovery_reasons": [
@@ -3760,7 +3799,7 @@
       }
     ],
     "cumulative_rvol_same_time": null,
-    "currently_surfaced": true,
+    "currently_surfaced": false,
     "daily_change_pct": -0.86,
     "dilution_flags": null,
     "discovery_reasons": [
@@ -4113,7 +4152,7 @@
       }
     ],
     "cumulative_rvol_same_time": null,
-    "currently_surfaced": true,
+    "currently_surfaced": false,
     "daily_change_pct": -1.72,
     "dilution_flags": null,
     "discovery_reasons": [
@@ -4465,7 +4504,7 @@
   "crypto:GBPUSDT": {
     "adx": null,
     "adx_dmi_status": null,
-    "age_days": 0.9,
+    "age_days": 0.91,
     "anchored_vwap": null,
     "anchored_vwap_status": null,
     "asset_type": "crypto",
@@ -4477,7 +4516,7 @@
     "catalysts": [],
     "cumulative_rvol_same_time": null,
     "currently_surfaced": true,
-    "daily_change_pct": -0.02,
+    "daily_change_pct": 0.01,
     "dilution_flags": null,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
@@ -4528,7 +4567,15 @@
       "volume_acceleration_3bar": null
     },
     "early_runner_initial_signal_matches": [],
-    "early_runner_outcomes": {},
+    "early_runner_outcomes": {
+      "1h": {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "elapsed_seconds": 3629,
+        "price": 1.32012,
+        "return_pct": 0.048,
+        "sampling_note": "First completed scan after feature snapshot at or beyond target horizon; not an exact-time fill"
+      }
+    },
     "early_runner_research_score": null,
     "early_runner_score_components": null,
     "early_runner_signal_matches": [],
@@ -4547,34 +4594,34 @@
     "higher_highs_higher_lows": null,
     "initial_price": 1.31897,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 1.31981,
+    "latest_price": 1.32012,
     "levels": {
       "calculation": {
-        "atr_14": 0.002751,
-        "atr_stop": 1.280216,
-        "entry_buffer": 0.006599,
-        "risk_distance": 0.039594,
-        "risk_per_unit": 0.013378,
-        "risk_unit": 0.026396,
+        "atr_14": 0.001334,
+        "atr_stop": 1.280516,
+        "entry_buffer": 0.006601,
+        "risk_distance": 0.039604,
+        "risk_per_unit": 0.012581,
+        "risk_unit": 0.026402,
         "stop_source": "nearby support",
-        "support_reference": 1.31699,
-        "support_stop": 1.313031,
-        "two_percent_price_floor": 0.026396
+        "support_reference": 1.3181,
+        "support_stop": 1.31414,
+        "two_percent_price_floor": 0.026402
       },
-      "invalidation_level": 1.313031,
+      "invalidation_level": 1.31414,
       "method": "ATR(14)-based risk unit; stop uses 1.5x risk distance and may tighten to nearby support; targets are 2R and 3R from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 1.01,
-      "stop_loss": 1.313031,
-      "target_1": 1.353166,
-      "target_1_pct": 2.02,
-      "target_2": 1.366544,
-      "target_2_pct": 3.03,
+      "risk_pct": 0.95,
+      "stop_loss": 1.31414,
+      "target_1": 1.351883,
+      "target_1_pct": 1.9,
+      "target_2": 1.364463,
+      "target_2_pct": 2.84,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 1.326409,
-      "watch_entry_low": 1.31981
+      "watch_entry_high": 1.326721,
+      "watch_entry_low": 1.32012
     },
     "liquidity_status": null,
     "market_regime": "RISK-OFF",
@@ -4598,7 +4645,7 @@
     "premarket_low": null,
     "premarket_rvol_same_time": null,
     "premarket_volume": null,
-    "price_as_of": "2026-11-18T01:46:27.255734+00:00",
+    "price_as_of": "2026-11-18T02:00:37.925767+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -4685,9 +4732,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 1.31981,
         "return_pct": 0.06
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 1.32012,
+        "return_pct": 0.09
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
     "price_validation_note": null,
     "price_validation_status": "not_required",
@@ -4739,7 +4791,7 @@
       "volume_acceleration_3bar": null
     },
     "research_max_adverse_pct": 0.0,
-    "research_max_favorable_pct": 0.068,
+    "research_max_favorable_pct": 0.087,
     "research_outcomes": {
       "1h": {
         "at": "2026-11-18T01:00:26.595233+00:00",
@@ -4756,12 +4808,12 @@
         "sampling_note": "First completed scan at or after the target horizon; not an exact-time fill"
       }
     },
-    "research_peak_price": 1.31987,
+    "research_peak_price": 1.32012,
     "research_setup_status": null,
     "research_signal_matches": [],
     "research_tracking_started_at": "2026-11-17T04:16:35.591187+00:00",
     "research_trough_price": 1.31897,
-    "return_pct": 0.06,
+    "return_pct": 0.09,
     "risk_flags": [],
     "rs_rank": null,
     "same_time_relative_volume": null,
@@ -4800,7 +4852,7 @@
     "catalyst_labels": null,
     "catalysts": [],
     "cumulative_rvol_same_time": null,
-    "currently_surfaced": true,
+    "currently_surfaced": false,
     "daily_change_pct": -1.64,
     "dilution_flags": null,
     "discovery_reasons": [
@@ -5137,7 +5189,7 @@
   "crypto:INJUSDT": {
     "adx": null,
     "adx_dmi_status": null,
-    "age_days": 1.04,
+    "age_days": 1.05,
     "anchored_vwap": null,
     "anchored_vwap_status": null,
     "asset_type": "crypto",
@@ -5174,7 +5226,7 @@
     ],
     "cumulative_rvol_same_time": null,
     "currently_surfaced": true,
-    "daily_change_pct": -1.08,
+    "daily_change_pct": -1.39,
     "dilution_flags": null,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
@@ -5225,7 +5277,15 @@
       "volume_acceleration_3bar": null
     },
     "early_runner_initial_signal_matches": [],
-    "early_runner_outcomes": {},
+    "early_runner_outcomes": {
+      "1h": {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "elapsed_seconds": 3629,
+        "price": 7.306,
+        "return_pct": -1.324,
+        "sampling_note": "First completed scan after feature snapshot at or beyond target horizon; not an exact-time fill"
+      }
+    },
     "early_runner_research_score": null,
     "early_runner_score_components": null,
     "early_runner_signal_matches": [],
@@ -5289,34 +5349,34 @@
     "higher_highs_higher_lows": null,
     "initial_price": 6.858,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 7.329,
+    "latest_price": 7.306,
     "levels": {
       "calculation": {
-        "atr_14": 0.166786,
-        "atr_stop": 7.078821,
-        "entry_buffer": 0.041696,
-        "risk_distance": 0.250179,
-        "risk_per_unit": 0.291875,
-        "risk_unit": 0.166786,
+        "atr_14": 0.152786,
+        "atr_stop": 7.076821,
+        "entry_buffer": 0.038196,
+        "risk_distance": 0.229179,
+        "risk_per_unit": 0.267375,
+        "risk_unit": 0.152786,
         "stop_source": "ATR stop",
         "support_reference": 7.039,
-        "support_stop": 7.013982,
-        "two_percent_price_floor": 0.14658
+        "support_stop": 7.016082,
+        "two_percent_price_floor": 0.14612
       },
-      "invalidation_level": 7.078821,
+      "invalidation_level": 7.076821,
       "method": "ATR(14)-based risk unit; stop uses 1.5x risk distance and may tighten to nearby support; targets are 2R and 3R from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 3.96,
-      "stop_loss": 7.078821,
-      "target_1": 7.954446,
-      "target_1_pct": 7.92,
-      "target_2": 8.246321,
-      "target_2_pct": 11.88,
+      "risk_pct": 3.64,
+      "stop_loss": 7.076821,
+      "target_1": 7.878946,
+      "target_1_pct": 7.28,
+      "target_2": 8.146321,
+      "target_2_pct": 10.92,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 7.370696,
-      "watch_entry_low": 7.329
+      "watch_entry_high": 7.344196,
+      "watch_entry_low": 7.306
     },
     "liquidity_status": null,
     "market_regime": "RISK-OFF",
@@ -5342,7 +5402,7 @@
     "premarket_low": null,
     "premarket_rvol_same_time": null,
     "premarket_volume": null,
-    "price_as_of": "2026-11-18T01:46:25.930362+00:00",
+    "price_as_of": "2026-11-18T02:00:36.626422+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -5444,9 +5504,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 7.329,
         "return_pct": 6.87
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 7.306,
+        "return_pct": 6.53
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
     "price_validation_note": null,
     "price_validation_status": "not_required",
@@ -5527,7 +5592,7 @@
     "research_signal_matches": [],
     "research_tracking_started_at": "2026-11-17T00:44:31.089923+00:00",
     "research_trough_price": 6.858,
-    "return_pct": 6.87,
+    "return_pct": 6.53,
     "risk_flags": [],
     "rs_rank": null,
     "same_time_relative_volume": null,
@@ -5555,7 +5620,7 @@
   "crypto:JUPUSDT": {
     "adx": null,
     "adx_dmi_status": null,
-    "age_days": 0.9,
+    "age_days": 0.91,
     "anchored_vwap": null,
     "anchored_vwap_status": null,
     "asset_type": "crypto",
@@ -5567,7 +5632,7 @@
     "catalysts": [],
     "cumulative_rvol_same_time": null,
     "currently_surfaced": true,
-    "daily_change_pct": -1.18,
+    "daily_change_pct": -1.39,
     "dilution_flags": null,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
@@ -5618,7 +5683,15 @@
       "volume_acceleration_3bar": null
     },
     "early_runner_initial_signal_matches": [],
-    "early_runner_outcomes": {},
+    "early_runner_outcomes": {
+      "1h": {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "elapsed_seconds": 3629,
+        "price": 0.25915,
+        "return_pct": -1.239,
+        "sampling_note": "First completed scan after feature snapshot at or beyond target horizon; not an exact-time fill"
+      }
+    },
     "early_runner_research_score": null,
     "early_runner_score_components": null,
     "early_runner_signal_matches": [],
@@ -5672,34 +5745,34 @@
     "higher_highs_higher_lows": null,
     "initial_price": 0.24991,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.25971,
+    "latest_price": 0.25915,
     "levels": {
       "calculation": {
-        "atr_14": 0.004868,
-        "atr_stop": 0.251919,
-        "entry_buffer": 0.001299,
-        "risk_distance": 0.007791,
-        "risk_per_unit": 0.00909,
-        "risk_unit": 0.005194,
+        "atr_14": 0.004371,
+        "atr_stop": 0.251375,
+        "entry_buffer": 0.001296,
+        "risk_distance": 0.007775,
+        "risk_per_unit": 0.00907,
+        "risk_unit": 0.005183,
         "stop_source": "ATR stop",
         "support_reference": 0.2487,
-        "support_stop": 0.247921,
-        "two_percent_price_floor": 0.005194
+        "support_stop": 0.247923,
+        "two_percent_price_floor": 0.005183
       },
-      "invalidation_level": 0.251919,
+      "invalidation_level": 0.251375,
       "method": "ATR(14)-based risk unit; stop uses 1.5x risk distance and may tighten to nearby support; targets are 2R and 3R from the upper entry reference.",
       "reward_risk_ratio": 2.0,
       "risk_pct": 3.48,
-      "stop_loss": 0.251919,
-      "target_1": 0.279188,
+      "stop_loss": 0.251375,
+      "target_1": 0.278586,
       "target_1_pct": 6.97,
-      "target_2": 0.288278,
+      "target_2": 0.287656,
       "target_2_pct": 10.45,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 0.261009,
-      "watch_entry_low": 0.25971
+      "watch_entry_high": 0.260446,
+      "watch_entry_low": 0.25915
     },
     "liquidity_status": null,
     "market_regime": "RISK-OFF",
@@ -5723,7 +5796,7 @@
     "premarket_low": null,
     "premarket_rvol_same_time": null,
     "premarket_volume": null,
-    "price_as_of": "2026-11-18T01:46:26.741836+00:00",
+    "price_as_of": "2026-11-18T02:00:37.587132+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -5810,9 +5883,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 0.25971,
         "return_pct": 3.92
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 0.25915,
+        "return_pct": 3.7
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
     "price_validation_note": null,
     "price_validation_status": "not_required",
@@ -5886,7 +5964,7 @@
     "research_signal_matches": [],
     "research_tracking_started_at": "2026-11-17T04:16:35.591187+00:00",
     "research_trough_price": 0.24991,
-    "return_pct": 3.92,
+    "return_pct": 3.7,
     "risk_flags": [],
     "rs_rank": null,
     "same_time_relative_volume": null,
@@ -6046,7 +6124,7 @@
       }
     ],
     "cumulative_rvol_same_time": null,
-    "currently_surfaced": true,
+    "currently_surfaced": false,
     "daily_change_pct": -1.47,
     "dilution_flags": null,
     "discovery_reasons": [
@@ -6532,7 +6610,7 @@
   "crypto:NEARUSDT": {
     "adx": null,
     "adx_dmi_status": null,
-    "age_days": 0.9,
+    "age_days": 0.91,
     "anchored_vwap": null,
     "anchored_vwap_status": null,
     "asset_type": "crypto",
@@ -6569,7 +6647,7 @@
     ],
     "cumulative_rvol_same_time": null,
     "currently_surfaced": true,
-    "daily_change_pct": -0.9,
+    "daily_change_pct": -1.09,
     "dilution_flags": null,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
@@ -6620,7 +6698,15 @@
       "volume_acceleration_3bar": null
     },
     "early_runner_initial_signal_matches": [],
-    "early_runner_outcomes": {},
+    "early_runner_outcomes": {
+      "1h": {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "elapsed_seconds": 3629,
+        "price": 3.3558,
+        "return_pct": -0.977,
+        "sampling_note": "First completed scan after feature snapshot at or beyond target horizon; not an exact-time fill"
+      }
+    },
     "early_runner_research_score": null,
     "early_runner_score_components": null,
     "early_runner_signal_matches": [],
@@ -6674,34 +6760,34 @@
     "higher_highs_higher_lows": null,
     "initial_price": 3.2486,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 3.362,
+    "latest_price": 3.3558,
     "levels": {
       "calculation": {
-        "atr_14": 0.0674,
-        "atr_stop": 3.2609,
-        "entry_buffer": 0.01685,
-        "risk_distance": 0.1011,
-        "risk_per_unit": 0.11795,
-        "risk_unit": 0.0674,
+        "atr_14": 0.06405,
+        "atr_stop": 3.255126,
+        "entry_buffer": 0.016779,
+        "risk_distance": 0.100674,
+        "risk_per_unit": 0.117453,
+        "risk_unit": 0.067116,
         "stop_source": "ATR stop",
         "support_reference": 3.095,
-        "support_stop": 3.08489,
-        "two_percent_price_floor": 0.06724
+        "support_stop": 3.084933,
+        "two_percent_price_floor": 0.067116
       },
-      "invalidation_level": 3.2609,
+      "invalidation_level": 3.255126,
       "method": "ATR(14)-based risk unit; stop uses 1.5x risk distance and may tighten to nearby support; targets are 2R and 3R from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 3.49,
-      "stop_loss": 3.2609,
-      "target_1": 3.61475,
-      "target_1_pct": 6.98,
-      "target_2": 3.7327,
-      "target_2_pct": 10.47,
+      "risk_pct": 3.48,
+      "stop_loss": 3.255126,
+      "target_1": 3.607485,
+      "target_1_pct": 6.97,
+      "target_2": 3.724938,
+      "target_2_pct": 10.45,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 3.37885,
-      "watch_entry_low": 3.362
+      "watch_entry_high": 3.372579,
+      "watch_entry_low": 3.3558
     },
     "liquidity_status": null,
     "market_regime": "RISK-OFF",
@@ -6725,7 +6811,7 @@
     "premarket_low": null,
     "premarket_rvol_same_time": null,
     "premarket_volume": null,
-    "price_as_of": "2026-11-18T01:46:26.077457+00:00",
+    "price_as_of": "2026-11-18T02:00:36.691962+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -6812,9 +6898,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 3.362,
         "return_pct": 3.49
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 3.3558,
+        "return_pct": 3.3
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
     "price_validation_note": null,
     "price_validation_status": "not_required",
@@ -6888,7 +6979,7 @@
     "research_signal_matches": [],
     "research_tracking_started_at": "2026-11-17T04:16:35.591187+00:00",
     "research_trough_price": 3.2486,
-    "return_pct": 3.49,
+    "return_pct": 3.3,
     "risk_flags": [],
     "rs_rank": null,
     "same_time_relative_volume": null,
@@ -7115,7 +7206,7 @@
       }
     ],
     "cumulative_rvol_same_time": null,
-    "currently_surfaced": true,
+    "currently_surfaced": false,
     "daily_change_pct": -1.47,
     "dilution_flags": null,
     "discovery_reasons": [
@@ -7483,7 +7574,7 @@
       }
     ],
     "cumulative_rvol_same_time": null,
-    "currently_surfaced": true,
+    "currently_surfaced": false,
     "daily_change_pct": -1.66,
     "dilution_flags": null,
     "discovery_reasons": [
@@ -8386,7 +8477,7 @@
   "crypto:RENDERUSDT": {
     "adx": null,
     "adx_dmi_status": null,
-    "age_days": 1.04,
+    "age_days": 1.05,
     "anchored_vwap": null,
     "anchored_vwap_status": null,
     "asset_type": "crypto",
@@ -8415,10 +8506,10 @@
     ],
     "cumulative_rvol_same_time": null,
     "currently_surfaced": true,
-    "daily_change_pct": -2.49,
+    "daily_change_pct": -2.89,
     "dilution_flags": null,
     "discovery_reasons": [
-      "Relative volume 2.7x"
+      "Momentum / technical scan threshold"
     ],
     "discovery_source": "core_scanner",
     "dollar_volume": null,
@@ -8466,7 +8557,15 @@
       "volume_acceleration_3bar": null
     },
     "early_runner_initial_signal_matches": [],
-    "early_runner_outcomes": {},
+    "early_runner_outcomes": {
+      "1h": {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "elapsed_seconds": 3629,
+        "price": 1.443,
+        "return_pct": -1.569,
+        "sampling_note": "First completed scan after feature snapshot at or beyond target horizon; not an exact-time fill"
+      }
+    },
     "early_runner_research_score": null,
     "early_runner_score_components": null,
     "early_runner_signal_matches": [],
@@ -8510,39 +8609,44 @@
         "at": "2026-11-18T01:00:26.595233+00:00",
         "from": "DEVELOPING SETUP",
         "to": "EARLY WATCH"
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "from": "EARLY WATCH",
+        "to": "LOW-CONVICTION WATCH"
       }
     ],
     "higher_highs_higher_lows": null,
     "initial_price": 1.364,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
-    "last_stage": "EARLY WATCH",
-    "latest_price": 1.449,
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 1.443,
     "levels": {
       "calculation": {
-        "atr_14": 0.028,
-        "atr_stop": 1.40553,
-        "entry_buffer": 0.007245,
-        "risk_distance": 0.04347,
-        "risk_per_unit": 0.050715,
-        "risk_unit": 0.02898,
+        "atr_14": 0.027571,
+        "atr_stop": 1.39971,
+        "entry_buffer": 0.007215,
+        "risk_distance": 0.04329,
+        "risk_per_unit": 0.050505,
+        "risk_unit": 0.02886,
         "stop_source": "ATR stop",
         "support_reference": 1.34,
-        "support_stop": 1.335653,
-        "two_percent_price_floor": 0.02898
+        "support_stop": 1.335671,
+        "two_percent_price_floor": 0.02886
       },
-      "invalidation_level": 1.40553,
+      "invalidation_level": 1.39971,
       "method": "ATR(14)-based risk unit; stop uses 1.5x risk distance and may tighten to nearby support; targets are 2R and 3R from the upper entry reference.",
       "reward_risk_ratio": 2.0,
       "risk_pct": 3.48,
-      "stop_loss": 1.40553,
-      "target_1": 1.557675,
+      "stop_loss": 1.39971,
+      "target_1": 1.551225,
       "target_1_pct": 6.97,
-      "target_2": 1.60839,
+      "target_2": 1.60173,
       "target_2_pct": 10.45,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 1.456245,
-      "watch_entry_low": 1.449
+      "watch_entry_high": 1.450215,
+      "watch_entry_low": 1.443
     },
     "liquidity_status": null,
     "market_regime": "RISK-OFF",
@@ -8568,7 +8672,7 @@
     "premarket_low": null,
     "premarket_rvol_same_time": null,
     "premarket_volume": null,
-    "price_as_of": "2026-11-18T01:46:26.166908+00:00",
+    "price_as_of": "2026-11-18T02:00:36.829538+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -8665,14 +8769,19 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 1.449,
         "return_pct": 6.23
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 1.443,
+        "return_pct": 5.79
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
     "price_validation_note": null,
     "price_validation_status": "not_required",
     "pullback_from_session_high_pct": null,
-    "raw_score": 45,
+    "raw_score": 20,
     "relative_strength_vs_iwm": null,
     "relative_strength_vs_spy": null,
     "research_entry_price": 1.364,
@@ -8748,18 +8857,18 @@
     "research_signal_matches": [],
     "research_tracking_started_at": "2026-11-17T00:44:31.089923+00:00",
     "research_trough_price": 1.364,
-    "return_pct": 6.23,
+    "return_pct": 5.79,
     "risk_flags": [],
     "rs_rank": null,
     "same_time_relative_volume": null,
-    "score": 37,
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "shares_outstanding": null,
     "short_percent_float": null,
     "spread_pct": null,
     "stage_reasons": [
-      "Some interest is present, but confirmation remains limited."
+      "Current evidence is below the early-watch threshold."
     ],
     "stage_signals": {},
     "symbol": "RENDERUSDT",
@@ -8776,7 +8885,7 @@
   "crypto:SEIUSDT": {
     "adx": null,
     "adx_dmi_status": null,
-    "age_days": 0.98,
+    "age_days": 0.99,
     "anchored_vwap": null,
     "anchored_vwap_status": null,
     "asset_type": "crypto",
@@ -8813,7 +8922,7 @@
     ],
     "cumulative_rvol_same_time": null,
     "currently_surfaced": true,
-    "daily_change_pct": -1.94,
+    "daily_change_pct": -2.08,
     "dilution_flags": null,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
@@ -8864,7 +8973,15 @@
       "volume_acceleration_3bar": null
     },
     "early_runner_initial_signal_matches": [],
-    "early_runner_outcomes": {},
+    "early_runner_outcomes": {
+      "1h": {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "elapsed_seconds": 3629,
+        "price": 0.03947,
+        "return_pct": -1.152,
+        "sampling_note": "First completed scan after feature snapshot at or beyond target horizon; not an exact-time fill"
+      }
+    },
     "early_runner_research_score": null,
     "early_runner_score_components": null,
     "early_runner_signal_matches": [],
@@ -8903,34 +9020,34 @@
     "higher_highs_higher_lows": null,
     "initial_price": 0.03887,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.03953,
+    "latest_price": 0.03947,
     "levels": {
       "calculation": {
-        "atr_14": 0.000519,
-        "atr_stop": 0.038344,
-        "entry_buffer": 0.000198,
-        "risk_distance": 0.001186,
-        "risk_per_unit": 0.001384,
-        "risk_unit": 0.000791,
+        "atr_14": 0.000493,
+        "atr_stop": 0.038286,
+        "entry_buffer": 0.000197,
+        "risk_distance": 0.001184,
+        "risk_per_unit": 0.001381,
+        "risk_unit": 0.000789,
         "stop_source": "ATR stop",
         "support_reference": 0.03822,
-        "support_stop": 0.038101,
-        "two_percent_price_floor": 0.000791
+        "support_stop": 0.038102,
+        "two_percent_price_floor": 0.000789
       },
-      "invalidation_level": 0.038344,
+      "invalidation_level": 0.038286,
       "method": "ATR(14)-based risk unit; stop uses 1.5x risk distance and may tighten to nearby support; targets are 2R and 3R from the upper entry reference.",
       "reward_risk_ratio": 2.0,
       "risk_pct": 3.48,
-      "stop_loss": 0.038344,
-      "target_1": 0.042495,
+      "stop_loss": 0.038286,
+      "target_1": 0.04243,
       "target_1_pct": 6.97,
-      "target_2": 0.043878,
+      "target_2": 0.043812,
       "target_2_pct": 10.45,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 0.039728,
-      "watch_entry_low": 0.03953
+      "watch_entry_high": 0.039667,
+      "watch_entry_low": 0.03947
     },
     "liquidity_status": null,
     "market_regime": "RISK-OFF",
@@ -8954,7 +9071,7 @@
     "premarket_low": null,
     "premarket_rvol_same_time": null,
     "premarket_volume": null,
-    "price_as_of": "2026-11-18T01:46:25.820519+00:00",
+    "price_as_of": "2026-11-18T02:00:36.548992+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -9036,9 +9153,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 0.03953,
         "return_pct": 1.7
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 0.03947,
+        "return_pct": 1.54
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
     "price_validation_note": null,
     "price_validation_status": "not_required",
@@ -9112,7 +9234,7 @@
     "research_signal_matches": [],
     "research_tracking_started_at": "2026-11-17T02:21:51.143636+00:00",
     "research_trough_price": 0.03887,
-    "return_pct": 1.7,
+    "return_pct": 1.54,
     "risk_flags": [],
     "rs_rank": null,
     "same_time_relative_volume": null,
@@ -9140,7 +9262,7 @@
   "crypto:SOLUSDT": {
     "adx": null,
     "adx_dmi_status": null,
-    "age_days": 1.04,
+    "age_days": 1.05,
     "anchored_vwap": null,
     "anchored_vwap_status": null,
     "asset_type": "crypto",
@@ -9177,7 +9299,7 @@
     ],
     "cumulative_rvol_same_time": null,
     "currently_surfaced": true,
-    "daily_change_pct": -0.93,
+    "daily_change_pct": -1.12,
     "dilution_flags": null,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
@@ -9228,7 +9350,15 @@
       "volume_acceleration_3bar": null
     },
     "early_runner_initial_signal_matches": [],
-    "early_runner_outcomes": {},
+    "early_runner_outcomes": {
+      "1h": {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "elapsed_seconds": 3629,
+        "price": 74.26,
+        "return_pct": -0.815,
+        "sampling_note": "First completed scan after feature snapshot at or beyond target horizon; not an exact-time fill"
+      }
+    },
     "early_runner_research_score": null,
     "early_runner_score_components": null,
     "early_runner_signal_matches": [],
@@ -9282,34 +9412,34 @@
     "higher_highs_higher_lows": null,
     "initial_price": 71.48,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 74.4,
+    "latest_price": 74.26,
     "levels": {
       "calculation": {
-        "atr_14": 1.129286,
-        "atr_stop": 72.168,
-        "entry_buffer": 0.372,
-        "risk_distance": 2.232,
-        "risk_per_unit": 2.604,
-        "risk_unit": 1.488,
+        "atr_14": 1.080714,
+        "atr_stop": 72.0322,
+        "entry_buffer": 0.3713,
+        "risk_distance": 2.2278,
+        "risk_per_unit": 2.5991,
+        "risk_unit": 1.4852,
         "stop_source": "ATR stop",
         "support_reference": 71.0,
-        "support_stop": 70.7768,
-        "two_percent_price_floor": 1.488
+        "support_stop": 70.77722,
+        "two_percent_price_floor": 1.4852
       },
-      "invalidation_level": 72.168,
+      "invalidation_level": 72.0322,
       "method": "ATR(14)-based risk unit; stop uses 1.5x risk distance and may tighten to nearby support; targets are 2R and 3R from the upper entry reference.",
       "reward_risk_ratio": 2.0,
       "risk_pct": 3.48,
-      "stop_loss": 72.168,
-      "target_1": 79.98,
+      "stop_loss": 72.0322,
+      "target_1": 79.8295,
       "target_1_pct": 6.97,
-      "target_2": 82.584,
+      "target_2": 82.4286,
       "target_2_pct": 10.45,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 74.772,
-      "watch_entry_low": 74.4
+      "watch_entry_high": 74.6313,
+      "watch_entry_low": 74.26
     },
     "liquidity_status": null,
     "market_regime": "RISK-OFF",
@@ -9335,7 +9465,7 @@
     "premarket_low": null,
     "premarket_rvol_same_time": null,
     "premarket_volume": null,
-    "price_as_of": "2026-11-18T01:46:24.354655+00:00",
+    "price_as_of": "2026-11-18T02:00:35.549596+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -9437,14 +9567,19 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 74.4,
         "return_pct": 4.09
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 74.26,
+        "return_pct": 3.89
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
     "price_validation_note": null,
     "price_validation_status": "not_required",
     "pullback_from_session_high_pct": null,
-    "raw_score": 20,
+    "raw_score": 29,
     "relative_strength_vs_iwm": null,
     "relative_strength_vs_spy": null,
     "research_entry_price": 71.48,
@@ -9520,11 +9655,11 @@
     "research_signal_matches": [],
     "research_tracking_started_at": "2026-11-17T00:44:31.089923+00:00",
     "research_trough_price": 71.48,
-    "return_pct": 4.09,
+    "return_pct": 3.89,
     "risk_flags": [],
     "rs_rank": null,
     "same_time_relative_volume": null,
-    "score": 12,
+    "score": 21,
     "score_components": {},
     "session_change_pct": null,
     "shares_outstanding": null,
@@ -9584,7 +9719,7 @@
       }
     ],
     "cumulative_rvol_same_time": null,
-    "currently_surfaced": true,
+    "currently_surfaced": false,
     "daily_change_pct": -1.38,
     "dilution_flags": null,
     "discovery_reasons": [
@@ -9912,7 +10047,7 @@
   "crypto:TAOUSDT": {
     "adx": null,
     "adx_dmi_status": null,
-    "age_days": 1.04,
+    "age_days": 1.05,
     "anchored_vwap": null,
     "anchored_vwap_status": null,
     "asset_type": "crypto",
@@ -9941,7 +10076,7 @@
     ],
     "cumulative_rvol_same_time": null,
     "currently_surfaced": true,
-    "daily_change_pct": -0.82,
+    "daily_change_pct": -1.26,
     "dilution_flags": null,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
@@ -9992,7 +10127,15 @@
       "volume_acceleration_3bar": null
     },
     "early_runner_initial_signal_matches": [],
-    "early_runner_outcomes": {},
+    "early_runner_outcomes": {
+      "1h": {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "elapsed_seconds": 3629,
+        "price": 195.0536,
+        "return_pct": -1.326,
+        "sampling_note": "First completed scan after feature snapshot at or beyond target horizon; not an exact-time fill"
+      }
+    },
     "early_runner_research_score": null,
     "early_runner_score_components": null,
     "early_runner_signal_matches": [],
@@ -10021,34 +10164,34 @@
     "higher_highs_higher_lows": null,
     "initial_price": 190.5707,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 195.9352,
+    "latest_price": 195.0536,
     "levels": {
       "calculation": {
-        "atr_14": 2.935907,
-        "atr_stop": 190.057144,
-        "entry_buffer": 0.979676,
-        "risk_distance": 5.878056,
-        "risk_per_unit": 6.857732,
-        "risk_unit": 3.918704,
+        "atr_14": 2.839736,
+        "atr_stop": 189.201992,
+        "entry_buffer": 0.975268,
+        "risk_distance": 5.851608,
+        "risk_per_unit": 6.826876,
+        "risk_unit": 3.901072,
         "stop_source": "ATR stop",
         "support_reference": 188.0185,
-        "support_stop": 187.430694,
-        "two_percent_price_floor": 3.918704
+        "support_stop": 187.433339,
+        "two_percent_price_floor": 3.901072
       },
-      "invalidation_level": 190.057144,
+      "invalidation_level": 189.201992,
       "method": "ATR(14)-based risk unit; stop uses 1.5x risk distance and may tighten to nearby support; targets are 2R and 3R from the upper entry reference.",
       "reward_risk_ratio": 2.0,
       "risk_pct": 3.48,
-      "stop_loss": 190.057144,
-      "target_1": 210.63034,
+      "stop_loss": 189.201992,
+      "target_1": 209.68262,
       "target_1_pct": 6.97,
-      "target_2": 217.488072,
+      "target_2": 216.509496,
       "target_2_pct": 10.45,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 196.914876,
-      "watch_entry_low": 195.9352
+      "watch_entry_high": 196.028868,
+      "watch_entry_low": 195.0536
     },
     "liquidity_status": null,
     "market_regime": "RISK-OFF",
@@ -10074,7 +10217,7 @@
     "premarket_low": null,
     "premarket_rvol_same_time": null,
     "premarket_volume": null,
-    "price_as_of": "2026-11-18T01:46:26.299052+00:00",
+    "price_as_of": "2026-11-18T02:00:37.114047+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -10176,14 +10319,19 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 195.9352,
         "return_pct": 2.81
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 195.0536,
+        "return_pct": 2.35
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
     "price_validation_note": null,
     "price_validation_status": "not_required",
     "pullback_from_session_high_pct": null,
-    "raw_score": 29,
+    "raw_score": 20,
     "relative_strength_vs_iwm": null,
     "relative_strength_vs_spy": null,
     "research_entry_price": 190.5707,
@@ -10259,11 +10407,11 @@
     "research_signal_matches": [],
     "research_tracking_started_at": "2026-11-17T00:44:31.089923+00:00",
     "research_trough_price": 190.5707,
-    "return_pct": 2.81,
+    "return_pct": 2.35,
     "risk_flags": [],
     "rs_rank": null,
     "same_time_relative_volume": null,
-    "score": 21,
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "shares_outstanding": null,
@@ -10287,7 +10435,7 @@
   "crypto:TONUSDT": {
     "adx": null,
     "adx_dmi_status": null,
-    "age_days": 0.03,
+    "age_days": 0.04,
     "anchored_vwap": null,
     "anchored_vwap_status": null,
     "asset_type": "crypto",
@@ -10324,7 +10472,7 @@
     ],
     "cumulative_rvol_same_time": null,
     "currently_surfaced": true,
-    "daily_change_pct": -0.09,
+    "daily_change_pct": 0.37,
     "dilution_flags": null,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
@@ -10375,7 +10523,15 @@
       "volume_acceleration_3bar": null
     },
     "early_runner_initial_signal_matches": [],
-    "early_runner_outcomes": {},
+    "early_runner_outcomes": {
+      "1h": {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "elapsed_seconds": 3629,
+        "price": 1.081,
+        "return_pct": 0.0,
+        "sampling_note": "First completed scan after feature snapshot at or beyond target horizon; not an exact-time fill"
+      }
+    },
     "early_runner_research_score": null,
     "early_runner_score_components": null,
     "early_runner_signal_matches": [],
@@ -10394,34 +10550,34 @@
     "higher_highs_higher_lows": null,
     "initial_price": 1.081,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 1.076,
+    "latest_price": 1.081,
     "levels": {
       "calculation": {
-        "atr_14": 0.020143,
-        "atr_stop": 1.04372,
-        "entry_buffer": 0.00538,
-        "risk_distance": 0.03228,
-        "risk_per_unit": 0.03766,
-        "risk_unit": 0.02152,
+        "atr_14": 0.020071,
+        "atr_stop": 1.04857,
+        "entry_buffer": 0.005405,
+        "risk_distance": 0.03243,
+        "risk_per_unit": 0.037835,
+        "risk_unit": 0.02162,
         "stop_source": "ATR stop",
         "support_reference": 1.007,
-        "support_stop": 1.003772,
-        "two_percent_price_floor": 0.02152
+        "support_stop": 1.003757,
+        "two_percent_price_floor": 0.02162
       },
-      "invalidation_level": 1.04372,
+      "invalidation_level": 1.04857,
       "method": "ATR(14)-based risk unit; stop uses 1.5x risk distance and may tighten to nearby support; targets are 2R and 3R from the upper entry reference.",
       "reward_risk_ratio": 2.0,
       "risk_pct": 3.48,
-      "stop_loss": 1.04372,
-      "target_1": 1.1567,
+      "stop_loss": 1.04857,
+      "target_1": 1.162075,
       "target_1_pct": 6.97,
-      "target_2": 1.19436,
+      "target_2": 1.19991,
       "target_2_pct": 10.45,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 1.08138,
-      "watch_entry_low": 1.076
+      "watch_entry_high": 1.086405,
+      "watch_entry_low": 1.081
     },
     "liquidity_status": null,
     "market_regime": "RISK-OFF",
@@ -10445,7 +10601,7 @@
     "premarket_low": null,
     "premarket_rvol_same_time": null,
     "premarket_volume": null,
-    "price_as_of": "2026-11-18T01:46:28.003001+00:00",
+    "price_as_of": "2026-11-18T02:00:38.322016+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -10472,9 +10628,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 1.076,
         "return_pct": -0.46
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 1.081,
+        "return_pct": 0.0
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
     "price_validation_note": null,
     "price_validation_status": "not_required",
@@ -10527,13 +10688,21 @@
     },
     "research_max_adverse_pct": -0.463,
     "research_max_favorable_pct": 0.0,
-    "research_outcomes": {},
+    "research_outcomes": {
+      "1h": {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "elapsed_seconds": 3629,
+        "price": 1.081,
+        "return_pct": 0.0,
+        "sampling_note": "First completed scan at or after the target horizon; not an exact-time fill"
+      }
+    },
     "research_peak_price": 1.081,
     "research_setup_status": null,
     "research_signal_matches": [],
     "research_tracking_started_at": "2026-11-18T01:00:26.595233+00:00",
     "research_trough_price": 1.076,
-    "return_pct": -0.46,
+    "return_pct": 0.0,
     "risk_flags": [],
     "rs_rank": null,
     "same_time_relative_volume": null,
@@ -10684,7 +10853,7 @@
   "crypto:TRXUSDT": {
     "adx": null,
     "adx_dmi_status": null,
-    "age_days": 0.44,
+    "age_days": 0.45,
     "anchored_vwap": null,
     "anchored_vwap_status": null,
     "asset_type": "crypto",
@@ -10721,10 +10890,10 @@
     ],
     "cumulative_rvol_same_time": null,
     "currently_surfaced": true,
-    "daily_change_pct": 0.04,
+    "daily_change_pct": -0.09,
     "dilution_flags": null,
     "discovery_reasons": [
-      "Relative volume 3.8x"
+      "Momentum / technical scan threshold"
     ],
     "discovery_source": "core_scanner",
     "dollar_volume": null,
@@ -10772,7 +10941,15 @@
       "volume_acceleration_3bar": null
     },
     "early_runner_initial_signal_matches": [],
-    "early_runner_outcomes": {},
+    "early_runner_outcomes": {
+      "1h": {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "elapsed_seconds": 3629,
+        "price": 0.307627,
+        "return_pct": -0.07,
+        "sampling_note": "First completed scan after feature snapshot at or beyond target horizon; not an exact-time fill"
+      }
+    },
     "early_runner_research_score": null,
     "early_runner_score_components": null,
     "early_runner_signal_matches": [],
@@ -10796,39 +10973,44 @@
         "at": "2026-11-18T01:00:26.595233+00:00",
         "from": "LOW-CONVICTION WATCH",
         "to": "EARLY WATCH"
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "from": "EARLY WATCH",
+        "to": "LOW-CONVICTION WATCH"
       }
     ],
     "higher_highs_higher_lows": null,
     "initial_price": 0.307526,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
-    "last_stage": "EARLY WATCH",
-    "latest_price": 0.308014,
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
+    "last_stage": "LOW-CONVICTION WATCH",
+    "latest_price": 0.307627,
     "levels": {
       "calculation": {
-        "atr_14": 0.000914,
-        "atr_stop": 0.298774,
-        "entry_buffer": 0.00154,
-        "risk_distance": 0.00924,
-        "risk_per_unit": 0.004998,
-        "risk_unit": 0.00616,
+        "atr_14": 0.000915,
+        "atr_stop": 0.298398,
+        "entry_buffer": 0.001538,
+        "risk_distance": 0.009229,
+        "risk_per_unit": 0.003974,
+        "risk_unit": 0.006153,
         "stop_source": "nearby support",
-        "support_reference": 0.30548,
-        "support_stop": 0.304556,
-        "two_percent_price_floor": 0.00616
+        "support_reference": 0.306114,
+        "support_stop": 0.305191,
+        "two_percent_price_floor": 0.006153
       },
-      "invalidation_level": 0.304556,
+      "invalidation_level": 0.305191,
       "method": "ATR(14)-based risk unit; stop uses 1.5x risk distance and may tighten to nearby support; targets are 2R and 3R from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 1.61,
-      "stop_loss": 0.304556,
-      "target_1": 0.31955,
-      "target_1_pct": 3.23,
-      "target_2": 0.324548,
-      "target_2_pct": 4.84,
+      "risk_pct": 1.29,
+      "stop_loss": 0.305191,
+      "target_1": 0.317113,
+      "target_1_pct": 2.57,
+      "target_2": 0.321087,
+      "target_2_pct": 3.86,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 0.309554,
-      "watch_entry_low": 0.308014
+      "watch_entry_high": 0.309165,
+      "watch_entry_low": 0.307627
     },
     "liquidity_status": null,
     "market_regime": "RISK-OFF",
@@ -10852,7 +11034,7 @@
     "premarket_low": null,
     "premarket_rvol_same_time": null,
     "premarket_volume": null,
-    "price_as_of": "2026-11-18T01:46:27.718777+00:00",
+    "price_as_of": "2026-11-18T02:00:38.314784+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -10889,14 +11071,19 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 0.308014,
         "return_pct": 0.16
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 0.307627,
+        "return_pct": 0.03
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
     "price_validation_note": null,
     "price_validation_status": "not_required",
     "pullback_from_session_high_pct": null,
-    "raw_score": 45,
+    "raw_score": 20,
     "relative_strength_vs_iwm": null,
     "relative_strength_vs_spy": null,
     "research_entry_price": 0.307526,
@@ -10965,18 +11152,18 @@
     "research_signal_matches": [],
     "research_tracking_started_at": "2026-11-17T15:12:06.184312+00:00",
     "research_trough_price": 0.307526,
-    "return_pct": 0.16,
+    "return_pct": 0.03,
     "risk_flags": [],
     "rs_rank": null,
     "same_time_relative_volume": null,
-    "score": 37,
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "shares_outstanding": null,
     "short_percent_float": null,
     "spread_pct": null,
     "stage_reasons": [
-      "Some interest is present, but confirmation remains limited."
+      "Current evidence is below the early-watch threshold."
     ],
     "stage_signals": {},
     "symbol": "TRXUSDT",
@@ -11509,7 +11696,7 @@
   "crypto:WIFUSDT": {
     "adx": null,
     "adx_dmi_status": null,
-    "age_days": 1.04,
+    "age_days": 1.05,
     "anchored_vwap": null,
     "anchored_vwap_status": null,
     "asset_type": "crypto",
@@ -11546,7 +11733,7 @@
     ],
     "cumulative_rvol_same_time": null,
     "currently_surfaced": true,
-    "daily_change_pct": -1.03,
+    "daily_change_pct": -1.18,
     "dilution_flags": null,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
@@ -11597,7 +11784,15 @@
       "volume_acceleration_3bar": null
     },
     "early_runner_initial_signal_matches": [],
-    "early_runner_outcomes": {},
+    "early_runner_outcomes": {
+      "1h": {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "elapsed_seconds": 3629,
+        "price": 0.1345,
+        "return_pct": -1.03,
+        "sampling_note": "First completed scan after feature snapshot at or beyond target horizon; not an exact-time fill"
+      }
+    },
     "early_runner_research_score": null,
     "early_runner_score_components": null,
     "early_runner_signal_matches": [],
@@ -11626,34 +11821,34 @@
     "higher_highs_higher_lows": null,
     "initial_price": 0.1344,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.1347,
+    "latest_price": 0.1345,
     "levels": {
       "calculation": {
-        "atr_14": 0.001707,
-        "atr_stop": 0.130659,
+        "atr_14": 0.001579,
+        "atr_stop": 0.130465,
         "entry_buffer": 0.000673,
-        "risk_distance": 0.004041,
-        "risk_per_unit": 0.004714,
-        "risk_unit": 0.002694,
+        "risk_distance": 0.004035,
+        "risk_per_unit": 0.004708,
+        "risk_unit": 0.00269,
         "stop_source": "ATR stop",
         "support_reference": 0.1302,
-        "support_stop": 0.129796,
-        "two_percent_price_floor": 0.002694
+        "support_stop": 0.129797,
+        "two_percent_price_floor": 0.00269
       },
-      "invalidation_level": 0.130659,
+      "invalidation_level": 0.130465,
       "method": "ATR(14)-based risk unit; stop uses 1.5x risk distance and may tighten to nearby support; targets are 2R and 3R from the upper entry reference.",
       "reward_risk_ratio": 2.0,
       "risk_pct": 3.48,
-      "stop_loss": 0.130659,
-      "target_1": 0.144802,
+      "stop_loss": 0.130465,
+      "target_1": 0.144588,
       "target_1_pct": 6.97,
-      "target_2": 0.149517,
+      "target_2": 0.149295,
       "target_2_pct": 10.45,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 0.135373,
-      "watch_entry_low": 0.1347
+      "watch_entry_high": 0.135173,
+      "watch_entry_low": 0.1345
     },
     "liquidity_status": null,
     "market_regime": "RISK-OFF",
@@ -11679,7 +11874,7 @@
     "premarket_low": null,
     "premarket_rvol_same_time": null,
     "premarket_volume": null,
-    "price_as_of": "2026-11-18T01:46:26.539083+00:00",
+    "price_as_of": "2026-11-18T02:00:37.204012+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -11776,9 +11971,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 0.1347,
         "return_pct": 0.22
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 0.1345,
+        "return_pct": 0.07
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
     "price_validation_note": null,
     "price_validation_status": "not_required",
@@ -11859,7 +12059,7 @@
     "research_signal_matches": [],
     "research_tracking_started_at": "2026-11-17T00:44:31.089923+00:00",
     "research_trough_price": 0.1344,
-    "return_pct": 0.22,
+    "return_pct": 0.07,
     "risk_flags": [],
     "rs_rank": null,
     "same_time_relative_volume": null,
@@ -12035,7 +12235,7 @@
   "crypto:XLMUSDT": {
     "adx": null,
     "adx_dmi_status": null,
-    "age_days": 0.87,
+    "age_days": 0.88,
     "anchored_vwap": null,
     "anchored_vwap_status": null,
     "asset_type": "crypto",
@@ -12072,10 +12272,10 @@
     ],
     "cumulative_rvol_same_time": null,
     "currently_surfaced": true,
-    "daily_change_pct": -1.08,
+    "daily_change_pct": -1.19,
     "dilution_flags": null,
     "discovery_reasons": [
-      "Relative volume 1.5x"
+      "Momentum / technical scan threshold"
     ],
     "discovery_source": "core_scanner",
     "dollar_volume": null,
@@ -12123,7 +12323,15 @@
       "volume_acceleration_3bar": null
     },
     "early_runner_initial_signal_matches": [],
-    "early_runner_outcomes": {},
+    "early_runner_outcomes": {
+      "1h": {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "elapsed_seconds": 3629,
+        "price": 0.13966,
+        "return_pct": -0.719,
+        "sampling_note": "First completed scan after feature snapshot at or beyond target horizon; not an exact-time fill"
+      }
+    },
     "early_runner_research_score": null,
     "early_runner_score_components": null,
     "early_runner_signal_matches": [],
@@ -12162,34 +12370,34 @@
     "higher_highs_higher_lows": null,
     "initial_price": 0.138967,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.13982,
+    "latest_price": 0.13966,
     "levels": {
       "calculation": {
-        "atr_14": 0.001904,
-        "atr_stop": 0.135625,
-        "entry_buffer": 0.000699,
-        "risk_distance": 0.004195,
-        "risk_per_unit": 0.004894,
-        "risk_unit": 0.002796,
+        "atr_14": 0.001769,
+        "atr_stop": 0.13547,
+        "entry_buffer": 0.000698,
+        "risk_distance": 0.00419,
+        "risk_per_unit": 0.004888,
+        "risk_unit": 0.002793,
         "stop_source": "ATR stop",
         "support_reference": 0.135731,
         "support_stop": 0.135312,
-        "two_percent_price_floor": 0.002796
+        "two_percent_price_floor": 0.002793
       },
-      "invalidation_level": 0.135625,
+      "invalidation_level": 0.13547,
       "method": "ATR(14)-based risk unit; stop uses 1.5x risk distance and may tighten to nearby support; targets are 2R and 3R from the upper entry reference.",
       "reward_risk_ratio": 2.0,
       "risk_pct": 3.48,
-      "stop_loss": 0.135625,
-      "target_1": 0.150307,
+      "stop_loss": 0.13547,
+      "target_1": 0.150135,
       "target_1_pct": 6.97,
-      "target_2": 0.1552,
+      "target_2": 0.155023,
       "target_2_pct": 10.45,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 0.140519,
-      "watch_entry_low": 0.13982
+      "watch_entry_high": 0.140358,
+      "watch_entry_low": 0.13966
     },
     "liquidity_status": null,
     "market_regime": "RISK-OFF",
@@ -12213,7 +12421,7 @@
     "premarket_low": null,
     "premarket_rvol_same_time": null,
     "premarket_volume": null,
-    "price_as_of": "2026-11-18T01:46:28.194257+00:00",
+    "price_as_of": "2026-11-18T02:00:38.915009+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -12280,14 +12488,19 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 0.13982,
         "return_pct": 0.61
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 0.13966,
+        "return_pct": 0.5
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
     "price_validation_note": null,
     "price_validation_status": "not_required",
     "pullback_from_session_high_pct": null,
-    "raw_score": 29,
+    "raw_score": 20,
     "relative_strength_vs_iwm": null,
     "relative_strength_vs_spy": null,
     "research_entry_price": 0.138967,
@@ -12356,11 +12569,11 @@
     "research_signal_matches": [],
     "research_tracking_started_at": "2026-11-17T04:52:06.679438+00:00",
     "research_trough_price": 0.138967,
-    "return_pct": 0.61,
+    "return_pct": 0.5,
     "risk_flags": [],
     "rs_rank": null,
     "same_time_relative_volume": null,
-    "score": 21,
+    "score": 12,
     "score_components": {},
     "session_change_pct": null,
     "shares_outstanding": null,
@@ -12420,7 +12633,7 @@
       }
     ],
     "cumulative_rvol_same_time": null,
-    "currently_surfaced": true,
+    "currently_surfaced": false,
     "daily_change_pct": -0.53,
     "dilution_flags": null,
     "discovery_reasons": [
@@ -12758,7 +12971,7 @@
   "crypto:XRPUSDT": {
     "adx": null,
     "adx_dmi_status": null,
-    "age_days": 0.98,
+    "age_days": 0.99,
     "anchored_vwap": null,
     "anchored_vwap_status": null,
     "asset_type": "crypto",
@@ -12795,7 +13008,7 @@
     ],
     "cumulative_rvol_same_time": null,
     "currently_surfaced": true,
-    "daily_change_pct": -0.85,
+    "daily_change_pct": -0.96,
     "dilution_flags": null,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
@@ -12846,7 +13059,15 @@
       "volume_acceleration_3bar": null
     },
     "early_runner_initial_signal_matches": [],
-    "early_runner_outcomes": {},
+    "early_runner_outcomes": {
+      "1h": {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "elapsed_seconds": 3629,
+        "price": 0.9731,
+        "return_pct": -0.334,
+        "sampling_note": "First completed scan after feature snapshot at or beyond target horizon; not an exact-time fill"
+      }
+    },
     "early_runner_research_score": null,
     "early_runner_score_components": null,
     "early_runner_signal_matches": [],
@@ -12885,34 +13106,34 @@
     "higher_highs_higher_lows": null,
     "initial_price": 0.95525,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 0.97417,
+    "latest_price": 0.9731,
     "levels": {
       "calculation": {
-        "atr_14": 0.012199,
-        "atr_stop": 0.944945,
-        "entry_buffer": 0.004871,
-        "risk_distance": 0.029225,
-        "risk_per_unit": 0.034096,
-        "risk_unit": 0.019483,
+        "atr_14": 0.011451,
+        "atr_stop": 0.943907,
+        "entry_buffer": 0.004866,
+        "risk_distance": 0.029193,
+        "risk_per_unit": 0.034058,
+        "risk_unit": 0.019462,
         "stop_source": "ATR stop",
         "support_reference": 0.945,
-        "support_stop": 0.942077,
-        "two_percent_price_floor": 0.019483
+        "support_stop": 0.942081,
+        "two_percent_price_floor": 0.019462
       },
-      "invalidation_level": 0.944945,
+      "invalidation_level": 0.943907,
       "method": "ATR(14)-based risk unit; stop uses 1.5x risk distance and may tighten to nearby support; targets are 2R and 3R from the upper entry reference.",
       "reward_risk_ratio": 2.0,
       "risk_pct": 3.48,
-      "stop_loss": 0.944945,
-      "target_1": 1.047233,
+      "stop_loss": 0.943907,
+      "target_1": 1.046082,
       "target_1_pct": 6.97,
-      "target_2": 1.081329,
+      "target_2": 1.080141,
       "target_2_pct": 10.45,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 0.979041,
-      "watch_entry_low": 0.97417
+      "watch_entry_high": 0.977965,
+      "watch_entry_low": 0.9731
     },
     "liquidity_status": null,
     "market_regime": "RISK-OFF",
@@ -12936,7 +13157,7 @@
     "premarket_low": null,
     "premarket_rvol_same_time": null,
     "premarket_volume": null,
-    "price_as_of": "2026-11-18T01:46:25.013669+00:00",
+    "price_as_of": "2026-11-18T02:00:35.821102+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -13028,9 +13249,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 0.97417,
         "return_pct": 1.98
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 0.9731,
+        "return_pct": 1.87
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
     "price_validation_note": null,
     "price_validation_status": "not_required",
@@ -13104,7 +13330,7 @@
     "research_signal_matches": [],
     "research_tracking_started_at": "2026-11-17T02:21:51.143636+00:00",
     "research_trough_price": 0.95525,
-    "return_pct": 1.98,
+    "return_pct": 1.87,
     "risk_flags": [],
     "rs_rank": null,
     "same_time_relative_volume": null,
@@ -13132,7 +13358,7 @@
   "crypto:ZECUSDT": {
     "adx": null,
     "adx_dmi_status": null,
-    "age_days": 1.04,
+    "age_days": 1.05,
     "anchored_vwap": null,
     "anchored_vwap_status": null,
     "asset_type": "crypto",
@@ -13169,7 +13395,7 @@
     ],
     "cumulative_rvol_same_time": null,
     "currently_surfaced": true,
-    "daily_change_pct": -1.58,
+    "daily_change_pct": -1.93,
     "dilution_flags": null,
     "discovery_reasons": [
       "Momentum / technical scan threshold"
@@ -13220,7 +13446,15 @@
       "volume_acceleration_3bar": null
     },
     "early_runner_initial_signal_matches": [],
-    "early_runner_outcomes": {},
+    "early_runner_outcomes": {
+      "1h": {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "elapsed_seconds": 3629,
+        "price": 949.1,
+        "return_pct": -1.48,
+        "sampling_note": "First completed scan after feature snapshot at or beyond target horizon; not an exact-time fill"
+      }
+    },
     "early_runner_research_score": null,
     "early_runner_score_components": null,
     "early_runner_signal_matches": [],
@@ -13279,34 +13513,34 @@
     "higher_highs_higher_lows": null,
     "initial_price": 899.95,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
-    "latest_price": 952.49,
+    "latest_price": 949.1,
     "levels": {
       "calculation": {
-        "atr_14": 21.907143,
-        "atr_stop": 919.629286,
-        "entry_buffer": 5.476786,
-        "risk_distance": 32.860714,
-        "risk_per_unit": 38.3375,
-        "risk_unit": 21.907143,
+        "atr_14": 20.471429,
+        "atr_stop": 918.392857,
+        "entry_buffer": 5.117857,
+        "risk_distance": 30.707143,
+        "risk_per_unit": 35.825,
+        "risk_unit": 20.471429,
         "stop_source": "ATR stop",
         "support_reference": 913.83,
-        "support_stop": 910.543929,
-        "two_percent_price_floor": 19.0498
+        "support_stop": 910.759286,
+        "two_percent_price_floor": 18.982
       },
-      "invalidation_level": 919.629286,
+      "invalidation_level": 918.392857,
       "method": "ATR(14)-based risk unit; stop uses 1.5x risk distance and may tighten to nearby support; targets are 2R and 3R from the upper entry reference.",
       "reward_risk_ratio": 2.0,
-      "risk_pct": 4.0,
-      "stop_loss": 919.629286,
-      "target_1": 1034.641786,
-      "target_1_pct": 8.0,
-      "target_2": 1072.979286,
-      "target_2_pct": 12.01,
+      "risk_pct": 3.75,
+      "stop_loss": 918.392857,
+      "target_1": 1025.867857,
+      "target_1_pct": 7.51,
+      "target_2": 1061.692857,
+      "target_2_pct": 11.26,
       "target_2_reward_risk_ratio": 3.0,
-      "watch_entry_high": 957.966786,
-      "watch_entry_low": 952.49
+      "watch_entry_high": 954.217857,
+      "watch_entry_low": 949.1
     },
     "liquidity_status": null,
     "market_regime": "RISK-OFF",
@@ -13332,7 +13566,7 @@
     "premarket_low": null,
     "premarket_rvol_same_time": null,
     "premarket_volume": null,
-    "price_as_of": "2026-11-18T01:46:27.452990+00:00",
+    "price_as_of": "2026-11-18T02:00:37.900095+00:00",
     "price_freshness": "live_ticker_snapshot",
     "price_history": [
       {
@@ -13434,9 +13668,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 952.49,
         "return_pct": 5.84
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 949.1,
+        "return_pct": 5.46
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Kraken Spot public API + Yahoo Finance headlines",
     "price_validation_note": null,
     "price_validation_status": "not_required",
@@ -13517,7 +13756,7 @@
     "research_signal_matches": [],
     "research_tracking_started_at": "2026-11-17T00:44:31.089923+00:00",
     "research_trough_price": 899.95,
-    "return_pct": 5.84,
+    "return_pct": 5.46,
     "risk_flags": [],
     "rs_rank": null,
     "same_time_relative_volume": null,
@@ -13741,12 +13980,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "90,618,475 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:28.806630-05:00",
+      "as_of": "2026-11-17T21:00:39.871384-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -13824,7 +14063,7 @@
       "pullback_from_session_high_pct": -2.454,
       "relative_strength_vs_iwm": 6.65,
       "relative_strength_vs_spy": 4.95,
-      "rs_rank": 79.5,
+      "rs_rank": 79.3,
       "same_time_relative_volume": null,
       "shares_outstanding": 128696425.0,
       "short_percent_float": 0.0577,
@@ -13840,7 +14079,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 79.5,
+    "rs_rank": 79.3,
     "same_time_relative_volume": null,
     "score": 78,
     "score_components": {
@@ -14463,12 +14702,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": 0.0,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "6,435,566 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:30.708275-05:00",
+      "as_of": "2026-11-17T21:00:41.601671-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -14546,7 +14785,7 @@
       "pullback_from_session_high_pct": -0.503,
       "relative_strength_vs_iwm": 6.36,
       "relative_strength_vs_spy": 4.66,
-      "rs_rank": 75.9,
+      "rs_rank": 75.6,
       "same_time_relative_volume": 0.0,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -14562,7 +14801,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 75.9,
+    "rs_rank": 75.6,
     "same_time_relative_volume": 0.0,
     "score": 7,
     "score_components": {
@@ -14847,7 +15086,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 31.47,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "levels": {
@@ -14879,7 +15118,7 @@
     "liquidity_status": "160,195,066 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:32.497488-05:00",
+      "as_of": "2026-11-17T21:00:43.274807-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -14969,7 +15208,7 @@
       "pullback_from_session_high_pct": -5.38,
       "relative_strength_vs_iwm": -6.96,
       "relative_strength_vs_spy": -8.66,
-      "rs_rank": 30.1,
+      "rs_rank": 30.5,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -14983,7 +15222,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 30.1,
+    "rs_rank": 30.5,
     "same_time_relative_volume": null,
     "score": 12,
     "score_components": {
@@ -15072,12 +15311,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "15,462,267 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:43.410219-05:00",
+      "as_of": "2026-11-17T21:00:54.482949-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -15155,7 +15394,7 @@
       "pullback_from_session_high_pct": -5.666,
       "relative_strength_vs_iwm": 12.59,
       "relative_strength_vs_spy": 10.89,
-      "rs_rank": 96.4,
+      "rs_rank": 96.3,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -15169,7 +15408,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 96.4,
+    "rs_rank": 96.3,
     "same_time_relative_volume": null,
     "score": 17,
     "score_components": {
@@ -15256,12 +15495,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "5,200,615 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:33.822218-05:00",
+      "as_of": "2026-11-17T21:00:44.422061-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -15339,7 +15578,7 @@
       "pullback_from_session_high_pct": -0.42,
       "relative_strength_vs_iwm": 1.1,
       "relative_strength_vs_spy": -0.6,
-      "rs_rank": 51.8,
+      "rs_rank": 51.2,
       "same_time_relative_volume": null,
       "shares_outstanding": 20477244.0,
       "short_percent_float": 0.1982,
@@ -15353,7 +15592,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 51.8,
+    "rs_rank": 51.2,
     "same_time_relative_volume": null,
     "score": 42,
     "score_components": {
@@ -15448,12 +15687,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "482,789,364 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:24.021583-05:00",
+      "as_of": "2026-11-17T21:00:35.305748-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -15533,7 +15772,7 @@
       "pullback_from_session_high_pct": -0.507,
       "relative_strength_vs_iwm": -19.14,
       "relative_strength_vs_spy": -20.84,
-      "rs_rank": 12.0,
+      "rs_rank": 12.2,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -15549,7 +15788,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 12.0,
+    "rs_rank": 12.2,
     "same_time_relative_volume": null,
     "score": 13,
     "score_components": {
@@ -15755,7 +15994,7 @@
   "stock:BBD": {
     "adx": 43.94,
     "adx_dmi_status": "strong trend \u00b7 bearish DMI",
-    "age_days": 0.01,
+    "age_days": 0.02,
     "anchored_vwap": 2.46866,
     "anchored_vwap_status": "Below session-open anchored VWAP \u00b7 2.4687",
     "asset_type": "stock",
@@ -15891,7 +16130,7 @@
     "higher_highs_higher_lows": true,
     "initial_price": 2.44,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 2.44,
     "levels": {
@@ -15923,7 +16162,7 @@
     "liquidity_status": "152,162,905 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:40.893345-05:00",
+      "as_of": "2026-11-17T21:00:51.686270-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -15961,9 +16200,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 2.44,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 2.44,
+        "return_pct": 0.0
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Yahoo + Alpaca prior-session daily close cross-check",
     "price_validation_note": "Prior-session closes agree within 1.63%; research visibility only while market is closed",
     "price_validation_status": "verified",
@@ -16020,7 +16264,7 @@
       "pullback_from_session_high_pct": 0.0,
       "relative_strength_vs_iwm": -3.83,
       "relative_strength_vs_spy": -5.53,
-      "rs_rank": 36.1,
+      "rs_rank": 36.6,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -16044,7 +16288,7 @@
     "research_trough_price": 2.44,
     "return_pct": 0.0,
     "risk_flags": [],
-    "rs_rank": 36.1,
+    "rs_rank": 36.6,
     "same_time_relative_volume": null,
     "score": 24,
     "score_components": {
@@ -16133,12 +16377,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "15,596,232 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:36.572464-05:00",
+      "as_of": "2026-11-17T21:00:47.259217-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -16216,7 +16460,7 @@
       "pullback_from_session_high_pct": 0.0,
       "relative_strength_vs_iwm": -6.1,
       "relative_strength_vs_spy": -7.8,
-      "rs_rank": 32.5,
+      "rs_rank": 32.9,
       "same_time_relative_volume": null,
       "shares_outstanding": 2115263.0,
       "short_percent_float": 0.0967,
@@ -16230,7 +16474,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 32.5,
+    "rs_rank": 32.9,
     "same_time_relative_volume": null,
     "score": 37,
     "score_components": {
@@ -16472,12 +16716,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "83,434,987 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:27.757456-05:00",
+      "as_of": "2026-11-17T21:00:38.539695-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -16555,7 +16799,7 @@
       "pullback_from_session_high_pct": -0.406,
       "relative_strength_vs_iwm": 10.49,
       "relative_strength_vs_spy": 8.79,
-      "rs_rank": 92.8,
+      "rs_rank": 92.7,
       "same_time_relative_volume": null,
       "shares_outstanding": 85883042.0,
       "short_percent_float": 0.1887,
@@ -16572,7 +16816,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 92.8,
+    "rs_rank": 92.7,
     "same_time_relative_volume": null,
     "score": 78,
     "score_components": {
@@ -16752,12 +16996,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "20,011 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:37.014352-05:00",
+      "as_of": "2026-11-17T21:00:47.736215-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -16835,7 +17079,7 @@
       "pullback_from_session_high_pct": -7.283,
       "relative_strength_vs_iwm": -13.71,
       "relative_strength_vs_spy": -15.41,
-      "rs_rank": 21.7,
+      "rs_rank": 22.0,
       "same_time_relative_volume": null,
       "shares_outstanding": 31095054.0,
       "short_percent_float": null,
@@ -16851,7 +17095,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 21.7,
+    "rs_rank": 22.0,
     "same_time_relative_volume": null,
     "score": 29,
     "score_components": {
@@ -17140,7 +17384,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 13.1,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "levels": {
@@ -17172,7 +17416,7 @@
     "liquidity_status": "68,857,586 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:36.493858-05:00",
+      "as_of": "2026-11-17T21:00:47.014890-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -17257,7 +17501,7 @@
       "pullback_from_session_high_pct": -0.229,
       "relative_strength_vs_iwm": -21.42,
       "relative_strength_vs_spy": -23.12,
-      "rs_rank": 8.4,
+      "rs_rank": 8.5,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -17272,7 +17516,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 8.4,
+    "rs_rank": 8.5,
     "same_time_relative_volume": null,
     "score": 10,
     "score_components": {
@@ -17607,12 +17851,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "1,258,915,056 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:39.116058-05:00",
+      "as_of": "2026-11-17T21:00:49.593649-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -17690,7 +17934,7 @@
       "pullback_from_session_high_pct": -1.01,
       "relative_strength_vs_iwm": 7.83,
       "relative_strength_vs_spy": 6.13,
-      "rs_rank": 88.0,
+      "rs_rank": 87.8,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -17705,7 +17949,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 88.0,
+    "rs_rank": 87.8,
     "same_time_relative_volume": null,
     "score": 10,
     "score_components": {
@@ -17947,12 +18191,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "135,202,902 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:32.005649-05:00",
+      "as_of": "2026-11-17T21:00:42.567480-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -18030,7 +18274,7 @@
       "pullback_from_session_high_pct": -3.65,
       "relative_strength_vs_iwm": 8.8,
       "relative_strength_vs_spy": 7.1,
-      "rs_rank": 89.2,
+      "rs_rank": 89.0,
       "same_time_relative_volume": null,
       "shares_outstanding": 353422420.0,
       "short_percent_float": 0.0805,
@@ -18046,7 +18290,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 89.2,
+    "rs_rank": 89.0,
     "same_time_relative_volume": null,
     "score": 85,
     "score_components": {
@@ -18104,7 +18348,7 @@
   "stock:CLS": {
     "adx": 35.9,
     "adx_dmi_status": "strong trend \u00b7 bearish DMI",
-    "age_days": 0.01,
+    "age_days": 0.02,
     "anchored_vwap": 236.749373,
     "anchored_vwap_status": "Above session-open anchored VWAP \u00b7 236.7494",
     "asset_type": "stock",
@@ -18237,7 +18481,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 238.48,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 238.48,
     "levels": {
@@ -18269,7 +18513,7 @@
     "liquidity_status": "929,212,263 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:42.002679-05:00",
+      "as_of": "2026-11-17T21:00:53.012463-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -18307,9 +18551,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 238.48,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 238.48,
+        "return_pct": 0.0
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Yahoo + Alpaca prior-session daily close cross-check",
     "price_validation_note": "Prior-session closes agree within 0.85%; research visibility only while market is closed",
     "price_validation_status": "verified",
@@ -18366,7 +18615,7 @@
       "pullback_from_session_high_pct": -0.284,
       "relative_strength_vs_iwm": 10.37,
       "relative_strength_vs_spy": 8.67,
-      "rs_rank": 91.6,
+      "rs_rank": 91.5,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -18389,7 +18638,7 @@
     "research_trough_price": 238.48,
     "return_pct": 0.0,
     "risk_flags": [],
-    "rs_rank": 91.6,
+    "rs_rank": 91.5,
     "same_time_relative_volume": null,
     "score": 21,
     "score_components": {
@@ -18598,7 +18847,7 @@
   "stock:CMG": {
     "adx": 32.32,
     "adx_dmi_status": "strong trend \u00b7 bullish DMI",
-    "age_days": 0.01,
+    "age_days": 0.02,
     "anchored_vwap": 35.886181,
     "anchored_vwap_status": "Above session-open anchored VWAP \u00b7 35.8862",
     "asset_type": "stock",
@@ -18731,7 +18980,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 35.94,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 35.94,
     "levels": {
@@ -18763,7 +19012,7 @@
     "liquidity_status": "756,555,840 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:41.372033-05:00",
+      "as_of": "2026-11-17T21:00:52.347701-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -18801,9 +19050,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 35.94,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 35.94,
+        "return_pct": 0.0
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Yahoo + Alpaca prior-session daily close cross-check",
     "price_validation_note": "Prior-session closes agree within 0.33%; research visibility only while market is closed",
     "price_validation_status": "verified",
@@ -18856,7 +19110,7 @@
       "pullback_from_session_high_pct": -2.257,
       "relative_strength_vs_iwm": 3.95,
       "relative_strength_vs_spy": 2.25,
-      "rs_rank": 60.2,
+      "rs_rank": 59.8,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -18878,7 +19132,7 @@
     "research_trough_price": 35.5393,
     "return_pct": 0.0,
     "risk_flags": [],
-    "rs_rank": 60.2,
+    "rs_rank": 59.8,
     "same_time_relative_volume": null,
     "score": 26,
     "score_components": {
@@ -19012,12 +19266,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "91,861 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:37.900008-05:00",
+      "as_of": "2026-11-17T21:00:48.408815-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -19238,7 +19492,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 32.385,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "levels": {
@@ -19270,7 +19524,7 @@
     "liquidity_status": "63,069,165 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:34.871814-05:00",
+      "as_of": "2026-11-17T21:00:45.439059-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -19355,7 +19609,7 @@
       "pullback_from_session_high_pct": -0.246,
       "relative_strength_vs_iwm": 7.21,
       "relative_strength_vs_spy": 5.51,
-      "rs_rank": 83.1,
+      "rs_rank": 82.9,
       "same_time_relative_volume": null,
       "shares_outstanding": 86498076.0,
       "short_percent_float": 0.1847,
@@ -19372,7 +19626,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 83.1,
+    "rs_rank": 82.9,
     "same_time_relative_volume": null,
     "score": 28,
     "score_components": {
@@ -19889,7 +20143,7 @@
   "stock:DSP": {
     "adx": 15.71,
     "adx_dmi_status": "weak / choppy trend \u00b7 bearish DMI",
-    "age_days": 0.01,
+    "age_days": 0.02,
     "anchored_vwap": 11.264037,
     "anchored_vwap_status": "Below session-open anchored VWAP \u00b7 11.2640",
     "asset_type": "stock",
@@ -20024,7 +20278,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 11.19,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 11.19,
     "levels": {
@@ -20056,7 +20310,7 @@
     "liquidity_status": "4,730,572 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:35.924221-05:00",
+      "as_of": "2026-11-17T21:00:46.422565-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -20094,9 +20348,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 11.19,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 11.19,
+        "return_pct": 0.0
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Yahoo + Alpaca prior-session daily close cross-check",
     "price_validation_note": "Prior-session closes agree within 1.24%; research visibility only while market is closed",
     "price_validation_status": "verified",
@@ -20152,7 +20411,7 @@
       "pullback_from_session_high_pct": -1.396,
       "relative_strength_vs_iwm": -16.91,
       "relative_strength_vs_spy": -18.61,
-      "rs_rank": 15.7,
+      "rs_rank": 15.9,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -20174,7 +20433,7 @@
     "research_trough_price": 11.19,
     "return_pct": 0.0,
     "risk_flags": [],
-    "rs_rank": 15.7,
+    "rs_rank": 15.9,
     "same_time_relative_volume": null,
     "score": 17,
     "score_components": {
@@ -20229,7 +20488,7 @@
   "stock:DVN": {
     "adx": 25.99,
     "adx_dmi_status": "strong trend \u00b7 bearish DMI",
-    "age_days": 0.01,
+    "age_days": 0.02,
     "anchored_vwap": 44.051585,
     "anchored_vwap_status": "Above session-open anchored VWAP \u00b7 44.0516",
     "asset_type": "stock",
@@ -20360,7 +20619,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 44.27,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 44.27,
     "levels": {
@@ -20392,7 +20651,7 @@
     "liquidity_status": "487,038,624 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:40.443075-05:00",
+      "as_of": "2026-11-17T21:00:51.299145-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -20430,9 +20689,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 44.27,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 44.27,
+        "return_pct": 0.0
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Yahoo + Alpaca prior-session daily close cross-check",
     "price_validation_note": "Prior-session closes agree within 1.85%; research visibility only while market is closed",
     "price_validation_status": "verified",
@@ -20485,7 +20749,7 @@
       "pullback_from_session_high_pct": -4.145,
       "relative_strength_vs_iwm": 7.8,
       "relative_strength_vs_spy": 6.1,
-      "rs_rank": 86.7,
+      "rs_rank": 86.6,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -20507,7 +20771,7 @@
     "research_trough_price": 43.48,
     "return_pct": 0.0,
     "risk_flags": [],
-    "rs_rank": 86.7,
+    "rs_rank": 86.6,
     "same_time_relative_volume": null,
     "score": 15,
     "score_components": {
@@ -20596,12 +20860,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "101,029 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:37.359347-05:00",
+      "as_of": "2026-11-17T21:00:47.997102-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -20679,7 +20943,7 @@
       "pullback_from_session_high_pct": -1.064,
       "relative_strength_vs_iwm": 6.51,
       "relative_strength_vs_spy": 4.81,
-      "rs_rank": 77.1,
+      "rs_rank": 76.8,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -20695,7 +20959,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 77.1,
+    "rs_rank": 76.8,
     "same_time_relative_volume": null,
     "score": 9,
     "score_components": {
@@ -20823,7 +21087,7 @@
     "higher_highs_higher_lows": true,
     "initial_price": 85.615,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "levels": {
@@ -20855,7 +21119,7 @@
     "liquidity_status": "80,477,590 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:35.959611-05:00",
+      "as_of": "2026-11-17T21:00:46.470836-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -20940,7 +21204,7 @@
       "pullback_from_session_high_pct": 0.0,
       "relative_strength_vs_iwm": 1.6,
       "relative_strength_vs_spy": -0.1,
-      "rs_rank": 55.4,
+      "rs_rank": 54.9,
       "same_time_relative_volume": null,
       "shares_outstanding": 51064160.0,
       "short_percent_float": 0.053400002,
@@ -20957,7 +21221,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 55.4,
+    "rs_rank": 54.9,
     "same_time_relative_volume": null,
     "score": 37,
     "score_components": {
@@ -21209,12 +21473,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "598,198 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:28.996990-05:00",
+      "as_of": "2026-11-17T21:00:40.057046-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -21296,7 +21560,7 @@
       "pullback_from_session_high_pct": 0.0,
       "relative_strength_vs_iwm": -27.51,
       "relative_strength_vs_spy": -29.21,
-      "rs_rank": 6.0,
+      "rs_rank": 6.1,
       "same_time_relative_volume": null,
       "shares_outstanding": 13807527.0,
       "short_percent_float": 0.0378,
@@ -21313,7 +21577,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 6.0,
+    "rs_rank": 6.1,
     "same_time_relative_volume": null,
     "score": 38,
     "score_components": {
@@ -21404,12 +21668,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "24,562,589 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:27.880902-05:00",
+      "as_of": "2026-11-17T21:00:38.767206-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -21487,7 +21751,7 @@
       "pullback_from_session_high_pct": -1.369,
       "relative_strength_vs_iwm": 0.52,
       "relative_strength_vs_spy": -1.18,
-      "rs_rank": 48.2,
+      "rs_rank": 48.8,
       "same_time_relative_volume": null,
       "shares_outstanding": 68483637.0,
       "short_percent_float": 0.103,
@@ -21503,7 +21767,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 48.2,
+    "rs_rank": 48.8,
     "same_time_relative_volume": null,
     "score": 27,
     "score_components": {
@@ -22481,12 +22745,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": 32.21,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "31,785,281 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:32.066780-05:00",
+      "as_of": "2026-11-17T21:00:42.739324-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -22564,7 +22828,7 @@
       "pullback_from_session_high_pct": -3.363,
       "relative_strength_vs_iwm": -2.99,
       "relative_strength_vs_spy": -4.69,
-      "rs_rank": 37.3,
+      "rs_rank": 37.8,
       "same_time_relative_volume": 32.21,
       "shares_outstanding": 45866631.0,
       "short_percent_float": 0.0495,
@@ -22581,7 +22845,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 37.3,
+    "rs_rank": 37.8,
     "same_time_relative_volume": 32.21,
     "score": 42,
     "score_components": {
@@ -22751,7 +23015,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 1.6257,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "levels": {
@@ -22783,7 +23047,7 @@
     "liquidity_status": "3,556,839 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:27.422866-05:00",
+      "as_of": "2026-11-17T21:00:38.194655-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -22873,7 +23137,7 @@
       "pullback_from_session_high_pct": -5.709,
       "relative_strength_vs_iwm": -29.42,
       "relative_strength_vs_spy": -31.12,
-      "rs_rank": 4.8,
+      "rs_rank": 4.9,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -22887,7 +23151,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 4.8,
+    "rs_rank": 4.9,
     "same_time_relative_volume": null,
     "score": 26,
     "score_components": {
@@ -23171,7 +23435,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 14.22,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "levels": {
@@ -23203,7 +23467,7 @@
     "liquidity_status": "29,357,782 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:35.837562-05:00",
+      "as_of": "2026-11-17T21:00:46.386229-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -23293,7 +23557,7 @@
       "pullback_from_session_high_pct": -5.0,
       "relative_strength_vs_iwm": 6.6,
       "relative_strength_vs_spy": 4.9,
-      "rs_rank": 78.3,
+      "rs_rank": 78.0,
       "same_time_relative_volume": null,
       "shares_outstanding": 176729538.0,
       "short_percent_float": 0.2116,
@@ -23309,7 +23573,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 78.3,
+    "rs_rank": 78.0,
     "same_time_relative_volume": null,
     "score": 36,
     "score_components": {
@@ -23667,7 +23931,7 @@
   "stock:HLN": {
     "adx": 25.04,
     "adx_dmi_status": "strong trend \u00b7 bearish DMI",
-    "age_days": 0.01,
+    "age_days": 0.02,
     "anchored_vwap": 9.10556,
     "anchored_vwap_status": "Above session-open anchored VWAP \u00b7 9.1056",
     "asset_type": "stock",
@@ -23796,7 +24060,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 9.2,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 9.2,
     "levels": {
@@ -23828,7 +24092,7 @@
     "liquidity_status": "213,295,878 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:43.496676-05:00",
+      "as_of": "2026-11-17T21:00:54.503046-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -23866,9 +24130,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 9.2,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 9.2,
+        "return_pct": 0.0
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Yahoo + Alpaca prior-session daily close cross-check",
     "price_validation_note": "Prior-session closes agree within 1.53%; research visibility only while market is closed",
     "price_validation_status": "verified",
@@ -23921,7 +24190,7 @@
       "pullback_from_session_high_pct": -1.737,
       "relative_strength_vs_iwm": 5.95,
       "relative_strength_vs_spy": 4.25,
-      "rs_rank": 72.3,
+      "rs_rank": 72.0,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -23942,7 +24211,7 @@
     "research_trough_price": 9.05,
     "return_pct": 0.0,
     "risk_flags": [],
-    "rs_rank": 72.3,
+    "rs_rank": 72.0,
     "same_time_relative_volume": null,
     "score": 7,
     "score_components": {
@@ -24148,7 +24417,7 @@
   "stock:HPQ": {
     "adx": 15.23,
     "adx_dmi_status": "weak / choppy trend \u00b7 bearish DMI",
-    "age_days": 0.01,
+    "age_days": 0.02,
     "anchored_vwap": 28.601692,
     "anchored_vwap_status": "Below session-open anchored VWAP \u00b7 28.6017",
     "asset_type": "stock",
@@ -24283,7 +24552,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 28.52,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 28.52,
     "levels": {
@@ -24315,7 +24584,7 @@
     "liquidity_status": "371,402,134 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:40.938419-05:00",
+      "as_of": "2026-11-17T21:00:51.999979-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -24353,9 +24622,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 28.52,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 28.52,
+        "return_pct": 0.0
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Yahoo + Alpaca prior-session daily close cross-check",
     "price_validation_note": "Prior-session closes agree within 0.73%; research visibility only while market is closed",
     "price_validation_status": "verified",
@@ -24412,7 +24686,7 @@
       "pullback_from_session_high_pct": 0.0,
       "relative_strength_vs_iwm": 4.35,
       "relative_strength_vs_spy": 2.65,
-      "rs_rank": 61.4,
+      "rs_rank": 61.0,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -24434,7 +24708,7 @@
     "research_trough_price": 28.52,
     "return_pct": 0.0,
     "risk_flags": [],
-    "rs_rank": 61.4,
+    "rs_rank": 61.0,
     "same_time_relative_volume": null,
     "score": 12,
     "score_components": {
@@ -24718,12 +24992,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "7,365,782 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:27.791567-05:00",
+      "as_of": "2026-11-17T21:00:38.672609-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -24801,7 +25075,7 @@
       "pullback_from_session_high_pct": 0.0,
       "relative_strength_vs_iwm": -8.04,
       "relative_strength_vs_spy": -9.74,
-      "rs_rank": 28.9,
+      "rs_rank": 29.3,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -24815,7 +25089,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 28.9,
+    "rs_rank": 29.3,
     "same_time_relative_volume": null,
     "score": 24,
     "score_components": {
@@ -25049,12 +25323,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "38,400,263 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:28.438463-05:00",
+      "as_of": "2026-11-17T21:00:39.331477-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -25134,7 +25408,7 @@
       "pullback_from_session_high_pct": 0.0,
       "relative_strength_vs_iwm": -3.89,
       "relative_strength_vs_spy": -5.59,
-      "rs_rank": 34.9,
+      "rs_rank": 35.4,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -25151,7 +25425,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 34.9,
+    "rs_rank": 35.4,
     "same_time_relative_volume": null,
     "score": 13,
     "score_components": {
@@ -25283,12 +25557,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "3,929,876 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:32.822021-05:00",
+      "as_of": "2026-11-17T21:00:43.697853-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -25366,7 +25640,7 @@
       "pullback_from_session_high_pct": -3.828,
       "relative_strength_vs_iwm": -21.97,
       "relative_strength_vs_spy": -23.67,
-      "rs_rank": 7.2,
+      "rs_rank": 7.3,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -25380,7 +25654,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 7.2,
+    "rs_rank": 7.3,
     "same_time_relative_volume": null,
     "score": 17,
     "score_components": {
@@ -25477,7 +25751,7 @@
   "stock:JBL": {
     "adx": 30.82,
     "adx_dmi_status": "strong trend \u00b7 bearish DMI",
-    "age_days": 0.01,
+    "age_days": 0.02,
     "anchored_vwap": 243.461374,
     "anchored_vwap_status": "Above session-open anchored VWAP \u00b7 243.4614",
     "asset_type": "stock",
@@ -25610,7 +25884,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 246.76,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 246.76,
     "levels": {
@@ -25642,7 +25916,7 @@
     "liquidity_status": "304,489,495 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:43.039795-05:00",
+      "as_of": "2026-11-17T21:00:54.195807-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -25680,9 +25954,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 246.76,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 246.76,
+        "return_pct": 0.0
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Yahoo + Alpaca prior-session daily close cross-check",
     "price_validation_note": "Prior-session closes agree within 1.28%; research visibility only while market is closed",
     "price_validation_status": "verified",
@@ -25735,7 +26014,7 @@
       "pullback_from_session_high_pct": -1.304,
       "relative_strength_vs_iwm": 1.12,
       "relative_strength_vs_spy": -0.58,
-      "rs_rank": 54.2,
+      "rs_rank": 53.7,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -25756,7 +26035,7 @@
     "research_trough_price": 246.76,
     "return_pct": 0.0,
     "risk_flags": [],
-    "rs_rank": 54.2,
+    "rs_rank": 53.7,
     "same_time_relative_volume": null,
     "score": 17,
     "score_components": {
@@ -25845,12 +26124,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "247,160,630 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:41.713351-05:00",
+      "as_of": "2026-11-17T21:00:52.799744-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -25928,7 +26207,7 @@
       "pullback_from_session_high_pct": -6.496,
       "relative_strength_vs_iwm": 0.43,
       "relative_strength_vs_spy": -1.27,
-      "rs_rank": 47.0,
+      "rs_rank": 47.6,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -25943,7 +26222,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 47.0,
+    "rs_rank": 47.6,
     "same_time_relative_volume": null,
     "score": 14,
     "score_components": {
@@ -26040,7 +26319,7 @@
   "stock:KDP": {
     "adx": 35.8,
     "adx_dmi_status": "strong trend \u00b7 bullish DMI",
-    "age_days": 0.01,
+    "age_days": 0.02,
     "anchored_vwap": 34.970059,
     "anchored_vwap_status": "Above session-open anchored VWAP \u00b7 34.9701",
     "asset_type": "stock",
@@ -26177,7 +26456,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 35.58,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 35.58,
     "levels": {
@@ -26209,7 +26488,7 @@
     "liquidity_status": "779,414,097 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:40.581307-05:00",
+      "as_of": "2026-11-17T21:00:51.477330-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -26247,9 +26526,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 35.58,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 35.58,
+        "return_pct": 0.0
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Yahoo + Alpaca prior-session daily close cross-check",
     "price_validation_note": "Prior-session closes agree within 2.27%; research visibility only while market is closed",
     "price_validation_status": "verified",
@@ -26304,7 +26588,7 @@
       "pullback_from_session_high_pct": -3.919,
       "relative_strength_vs_iwm": -0.29,
       "relative_strength_vs_spy": -1.99,
-      "rs_rank": 44.6,
+      "rs_rank": 45.1,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -26328,7 +26612,7 @@
     "risk_flags": [
       "Potential offering/registration filing detected; review the SEC document"
     ],
-    "rs_rank": 44.6,
+    "rs_rank": 45.1,
     "same_time_relative_volume": null,
     "score": 13,
     "score_components": {
@@ -26384,7 +26668,7 @@
   "stock:KEYS": {
     "adx": 36.33,
     "adx_dmi_status": "strong trend \u00b7 bearish DMI",
-    "age_days": 0.01,
+    "age_days": 0.02,
     "anchored_vwap": 284.487369,
     "anchored_vwap_status": "Above session-open anchored VWAP \u00b7 284.4874",
     "asset_type": "stock",
@@ -26518,7 +26802,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 285.63,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 285.63,
     "levels": {
@@ -26550,7 +26834,7 @@
     "liquidity_status": "415,158,928 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:40.348721-05:00",
+      "as_of": "2026-11-17T21:00:51.242186-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -26588,9 +26872,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 285.63,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 285.63,
+        "return_pct": 0.0
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Yahoo + Alpaca prior-session daily close cross-check",
     "price_validation_note": "Prior-session closes agree within 0.46%; research visibility only while market is closed",
     "price_validation_status": "verified",
@@ -26643,7 +26932,7 @@
       "pullback_from_session_high_pct": -1.265,
       "relative_strength_vs_iwm": 2.23,
       "relative_strength_vs_spy": 0.53,
-      "rs_rank": 57.8,
+      "rs_rank": 57.3,
       "same_time_relative_volume": null,
       "shares_outstanding": 170244745.0,
       "short_percent_float": 0.0148,
@@ -26664,7 +26953,7 @@
     "research_trough_price": 285.63,
     "return_pct": 0.0,
     "risk_flags": [],
-    "rs_rank": 57.8,
+    "rs_rank": 57.3,
     "same_time_relative_volume": null,
     "score": 33,
     "score_components": {
@@ -26761,7 +27050,7 @@
   "stock:KHC": {
     "adx": 29.8,
     "adx_dmi_status": "strong trend \u00b7 bullish DMI",
-    "age_days": 0.01,
+    "age_days": 0.02,
     "anchored_vwap": 25.195522,
     "anchored_vwap_status": "Below session-open anchored VWAP \u00b7 25.1955",
     "asset_type": "stock",
@@ -26894,7 +27183,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 25.07,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 25.07,
     "levels": {
@@ -26926,7 +27215,7 @@
     "liquidity_status": "340,137,848 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:41.066779-05:00",
+      "as_of": "2026-11-17T21:00:52.070249-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -26964,9 +27253,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 25.07,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 25.07,
+        "return_pct": 0.0
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Yahoo + Alpaca prior-session daily close cross-check",
     "price_validation_note": "Prior-session closes agree within 0.16%; research visibility only while market is closed",
     "price_validation_status": "verified",
@@ -27019,7 +27313,7 @@
       "pullback_from_session_high_pct": -2.103,
       "relative_strength_vs_iwm": 6.05,
       "relative_strength_vs_spy": 4.35,
-      "rs_rank": 73.5,
+      "rs_rank": 73.2,
       "same_time_relative_volume": null,
       "shares_outstanding": 1183828946.0,
       "short_percent_float": 0.1197,
@@ -27041,7 +27335,7 @@
     "research_trough_price": 24.91,
     "return_pct": 0.0,
     "risk_flags": [],
-    "rs_rank": 73.5,
+    "rs_rank": 73.2,
     "same_time_relative_volume": null,
     "score": 30,
     "score_components": {
@@ -27172,7 +27466,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 14.44,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "levels": {
@@ -27204,7 +27498,7 @@
     "liquidity_status": "74,922,679 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:30.953558-05:00",
+      "as_of": "2026-11-17T21:00:41.737162-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -27294,7 +27588,7 @@
       "pullback_from_session_high_pct": -3.197,
       "relative_strength_vs_iwm": 4.65,
       "relative_strength_vs_spy": 2.95,
-      "rs_rank": 63.9,
+      "rs_rank": 63.4,
       "same_time_relative_volume": null,
       "shares_outstanding": 379160066.0,
       "short_percent_float": null,
@@ -27309,7 +27603,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 63.9,
+    "rs_rank": 63.4,
     "same_time_relative_volume": null,
     "score": 41,
     "score_components": {
@@ -27866,12 +28160,12 @@
     "higher_highs_higher_lows": true,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "53,611 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:37.296001-05:00",
+      "as_of": "2026-11-17T21:00:47.777275-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -27949,7 +28243,7 @@
       "pullback_from_session_high_pct": -25.042,
       "relative_strength_vs_iwm": -17.74,
       "relative_strength_vs_spy": -19.44,
-      "rs_rank": 14.5,
+      "rs_rank": 14.6,
       "same_time_relative_volume": null,
       "shares_outstanding": 646893910.0,
       "short_percent_float": 0.0072000003,
@@ -27965,7 +28259,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 14.5,
+    "rs_rank": 14.6,
     "same_time_relative_volume": null,
     "score": 29,
     "score_components": {
@@ -28054,12 +28348,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "3,336,921 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:29.514504-05:00",
+      "as_of": "2026-11-17T21:00:40.403999-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -28137,7 +28431,7 @@
       "pullback_from_session_high_pct": -2.481,
       "relative_strength_vs_iwm": -2.23,
       "relative_strength_vs_spy": -3.93,
-      "rs_rank": 39.8,
+      "rs_rank": 40.2,
       "same_time_relative_volume": null,
       "shares_outstanding": 66299347.0,
       "short_percent_float": null,
@@ -28151,7 +28445,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 39.8,
+    "rs_rank": 40.2,
     "same_time_relative_volume": null,
     "score": 29,
     "score_components": {
@@ -28281,7 +28575,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 4.08,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "levels": {
@@ -28313,7 +28607,7 @@
     "liquidity_status": "421,856 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:27.228531-05:00",
+      "as_of": "2026-11-17T21:00:38.185151-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -28403,7 +28697,7 @@
       "pullback_from_session_high_pct": -6.25,
       "relative_strength_vs_iwm": -8.31,
       "relative_strength_vs_spy": -10.01,
-      "rs_rank": 27.7,
+      "rs_rank": 28.0,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -28418,7 +28712,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 27.7,
+    "rs_rank": 28.0,
     "same_time_relative_volume": null,
     "score": 17,
     "score_components": {
@@ -28700,7 +28994,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 11.47,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "levels": {
@@ -28732,7 +29026,7 @@
     "liquidity_status": "105,917,028 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:25.606550-05:00",
+      "as_of": "2026-11-17T21:00:36.409298-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -28819,7 +29113,7 @@
       "pullback_from_session_high_pct": -5.514,
       "relative_strength_vs_iwm": 0.82,
       "relative_strength_vs_spy": -0.88,
-      "rs_rank": 49.4,
+      "rs_rank": 50.0,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -28834,7 +29128,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 49.4,
+    "rs_rank": 50.0,
     "same_time_relative_volume": null,
     "score": 14,
     "score_components": {
@@ -28926,12 +29220,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "1,675,388 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:28.561610-05:00",
+      "as_of": "2026-11-17T21:00:39.424764-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -29009,7 +29303,7 @@
       "pullback_from_session_high_pct": -0.143,
       "relative_strength_vs_iwm": 5.19,
       "relative_strength_vs_spy": 3.49,
-      "rs_rank": 66.3,
+      "rs_rank": 65.9,
       "same_time_relative_volume": null,
       "shares_outstanding": 139699831.0,
       "short_percent_float": 0.1839,
@@ -29025,7 +29319,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 66.3,
+    "rs_rank": 65.9,
     "same_time_relative_volume": null,
     "score": 85,
     "score_components": {
@@ -29161,12 +29455,12 @@
     "higher_highs_higher_lows": true,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "11,643,239 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:34.951824-05:00",
+      "as_of": "2026-11-17T21:00:45.715327-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -29244,7 +29538,7 @@
       "pullback_from_session_high_pct": 0.0,
       "relative_strength_vs_iwm": -34.29,
       "relative_strength_vs_spy": -35.99,
-      "rs_rank": 3.6,
+      "rs_rank": 3.7,
       "same_time_relative_volume": null,
       "shares_outstanding": 154542640.0,
       "short_percent_float": 0.19510001,
@@ -29260,7 +29554,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 3.6,
+    "rs_rank": 3.7,
     "same_time_relative_volume": null,
     "score": 46,
     "score_components": {
@@ -29387,12 +29681,12 @@
     "higher_highs_higher_lows": true,
     "initial_price": 6.99,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "263,452,718 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:26.219610-05:00",
+      "as_of": "2026-11-17T21:00:36.908372-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -29481,7 +29775,7 @@
       "pullback_from_session_high_pct": -1.161,
       "relative_strength_vs_iwm": 3.39,
       "relative_strength_vs_spy": 1.69,
-      "rs_rank": 59.0,
+      "rs_rank": 58.5,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -29496,7 +29790,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 59.0,
+    "rs_rank": 58.5,
     "same_time_relative_volume": null,
     "score": 13,
     "score_components": {
@@ -29552,7 +29846,7 @@
   "stock:MCHP": {
     "adx": 30.33,
     "adx_dmi_status": "strong trend \u00b7 bearish DMI",
-    "age_days": 0.01,
+    "age_days": 0.02,
     "anchored_vwap": 59.597714,
     "anchored_vwap_status": "Below session-open anchored VWAP \u00b7 59.5977",
     "asset_type": "stock",
@@ -29692,7 +29986,7 @@
     "higher_highs_higher_lows": true,
     "initial_price": 58.64,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "EARLY WATCH",
     "latest_price": 58.64,
     "levels": {
@@ -29724,7 +30018,7 @@
     "liquidity_status": "922,052,418 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:39.540632-05:00",
+      "as_of": "2026-11-17T21:00:49.992895-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -29762,9 +30056,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 58.64,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 58.64,
+        "return_pct": 0.0
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Yahoo + Alpaca prior-session daily close cross-check",
     "price_validation_note": "Prior-session closes agree within 1.41%; research visibility only while market is closed",
     "price_validation_status": "verified",
@@ -29821,7 +30120,7 @@
       "pullback_from_session_high_pct": 0.0,
       "relative_strength_vs_iwm": -1.26,
       "relative_strength_vs_spy": -2.96,
-      "rs_rank": 43.4,
+      "rs_rank": 43.9,
       "same_time_relative_volume": null,
       "shares_outstanding": 544223627.0,
       "short_percent_float": 0.089899994,
@@ -29843,7 +30142,7 @@
     "research_trough_price": 58.64,
     "return_pct": 0.0,
     "risk_flags": [],
-    "rs_rank": 43.4,
+    "rs_rank": 43.9,
     "same_time_relative_volume": null,
     "score": 37,
     "score_components": {
@@ -29972,12 +30271,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "8,467,127 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:37.516437-05:00",
+      "as_of": "2026-11-17T21:00:48.270974-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -30055,7 +30354,7 @@
       "pullback_from_session_high_pct": -14.216,
       "relative_strength_vs_iwm": -9.11,
       "relative_strength_vs_spy": -10.81,
-      "rs_rank": 25.3,
+      "rs_rank": 25.6,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -30068,7 +30367,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 25.3,
+    "rs_rank": 25.6,
     "same_time_relative_volume": null,
     "score": 14,
     "score_components": {
@@ -30158,12 +30457,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "506,363 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:27.813490-05:00",
+      "as_of": "2026-11-17T21:00:38.691898-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -30345,12 +30644,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "54,164 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:38.779065-05:00",
+      "as_of": "2026-11-17T21:00:49.172907-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -30428,7 +30727,7 @@
       "pullback_from_session_high_pct": -0.79,
       "relative_strength_vs_iwm": 4.83,
       "relative_strength_vs_spy": 3.13,
-      "rs_rank": 65.1,
+      "rs_rank": 64.6,
       "same_time_relative_volume": null,
       "shares_outstanding": 39124686.0,
       "short_percent_float": 0.0070999996,
@@ -30441,7 +30740,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 65.1,
+    "rs_rank": 64.6,
     "same_time_relative_volume": null,
     "score": 39,
     "score_components": {
@@ -30571,7 +30870,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 12.055,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "levels": {
@@ -30603,7 +30902,7 @@
     "liquidity_status": "11,631,882 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:29.793219-05:00",
+      "as_of": "2026-11-17T21:00:40.899288-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -30693,7 +30992,7 @@
       "pullback_from_session_high_pct": -0.818,
       "relative_strength_vs_iwm": 6.32,
       "relative_strength_vs_spy": 4.62,
-      "rs_rank": 74.7,
+      "rs_rank": 74.4,
       "same_time_relative_volume": null,
       "shares_outstanding": 291727032.0,
       "short_percent_float": 0.0305,
@@ -30710,7 +31009,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 74.7,
+    "rs_rank": 74.4,
     "same_time_relative_volume": null,
     "score": 64,
     "score_components": {
@@ -30849,7 +31148,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 1.545,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "levels": {
@@ -30881,7 +31180,7 @@
     "liquidity_status": "33,920,595 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:33.369766-05:00",
+      "as_of": "2026-11-17T21:00:44.127820-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -30976,7 +31275,7 @@
       "pullback_from_session_high_pct": -0.006,
       "relative_strength_vs_iwm": -14.19,
       "relative_strength_vs_spy": -15.89,
-      "rs_rank": 20.5,
+      "rs_rank": 20.7,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -30991,7 +31290,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 20.5,
+    "rs_rank": 20.7,
     "same_time_relative_volume": null,
     "score": 10,
     "score_components": {
@@ -31083,12 +31382,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": 308.07,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "72,789 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:39.027653-05:00",
+      "as_of": "2026-11-17T21:00:49.527902-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -31166,7 +31465,7 @@
       "pullback_from_session_high_pct": -3.81,
       "relative_strength_vs_iwm": 7.79,
       "relative_strength_vs_spy": 6.09,
-      "rs_rank": 85.5,
+      "rs_rank": 85.4,
       "same_time_relative_volume": 308.07,
       "shares_outstanding": 192588175.0,
       "short_percent_float": 0.0013,
@@ -31184,7 +31483,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 85.5,
+    "rs_rank": 85.4,
     "same_time_relative_volume": 308.07,
     "score": 52,
     "score_components": {
@@ -31317,12 +31616,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "1,326,475 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:27.466829-05:00",
+      "as_of": "2026-11-17T21:00:38.378998-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -31400,7 +31699,7 @@
       "pullback_from_session_high_pct": -4.381,
       "relative_strength_vs_iwm": -20.74,
       "relative_strength_vs_spy": -22.44,
-      "rs_rank": 9.6,
+      "rs_rank": 9.8,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -31415,7 +31714,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 9.6,
+    "rs_rank": 9.8,
     "same_time_relative_volume": null,
     "score": 20,
     "score_components": {
@@ -31543,7 +31842,7 @@
     "higher_highs_higher_lows": true,
     "initial_price": 2.8666,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "levels": {
@@ -31575,7 +31874,7 @@
     "liquidity_status": "92,077,210 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:34.423687-05:00",
+      "as_of": "2026-11-17T21:00:44.969128-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -31670,7 +31969,7 @@
       "pullback_from_session_high_pct": -1.684,
       "relative_strength_vs_iwm": -16.84,
       "relative_strength_vs_spy": -18.54,
-      "rs_rank": 16.9,
+      "rs_rank": 17.1,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -31685,7 +31984,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 16.9,
+    "rs_rank": 17.1,
     "same_time_relative_volume": null,
     "score": 10,
     "score_components": {
@@ -32332,7 +32631,7 @@
   "stock:NVDA": {
     "adx": 44.83,
     "adx_dmi_status": "strong trend \u00b7 bearish DMI",
-    "age_days": 0.01,
+    "age_days": 0.02,
     "anchored_vwap": 153.879712,
     "anchored_vwap_status": "Above session-open anchored VWAP \u00b7 153.8797",
     "asset_type": "stock",
@@ -32467,7 +32766,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 156.14,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 156.14,
     "levels": {
@@ -32499,7 +32798,7 @@
     "liquidity_status": "32,608,988,690 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:25.961256-05:00",
+      "as_of": "2026-11-17T21:00:36.771577-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -32537,9 +32836,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 156.14,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 156.14,
+        "return_pct": 0.0
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Yahoo + Alpaca prior-session daily close cross-check",
     "price_validation_note": "Prior-session closes agree within 0.42%; research visibility only while market is closed",
     "price_validation_status": "verified",
@@ -32596,7 +32900,7 @@
       "pullback_from_session_high_pct": -0.555,
       "relative_strength_vs_iwm": -9.22,
       "relative_strength_vs_spy": -10.92,
-      "rs_rank": 24.1,
+      "rs_rank": 24.4,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -32619,7 +32923,7 @@
     "research_trough_price": 156.14,
     "return_pct": 0.0,
     "risk_flags": [],
-    "rs_rank": 24.1,
+    "rs_rank": 24.4,
     "same_time_relative_volume": null,
     "score": 13,
     "score_components": {
@@ -32862,12 +33166,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "52,511,285 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:31.153396-05:00",
+      "as_of": "2026-11-17T21:00:42.114313-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -32945,7 +33249,7 @@
       "pullback_from_session_high_pct": -1.113,
       "relative_strength_vs_iwm": 2.09,
       "relative_strength_vs_spy": 0.39,
-      "rs_rank": 56.6,
+      "rs_rank": 56.1,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -32961,7 +33265,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 56.6,
+    "rs_rank": 56.1,
     "same_time_relative_volume": null,
     "score": 17,
     "score_components": {
@@ -33255,12 +33559,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "2,915,346 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:35.791765-05:00",
+      "as_of": "2026-11-17T21:00:46.374043-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -33338,7 +33642,7 @@
       "pullback_from_session_high_pct": -11.111,
       "relative_strength_vs_iwm": -18.24,
       "relative_strength_vs_spy": -19.94,
-      "rs_rank": 13.3,
+      "rs_rank": 13.4,
       "same_time_relative_volume": null,
       "shares_outstanding": 272565547.0,
       "short_percent_float": 0.42110002,
@@ -33353,7 +33657,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 13.3,
+    "rs_rank": 13.4,
     "same_time_relative_volume": null,
     "score": 29,
     "score_components": {
@@ -33489,12 +33793,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "14,920,620 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:32.773094-05:00",
+      "as_of": "2026-11-17T21:00:43.457593-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -33572,7 +33876,7 @@
       "pullback_from_session_high_pct": -0.125,
       "relative_strength_vs_iwm": -15.14,
       "relative_strength_vs_spy": -16.84,
-      "rs_rank": 18.1,
+      "rs_rank": 18.3,
       "same_time_relative_volume": null,
       "shares_outstanding": 103652656.0,
       "short_percent_float": 0.1046,
@@ -33588,7 +33892,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 18.1,
+    "rs_rank": 18.3,
     "same_time_relative_volume": null,
     "score": 42,
     "score_components": {
@@ -33678,12 +33982,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "1,676,012 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:42.268778-05:00",
+      "as_of": "2026-11-17T21:00:53.440364-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -33761,7 +34065,7 @@
       "pullback_from_session_high_pct": -4.962,
       "relative_strength_vs_iwm": -19.69,
       "relative_strength_vs_spy": -21.39,
-      "rs_rank": 10.8,
+      "rs_rank": 11.0,
       "same_time_relative_volume": null,
       "shares_outstanding": 27977560.0,
       "short_percent_float": 0.1817,
@@ -33775,7 +34079,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 10.8,
+    "rs_rank": 11.0,
     "same_time_relative_volume": null,
     "score": 37,
     "score_components": {
@@ -33866,12 +34170,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "26,213,828 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:41.882488-05:00",
+      "as_of": "2026-11-17T21:00:52.934646-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -33949,7 +34253,7 @@
       "pullback_from_session_high_pct": -6.678,
       "relative_strength_vs_iwm": 10.18,
       "relative_strength_vs_spy": 8.48,
-      "rs_rank": 90.4,
+      "rs_rank": 90.2,
       "same_time_relative_volume": null,
       "shares_outstanding": 41370638.0,
       "short_percent_float": 0.2456,
@@ -33966,7 +34270,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 90.4,
+    "rs_rank": 90.2,
     "same_time_relative_volume": null,
     "score": 85,
     "score_components": {
@@ -34025,7 +34329,7 @@
   "stock:PCG": {
     "adx": 14.11,
     "adx_dmi_status": "weak / choppy trend \u00b7 bullish DMI",
-    "age_days": 0.01,
+    "age_days": 0.02,
     "anchored_vwap": 13.626757,
     "anchored_vwap_status": "Above session-open anchored VWAP \u00b7 13.6268",
     "asset_type": "stock",
@@ -34157,7 +34461,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 13.68,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "DEVELOPING RUNNER",
     "latest_price": 13.68,
     "levels": {
@@ -34189,7 +34493,7 @@
     "liquidity_status": "397,990,949 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:42.614442-05:00",
+      "as_of": "2026-11-17T21:00:53.808151-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -34227,9 +34531,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 13.68,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 13.68,
+        "return_pct": 0.0
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Yahoo + Alpaca prior-session daily close cross-check",
     "price_validation_note": "Prior-session closes agree within 1.10%; research visibility only while market is closed",
     "price_validation_status": "verified",
@@ -34285,7 +34594,7 @@
       "pullback_from_session_high_pct": -2.025,
       "relative_strength_vs_iwm": 7.5,
       "relative_strength_vs_spy": 5.8,
-      "rs_rank": 84.3,
+      "rs_rank": 84.1,
       "same_time_relative_volume": null,
       "shares_outstanding": 2202429703.0,
       "short_percent_float": 0.0,
@@ -34306,7 +34615,7 @@
     "research_trough_price": 13.55,
     "return_pct": 0.0,
     "risk_flags": [],
-    "rs_rank": 84.3,
+    "rs_rank": 84.1,
     "same_time_relative_volume": null,
     "score": 65,
     "score_components": {
@@ -34475,7 +34784,7 @@
     "higher_highs_higher_lows": true,
     "initial_price": 1.85,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "levels": {
@@ -34507,7 +34816,7 @@
     "liquidity_status": "14,542,130 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:33.321514-05:00",
+      "as_of": "2026-11-17T21:00:44.120365-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -34597,7 +34906,7 @@
       "pullback_from_session_high_pct": -7.0,
       "relative_strength_vs_iwm": -15.06,
       "relative_strength_vs_spy": -16.76,
-      "rs_rank": 19.3,
+      "rs_rank": 19.5,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -34611,7 +34920,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 19.3,
+    "rs_rank": 19.5,
     "same_time_relative_volume": null,
     "score": 19,
     "score_components": {
@@ -34897,12 +35206,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "9,931,155 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:37.978915-05:00",
+      "as_of": "2026-11-17T21:00:48.489248-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -35478,12 +35787,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "1,774,661 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:30.316338-05:00",
+      "as_of": "2026-11-17T21:00:41.037983-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -35561,7 +35870,7 @@
       "pullback_from_session_high_pct": -1.299,
       "relative_strength_vs_iwm": 6.86,
       "relative_strength_vs_spy": 5.16,
-      "rs_rank": 80.7,
+      "rs_rank": 80.5,
       "same_time_relative_volume": null,
       "shares_outstanding": 49999897.0,
       "short_percent_float": null,
@@ -35577,7 +35886,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 80.7,
+    "rs_rank": 80.5,
     "same_time_relative_volume": null,
     "score": 63,
     "score_components": {
@@ -36013,7 +36322,7 @@
   "stock:RIOT": {
     "adx": 24.34,
     "adx_dmi_status": "developing trend \u00b7 bearish DMI",
-    "age_days": 0.01,
+    "age_days": 0.02,
     "anchored_vwap": 17.051293,
     "anchored_vwap_status": "Above session-open anchored VWAP \u00b7 17.0513",
     "asset_type": "stock",
@@ -36151,7 +36460,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 17.06,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "EARLY SETUP",
     "latest_price": 17.06,
     "levels": {
@@ -36183,7 +36492,7 @@
     "liquidity_status": "473,585,670 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:26.244716-05:00",
+      "as_of": "2026-11-17T21:00:37.075929-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -36221,9 +36530,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 17.06,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 17.06,
+        "return_pct": 0.0
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Yahoo + Alpaca prior-session daily close cross-check",
     "price_validation_note": "Prior-session closes agree within 0.03%; research visibility only while market is closed",
     "price_validation_status": "verified",
@@ -36280,7 +36594,7 @@
       "pullback_from_session_high_pct": -0.402,
       "relative_strength_vs_iwm": -0.01,
       "relative_strength_vs_spy": -1.71,
-      "rs_rank": 45.8,
+      "rs_rank": 46.3,
       "same_time_relative_volume": null,
       "shares_outstanding": 375183965.0,
       "short_percent_float": 0.1539,
@@ -36302,7 +36616,7 @@
     "research_trough_price": 17.06,
     "return_pct": 0.0,
     "risk_flags": [],
-    "rs_rank": 45.8,
+    "rs_rank": 46.3,
     "same_time_relative_volume": null,
     "score": 46,
     "score_components": {
@@ -36394,7 +36708,7 @@
       }
     ],
     "cumulative_rvol_same_time": 1.03,
-    "currently_surfaced": true,
+    "currently_surfaced": false,
     "daily_change_pct": -6.76,
     "dilution_flags": [],
     "discovery_reasons": [
@@ -36659,12 +36973,12 @@
     "higher_highs_higher_lows": true,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "193,637,049 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:29.523399-05:00",
+      "as_of": "2026-11-17T21:00:40.472548-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -36742,7 +37056,7 @@
       "pullback_from_session_high_pct": -1.266,
       "relative_strength_vs_iwm": -2.28,
       "relative_strength_vs_spy": -3.98,
-      "rs_rank": 38.6,
+      "rs_rank": 39.0,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -36759,7 +37073,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 38.6,
+    "rs_rank": 39.0,
     "same_time_relative_volume": null,
     "score": 13,
     "score_components": {
@@ -36895,7 +37209,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 26.21,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "levels": {
@@ -36927,7 +37241,7 @@
     "liquidity_status": "13,785,415 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:29.665454-05:00",
+      "as_of": "2026-11-17T21:00:40.681353-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -37016,7 +37330,7 @@
       "pullback_from_session_high_pct": -0.186,
       "relative_strength_vs_iwm": -8.89,
       "relative_strength_vs_spy": -10.59,
-      "rs_rank": 26.5,
+      "rs_rank": 26.8,
       "same_time_relative_volume": null,
       "shares_outstanding": 108079853.0,
       "short_percent_float": 0.0543,
@@ -37033,7 +37347,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 26.5,
+    "rs_rank": 26.8,
     "same_time_relative_volume": null,
     "score": 29,
     "score_components": {
@@ -37125,12 +37439,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": 0.0,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "18,272,301 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:30.067672-05:00",
+      "as_of": "2026-11-17T21:00:41.029890-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -37208,7 +37522,7 @@
       "pullback_from_session_high_pct": -5.317,
       "relative_strength_vs_iwm": 10.77,
       "relative_strength_vs_spy": 9.07,
-      "rs_rank": 95.2,
+      "rs_rank": 95.1,
       "same_time_relative_volume": 0.0,
       "shares_outstanding": 26018885.0,
       "short_percent_float": 0.1071,
@@ -37225,7 +37539,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 95.2,
+    "rs_rank": 95.1,
     "same_time_relative_volume": 0.0,
     "score": 71,
     "score_components": {
@@ -37519,12 +37833,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "171,856,092 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:41.484434-05:00",
+      "as_of": "2026-11-17T21:00:52.495347-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -37602,7 +37916,7 @@
       "pullback_from_session_high_pct": 0.0,
       "relative_strength_vs_iwm": -5.0,
       "relative_strength_vs_spy": -6.7,
-      "rs_rank": 33.7,
+      "rs_rank": 34.1,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -37618,7 +37932,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 33.7,
+    "rs_rank": 34.1,
     "same_time_relative_volume": null,
     "score": 24,
     "score_components": {
@@ -38474,7 +38788,7 @@
   "stock:SQNS": {
     "adx": 27.87,
     "adx_dmi_status": "strong trend \u00b7 bearish DMI",
-    "age_days": 0.01,
+    "age_days": 0.02,
     "anchored_vwap": 2.280317,
     "anchored_vwap_status": "Below session-open anchored VWAP \u00b7 2.2803",
     "asset_type": "stock",
@@ -38611,7 +38925,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 2.26,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "LOW-CONVICTION WATCH",
     "latest_price": 2.26,
     "levels": {
@@ -38643,7 +38957,7 @@
     "liquidity_status": "129,713 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:39.477240-05:00",
+      "as_of": "2026-11-17T21:00:49.850024-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -38681,9 +38995,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 2.26,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 2.26,
+        "return_pct": 0.0
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Yahoo + Alpaca prior-session daily close cross-check",
     "price_validation_note": "Prior-session closes agree within 1.75%; research visibility only while market is closed",
     "price_validation_status": "verified",
@@ -38739,7 +39058,7 @@
       "pullback_from_session_high_pct": -2.128,
       "relative_strength_vs_iwm": -9.69,
       "relative_strength_vs_spy": -11.39,
-      "rs_rank": 22.9,
+      "rs_rank": 23.2,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -38762,7 +39081,7 @@
     "research_trough_price": 2.26,
     "return_pct": 0.0,
     "risk_flags": [],
-    "rs_rank": 22.9,
+    "rs_rank": 23.2,
     "same_time_relative_volume": null,
     "score": 17,
     "score_components": {
@@ -38891,7 +39210,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 19.502,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "levels": {
@@ -38923,7 +39242,7 @@
     "liquidity_status": "16,752,961 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:34.324080-05:00",
+      "as_of": "2026-11-17T21:00:44.904588-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -39013,7 +39332,7 @@
       "pullback_from_session_high_pct": -1.577,
       "relative_strength_vs_iwm": 5.67,
       "relative_strength_vs_spy": 3.97,
-      "rs_rank": 69.9,
+      "rs_rank": 69.5,
       "same_time_relative_volume": null,
       "shares_outstanding": 475359802.0,
       "short_percent_float": 0.0184,
@@ -39030,7 +39349,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 69.9,
+    "rs_rank": 69.5,
     "same_time_relative_volume": null,
     "score": 28,
     "score_components": {
@@ -39165,7 +39484,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 9.365,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "levels": {
@@ -39197,7 +39516,7 @@
     "liquidity_status": "51,380,968 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:31.769284-05:00",
+      "as_of": "2026-11-17T21:00:42.391887-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -39287,7 +39606,7 @@
       "pullback_from_session_high_pct": -2.287,
       "relative_strength_vs_iwm": -1.94,
       "relative_strength_vs_spy": -3.64,
-      "rs_rank": 42.2,
+      "rs_rank": 42.7,
       "same_time_relative_volume": null,
       "shares_outstanding": 797290469.0,
       "short_percent_float": 0.0695,
@@ -39303,7 +39622,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 42.2,
+    "rs_rank": 42.7,
     "same_time_relative_volume": null,
     "score": 31,
     "score_components": {
@@ -39659,7 +39978,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 3.165,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "levels": {
@@ -39691,7 +40010,7 @@
     "liquidity_status": "5,577,069 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:32.830353-05:00",
+      "as_of": "2026-11-17T21:00:43.725610-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -39933,12 +40252,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "36,490 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:38.214636-05:00",
+      "as_of": "2026-11-17T21:00:48.970650-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -40016,7 +40335,7 @@
       "pullback_from_session_high_pct": -3.005,
       "relative_strength_vs_iwm": 10.49,
       "relative_strength_vs_spy": 8.79,
-      "rs_rank": 94.0,
+      "rs_rank": 93.9,
       "same_time_relative_volume": null,
       "shares_outstanding": 11574362.0,
       "short_percent_float": 0.0037,
@@ -40030,7 +40349,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 94.0,
+    "rs_rank": 93.9,
     "same_time_relative_volume": null,
     "score": 53,
     "score_components": {
@@ -40085,7 +40404,7 @@
   "stock:UI": {
     "adx": 20.28,
     "adx_dmi_status": "developing trend \u00b7 bullish DMI",
-    "age_days": 0.01,
+    "age_days": 0.02,
     "anchored_vwap": 661.935593,
     "anchored_vwap_status": "Above session-open anchored VWAP \u00b7 661.9356",
     "asset_type": "stock",
@@ -40224,7 +40543,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 669.14,
     "intraday_rvol_same_time": 2.23,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "EARLY SETUP",
     "latest_price": 669.14,
     "levels": {
@@ -40256,7 +40575,7 @@
     "liquidity_status": "59,864,611 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:42.565586-05:00",
+      "as_of": "2026-11-17T21:00:53.726976-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -40294,9 +40613,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 669.14,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 669.14,
+        "return_pct": 0.0
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Yahoo + Alpaca prior-session daily close cross-check",
     "price_validation_note": "Prior-session closes agree within 1.14%; research visibility only while market is closed",
     "price_validation_status": "verified",
@@ -40351,7 +40675,7 @@
       "pullback_from_session_high_pct": -2.455,
       "relative_strength_vs_iwm": 1.12,
       "relative_strength_vs_spy": -0.58,
-      "rs_rank": 53.0,
+      "rs_rank": 52.4,
       "same_time_relative_volume": 2.23,
       "shares_outstanding": 60479485.0,
       "short_percent_float": 0.08140001,
@@ -40375,7 +40699,7 @@
     "research_trough_price": 659.9,
     "return_pct": 0.0,
     "risk_flags": [],
-    "rs_rank": 53.0,
+    "rs_rank": 52.4,
     "same_time_relative_volume": 2.23,
     "score": 39,
     "score_components": {
@@ -40469,12 +40793,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "24,876,815 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:30.999726-05:00",
+      "as_of": "2026-11-17T21:00:41.917768-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -40552,7 +40876,7 @@
       "pullback_from_session_high_pct": -2.742,
       "relative_strength_vs_iwm": 5.22,
       "relative_strength_vs_spy": 3.52,
-      "rs_rank": 67.5,
+      "rs_rank": 67.1,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -40566,7 +40890,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 67.5,
+    "rs_rank": 67.1,
     "same_time_relative_volume": null,
     "score": 16,
     "score_components": {
@@ -40692,7 +41016,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 29.43,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "levels": {
@@ -40724,7 +41048,7 @@
     "liquidity_status": "194,737,396 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:35.144629-05:00",
+      "as_of": "2026-11-17T21:00:45.837298-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -40809,7 +41133,7 @@
       "pullback_from_session_high_pct": -0.129,
       "relative_strength_vs_iwm": -6.77,
       "relative_strength_vs_spy": -8.47,
-      "rs_rank": 31.3,
+      "rs_rank": 31.7,
       "same_time_relative_volume": null,
       "shares_outstanding": null,
       "short_percent_float": null,
@@ -40824,7 +41148,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 31.3,
+    "rs_rank": 31.7,
     "same_time_relative_volume": null,
     "score": 17,
     "score_components": {
@@ -40915,12 +41239,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "337,416,981 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:38.084850-05:00",
+      "as_of": "2026-11-17T21:00:48.534973-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -40998,7 +41322,7 @@
       "pullback_from_session_high_pct": -0.473,
       "relative_strength_vs_iwm": 6.96,
       "relative_strength_vs_spy": 5.26,
-      "rs_rank": 81.9,
+      "rs_rank": 81.7,
       "same_time_relative_volume": null,
       "shares_outstanding": 318867000.0,
       "short_percent_float": 0.046,
@@ -41015,7 +41339,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 81.9,
+    "rs_rank": 81.7,
     "same_time_relative_volume": null,
     "score": 49,
     "score_components": {
@@ -41147,7 +41471,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 12.285,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "levels": {
@@ -41179,7 +41503,7 @@
     "liquidity_status": "20,535,220 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:34.145174-05:00",
+      "as_of": "2026-11-17T21:00:44.846118-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -41269,7 +41593,7 @@
       "pullback_from_session_high_pct": -0.402,
       "relative_strength_vs_iwm": 5.8,
       "relative_strength_vs_spy": 4.1,
-      "rs_rank": 71.1,
+      "rs_rank": 70.7,
       "same_time_relative_volume": null,
       "shares_outstanding": 1597803176.0,
       "short_percent_float": 0.0083,
@@ -41287,7 +41611,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 71.1,
+    "rs_rank": 70.7,
     "same_time_relative_volume": null,
     "score": 28,
     "score_components": {
@@ -41343,7 +41667,7 @@
   "stock:WEN": {
     "adx": 42.96,
     "adx_dmi_status": "strong trend \u00b7 bullish DMI",
-    "age_days": 0.01,
+    "age_days": 0.02,
     "anchored_vwap": 8.672504,
     "anchored_vwap_status": "Below session-open anchored VWAP \u00b7 8.6725",
     "asset_type": "stock",
@@ -41477,7 +41801,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 8.47,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "DEVELOPING RUNNER",
     "latest_price": 8.47,
     "levels": {
@@ -41509,7 +41833,7 @@
     "liquidity_status": "67,101,968 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:36.754204-05:00",
+      "as_of": "2026-11-17T21:00:47.524568-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -41547,9 +41871,14 @@
         "at": "2026-11-18T01:46:44.787348+00:00",
         "price": 8.47,
         "return_pct": 0.0
+      },
+      {
+        "at": "2026-11-18T02:00:56.004892+00:00",
+        "price": 8.47,
+        "return_pct": 0.0
       }
     ],
-    "price_observed_at": "2026-11-18T01:46:44.787348+00:00",
+    "price_observed_at": "2026-11-18T02:00:56.004892+00:00",
     "price_source": "Yahoo + Alpaca prior-session daily close cross-check",
     "price_validation_note": "Prior-session closes agree within 2.68%; research visibility only while market is closed",
     "price_validation_status": "verified",
@@ -41605,7 +41934,7 @@
       "pullback_from_session_high_pct": -4.264,
       "relative_strength_vs_iwm": 5.44,
       "relative_strength_vs_spy": 3.74,
-      "rs_rank": 68.7,
+      "rs_rank": 68.3,
       "same_time_relative_volume": null,
       "shares_outstanding": 191242899.0,
       "short_percent_float": 0.3607,
@@ -41626,7 +41955,7 @@
     "research_trough_price": 8.4343,
     "return_pct": 0.0,
     "risk_flags": [],
-    "rs_rank": 68.7,
+    "rs_rank": 68.3,
     "same_time_relative_volume": null,
     "score": 57,
     "score_components": {
@@ -41913,7 +42242,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 10.03,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "levels": {
@@ -41945,7 +42274,7 @@
     "liquidity_status": "71,267,079 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:35.074975-05:00",
+      "as_of": "2026-11-17T21:00:45.737700-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -42035,7 +42364,7 @@
       "pullback_from_session_high_pct": -0.985,
       "relative_strength_vs_iwm": -1.99,
       "relative_strength_vs_spy": -3.69,
-      "rs_rank": 41.0,
+      "rs_rank": 41.5,
       "same_time_relative_volume": null,
       "shares_outstanding": 783622601.0,
       "short_percent_float": 0.060399998,
@@ -42051,7 +42380,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 41.0,
+    "rs_rank": 41.5,
     "same_time_relative_volume": null,
     "score": 56,
     "score_components": {
@@ -42181,7 +42510,7 @@
     "higher_highs_higher_lows": false,
     "initial_price": 1.5509,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "levels": {
@@ -42213,7 +42542,7 @@
     "liquidity_status": "7,246,299 avg dollar volume \u00b7 spread unavailable",
     "market_regime": "RISK-OFF",
     "market_session": {
-      "as_of": "2026-11-17T20:46:32.213829-05:00",
+      "as_of": "2026-11-17T21:00:43.006905-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -42567,12 +42896,12 @@
     "higher_highs_higher_lows": false,
     "initial_price": null,
     "intraday_rvol_same_time": null,
-    "last_seen": "2026-11-18T01:46:44.787348+00:00",
+    "last_seen": "2026-11-18T02:00:56.004892+00:00",
     "last_stage": "PRICE UNVERIFIED \u2014 WATCH ONLY",
     "latest_price": null,
     "liquidity_status": "93,486 avg dollar volume \u00b7 spread unavailable",
     "market_session": {
-      "as_of": "2026-11-17T20:46:39.755614-05:00",
+      "as_of": "2026-11-17T21:00:50.461459-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": false,
       "is_regular_session": false,
@@ -42650,7 +42979,7 @@
       "pullback_from_session_high_pct": -3.256,
       "relative_strength_vs_iwm": 4.41,
       "relative_strength_vs_spy": 2.71,
-      "rs_rank": 62.7,
+      "rs_rank": 62.2,
       "same_time_relative_volume": null,
       "shares_outstanding": 63771905.0,
       "short_percent_float": 0.0046,
@@ -42665,7 +42994,7 @@
     ],
     "return_pct": null,
     "risk_flags": [],
-    "rs_rank": 62.7,
+    "rs_rank": 62.2,
     "same_time_relative_volume": null,
     "score": 46,
     "score_components": {
