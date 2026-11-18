@@ -198,6 +198,89 @@ def compute_early_runner_metrics(daily, intraday, price, fundamentals=None, news
 
 
 
+
+def build_data_quality_record(asset_type, price_source, price_freshness, observed_at,
+                              received_at, session=None, validation_passed=False,
+                              provider_feed=None, price_age_seconds=None,
+                              validation_note=None):
+    """Classify the selected price without conflating live, delayed, EOD, or unknown data."""
+    from datetime import datetime, timezone
+
+    now = datetime.fromisoformat(received_at.replace("Z", "+00:00")) if received_at else datetime.now(timezone.utc)
+    observed = None
+    try:
+        observed = datetime.fromisoformat(str(observed_at).replace("Z", "+00:00")) if observed_at else None
+        if observed and observed.tzinfo is None:
+            observed = observed.replace(tzinfo=timezone.utc)
+        if observed:
+            observed = observed.astimezone(timezone.utc)
+    except (TypeError, ValueError, OverflowError):
+        observed = None
+
+    age_seconds = _num(price_age_seconds)
+    if age_seconds is None and observed is not None:
+        age_seconds = (now.astimezone(timezone.utc) - observed).total_seconds()
+    if age_seconds is not None:
+        age_seconds = round(age_seconds, 1)
+
+    source = str(price_source or "").lower()
+    freshness = str(price_freshness or "").lower()
+    note = str(validation_note or "").lower()
+    phase = str((session or {}).get("phase") or "").upper()
+    data_type = "unknown"
+
+    if asset_type == "crypto":
+        if validation_passed and observed is not None and age_seconds is not None and -30 <= age_seconds <= 300:
+            data_type = "live"
+    elif "prior_session_close" in freshness:
+        data_type = "eod"
+    elif "fresh_multi_provider" in freshness:
+        if "massive" in source or str(provider_feed or "").lower() == "delayed_sip":
+            data_type = "delayed"
+        elif "alpaca" in source and str(provider_feed or "").lower() in {"iex", "sip"}:
+            data_type = "live"
+    elif "fresh_webull" in freshness:
+        # Webull's subscription delay entitlement is not currently confirmed in Jarvis.
+        data_type = "unknown"
+    elif "daily_bar" in freshness:
+        if observed is not None and ("CLOSED" in phase or "WEEKEND" in phase):
+            data_type = "eod"
+        elif observed is not None:
+            data_type = "historical"
+
+    max_age = 300 if asset_type == "crypto" else 900
+    if data_type == "unknown" and age_seconds is not None and age_seconds > max_age:
+        verification_status = "stale"
+    elif "disagree" in note or "mismatch" in note or "conflict" in note:
+        verification_status = "conflicting"
+    elif validation_passed and data_type != "unknown":
+        verification_status = "verified"
+    else:
+        verification_status = "unknown"
+
+    regular_session = "REGULAR SESSION" in phase
+    buy_eligible = bool(
+        validation_passed and data_type == "live"
+        and (asset_type == "crypto" or regular_session)
+    )
+    return {
+        "data_source": price_source,
+        "data_type": data_type,
+        "observed_at": observed.isoformat() if observed else observed_at,
+        "received_at": now.astimezone(timezone.utc).isoformat(),
+        "age_seconds": age_seconds,
+        "session": phase or "UNKNOWN",
+        "verification_status": verification_status,
+        "buy_eligible": buy_eligible,
+        "note": (
+            "Live, timestamped and eligible for the existing session-specific BUY checks."
+            if buy_eligible else
+            "Research context only; this price type does not qualify as a live BUY reference."
+            if data_type in {"delayed", "eod", "historical"} else
+            "Freshness or provider entitlement is not established; BUY use is blocked."
+        ),
+    }
+
 def set_crypto_relative_strength_coverage(coverage, relative):
     """Keep legacy and canonical flags aligned for BTC-relative strength coverage."""
     available = relative is not None
