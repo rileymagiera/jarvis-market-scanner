@@ -437,6 +437,8 @@ def prefetch_alpaca_snapshots(symbols: list[str]) -> None:
                     "trade_price": trade_price,
                     "trade_as_of": trade_stamp.isoformat() if trade_stamp is not None and pd.notna(trade_stamp) else None,
                     "trade_age_minutes": round(trade_age, 2) if trade_age is not None else None,
+                    "bid": bid if bid > 0 else None,
+                    "ask": ask if ask > 0 else None,
                     "quote_price": (bid+ask)/2 if bid > 0 and ask >= bid and ask > 0 else None,
                     "quote_as_of": quote_stamp.isoformat() if quote_stamp is not None and pd.notna(quote_stamp) else None,
                     "quote_age_minutes": round(quote_age, 2) if quote_age is not None else None,
@@ -1488,6 +1490,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
             if alpaca_snapshot.get("trade_price", 0) > 0 and trade_age is not None and -1 <= trade_age <= 15:
                 alpaca_quote = {
                     "price": alpaca_snapshot["trade_price"], "as_of": alpaca_snapshot["trade_as_of"],
+                    "bid": alpaca_snapshot.get("bid"), "ask": alpaca_snapshot.get("ask"),
                     "age_minutes": trade_age, "spread_pct": alpaca_snapshot.get("spread_pct"),
                     "feed": alpaca_snapshot.get("feed"), "source_type": "latest_trade", "is_live": True,
                 }
@@ -1499,6 +1502,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
             ):
                 alpaca_quote = {
                     "price": alpaca_snapshot["quote_price"], "as_of": alpaca_snapshot["quote_as_of"],
+                    "bid": alpaca_snapshot.get("bid"), "ask": alpaca_snapshot.get("ask"),
                     "age_minutes": quote_age, "spread_pct": alpaca_snapshot["spread_pct"],
                     "feed": alpaca_snapshot.get("feed"), "source_type": "latest_quote_midpoint", "is_live": True,
                 }
@@ -1717,8 +1721,8 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "massive_price_age_minutes": massive_quote["age_minutes"] if massive_quote else None,
         "massive_quote_status": massive_quote_status,
         "alpaca_price": round(alpaca_quote["price"], 4) if alpaca_quote else None,
-        "alpaca_bid": round(alpaca_quote["bid"], 4) if alpaca_quote else None,
-        "alpaca_ask": round(alpaca_quote["ask"], 4) if alpaca_quote else None,
+        "alpaca_bid": round(alpaca_quote["bid"], 4) if alpaca_quote and alpaca_quote.get("bid") is not None else None,
+        "alpaca_ask": round(alpaca_quote["ask"], 4) if alpaca_quote and alpaca_quote.get("ask") is not None else None,
         "alpaca_price_as_of": alpaca_quote["as_of"] if alpaca_quote else None,
         "alpaca_price_age_minutes": alpaca_quote["age_minutes"] if alpaca_quote else None,
         "alpaca_spread_pct": alpaca_quote["spread_pct"] if alpaca_quote else None,
