@@ -1,7 +1,7 @@
 import unittest
 import pandas as pd
 
-from early_runner import compute_early_runner_metrics, summarize_crypto_cross_section, set_crypto_relative_strength_coverage, build_data_quality_record
+from early_runner import compute_early_runner_metrics, summarize_crypto_cross_section, set_crypto_relative_strength_coverage, build_data_quality_record, apply_entry_quality_gate
 
 
 class EarlyRunnerMetricsTests(unittest.TestCase):
