@@ -141,9 +141,9 @@ def update_paper_tracker(candidates, now):
     # Mark prior records absent until they are rediscovered in this scan.
     for existing in tracker.values():
         existing["currently_surfaced"] = False
-        if existing.get("asset_type") == "stock" and existing.get("price_validation_status") is None:
+        if existing.get("asset_type") in ("stock", "crypto") and existing.get("price_validation_status") in (None, "not_required"):
             existing["price_validation_status"] = "unverified"
-            existing["price_validation_note"] = "Legacy stock price was not independently validated"
+            existing["price_validation_note"] = "Legacy price has no retained exchange timestamp validation evidence"
             existing["unverified_return_pct"] = existing.get("return_pct")
             existing["return_pct"] = None
             existing["max_gain_pct"] = None
@@ -159,7 +159,7 @@ def update_paper_tracker(candidates, now):
         if price <= 0:
             continue
         record = tracker.get(key)
-        if asset_type == "stock" and not item.get("price_validation_passed", False):
+        if asset_type in ("stock", "crypto") and not item.get("price_validation_passed", False):
             if not record:
                 # Keep an audit row for newly discovered but unverified stocks.
                 # This is not counted as a paper recommendation until a price is accepted.
@@ -172,7 +172,10 @@ def update_paper_tracker(candidates, now):
                     "lifetime_recommendation_counted": False,
                 }
             record["price_validation_status"] = "unverified"
-            record["price_validation_note"] = item.get("price_validation_note", "Independent quote validation unavailable")
+            record["price_validation_note"] = item.get("price_validation_note", "Exchange price validation unavailable")
+            record["price_validation_method"] = item.get("price_validation_method")
+            record["price_age_seconds"] = item.get("price_age_seconds")
+            record["price_cross_check_difference_pct"] = item.get("price_cross_check_difference_pct")
             record["webull_status"] = item.get("webull_status", "not_reported")
             record["webull_price"] = item.get("webull_price")
             record["webull_price_as_of"] = item.get("webull_price_as_of")
@@ -227,10 +230,10 @@ def update_paper_tracker(candidates, now):
             tracker[key] = record
             continue
         if record and record.get("price_validation_status") == "unverified":
-            if asset_type == "stock" and record.get("initial_price") is None and not record.get("lifetime_recommendation_counted", False):
+            if record.get("initial_price") is None and not record.get("lifetime_recommendation_counted", False):
                 lifetime["recommendations"] = int(lifetime.get("recommendations", 0)) + 1
                 asset_stats = lifetime.setdefault("by_asset", {}).setdefault(
-                    "stock", {"recommendations": 0}
+                    asset_type, {"recommendations": 0}
                 )
                 asset_stats["recommendations"] = int(asset_stats.get("recommendations", 0)) + 1
                 record["lifetime_recommendation_counted"] = True
@@ -246,7 +249,10 @@ def update_paper_tracker(candidates, now):
             record["max_gain_pct"] = 0.0
             record["max_drawdown_pct"] = 0.0
             record["price_validation_status"] = "verified"
-            record["price_validation_note"] = "Baseline reset after independent price verification"
+            record["price_validation_note"] = item.get("price_validation_note") or "Baseline reset after exchange timestamp validation"
+            record["price_validation_method"] = item.get("price_validation_method")
+            record["price_age_seconds"] = item.get("price_age_seconds")
+            record["price_cross_check_difference_pct"] = item.get("price_cross_check_difference_pct")
         if not record:
             record = {
                 "asset_type": asset_type, "symbol": symbol,
@@ -263,8 +269,13 @@ def update_paper_tracker(candidates, now):
 
         initial = float(record.get("initial_price") or price)
         record["latest_price"] = price
-        record["price_validation_status"] = "verified" if asset_type == "stock" else "not_required"
-        record["price_validation_note"] = item.get("price_validation_note", "Not applicable")
+        record["price_validation_status"] = "verified" if item.get("price_validation_passed", False) else "unverified"
+        record["price_validation_note"] = item.get("price_validation_note", "Price validation evidence unavailable")
+        record["price_validation_method"] = item.get("price_validation_method")
+        record["price_age_seconds"] = item.get("price_age_seconds")
+        record["price_cross_check_difference_pct"] = item.get("price_cross_check_difference_pct")
+        record["price_as_of"] = item.get("price_as_of")
+        record["price_freshness"] = item.get("price_freshness")
         record["webull_status"] = item.get("webull_status", "not_reported")
         record["webull_price"] = item.get("webull_price")
         record["webull_price_as_of"] = item.get("webull_price_as_of")
@@ -468,7 +479,7 @@ def update_buy_signal_history(candidates, now, scan_errors=None):
         present_keys.add(key)
         stage = item.get("stage", item.get("signal", "WATCH"))
         price = float(item.get("price") or 0)
-        price_ok = price > 0 and not (asset == "stock" and not item.get("price_validation_passed", False))
+        price_ok = price > 0 and (asset not in ("stock", "crypto") or item.get("price_validation_passed", False))
         if not price_ok:
             continue
 
@@ -673,7 +684,7 @@ def main():
     market = payload.get("market_conditions") or {}
     selected, updates = [], {}
     for item in payload["candidates"]:
-        if item.get("asset_type") == "stock" and not item.get("price_validation_passed", False):
+        if item.get("asset_type") in ("stock", "crypto") and not item.get("price_validation_passed", False):
             continue
         score = int(item.get("score") or 0)
         volume = float(item.get("relative_volume") or 0)
