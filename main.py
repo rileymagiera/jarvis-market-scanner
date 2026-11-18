@@ -237,10 +237,19 @@ def kraken_pairs():
     return KRAKEN_PAIR_MAP
 
 
-def discover_crypto_symbols(limit: int = 25) -> list[str]:
-    """Discover liquid early movers from Kraken USD/USDT spot markets."""
-    excluded_bases = {"USDC", "FDUSD", "USDT", "TUSD", "USDP", "DAI", "EUR", "TRY", "BRL"}
-    leveraged_suffixes = ("UP", "DOWN", "BULL", "BEAR")
+def discover_crypto_symbols(limit: int = 150) -> list[str]:
+    """Discover a broad, multi-tier set of Kraken USD/USDT spot assets.
+
+    Discovery is intentionally permissive: early movers are retained before
+    they become top gainers. Liquidity is tiered for ranking, not used as a
+    hard $1m gate. Down moves and large advances remain research candidates;
+    scan_crypto/CRQS and the existing verified-live BUY gates decide quality.
+    """
+    excluded_bases = {
+        "USDC", "FDUSD", "USDT", "TUSD", "USDP", "DAI", "EUR", "TRY", "BRL",
+        "PYUSD", "USDE", "USDS", "UST", "USTC",
+    }
+    leveraged_suffixes = ("UP", "DOWN", "BULL", "BEAR", "3L", "3S", "5L", "5S")
     try:
         pairs = kraken_pairs()
         response = HTTP.get(f"{KRAKEN}/Ticker", timeout=20)
@@ -249,8 +258,10 @@ def discover_crypto_symbols(limit: int = 25) -> list[str]:
         if payload.get("error"):
             raise RuntimeError("Kraken Ticker: " + "; ".join(payload["error"]))
         tickers = payload.get("result") or {}
-    except Exception:
+    except Exception as exc:
+        print(f"Kraken crypto discovery unavailable: {type(exc).__name__}: {str(exc)[:160]}", flush=True)
         return []
+
     ranked = []
     for base, pair_id in pairs.items():
         if base in excluded_bases or base.endswith(leveraged_suffixes):
@@ -263,13 +274,29 @@ def discover_crypto_symbols(limit: int = 25) -> list[str]:
         vwap = safe_float((ticker.get("p") or [0, 0])[1])
         quote_volume = volume * vwap
         opening = safe_float(ticker.get("o"))
-        change = (price / opening - 1) * 100 if opening > 0 else 0
-        if price <= 0 or quote_volume < 1_000_000 or change < -10 or change > 150:
+        change = (price / opening - 1) * 100 if opening > 0 else 0.0
+        # Keep a lower-liquidity discovery tier for research, while excluding
+        # markets too thin to provide a minimally useful scan reference.
+        if price <= 0 or quote_volume < 250_000:
             continue
-        rank = change * 0.65 + min(np.log10(max(quote_volume, 1)), 9) * 2
-        ranked.append((rank, base + "USDT"))
-    ranked.sort(reverse=True)
-    return [symbol for _, symbol in ranked[:limit]]
+        # Prefer genuine activity and emerging strength without making a
+        # large 24h gain or positive daily return a prerequisite.
+        liquidity_points = min(np.log10(max(quote_volume, 1)), 9) * 2
+        momentum_points = max(-8.0, min(change, 20.0)) * 0.35
+        early_activity_points = 3.0 if quote_volume >= 1_000_000 else 0.0
+        rank = liquidity_points + momentum_points + early_activity_points
+        ranked.append((rank, quote_volume, base + "USDT"))
+
+    ranked.sort(key=lambda item: (item[0], item[1]), reverse=True)
+    selected = [symbol for _, _, symbol in ranked[:max(0, limit)]]
+    print(
+        "Crypto discovery:",
+        f"eligible={len(ranked)}",
+        f"selected={len(selected)}",
+        "minimum_24h_quote_volume=250000",
+        flush=True,
+    )
+    return selected
 
 def stock_universe() -> list[str]:
     defaults = configured_symbols("SCAN_STOCKS", DEFAULT_STOCKS)
