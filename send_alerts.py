@@ -208,7 +208,9 @@ def update_paper_tracker(candidates, now):
             record["return_pct"] = None
             record["max_gain_pct"] = None
             record["max_drawdown_pct"] = None
-            record["latest_price"] = None
+            # Keep the quote visible in the dashboard even when it is unverified.
+            # This is display-only; BUY eligibility still requires validation.
+            record["latest_price"] = price
             record["currently_surfaced"] = True
             research_fields = (
                 "relative_strength_vs_spy", "relative_strength_vs_iwm", "rs_rank",
