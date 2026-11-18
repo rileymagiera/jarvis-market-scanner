@@ -2393,7 +2393,7 @@ def scan_premarket(limit: int = Query(150, ge=20, le=200)):
         # Broad discovery criteria; the displayed quote is labeled by its source/freshness below.
         if gap < 2.5 and not (pre_volume >= 25000 and pre_rvol >= 1.25):
             continue
-n        catalyst = bool(item.get("catalyst_labels"))
+        catalyst = bool(item.get("catalyst_labels"))
         runner_score = safe_float(item.get("early_runner_research_score"), 0.0)
         score = min(100, max(0, round(
             min(max(gap, 0), 25) * 1.2
