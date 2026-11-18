@@ -146,6 +146,11 @@
       "score": 9,
       "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
+    "FPS": {
+      "alerted_at": "2026-11-18T14:01:05.667541+00:00",
+      "score": 12,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
     "GERN": {
       "alerted_at": "2026-11-18T13:30:14.288657+00:00",
       "score": 10,
@@ -189,6 +194,11 @@
     "LCID": {
       "alerted_at": "2026-11-18T13:30:14.288657+00:00",
       "score": 7,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
+    "LOT": {
+      "alerted_at": "2026-11-18T14:01:05.667541+00:00",
+      "score": 15,
       "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
     "LUCK": {
@@ -397,6 +407,11 @@
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 87
   },
+  "stock:LOT": {
+    "alerted_at": "2026-11-18T14:01:05.667541+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 66
+  },
   "stock:LUCK": {
     "alerted_at": "2026-11-17T15:24:43.538715+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
@@ -481,6 +496,11 @@
     "alerted_at": "2026-11-17T15:24:43.538715+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 60
+  },
+  "stock:TME": {
+    "alerted_at": "2026-11-18T14:01:05.667541+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 74
   },
   "stock:TTEC": {
     "alerted_at": "2026-11-17T15:24:43.538715+00:00",

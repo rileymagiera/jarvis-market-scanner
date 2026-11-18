@@ -1,17 +1,17 @@
 {
-  "last_scan_started_at": "2026-11-18T13:29:54.482704+00:00",
+  "last_scan_started_at": "2026-11-18T14:00:40.234714+00:00",
   "last_attempt_status": "completed",
-  "run_id": "44314235588",
-  "run_number": "57",
-  "commit_sha": "cd5215e9c6ad2fba0285a845ba6df83585f6c9ef",
-  "last_scan_completed_at": "2026-11-18T13:30:14.287805+00:00",
+  "run_id": "44319518658",
+  "run_number": "58",
+  "commit_sha": "21a13ba71336b8465e2b9154348f40108597ae76",
+  "last_scan_completed_at": "2026-11-18T14:01:05.666440+00:00",
   "last_attempt_error": null,
-  "scan_duration_seconds": 18.41,
-  "scan_errors": 5,
+  "scan_duration_seconds": 23.97,
+  "scan_errors": 6,
   "execution_environment": "github_actions_runner",
   "scan_audit": {
-    "audit_timestamp": "2026-11-18T13:30:14.287706+00:00",
-    "audit_run_id": "44314235588",
+    "audit_timestamp": "2026-11-18T14:01:05.666289+00:00",
+    "audit_run_id": "44319518658",
     "audit_status": "passed",
     "files_valid_json": [
       "diagnostics",
@@ -21,21 +21,21 @@
       "metadata"
     ],
     "file_validation_errors": [],
-    "candidates_total": 116,
-    "stocks_returned": 100,
-    "stocks_price_verified": 100,
+    "candidates_total": 119,
+    "stocks_returned": 98,
+    "stocks_price_verified": 98,
     "stocks_price_unverified": 0,
-    "crypto_returned": 16,
-    "crypto_price_verified": 14,
-    "crypto_price_unverified": 2,
+    "crypto_returned": 21,
+    "crypto_price_verified": 21,
+    "crypto_price_unverified": 0,
     "scan_errors": [
       {
         "error": "'bid'",
-        "symbol": "AMD"
+        "symbol": "NVDA"
       },
       {
         "error": "'bid'",
-        "symbol": "NVDA"
+        "symbol": "OPEN"
       },
       {
         "error": "Yahoo failed (Yahoo returned insufficient daily history); Massive unavailable (MASSIVE_API_KEY is not configured); Stooq failed (Stooq returned incomplete daily history for LYCA)",
@@ -48,17 +48,21 @@
       {
         "error": "'bid'",
         "symbol": "NBIS"
+      },
+      {
+        "error": "'bid'",
+        "symbol": "BBD"
       }
     ],
     "stock_stage_counts": {
       "ACTIONABLE SETUP": 0,
       "BUY": 0,
       "DATA QUALITY \u2014 WATCH ONLY": 0,
-      "DEVELOPING RUNNER": 17,
+      "DEVELOPING RUNNER": 19,
       "DEVELOPING SETUP": 0,
-      "EARLY SETUP": 18,
-      "EARLY WATCH": 11,
-      "LATE RUNNER \u2014 CHASE RISK": 9,
+      "EARLY SETUP": 16,
+      "EARLY WATCH": 10,
+      "LATE RUNNER \u2014 CHASE RISK": 8,
       "LOW-CONVICTION WATCH": 45,
       "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
     },
@@ -68,7 +72,7 @@
       "DATA QUALITY \u2014 WATCH ONLY": 0,
       "DEVELOPING SETUP": 0,
       "EARLY WATCH": 2,
-      "LOW-CONVICTION WATCH": 14,
+      "LOW-CONVICTION WATCH": 19,
       "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
     },
     "history_sync_reported": true
