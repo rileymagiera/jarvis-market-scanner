@@ -960,6 +960,7 @@ def main():
             f'Price: {item.get("price", "n/a")} | Daily/24h change: {item.get("daily_change_pct", "n/a")}% | Relative volume: {item.get("relative_volume", "n/a")}x',
             f'Intraday 15m change: {item.get("intraday_change_pct", "n/a")}% | Intraday relative volume: {item.get("intraday_relative_volume", "n/a")}x | Intraday breakout: {item.get("intraday_breakout", False)}',
             f'Breakout: {item.get("breakout_20d", item.get("breakout_24h", False))} | Source: {item.get("data_source", "n/a")}',
+            f'History-learning bonus: +{item.get("history_runner_learning_score", 0)}/10 | Matched features: {[m.get("feature") for m in (item.get("history_runner_learning") or {}).get("matched_features", [])] or "no qualified historical matches"}',
             f'PRICE QUALITY: {(item.get("data_quality") or {}).get("data_type", "unknown").upper()} | Validation: {item.get("price_validation_status", "unknown")} | Entry: {item.get("entry_status", "RESEARCH ONLY")}',
         ]
         levels = item.get("levels") or {}
