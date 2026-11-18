@@ -1779,7 +1779,7 @@ def kraken_crypto_market_data(symbol: str):
     if trades_payload.get("error"):
         raise RuntimeError("Kraken Trades: " + "; ".join(trades_payload["error"]))
     trade_rows = [value for key, value in (trades_payload.get("result") or {}).items() if key != "last"]
-    latest_trade = trade_rows[0][0] if trade_rows and trade_rows[0] else None
+    latest_trade = trade_rows[0][-1] if trade_rows and trade_rows[0] else None
     trade_price = safe_float(latest_trade[0]) if latest_trade else 0.0
     trade_epoch = safe_float(latest_trade[2]) if latest_trade and len(latest_trade) > 2 else 0.0
     age_seconds = datetime.now(timezone.utc).timestamp() - trade_epoch if trade_epoch > 0 else None
