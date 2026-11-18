@@ -401,7 +401,9 @@ def update_paper_tracker(candidates, now):
     }
     PAPER_STATE.write_text(json.dumps(tracker, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     PAPER_LIFETIME_STATE.write_text(json.dumps(lifetime, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return summaries, lifetime
+    # The live dashboard needs the complete retained ledger, including unverified
+    # watch-only candidates and candidates absent from the latest scan.
+    return tracker, lifetime
 
 
 def update_buy_signal_history(candidates, now, scan_errors=None):
