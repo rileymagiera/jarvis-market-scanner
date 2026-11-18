@@ -277,6 +277,11 @@
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 64
   },
+  "stock:M": {
+    "alerted_at": "2026-11-18T22:10:37.741298+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 63
+  },
   "stock:MFP": {
     "alerted_at": "2026-11-18T21:01:14.253122+00:00",
     "alerted_stage": "DEVELOPING RUNNER",

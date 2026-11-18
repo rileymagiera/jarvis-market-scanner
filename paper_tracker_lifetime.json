@@ -26,11 +26,11 @@
     }
   },
   "integrity": {
-    "checked_at": "2026-11-18T21:01:14.253122+00:00",
+    "checked_at": "2026-11-18T22:10:37.741298+00:00",
     "retained_stock_baselines": 266,
     "retained_stock_counted_baselines": 266,
     "retained_stock_uncounted_baselines": 0,
-    "unverified_stock_without_baseline": 23
+    "unverified_stock_without_baseline": 28
   },
   "recommendations": 502
 }
