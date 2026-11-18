@@ -678,13 +678,6 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
     item["market_regime"] = regime["regime"]
     item["market_score_adjustment"] = adjustment
 
-    if item.get("asset_type") == "stock" and not item.get("price_validation_passed", False):
-        item["stage"] = "PRICE UNVERIFIED — WATCH ONLY"
-        item["signal"] = item["stage"]
-        item["signal_blocked_reason"] = item.get("price_validation_note", "Independent quote validation unavailable")
-        item["stage_reasons"] = ["Fresh independent price confirmation is required before an actionable alert."]
-        return
-
     has_confirmation = (
         float(item.get("relative_volume") or 0) >= 1.5
         or float(item.get("intraday_relative_volume") or 0) >= 2
@@ -781,6 +774,17 @@ def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
         else:
             stage, reasons = "LOW-CONVICTION WATCH", ["Current evidence is below the early-watch threshold."]
         item["stage_reasons"] = reasons
+
+    if item.get("asset_type") == "stock" and not item.get("price_validation_passed", False):
+        # Keep promising research candidates visible, but never present an unverified
+        # quote as an actionable signal. Preserve the evidence grade for ranking.
+        item["potential_stage"] = stage
+        item["signal_blocked_reason"] = item.get("price_validation_note", "Independent quote validation unavailable")
+        item["stage_reasons"] = [
+            f"Research grade: {stage}.",
+            "WATCH ONLY: fresh independent price confirmation is unavailable; BUY/actionable status is blocked."
+        ]
+        stage = "PRICE UNVERIFIED — WATCH ONLY"
 
     item["stage"] = stage
     item["signal"] = stage
@@ -1912,7 +1916,7 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 <section class="section"><h2>Not in latest scan</h2><div class="tiny">Previously tracked, but absent from the latest scan. Last recorded prices may be stale; this is not a sell signal.</div><div class="scroll"><table><thead><tr><th>Candidate</th><th>Last seen</th><th>Last return</th><th>Best gain</th><th>Last grade</th></tr></thead><tbody id="faded"></tbody></table></div></section>
 <p class="tiny section">Data may be delayed or incomplete. Candidate discovery is not the same as an actionable alert.</p></div></details></main><script>
 const n=v=>Number(v||0),pct=v=>n(v).toFixed(2)+'%',cl=v=>n(v)>0?'pos':n(v)<0?'neg':'',e=v=>String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#39;"),date=v=>v?new Date(v).toLocaleString():'—';
-const rank={'BUY':8,'EARLY SETUP':6,'DEVELOPING RUNNER':5,'DEVELOPING SETUP':5,'ACTIONABLE SETUP':4,'EARLY WATCH':3,'LATE RUNNER — CHASE RISK':2,'LOW-CONVICTION WATCH':1,'PRICE UNVERIFIED — WATCH ONLY':0};
+const rank={'BUY':8,'EARLY SETUP':6,'DEVELOPING RUNNER':5,'DEVELOPING SETUP':5,'ACTIONABLE SETUP':4,'EARLY WATCH':3,'LATE RUNNER — CHASE RISK':2,'LOW-CONVICTION WATCH':1,'PRICE UNVERIFIED — WATCH ONLY':2};
 const PREF_KEY='jarvisDashboardPrefsV1';const prefs={radarFilter:'all',density:'comfortable',showTimeline:true,showPerformance:true};try{Object.assign(prefs,JSON.parse(localStorage.getItem(PREF_KEY)||'{}'));}catch(_){}
 function savePrefs(){try{localStorage.setItem(PREF_KEY,JSON.stringify(prefs));}catch(_){}document.body.classList.toggle('compact-mode',prefs.density==='compact');document.getElementById('radar-timeline').hidden=!prefs.showTimeline;document.getElementById('performance-archive').hidden=!prefs.showPerformance;}
 function bindPrefs(){const radar=document.getElementById('radar-filter'),density=document.getElementById('layout-density'),timeline=document.getElementById('show-timeline'),performance=document.getElementById('show-performance');radar.value=prefs.radarFilter;density.value=prefs.density;timeline.checked=prefs.showTimeline;performance.checked=prefs.showPerformance;radar.addEventListener('change',()=>{prefs.radarFilter=radar.value;savePrefs();if(window.jarvisRenderData)render(window.jarvisRenderData);});density.addEventListener('change',()=>{prefs.density=density.value;savePrefs();});timeline.addEventListener('change',()=>{prefs.showTimeline=timeline.checked;savePrefs();});performance.addEventListener('change',()=>{prefs.showPerformance=performance.checked;savePrefs();});document.getElementById('reset-dashboard-settings').addEventListener('click',()=>{Object.assign(prefs,{radarFilter:'all',density:'comfortable',showTimeline:true,showPerformance:true});radar.value=prefs.radarFilter;density.value=prefs.density;timeline.checked=prefs.showTimeline;performance.checked=prefs.showPerformance;savePrefs();if(window.jarvisRenderData)render(window.jarvisRenderData);});savePrefs();}
@@ -1920,15 +1924,15 @@ document.addEventListener('DOMContentLoaded',bindPrefs);
 function elapsed(from,to){if(!from||!to)return '—';const ms=new Date(to)-new Date(from);if(!Number.isFinite(ms)||ms<0)return '—';const hours=Math.floor(ms/3600000);return hours<24?hours+'h':Math.floor(hours/24)+'d '+Math.floor(hours%24)+'h';}function render(d){window.jarvisRenderData=d;const t=d.paper_tracker||{},l=d.lifetime||{},all=Object.values(t),buySignals=d.buy_signals||[],activeBuys=buySignals.filter(x=>x.status==="active"),verified=all.filter(x=>x.price_validation_status!=="unverified"),live=all.filter(x=>x.currently_surfaced!==false),avg=verified.length?verified.reduce((s,x)=>s+n(x.return_pct),0)/verified.length:0;
 const fmtTime=d.last_scan_completed_at?new Intl.DateTimeFormat('en-US',{timeZone:'America/Detroit',year:'numeric',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit',timeZoneName:'short'}).format(new Date(d.last_scan_completed_at)):'No completed scan timestamp yet';document.getElementById('updated').textContent='Last scan completed: '+fmtTime;
 
-const stageRank={'BUY':8,'EARLY SETUP':6,'DEVELOPING RUNNER':5,'DEVELOPING SETUP':5,'ACTIONABLE SETUP':4,'EARLY WATCH':3,'LATE RUNNER — CHASE RISK':2,'LOW-CONVICTION WATCH':1,'PRICE UNVERIFIED — WATCH ONLY':0};
+const stageRank={'BUY':8,'EARLY SETUP':6,'DEVELOPING RUNNER':5,'DEVELOPING SETUP':5,'ACTIONABLE SETUP':4,'EARLY WATCH':3,'LATE RUNNER — CHASE RISK':2,'LOW-CONVICTION WATCH':1,'PRICE UNVERIFIED — WATCH ONLY':2};
 const surfaced=all.filter(x=>x.currently_surfaced!==false);
-const earlyCount=surfaced.filter(x=>['EARLY SETUP','EARLY WATCH','DEVELOPING RUNNER','DEVELOPING SETUP'].includes(x.last_stage)).length;const actionableCount=surfaced.filter(x=>x.last_stage==='ACTIONABLE SETUP').length;
+const earlyCount=surfaced.filter(x=>['EARLY SETUP','EARLY WATCH','DEVELOPING RUNNER','DEVELOPING SETUP','PRICE UNVERIFIED — WATCH ONLY'].includes(x.last_stage)).length;const actionableCount=surfaced.filter(x=>x.last_stage==='ACTIONABLE SETUP').length;
 const verifiedCount=surfaced.filter(x=>x.price_validation_status!=='unverified').length;
-document.getElementById('radar-stats').innerHTML=[[''+activeBuys.length,'ACTIVE BUY SIGNALS'],[''+surfaced.length,'ON RADAR'],[''+earlyCount,'EARLY / DEVELOPING'],[''+actionableCount,'ACTIONABLE SETUPS'],[''+verifiedCount,'PRICE VERIFIED']].map(x=>'<div class="radar-stat"><strong>'+e(x[0])+'</strong><span>'+x[1]+'</span></div>').join('');
+document.getElementById('radar-stats').innerHTML=[[''+activeBuys.length,'ACTIVE BUY SIGNALS'],[''+surfaced.length,'ON RADAR'],[''+earlyCount,'EARLY / WATCH-ONLY'],[''+actionableCount,'ACTIONABLE SETUPS'],[''+verifiedCount,'PRICE VERIFIED']].map(x=>'<div class="radar-stat"><strong>'+e(x[0])+'</strong><span>'+x[1]+'</span></div>').join('');
 document.getElementById('buy-summary').textContent=activeBuys.length+' active · '+buySignals.length+' total logged';
 const recentBuys=[...buySignals].sort((a,b)=>new Date(b.at)-new Date(a.at)).slice(0,4);
 document.getElementById('buy-signals').innerHTML=recentBuys.length?recentBuys.map(x=>{const ret=x.latest_return_pct==null?'Awaiting update':pct(x.latest_return_pct);const reason=(x.reasons||[]).slice(0,2).join(' · ');return '<article class="buy-card"><div class="buy-card-top"><div><div class="buy-tag">'+(x.status==='active'?'BUY · ACTIVE':'BUY · HISTORICAL')+'</div><div class="buy-symbol">'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'</div></div><div class="buy-return '+cl(x.latest_return_pct)+'">'+e(ret)+'</div></div><div class="buy-detail">Signal price: '+e(x.entry_price)+' · Score: '+e(x.score)+'/100<br>Entry zone: '+e((x.entry_low??'—')+' – '+(x.entry_high??'—'))+'<br>Stop-loss: '+e(x.stop_loss??x.invalidation??'—')+' ('+e(x.risk_pct==null?'—':x.risk_pct+'% risk')+')<br>Potential sell: '+e(x.target_1??'—')+' ('+e(x.target_1_pct==null?'—':'+'+x.target_1_pct+'%')+') · Stretch target: '+e(x.target_2??'—')+' ('+e(x.target_2_pct==null?'—':'+'+x.target_2_pct+'%')+')<br>Reward/risk: '+e(x.reward_risk_ratio==null?'—':x.reward_risk_ratio+':1')+'</div><div class="buy-meta">'+date(x.at)+' · '+e(reason)+'</div></article>'}).join(''):'<div class="op-empty">No BUY signals recorded yet. Jarvis will keep watching rather than manufacture a trade.</div>';
-const radarPool=surfaced.filter(x=>prefs.radarFilter==='all'||(prefs.radarFilter==='developing'&&['BUY','ACTIONABLE SETUP','DEVELOPING RUNNER','DEVELOPING SETUP','EARLY SETUP'].includes(x.last_stage))||(prefs.radarFilter==='actionable'&&['BUY','ACTIONABLE SETUP'].includes(x.last_stage)));const candidates=radarPool.sort((a,b)=>(stageRank[b.last_stage]??0)-(stageRank[a.last_stage]??0)||n(b.daily_change_pct)-n(a.daily_change_pct)).slice(0,9);
+const radarPool=surfaced.filter(x=>prefs.radarFilter==='all'||(prefs.radarFilter==='developing'&&['BUY','ACTIONABLE SETUP','DEVELOPING RUNNER','DEVELOPING SETUP','EARLY SETUP','PRICE UNVERIFIED — WATCH ONLY'].includes(x.last_stage))||(prefs.radarFilter==='actionable'&&['BUY','ACTIONABLE SETUP'].includes(x.last_stage)));const candidates=radarPool.sort((a,b)=>(stageRank[b.last_stage]??0)-(stageRank[a.last_stage]??0)||n(b.daily_change_pct)-n(a.daily_change_pct)).slice(0,9);
 document.getElementById('opportunities').innerHTML=candidates.length?candidates.map((x,i)=>{
  const stage=x.last_stage||'WATCHLIST',s=String(stage),kind=s.includes('ACTIONABLE')?'action':s.includes('LATE RUNNER')?'late':'';
  const reason=(x.stage_reasons||x.discovery_reasons||[]).slice(0,2).join(' · ')||'Candidate retained for continued monitoring.';
