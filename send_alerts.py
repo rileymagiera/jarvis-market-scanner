@@ -189,6 +189,10 @@ def update_paper_tracker(candidates, now):
             record["price_source"] = item.get("data_source") or item.get("price_source")
             record["price_as_of"] = item.get("price_as_of")
             record["price_freshness"] = item.get("price_freshness")
+            record["data_quality"] = item.get("data_quality") or {}
+            record["daily_data_quality"] = item.get("daily_data_quality") or {}
+            record["intraday_data_quality"] = item.get("intraday_data_quality") or {}
+            record["hourly_data_quality"] = item.get("hourly_data_quality") or {}
             record["last_stage"] = item.get("stage", item.get("signal", "WATCH"))
             record["potential_stage"] = item.get("potential_stage")
             record["score"] = int(item.get("score") or 0)
@@ -221,6 +225,7 @@ def update_paper_tracker(candidates, now):
                 "catalyst_labels", "catalyst_dilution_status", "dilution_flags",
                 "catalyst_headline_count", "early_runner_research_score", "early_runner_score_components",
                 "crqs", "crqs_tier", "crqs_components", "crqs_data_coverage", "crqs_entry_score", "crqs_entry_penalty", "crqs_features", "crqs_relative_strength_vs_btc_24h_pct", "crqs_sector_activity", "crqs_sector_rank", "crqs_sector_count", "crypto_sector", "buy_readiness",
+                "data_quality", "daily_data_quality", "intraday_data_quality", "hourly_data_quality",
             )
             for field in research_fields:
                 record[field] = item.get(field)
@@ -278,6 +283,10 @@ def update_paper_tracker(candidates, now):
         record["price_cross_check_difference_pct"] = item.get("price_cross_check_difference_pct")
         record["price_as_of"] = item.get("price_as_of")
         record["price_freshness"] = item.get("price_freshness")
+        record["data_quality"] = item.get("data_quality") or {}
+        record["daily_data_quality"] = item.get("daily_data_quality") or {}
+        record["intraday_data_quality"] = item.get("intraday_data_quality") or {}
+        record["hourly_data_quality"] = item.get("hourly_data_quality") or {}
         record["webull_status"] = item.get("webull_status", "not_reported")
         record["webull_price"] = item.get("webull_price")
         record["webull_price_as_of"] = item.get("webull_price_as_of")
@@ -383,6 +392,10 @@ def update_paper_tracker(candidates, now):
         record["discovery_source"] = "research_layer" if record["research_signal_matches"] else "core_scanner"
         record["price_as_of"] = item.get("price_as_of") or now.isoformat()
         record["price_freshness"] = item.get("price_freshness") or "timestamp unavailable"
+        record["data_quality"] = item.get("data_quality") or {}
+        record["daily_data_quality"] = item.get("daily_data_quality") or {}
+        record["intraday_data_quality"] = item.get("intraday_data_quality") or {}
+        record["hourly_data_quality"] = item.get("hourly_data_quality") or {}
         record["price_observed_at"] = now.isoformat()
         record["peak_price"] = max(float(record.get("peak_price") or price), price)
         record["trough_price"] = min(float(record.get("trough_price") or price), price)
@@ -446,6 +459,7 @@ def update_paper_tracker(candidates, now):
             "catalyst_labels", "catalyst_dilution_status", "dilution_flags",
             "catalyst_headline_count", "early_runner_research_score", "early_runner_score_components",
             "crqs", "crqs_tier", "crqs_components", "crqs_data_coverage", "crqs_entry_score", "crqs_entry_penalty", "crqs_features", "crqs_relative_strength_vs_btc_24h_pct", "crqs_sector_activity", "crqs_sector_rank", "crqs_sector_count", "crypto_sector", "buy_readiness",
+                "data_quality", "daily_data_quality", "intraday_data_quality", "hourly_data_quality",
         )
         for field in research_fields:
             record[field] = item.get(field)
