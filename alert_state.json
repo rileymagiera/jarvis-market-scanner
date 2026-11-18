@@ -16,6 +16,16 @@
       "score": 24,
       "status": "PREMARKET VERIFIED"
     },
+    "CDXS": {
+      "alerted_at": "2026-11-18T18:09:36.530310+00:00",
+      "score": 15,
+      "status": "PREMARKET VERIFIED"
+    },
+    "CFND": {
+      "alerted_at": "2026-11-18T18:09:36.530310+00:00",
+      "score": 19,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
     "COHR": {
       "alerted_at": "2026-11-18T18:01:11.833239+00:00",
       "score": 7,
@@ -74,6 +84,11 @@
     "PAL": {
       "alerted_at": "2026-11-18T18:01:11.833239+00:00",
       "score": 13,
+      "status": "PREMARKET VERIFIED"
+    },
+    "PCT": {
+      "alerted_at": "2026-11-18T18:09:36.530310+00:00",
+      "score": 10,
       "status": "PREMARKET VERIFIED"
     },
     "PLCE": {
@@ -166,6 +181,11 @@
     "alerted_at": "2026-11-18T16:01:05.943799+00:00",
     "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
     "score": 76
+  },
+  "stock:PRGO": {
+    "alerted_at": "2026-11-18T18:09:36.530310+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 61
   },
   "stock:SLS": {
     "alerted_at": "2026-11-18T18:01:11.833239+00:00",
