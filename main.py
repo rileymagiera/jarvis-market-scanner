@@ -1929,7 +1929,7 @@ def github_history_state() -> dict:
         GITHUB_HISTORY_CACHE["at"] = time.monotonic()
     print("JARVIS_HISTORY_DIAGNOSTIC source=github "
           f"candidates={len(result['paper_tracker'])} "
-          f"lifetime_records={len(result['lifetime'].get('recommendations', [])) if isinstance(result['lifetime'], dict) else 0} "
+          f"lifetime_recommendations={result['lifetime'].get('recommendations', 0) if isinstance(result['lifetime'], dict) else 0} "
           f"buy_signals={len(result['buy_signals'])} "
           f"last_scan={result.get('last_scan_completed_at')} run_id={result.get('scan_run_id')}", flush=True)
     return result
