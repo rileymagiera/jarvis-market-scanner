@@ -384,6 +384,81 @@ ALPACA_QUOTE_CACHE = {}
 ALPACA_QUOTE_CACHE_LOCK = threading.Lock()
 ALPACA_QUOTE_CACHE_TTL_SECONDS = 10
 
+ALPACA_SNAPSHOT_CACHE = {}
+ALPACA_SNAPSHOT_CACHE_LOCK = threading.Lock()
+
+
+def prefetch_alpaca_snapshots(symbols: list[str]) -> None:
+    """Fetch Alpaca snapshots in batches, including latest trades and daily bars."""
+    api_key = os.getenv("ALPACA_API_KEY", "").strip()
+    api_secret = os.getenv("ALPACA_API_SECRET", "").strip()
+    if not api_key or not api_secret or not symbols:
+        return
+    feed = os.getenv("ALPACA_STOCK_DATA_FEED", "iex").strip().lower() or "iex"
+    headers = {"APCA-API-KEY-ID": api_key, "APCA-API-SECRET-KEY": api_secret}
+    fetched = {}
+    for offset in range(0, len(symbols), 50):
+        batch_symbols = list(dict.fromkeys(str(x).upper() for x in symbols[offset:offset + 50]))
+        started = time.monotonic()
+        try:
+            response = HTTP.get(
+                "https://data.alpaca.markets/v2/stocks/snapshots",
+                params={"symbols": ",".join(batch_symbols), "feed": feed},
+                headers=headers, timeout=(3, 8),
+            )
+            response.raise_for_status()
+            for symbol, snapshot in (response.json() or {}).items():
+                if not isinstance(snapshot, dict):
+                    continue
+                trade = snapshot.get("latestTrade") or {}
+                trade_price = safe_float(trade.get("p"))
+                trade_stamp = pd.Timestamp(trade["t"]) if trade.get("t") else None
+                if trade_stamp is not None and pd.notna(trade_stamp):
+                    if trade_stamp.tzinfo is None: trade_stamp = trade_stamp.tz_localize("UTC")
+                    trade_stamp = trade_stamp.tz_convert("UTC")
+                    trade_age = (datetime.now(timezone.utc) - trade_stamp.to_pydatetime()).total_seconds() / 60
+                else: trade_age = None
+                quote = snapshot.get("latestQuote") or {}
+                bid, ask = safe_float(quote.get("bp")), safe_float(quote.get("ap"))
+                quote_stamp = pd.Timestamp(quote["t"]) if quote.get("t") else None
+                if quote_stamp is not None and pd.notna(quote_stamp):
+                    if quote_stamp.tzinfo is None: quote_stamp = quote_stamp.tz_localize("UTC")
+                    quote_stamp = quote_stamp.tz_convert("UTC")
+                    quote_age = (datetime.now(timezone.utc) - quote_stamp.to_pydatetime()).total_seconds() / 60
+                else: quote_age = None
+                spread = ((ask-bid)/((ask+bid)/2)*100) if bid > 0 and ask >= bid and ask > 0 else None
+                daily = snapshot.get("dailyBar") or {}
+                daily_price = safe_float(daily.get("c"))
+                daily_stamp = pd.Timestamp(daily["t"]) if daily.get("t") else None
+                if daily_stamp is not None and pd.notna(daily_stamp):
+                    if daily_stamp.tzinfo is None: daily_stamp = daily_stamp.tz_localize("UTC")
+                    daily_stamp = daily_stamp.tz_convert("UTC")
+                fetched[str(symbol).upper()] = {
+                    "trade_price": trade_price,
+                    "trade_as_of": trade_stamp.isoformat() if trade_stamp is not None and pd.notna(trade_stamp) else None,
+                    "trade_age_minutes": round(trade_age, 2) if trade_age is not None else None,
+                    "quote_price": (bid+ask)/2 if bid > 0 and ask >= bid and ask > 0 else None,
+                    "quote_as_of": quote_stamp.isoformat() if quote_stamp is not None and pd.notna(quote_stamp) else None,
+                    "quote_age_minutes": round(quote_age, 2) if quote_age is not None else None,
+                    "spread_pct": round(spread, 3) if spread is not None else None,
+                    "daily_price": daily_price,
+                    "daily_as_of": daily_stamp.isoformat() if daily_stamp is not None and pd.notna(daily_stamp) else None,
+                    "feed": feed,
+                }
+            record_scan_metric("alpaca_snapshot_batch", time.monotonic()-started)
+        except Exception as exc:
+            record_scan_metric("alpaca_snapshot_batch", time.monotonic()-started, "failure",
+                               error=f"{type(exc).__name__}: {str(exc)[:160]}")
+    with ALPACA_SNAPSHOT_CACHE_LOCK:
+        ALPACA_SNAPSHOT_CACHE.clear()
+        ALPACA_SNAPSHOT_CACHE.update(fetched)
+    print(f"Alpaca snapshot batch: requested={len(symbols)} returned={len(fetched)} feed={feed}", flush=True)
+
+
+def alpaca_snapshot_for(symbol: str) -> Optional[dict]:
+    with ALPACA_SNAPSHOT_CACHE_LOCK:
+        return ALPACA_SNAPSHOT_CACHE.get(str(symbol).upper())
+
 
 def alpaca_latest_quote(symbol: str) -> dict:
     """Fetch a fresh independent Alpaca best-bid/ask quote (IEX by default)."""
@@ -1323,6 +1398,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
     massive_quote = None
     massive_quote_status = "disabled" if not MASSIVE_LIVE_QUOTE_ENABLED else ("not_configured" if not os.getenv("MASSIVE_API_KEY", "").strip() else "not_checked")
     alpaca_quote = None
+    alpaca_snapshot = None
     alpaca_quote_status = "not_configured"
     has_alpaca_credentials = bool(
         os.getenv("ALPACA_API_KEY", "").strip()
@@ -1336,24 +1412,36 @@ def scan_stock(symbol: str) -> Optional[dict]:
     )
     webull_enabled = has_webull_credentials and WEBULL_QUOTE_ENABLED
 
-    if (intraday_fresh and intraday_price > 0) or webull_enabled:
-        try:
-            # Stooq can independently cross-check Webull even when Yahoo is down.
-            secondary_quote = stooq_latest_quote(symbol)
-            quote_difference_pct = (
-                abs(intraday_price - secondary_quote["price"])
-                / ((intraday_price + secondary_quote["price"]) / 2) * 100
-            )
-        except Exception:
-            secondary_quote = None
+    # Stooq's quote endpoint is returning 404s for valid symbols; retain Stooq
+    # only for daily-history fallback, not independent live-price validation.
 
     if has_alpaca_credentials:
-        try:
-            alpaca_quote = alpaca_latest_quote(symbol)
-            alpaca_quote_status = "fresh_quote_received"
-        except Exception as exc:
-            alpaca_quote_status = "unavailable"
-            validation_note = f"Alpaca quote unavailable: {type(exc).__name__}: {str(exc)[:120]}"
+        alpaca_snapshot = alpaca_snapshot_for(symbol)
+        if alpaca_snapshot:
+            trade_age = alpaca_snapshot.get("trade_age_minutes")
+            quote_age = alpaca_snapshot.get("quote_age_minutes")
+            if alpaca_snapshot.get("trade_price", 0) > 0 and trade_age is not None and -1 <= trade_age <= 15:
+                alpaca_quote = {
+                    "price": alpaca_snapshot["trade_price"], "as_of": alpaca_snapshot["trade_as_of"],
+                    "age_minutes": trade_age, "spread_pct": alpaca_snapshot.get("spread_pct"),
+                    "feed": alpaca_snapshot.get("feed"), "source_type": "latest_trade", "is_live": True,
+                }
+                alpaca_quote_status = "fresh_trade_received"
+            elif (
+                alpaca_snapshot.get("quote_price") is not None and quote_age is not None
+                and -1 <= quote_age <= 15 and alpaca_snapshot.get("spread_pct") is not None
+                and alpaca_snapshot["spread_pct"] <= 5.0
+            ):
+                alpaca_quote = {
+                    "price": alpaca_snapshot["quote_price"], "as_of": alpaca_snapshot["quote_as_of"],
+                    "age_minutes": quote_age, "spread_pct": alpaca_snapshot["spread_pct"],
+                    "feed": alpaca_snapshot.get("feed"), "source_type": "latest_quote_midpoint", "is_live": True,
+                }
+                alpaca_quote_status = "fresh_quote_received"
+            else:
+                alpaca_quote_status = "no_fresh_trade_or_usable_quote"
+        else:
+            alpaca_quote_status = "snapshot_unavailable"
 
     if MASSIVE_LIVE_QUOTE_ENABLED and ((intraday_fresh and intraday_price > 0) or webull_enabled):
         try:
@@ -1380,7 +1468,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
     if secondary_quote and secondary_quote.get("price", 0) > 0:
         reference_quotes.append(("Stooq", secondary_quote["price"]))
         reference_quote_times["Stooq"] = secondary_quote.get("as_of")
-    if alpaca_quote and alpaca_quote.get("price", 0) > 0:
+    if alpaca_quote and alpaca_quote.get("price", 0) > 0 and alpaca_quote.get("is_live"):
         reference_quotes.append(("Alpaca", alpaca_quote["price"]))
         reference_quote_times["Alpaca"] = alpaca_quote.get("as_of")
     if massive_quote and massive_quote.get("price", 0) > 0:
@@ -1452,6 +1540,26 @@ def scan_stock(symbol: str) -> Optional[dict]:
         validation_note = "Fresh Yahoo intraday quote available, but no independent provider quote agreed within 3%"
     elif webull_enabled and not webull_quote:
         validation_note = "Yahoo intraday quote unavailable; Webull quote request also unavailable or not entitled"
+
+    # During overnight closure, independently cross-check the completed daily
+    # close. This permits research visibility only; intraday confirmation remains
+    # false, so the existing BUY/actionable gates cannot pass on a stale close.
+    if (
+        not validation_passed
+        and not equity_session["is_regular_session"]
+        and not equity_session["is_extended_session"]
+        and alpaca_snapshot
+        and alpaca_snapshot.get("daily_price", 0) > 0
+    ):
+        alpaca_close = alpaca_snapshot["daily_price"]
+        close_diff = abs(daily_bar_price-alpaca_close)/((daily_bar_price+alpaca_close)/2)*100
+        if close_diff <= 3.0:
+            validation_passed = True
+            price = daily_bar_price
+            selected_price_as_of = alpaca_snapshot.get("daily_as_of")
+            selected_price_freshness = "prior_session_close_cross_checked"
+            selected_data_source = "Yahoo + Alpaca prior-session daily close cross-check"
+            validation_note = f"Prior-session closes agree within {close_diff:.2f}%; research visibility only while market is closed"
 
     if validation_passed:
         daily_change = (price / previous - 1) * 100
@@ -2054,6 +2162,8 @@ def symbols():
 @app.get("/scan/stocks", dependencies=[Depends(require_site_login)])
 def scan_stocks(limit: int = Query(30, ge=1, le=100)):
     universe = stock_universe()[:limit]
+    reset_scan_metrics()
+    prefetch_alpaca_snapshots(universe)
     results, errors = run_parallel(universe, scan_stock)
     return response_payload("stocks", universe, results, errors)
 
@@ -2075,6 +2185,11 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
     discovery_seconds = time.monotonic() - discovery_started
     stock_results, stock_errors = ([], [])
     crypto_results, crypto_errors = ([], [])
+
+    # Pull snapshots in 50-symbol batches before workers start, replacing the
+    # old per-symbol Alpaca quote requests and making coverage consistent.
+    if stock_symbols:
+        prefetch_alpaca_snapshots(stock_symbols)
 
     # Run independent asset classes together, with a bounded worker pool per
     # class. This prevents the crypto pass from waiting for every stock request.
@@ -2159,7 +2274,7 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
                 "credentials_configured": bool(os.getenv("ALPACA_API_KEY", "").strip() and os.getenv("ALPACA_API_SECRET", "").strip()),
                 "feed": os.getenv("ALPACA_STOCK_DATA_FEED", "iex").strip().lower() or "iex",
                 "candidate_status_counts": alpaca_status_counts,
-                "provider_activity": provider_activity.get("alpaca_quote_validation", {"calls": 0, "failures": 0, "total_seconds": 0.0, "max_seconds": 0.0, "error_counts": {}}),
+                "provider_activity": provider_activity.get("alpaca_snapshot_batch", {"calls": 0, "failures": 0, "total_seconds": 0.0, "max_seconds": 0.0, "error_counts": {}}),
             },
             "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history/data or score below the early-watch floor; provider-specific discovery failures are not always attributable to one symbol.",
             "webull_quote_status": "enabled" if WEBULL_QUOTE_ENABLED else "disabled_pending_authorization",
