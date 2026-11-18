@@ -36,6 +36,11 @@
       "score": 0,
       "status": "PREMARKET VERIFIED"
     },
+    "EMPD": {
+      "alerted_at": "2026-11-18T19:01:00.184725+00:00",
+      "score": 22,
+      "status": "PREMARKET VERIFIED"
+    },
     "FEAM": {
       "alerted_at": "2026-11-18T18:01:11.833239+00:00",
       "score": 9,
@@ -118,9 +123,9 @@
     "score": 62
   },
   "stock:BIP": {
-    "alerted_at": "2026-11-18T18:01:11.833239+00:00",
+    "alerted_at": "2026-11-18T19:01:00.184725+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 69
+    "score": 78
   },
   "stock:BIPC": {
     "alerted_at": "2026-11-18T18:01:11.833239+00:00",
@@ -142,6 +147,11 @@
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 62
   },
+  "stock:FROG": {
+    "alerted_at": "2026-11-18T19:01:00.184725+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 62
+  },
   "stock:ICMB": {
     "alerted_at": "2026-11-18T18:01:11.833239+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
@@ -156,6 +166,11 @@
     "alerted_at": "2026-11-18T18:01:11.833239+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 60
+  },
+  "stock:KHC": {
+    "alerted_at": "2026-11-18T19:01:00.184725+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 61
   },
   "stock:KTB": {
     "alerted_at": "2026-11-18T18:01:11.833239+00:00",
@@ -187,10 +202,25 @@
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 61
   },
+  "stock:RIOT": {
+    "alerted_at": "2026-11-18T19:01:00.184725+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 62
+  },
+  "stock:SAIL": {
+    "alerted_at": "2026-11-18T19:01:00.184725+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 62
+  },
   "stock:SLS": {
     "alerted_at": "2026-11-18T18:01:11.833239+00:00",
     "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
     "score": 78
+  },
+  "stock:TTWO": {
+    "alerted_at": "2026-11-18T19:01:00.184725+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 60
   },
   "stock:VIK": {
     "alerted_at": "2026-11-18T18:01:11.833239+00:00",
