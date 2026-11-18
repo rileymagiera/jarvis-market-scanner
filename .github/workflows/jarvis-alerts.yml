@@ -84,6 +84,72 @@ jobs:
           else
             python send_alerts.py
           fi
+      - name: Persist and summarize scan audit
+        if: ${{ steps.jarvis.outcome == 'success' && inputs.send_test_email != true }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          paths = {
+              "diagnostics": "scan_diagnostics.json",
+              "paper_tracker": "paper_tracker.json",
+              "lifetime": "paper_tracker_lifetime.json",
+              "buy_signals": "buy_signal_history.json",
+              "metadata": "scan_metadata.json",
+          }
+          parsed = {}
+          errors = []
+          for key, path in paths.items():
+              try:
+                  parsed[key] = json.loads(Path(path).read_text(encoding="utf-8"))
+              except Exception as exc:
+                  errors.append(f"{path}: {type(exc).__name__}: {exc}")
+          d = parsed.get("diagnostics", {})
+          stocks = (d.get("diagnostics") or {}).get("stocks", {})
+          crypto = (d.get("diagnostics") or {}).get("crypto", {})
+          stock_stages = stocks.get("stages") or {}
+          crypto_stages = crypto.get("stages") or {}
+          stock_unverified = stock_stages.get("PRICE UNVERIFIED — WATCH ONLY", 0)
+          crypto_unverified = crypto.get("price_validation", {}).get("unverified", 0)
+          audit = {
+              "audit_timestamp": d.get("timestamp"),
+              "audit_run_id": os.environ.get("GITHUB_RUN_ID"),
+              "audit_status": "passed" if not errors and d.get("timestamp") else "failed",
+              "files_valid_json": list(parsed.keys()),
+              "file_validation_errors": errors,
+              "candidates_total": d.get("candidates_found", 0),
+              "stocks_returned": stocks.get("candidates_returned", 0),
+              "stocks_price_verified": max(0, stocks.get("candidates_returned", 0) - stock_unverified),
+              "stocks_price_unverified": stock_unverified,
+              "crypto_returned": crypto.get("candidates_returned", 0),
+              "crypto_price_verified": crypto.get("price_validation", {}).get("verified", 0),
+              "crypto_price_unverified": crypto_unverified,
+              "scan_errors": d.get("errors") or [],
+              "stock_stage_counts": stock_stages,
+              "crypto_stage_counts": crypto_stages,
+              "history_sync_reported": True,
+          }
+          metadata = parsed.get("metadata", {})
+          metadata["scan_audit"] = audit
+          Path("scan_metadata.json").write_text(json.dumps(metadata, indent=2) + "\\n", encoding="utf-8")
+          summary = Path(os.environ["GITHUB_STEP_SUMMARY"])
+          lines = [
+              "## Jarvis Scan Audit",
+              f"- Audit status: **{audit['audit_status']}**",
+              f"- Candidates: **{audit['candidates_total']}**",
+              f"- Stocks: {audit['stocks_returned']} returned; {audit['stocks_price_verified']} price-verified; {audit['stocks_price_unverified']} unverified",
+              f"- Crypto: {audit['crypto_returned']} returned; {audit['crypto_price_verified']} price-verified; {audit['crypto_price_unverified']} unverified",
+              f"- Scanner errors: **{len(audit['scan_errors'])}**",
+              f"- JSON persistence checks: {len(parsed)}/{len(paths)} files valid",
+          ]
+          if audit["scan_errors"]:
+              lines.append("- Error detail: " + "; ".join(f"{e.get('symbol','?')}: {e.get('error','unknown')}" for e in audit["scan_errors"]))
+          summary.write_text("\\n".join(lines) + "\\n", encoding="utf-8")
+          if errors or not d.get("timestamp"):
+              print("AUDIT FAILURE:", errors or "Diagnostics timestamp missing")
+              raise SystemExit(1)
+          print("Scan audit verified and recorded.")
+          PY
       - name: Finalize scan attempt status
         if: ${{ always() && inputs.send_test_email != true }}
         env:
