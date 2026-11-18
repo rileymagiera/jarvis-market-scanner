@@ -5,9 +5,9 @@
         "1": {
           "flat": 0,
           "losses": 0,
-          "observations": 14,
-          "total_return_pct": 40.64,
-          "wins": 14
+          "observations": 15,
+          "total_return_pct": 41.14,
+          "wins": 15
         }
       },
       "recommendations": 49
@@ -20,9 +20,9 @@
     "1": {
       "flat": 0,
       "losses": 0,
-      "observations": 14,
-      "total_return_pct": 40.64,
-      "wins": 14
+      "observations": 15,
+      "total_return_pct": 41.14,
+      "wins": 15
     }
   },
   "recommendations": 117

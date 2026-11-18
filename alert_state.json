@@ -90,6 +90,11 @@
     "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
     "score": 78
   },
+  "stock:PCG": {
+    "alerted_at": "2026-11-18T01:30:30.596618+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 65
+  },
   "stock:PENN": {
     "alerted_at": "2026-11-17T20:42:43.611462+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
