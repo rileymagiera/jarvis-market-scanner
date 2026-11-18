@@ -67,7 +67,7 @@ jobs:
           JARVIS_SCANNER_URL: https://jarvis-market-scanner.onrender.com
           ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
           ALPACA_API_SECRET: ${{ secrets.ALPACA_API_SECRET }}
-          ALPACA_STOCK_DATA_FEED: iex
+          ALPACA_STOCK_DATA_FEED: ${{ vars.ALPACA_STOCK_DATA_FEED || 'iex' }}
           SEND_TEST_EMAIL: ${{ inputs.send_test_email }}
         run: |
           test -n "$JARVIS_GMAIL_USER" || (echo "Missing JARVIS_GMAIL_USER" && exit 1)
