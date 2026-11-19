@@ -2076,6 +2076,29 @@ def scan_crypto(symbol: str) -> Optional[dict]:
         latest_closed_bar_at = datetime.fromtimestamp(float(bars[-2][0]), timezone.utc).isoformat()
     except (IndexError, TypeError, ValueError, OverflowError):
         pass
+
+    # Apply the same early-warning checks to crypto using completed hourly bars.
+    # Aggregate only completed UTC days so a partial daily candle cannot create
+    # false multi-timeframe confirmation.
+    early_warning_bars = pd.DataFrame(
+        closed, columns=["Timestamp", "Open", "High", "Low", "Close", "Volume"]
+    )
+    if not early_warning_bars.empty:
+        early_warning_bars.index = pd.to_datetime(
+            early_warning_bars.pop("Timestamp"), unit="s", utc=True
+        )
+        daily_warning_bars = early_warning_bars.resample("1D").agg({
+            "Open": "first", "High": "max", "Low": "min",
+            "Close": "last", "Volume": "sum",
+        }).dropna(subset=["Open", "High", "Low", "Close"])
+        current_utc_day = pd.Timestamp.now(tz="UTC").normalize()
+        daily_warning_bars = daily_warning_bars[daily_warning_bars.index < current_utc_day]
+    else:
+        daily_warning_bars = pd.DataFrame()
+    early_warning = compute_early_warning_metrics(
+        daily_warning_bars, early_warning_bars, price
+    )
+
     hourly_data_quality = {
         "data_source": provider + " hourly OHLCV",
         "data_type": "historical" if latest_closed_bar_at else "unknown",
@@ -2117,6 +2140,7 @@ def scan_crypto(symbol: str) -> Optional[dict]:
         "crqs_entry_score": entry_score,
         "crqs_entry_penalty": entry_penalty,
         "crqs_features": {"four_hour_change_pct": round(four_hour_change, 2), "higher_lows": bool(higher_lows), "volume_consistency_6h": round(volume_consistency, 3), "news_count": len(news)},
+        **early_warning,
         "score": score,
         "signal": "HIGH INTEREST" if score >= 75 else "WATCH" if score >= 50 else "EARLY WATCH",
         "levels": levels(price, atr, support),
@@ -2961,6 +2985,8 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
             if "contraction detected" in str(item.get("volatility_contraction_status", "")).lower():
                 matches.append("Volatility contraction")
             matches.extend(item.get("early_runner_signal_matches") or [])
+            matches.extend(item.get("early_warning_matches") or [])
+        elif item.get("asset_type") == "crypto":
             matches.extend(item.get("early_warning_matches") or [])
         item["research_signal_matches"] = matches
     for item in results:
