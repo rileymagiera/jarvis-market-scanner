@@ -211,6 +211,7 @@ def kraken_get(url: str, **kwargs):
         wait = KRAKEN_MIN_REQUEST_INTERVAL_SECONDS - (time.monotonic() - KRAKEN_LAST_REQUEST_AT)
         if wait > 0:
             time.sleep(wait)
+            record_scan_metric("kraken_request_pacing", wait, "success")
         try:
             return HTTP.get(url, **kwargs)
         finally:
