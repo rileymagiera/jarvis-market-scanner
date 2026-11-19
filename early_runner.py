@@ -379,3 +379,112 @@ def summarize_crypto_cross_section(crypto_sectors, pair_map, tickers):
         "btc_source": "Kraken full-market 24h ticker" if btc_change is not None else None,
         "sector_stats": stats,
     }
+
+
+
+def compute_early_warning_metrics(daily, intraday, price):
+    """Research-only early-warning features; never bypass BUY quality or risk gates."""
+    result = {
+        "breakout_proximity_pct": None,
+        "breakout_reference_price": None,
+        "breakout_proximity_status": "Unavailable",
+        "liquidity_sweep_detected": None,
+        "liquidity_sweep_status": "Intraday history unavailable",
+        "accumulation_signal_score": None,
+        "accumulation_signal_status": "Insufficient evidence",
+        "multi_timeframe_alignment": None,
+        "multi_timeframe_status": "Insufficient timeframe data",
+        "early_warning_matches": [],
+    }
+    matches = []
+    try:
+        px = float(price)
+    except (TypeError, ValueError, OverflowError):
+        px = 0.0
+    if daily is not None and not daily.empty and {"High", "Low", "Close", "Volume"}.issubset(daily.columns):
+        d = daily.dropna(subset=["High", "Low", "Close"]).copy()
+        if len(d) >= 21 and px > 0:
+            prior_resistance = float(d["High"].astype(float).iloc[-21:-1].max())
+            distance = (prior_resistance / px - 1) * 100 if px > 0 else None
+            if distance is not None and np.isfinite(distance):
+                result["breakout_reference_price"] = round(prior_resistance, 6)
+                result["breakout_proximity_pct"] = round(distance, 2)
+                if -0.25 <= distance <= 3.0:
+                    result["breakout_proximity_status"] = f"Near 20-session high · {distance:.2f}%"
+                    matches.append("Near 20-session breakout level")
+                elif distance < -0.25:
+                    result["breakout_proximity_status"] = f"Above prior 20-session high · {-distance:.2f}%"
+                    matches.append("Trading above prior 20-session high")
+                else:
+                    result["breakout_proximity_status"] = f"{distance:.2f}% below prior 20-session high"
+        # Compression relative to the asset's own 60-session volatility history.
+        close = d["Close"].astype(float)
+        width = (close.rolling(20, min_periods=20).std(ddof=0) * 4 /
+                 close.rolling(20, min_periods=20).mean().replace(0, np.nan)).dropna()
+        if len(width) >= 20:
+            percentile = float((width.tail(60) <= width.iloc[-1]).mean() * 100)
+            result["volatility_compression_percentile"] = round(percentile, 1)
+            if percentile <= 20:
+                matches.append("Volatility compressed versus own history")
+        # Multi-timeframe daily direction; intraday confirmation added below.
+        daily_bullish = bool(
+            len(close) >= 20
+            and close.iloc[-1] > close.ewm(span=9, adjust=False).mean().iloc[-1]
+            and close.ewm(span=9, adjust=False).mean().iloc[-1] >
+                close.ewm(span=20, adjust=False).mean().iloc[-1]
+        )
+    else:
+        daily_bullish = None
+
+    bars = intraday.copy() if intraday is not None else pd.DataFrame()
+    intraday_bullish = None
+    if not bars.empty and {"High", "Low", "Close", "Volume"}.issubset(bars.columns):
+        bars = bars.dropna(subset=["High", "Low", "Close"]).copy()
+        if len(bars) >= 8:
+            high = bars["High"].astype(float)
+            low = bars["Low"].astype(float)
+            close = bars["Close"].astype(float)
+            volume = bars["Volume"].astype(float).fillna(0)
+            prior_floor = float(low.iloc[-8:-1].min())
+            current_low = float(low.iloc[-1])
+            current_close = float(close.iloc[-1])
+            swept = current_low < prior_floor and current_close > prior_floor
+            result["liquidity_sweep_detected"] = bool(swept)
+            result["liquidity_sweep_status"] = (
+                f"Downside liquidity sweep reclaimed · level {prior_floor:.4f}"
+                if swept else "No confirmed downside sweep/reclaim in latest bar"
+            )
+            if swept:
+                matches.append("Downside liquidity sweep reclaimed")
+            if len(close) >= 6:
+                recent = close.tail(5)
+                intraday_bullish = bool(recent.iloc[-1] > recent.iloc[0] and
+                                        recent.iloc[-1] >= recent.rolling(3).mean().iloc[-1])
+            # Simple accumulation evidence: positive OBV slope and rising recent
+            # volume versus the immediately preceding bars; missing inputs stay unknown.
+            direction = np.sign(close.diff()).fillna(0)
+            obv = (direction * volume).cumsum()
+            obv_up = bool(len(obv) >= 6 and obv.iloc[-1] > obv.iloc[-6])
+            recent_volume = float(volume.tail(3).mean())
+            prior_volume = float(volume.iloc[-6:-3].mean()) if len(volume) >= 6 else 0
+            volume_building = prior_volume > 0 and recent_volume >= prior_volume * 1.2
+            evidence = [obv_up, volume_building]
+            result["accumulation_signal_score"] = int(sum(evidence) / len(evidence) * 100)
+            result["accumulation_signal_status"] = (
+                "OBV rising + volume building" if all(evidence)
+                else "Partial accumulation evidence" if any(evidence)
+                else "No accumulation confirmation"
+            )
+            if any(evidence):
+                matches.append("Accumulation evidence developing")
+    result["multi_timeframe_alignment"] = (
+        bool(daily_bullish and intraday_bullish)
+        if daily_bullish is not None and intraday_bullish is not None else None
+    )
+    if result["multi_timeframe_alignment"] is True:
+        result["multi_timeframe_status"] = "Daily and intraday trends aligned bullish"
+        matches.append("Daily + intraday trend alignment")
+    elif result["multi_timeframe_alignment"] is False:
+        result["multi_timeframe_status"] = "Daily/intraday trend not fully aligned"
+    result["early_warning_matches"] = matches
+    return result
