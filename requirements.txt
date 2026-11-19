@@ -7,4 +7,4 @@ yfinance
 python-dotenv
 apscheduler
 webull-openapi-python-sdk
-
+exchange-calendars>=4.5,<5
