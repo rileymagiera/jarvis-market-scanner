@@ -2139,6 +2139,165 @@ def coinbase_crypto_market_data(symbol: str):
     return normalized, bars, "Coinbase Exchange public API"
 
 
+
+
+# Free public crypto feeds are collected in shadow mode only. They never enter
+# the price-selection, verification, scoring, BUY, or paper-trading paths.
+CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN = max(1, min(50, int(os.getenv("CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN", "20") or 20)))
+CRYPTO_SHADOW_HISTORY_PATH = os.getenv("CRYPTO_SHADOW_HISTORY_PATH", "crypto_shadow_comparison.json")
+
+
+def select_crypto_shadow_symbols(symbols: list[str], run_number=None, sample_size=None) -> list[str]:
+    unique = list(dict.fromkeys(str(symbol).upper() for symbol in symbols if str(symbol).strip()))
+    if not unique:
+        return []
+    size = max(1, min(len(unique), int(sample_size or CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN)))
+    try:
+        sequence = max(1, int(run_number))
+    except (TypeError, ValueError):
+        sequence = max(1, int(time.time() // 900))
+    offset = ((sequence - 1) * size) % len(unique)
+    return (unique[offset:] + unique[:offset])[:size]
+
+
+def crypto_shadow_quote(provider: str, symbol: str) -> dict:
+    """Fetch one free public spot ticker; return a timestamped normalized quote."""
+    base = crypto_base(symbol)
+    started = time.monotonic()
+    outcome = "failure"
+    error_detail = None
+    try:
+        if provider == "coinbase":
+            response = HTTP.get(
+                f"https://api.exchange.coinbase.com/products/{base}-USD/ticker",
+                timeout=(2, 5),
+            )
+            response.raise_for_status()
+            payload = response.json() or {}
+            price = safe_float(payload.get("price"))
+            stamp = pd.Timestamp(payload.get("time")) if payload.get("time") else None
+            bid, ask = safe_float(payload.get("bid")), safe_float(payload.get("ask"))
+        elif provider == "binance":
+            response = HTTP.get(
+                "https://api.binance.com/api/v3/ticker/24hr",
+                params={"symbol": base + "USDT"},
+                timeout=(2, 5),
+            )
+            response.raise_for_status()
+            payload = response.json() or {}
+            price = safe_float(payload.get("lastPrice"))
+            stamp = pd.to_datetime(payload.get("closeTime"), unit="ms", utc=True) if payload.get("closeTime") is not None else None
+            bid = ask = None
+        else:
+            raise ValueError(f"Unsupported crypto shadow provider: {provider}")
+        if price <= 0 or stamp is None or pd.isna(stamp):
+            raise RuntimeError(f"{provider} returned no usable price or exchange timestamp")
+        if stamp.tzinfo is None:
+            stamp = stamp.tz_localize("UTC")
+        stamp = stamp.tz_convert("UTC")
+        age = (datetime.now(timezone.utc) - stamp.to_pydatetime()).total_seconds()
+        if age < -30 or age > 300:
+            raise RuntimeError(f"{provider} quote stale or future-dated: {age:.0f}s")
+        spread_pct = ((ask - bid) / ((ask + bid) / 2) * 100) if bid > 0 and ask >= bid and ask > 0 else None
+        outcome = "success"
+        return {
+            "provider": provider, "symbol": symbol, "base": base,
+            "price": price, "as_of": stamp.isoformat(), "age_seconds": round(age, 1),
+            "bid": bid if bid > 0 else None, "ask": ask if ask > 0 else None,
+            "spread_pct": round(spread_pct, 4) if spread_pct is not None else None,
+            "status": "fresh",
+        }
+    except Exception as exc:
+        error_detail = f"{type(exc).__name__}: {str(exc)[:160]}"
+        raise
+    finally:
+        record_scan_metric(f"crypto_shadow_{provider}", time.monotonic() - started, outcome, error=error_detail)
+
+
+def compare_crypto_shadow_quote(provider: str, symbol: str, primary_price, primary_as_of, quote=None, error=None) -> dict:
+    primary = safe_float(primary_price)
+    result = {
+        "provider": provider, "symbol": symbol,
+        "primary_price": primary if primary > 0 else None,
+        "primary_as_of": primary_as_of,
+        "shadow_price": quote.get("price") if quote else None,
+        "shadow_as_of": quote.get("as_of") if quote else None,
+        "shadow_age_seconds": quote.get("age_seconds") if quote else None,
+        "spread_pct": quote.get("spread_pct") if quote else None,
+        "difference_pct": None,
+        "status": "unavailable" if error or not quote else "primary_unavailable",
+        "error": str(error)[:180] if error else None,
+    }
+    if quote and primary > 0:
+        midpoint = (primary + quote["price"]) / 2
+        if midpoint > 0:
+            result["difference_pct"] = round(abs(primary - quote["price"]) / midpoint * 100, 4)
+            result["status"] = "comparable"
+    return result
+
+
+def persist_crypto_shadow_history(records: list[dict], timestamp: str, run_id=None, path=None) -> dict:
+    history_path = Path(path or CRYPTO_SHADOW_HISTORY_PATH)
+    try:
+        history = json.loads(history_path.read_text(encoding="utf-8"))
+        if not isinstance(history, dict):
+            history = {}
+    except (OSError, json.JSONDecodeError):
+        history = {}
+    run_key = str(run_id or timestamp)
+    existing = [x for x in history.get("records", []) if isinstance(x, dict) and str(x.get("run_id") or "") != run_key]
+    cutoff = datetime.now(timezone.utc) - timedelta(days=14)
+    retained = []
+    for item in existing + [{**x, "scan_timestamp": timestamp, "run_id": run_key} for x in records if isinstance(x, dict)]:
+        try:
+            observed = datetime.fromisoformat(str(item.get("scan_timestamp")).replace("Z", "+00:00"))
+            if observed.tzinfo is None:
+                observed = observed.replace(tzinfo=timezone.utc)
+        except (TypeError, ValueError):
+            continue
+        if observed >= cutoff:
+            retained.append(item)
+    retained = retained[-20000:]
+    providers = {}
+    for name in ("coinbase", "binance"):
+        rows = [x for x in retained if x.get("provider") == name]
+        comparable = [safe_float(x.get("difference_pct"), np.nan) for x in rows if x.get("status") == "comparable"]
+        comparable = [x for x in comparable if np.isfinite(x)]
+        providers[name] = {
+            "samples": len(rows), "comparable": len(comparable),
+            "unavailable": sum(x.get("status") == "unavailable" for x in rows),
+            "mean_difference_pct": round(float(np.mean(comparable)), 4) if comparable else None,
+            "median_difference_pct": round(float(np.median(comparable)), 4) if comparable else None,
+            "within_0_5_pct": sum(x <= 0.5 for x in comparable),
+        }
+    result = {"summary": {"record_count": len(retained), "providers": providers, "retention_days": 14},
+              "recent_records": retained[-100:], "updated_at": timestamp}
+    history_path.write_text(json.dumps({"schema_version": 1, **result, "records": retained}, indent=2) + "\n", encoding="utf-8")
+    return result
+
+
+def collect_crypto_shadow_comparisons(crypto_results: list[dict], run_number=None, run_id=None) -> dict:
+    selected = select_crypto_shadow_symbols([x.get("symbol") for x in crypto_results], run_number)
+    by_symbol = {str(x.get("symbol", "")).upper(): x for x in crypto_results}
+    records = []
+    for symbol in selected:
+        item = by_symbol.get(symbol, {})
+        for provider in ("coinbase", "binance"):
+            quote, error = None, None
+            try:
+                quote = crypto_shadow_quote(provider, symbol)
+            except Exception as exc:
+                error = f"{type(exc).__name__}: {str(exc)[:160]}"
+            records.append(compare_crypto_shadow_quote(
+                provider, symbol, item.get("price"), item.get("price_as_of"), quote, error
+            ))
+    history = persist_crypto_shadow_history(records, now_iso(), run_id)
+    return {"mode": "shadow_only", "sample_limit": CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN,
+            "symbols_sampled": len(selected), "records_this_scan": len(records),
+            "summary": history["summary"], "recent_records": history["recent_records"]}
+
+
+
 def kraken_crypto_market_data(symbol: str):
     """Primary public market data from Kraken Spot REST API."""
     base = crypto_base(symbol)
@@ -2581,6 +2740,7 @@ def data_health_data():
         "price_status": {"all": status_counts(candidates), "stocks": status_counts(stock), "crypto": status_counts(crypto)},
         "failure_reasons": failure_reasons,
         "webull_yahoo_comparison": detail.get("webull_yahoo_comparison") or {},
+        "crypto_shadow_comparison": detail.get("crypto_shadow_comparison") or {},
         "data_gaps": {"missing_price": len(missing_price), "missing_source": len(missing_source),
                       "missing_timestamp": len(missing_timestamp), "older_than_15_minutes": len(stale)},
         "field_coverage": {
@@ -3139,6 +3299,10 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
     for item in results:
         classify_setup(item, regime["score_adjustment"], regime)
     results.sort(key=lambda item: item["score"], reverse=True)
+    crypto_shadow_comparison = collect_crypto_shadow_comparisons(
+        crypto_results, os.getenv("GITHUB_RUN_NUMBER"), os.getenv("GITHUB_RUN_ID")
+    ) if crypto_results else {"mode": "shadow_only", "sample_limit": CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN,
+                               "symbols_sampled": 0, "records_this_scan": 0, "summary": {}, "recent_records": []}
     provider_activity = scan_metrics_snapshot()
     alpaca_status_counts = {}
     for item in stock_results:
@@ -3185,6 +3349,7 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
                 "provider_activity": provider_activity.get("providers", {}).get("alpaca_snapshot_batch", {"calls": 0, "failures": 0, "total_seconds": 0.0, "max_seconds": 0.0, "error_counts": {}}),
             },
             "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history, invalid market data, or a provider error; low scores alone no longer remove otherwise valid discoveries.",
+            "crypto_shadow_comparison": crypto_shadow_comparison,
             "webull_quote_status": "shadow_mode" if WEBULL_SHADOW_MODE else ("enabled" if WEBULL_QUOTE_ENABLED else "disabled_pending_authorization"),
             "webull_quote_note": (
                 "Shadow mode only: read-only Webull quotes are sampled and compared with Yahoo; they do not affect price selection, verification, scoring, BUY gates, or paper trades."
