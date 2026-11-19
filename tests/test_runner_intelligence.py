@@ -69,6 +69,11 @@ class RunnerIntelligenceTests(unittest.TestCase):
                 "score": 70, "readiness_pct": 60, "failed_gate_keys": ["volume", "breakout"],
                 "price_verified": True, "max_favorable_since_pct": 12.0,
                 "max_adverse_since_pct": -4.0, "follow_up_observations": 3,
+            }, {
+                "at": "2026-01-01T00:05:00+00:00", "stage": "EARLY SETUP",
+                "score": 72, "readiness_pct": 70, "failed_gate_keys": ["volume"],
+                "price_verified": True, "max_favorable_since_pct": 0.0,
+                "max_adverse_since_pct": 0.0, "follow_up_observations": 0,
             }],
             "catalyst_lifecycle_status": "CATALYST + DILUTION RISK",
             "catalyst_dilution_history": [{
