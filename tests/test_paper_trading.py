@@ -204,3 +204,19 @@ def test_unverified_followup_cannot_mark_open_position_to_market_or_trigger_stop
     assert not [event for event in account["ledger"] if event["type"] == "SELL"]
     summary = paper_trading.account_summary(account)
     assert summary["equity"] == round(cash_after_entry + account["positions"][0]["quantity"] * 10.0, 2)
+
+
+def test_account_summary_reads_coinbase_allowance_from_explicit_utc_month():
+    account = {
+        "starting_cash": 250.0,
+        "cash": 250.0,
+        "positions": [],
+        "closed_trades": [],
+        "coinbase_one_monthly_volume": {"2026-11": 500.0, "2026-12": 120.0},
+    }
+    summary = paper_trading.account_summary(
+        account, datetime(2026, 12, 1, 1, 0, tzinfo=timezone.utc)
+    )
+
+    assert summary["coinbase_one_monthly_volume"] == 120.0
+    assert summary["coinbase_one_remaining_allowance"] == 380.0
