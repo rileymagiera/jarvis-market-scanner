@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from typing import Any
 import math
 import pandas as pd
+import numpy as np
 
 
 SECTOR_ETFS = {
