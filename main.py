@@ -14,7 +14,7 @@ import pandas as pd
 import requests
 from io import StringIO
 import yfinance as yf
-from early_runner import compute_early_runner_metrics, compute_early_warning_metrics, compute_stock_market_breadth, rank_stock_universe_strength, summarize_crypto_cross_section, set_crypto_relative_strength_coverage, build_data_quality_record, apply_entry_quality_gate
+from early_runner import compute_early_runner_metrics, compute_early_warning_metrics, compute_stock_market_breadth, rank_stock_universe_strength, summarize_crypto_cross_section, set_crypto_relative_strength_coverage, build_data_quality_record, apply_entry_quality_gate, has_session_aware_early_runner_baseline
 from buy_intelligence import build_buy_intelligence, blend_buy_score
 from paper_trading import load_account as load_paper_account, account_summary as summarize_paper_account
 from fastapi import FastAPI, Query, Header, HTTPException, Depends
@@ -3465,7 +3465,7 @@ def research_data():
             source="temporary_render_fallback"
     records=list(paper.values()) if isinstance(paper,dict) else []
     # Exclude stock outcomes sampled from EOD, historical, stale, or unknown price data.
-    outcome_records=[r for r in records if r.get("asset_type") != "stock" or (r.get("data_quality") or {}).get("data_type") == "live"]
+    outcome_records=[r for r in records if has_session_aware_early_runner_baseline(r)]
     fields=("relative_strength_vs_spy","relative_strength_vs_iwm","rs_rank","intraday_rvol_same_time",
             "same_time_relative_volume","anchored_vwap_status","anchored_vwap","opening_range_status","adx","plus_di","minus_di","adx_dmi_status",
             "spread_pct","dollar_volume","liquidity_status","volatility_contraction_status","atr_contraction_pct","base_tightness_pct",
@@ -3499,8 +3499,6 @@ def research_data():
     early_runner_cohorts = {}
     for label, predicate in cohort_rules.items():
         sample = [r for r in outcome_records if isinstance(r, dict)
-                  and r.get("price_validation_status") != "unverified"
-                  and isinstance(r.get("early_runner_initial_feature_snapshot"), dict)
                   and isinstance((r.get("early_runner_outcomes") or {}).get("5d"), dict)
                   and predicate(r.get("early_runner_initial_feature_snapshot") or {})]
         returns = [safe_float((r.get("early_runner_outcomes") or {}).get("5d", {}).get("return_pct"), 0) for r in sample]
