@@ -443,6 +443,11 @@ def update_paper_tracker(candidates, now):
                 "catalyst_labels", "catalyst_dilution_status", "dilution_flags",
                 "catalyst_headline_count", "early_runner_research_score", "early_runner_score_components", "buy_readiness",
                 "crqs", "crqs_tier", "crqs_components", "crqs_data_coverage", "crqs_entry_score", "crqs_entry_penalty", "crqs_features",
+            "breakout_proximity_pct", "breakout_reference_price", "breakout_proximity_status",
+            "volatility_compression_percentile", "liquidity_sweep_detected",
+            "liquidity_sweep_status", "accumulation_signal_score",
+            "accumulation_signal_status", "multi_timeframe_alignment",
+            "multi_timeframe_status", "early_warning_matches",
         )
         for field in research_fields:
             record[field] = item.get(field)
