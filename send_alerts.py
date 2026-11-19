@@ -207,6 +207,9 @@ def update_paper_tracker(candidates, now):
             record["market_session"] = item.get("market_session")
             record["price_source"] = item.get("data_source") or item.get("price_source")
             record["price_as_of"] = item.get("price_as_of")
+            record["price_checked_at"] = item.get("price_checked_at") or now.isoformat()
+            record["price_timestamp_type"] = item.get("price_timestamp_type")
+            record["price_session_date"] = item.get("price_session_date")
             record["price_freshness"] = item.get("price_freshness")
             record["data_quality"] = item.get("data_quality") or {}
             record["daily_data_quality"] = item.get("daily_data_quality") or {}
@@ -652,6 +655,9 @@ def update_buy_signal_history(candidates, now, scan_errors=None):
                 "market_regime": item.get("market_regime"),
                 "price_source": item.get("data_source") or item.get("price_source"),
                 "price_as_of": item.get("price_as_of"),
+                "price_checked_at": item.get("price_checked_at"),
+                "price_timestamp_type": item.get("price_timestamp_type"),
+                "price_session_date": item.get("price_session_date"),
                 "reasons": (item.get("stage_reasons") or [])[:6],
                 "risk_flags": (item.get("risk_flags") or [])[:8],
                 "score_components": item.get("score_components") or {},
@@ -669,6 +675,7 @@ def update_buy_signal_history(candidates, now, scan_errors=None):
         change = (price / float(record["entry_price"]) - 1) * 100
         record["latest_price"] = price
         record["latest_price_as_of"] = item.get("price_as_of")
+        record["latest_price_checked_at"] = item.get("price_checked_at") or now.isoformat()
         record["latest_observed_at"] = now.isoformat()
         record["latest_return_pct"] = round(change, 3)
         record["max_favorable_pct"] = round(max(float(record.get("max_favorable_pct") or 0), change), 3)
@@ -1029,6 +1036,7 @@ def main():
             f'{item.get("asset_type", "asset").upper()} {item.get("symbol", "")} | Score {item.get("score", "n/a")}/100 | {item.get("stage", item.get("signal", "WATCH"))}',
             f'Market regime: {item.get("market_regime", market.get("regime", "unavailable"))} | Raw score: {item.get("raw_score", item.get("score", "n/a"))} | Regime adjustment: {item.get("market_score_adjustment", 0)}',
             f'Price: {item.get("price", "n/a")} | Daily/24h change: {item.get("daily_change_pct", "n/a")}% | Relative volume: {item.get("relative_volume", "n/a")}x',
+            f'Price time: {item.get("price_session_date") or item.get("price_as_of", "n/a")} | Jarvis checked: {item.get("price_checked_at", "n/a")} | Timestamp type: {item.get("price_timestamp_type", "provider timestamp")}',
             f'Intraday 15m change: {item.get("intraday_change_pct", "n/a")}% | Intraday relative volume: {item.get("intraday_relative_volume", "n/a")}x | Intraday breakout: {item.get("intraday_breakout", False)}',
             f'Breakout: {item.get("breakout_20d", item.get("breakout_24h", False))} | Source: {item.get("data_source", "n/a")}',
             f'History-learning bonus: +{item.get("history_runner_learning_score", 0)}/10 | Matched features: {[m.get("feature") for m in (item.get("history_runner_learning") or {}).get("matched_features", [])] or "no qualified historical matches"}',
