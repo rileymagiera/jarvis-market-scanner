@@ -369,7 +369,7 @@ jobs:
 
             while IFS= read -r path; do
               case "$path" in
-                alert_state.json|paper_tracker.json|paper_tracker_lifetime.json|buy_signal_history.json|paper_trading_state.json|scan_diagnostics.json|scan_metadata.json)
+                alert_state.json|paper_tracker.json|paper_tracker_lifetime.json|buy_signal_history.json|paper_trading_state.json|scan_diagnostics.json|scan_metadata.json|provider_usage_history.json)
                   echo "Resolving generated state conflict with this run's completed scan: $path"
                   git checkout --theirs -- "$path"
                   git add -f "$path"
