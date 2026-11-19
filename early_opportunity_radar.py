@@ -52,7 +52,8 @@ def _classify(item):
     cumulative_rvol = _number(item.get("cumulative_rvol_same_time"))
     relative_volume = _number(item.get("relative_volume"))
     hourly_change = _number(item.get("change_1h_pct"))
-    readiness = _number((item.get("buy_readiness") or {}).get("percent"))
+    readiness_data = item.get("buy_readiness") if isinstance(item.get("buy_readiness"), dict) else {}
+    readiness = _number(readiness_data.get("percent"))
     stage = str(item.get("stage") or item.get("signal") or "").upper()
 
     if breakout:
