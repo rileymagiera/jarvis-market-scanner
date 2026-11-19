@@ -611,12 +611,14 @@ MASSIVE_REQUESTS_THIS_PROCESS = 0
 MASSIVE_MAX_REQUESTS_PER_SCAN = 3
 SCAN_METRICS_LOCK = threading.Lock()
 SCAN_METRICS = {}
+HTTP_STATUS_COUNTS = {}
 
 
 def reset_scan_metrics() -> None:
-    global SCAN_METRICS, MASSIVE_REQUESTS_THIS_PROCESS, STOOQ_QUOTE_STATE
+    global SCAN_METRICS, HTTP_STATUS_COUNTS, MASSIVE_REQUESTS_THIS_PROCESS, STOOQ_QUOTE_STATE
     with SCAN_METRICS_LOCK:
         SCAN_METRICS = {}
+        HTTP_STATUS_COUNTS = {}
     with MASSIVE_REQUEST_LOCK:
         MASSIVE_REQUESTS_THIS_PROCESS = 0
     with STOOQ_QUOTE_STATE_LOCK:
@@ -635,6 +637,37 @@ def record_scan_metric(name: str, elapsed: float, outcome: str = "success", erro
             metric["error_counts"][label] = metric["error_counts"].get(label, 0) + 1
 
 
+def record_http_response(response, *args, **kwargs):
+    """Capture HTTP status/latency without logging query strings, credentials, or response bodies."""
+    try:
+        host = (response.url.split("/", 3)[2] if response.url and "://" in response.url else "unknown").lower()
+        provider = {
+            "api.binance.com": "binance",
+            "api.kraken.com": "kraken",
+            "api.coinbase.com": "coinbase",
+            "api.exchange.coinbase.com": "coinbase_exchange",
+            "data.alpaca.markets": "alpaca",
+            "api.massive.com": "massive",
+            "stooq.com": "stooq",
+        }.get(host, host.replace(".", "_")[:48])
+        status = int(response.status_code)
+        elapsed = response.elapsed.total_seconds() if response.elapsed is not None else 0.0
+        retry_after = response.headers.get("Retry-After")
+        outcome = "failure" if status >= 400 else "success"
+        detail = f"HTTP {status}" + (f"; Retry-After={retry_after}" if retry_after else "")
+        with SCAN_METRICS_LOCK:
+            key = f"{provider}:{status}"
+            HTTP_STATUS_COUNTS[key] = HTTP_STATUS_COUNTS.get(key, 0) + 1
+        record_scan_metric(f"http_{provider}_status_{status}", elapsed, outcome, detail if status >= 400 else None)
+    except Exception:
+        # Diagnostics must never interrupt or alter a market-data request.
+        return response
+    return response
+
+
+HTTP.hooks["response"].append(record_http_response)
+
+
 ENRICHMENT_EXECUTOR = ThreadPoolExecutor(max_workers=4, thread_name_prefix="jarvis-enrichment")
 
 
@@ -651,14 +684,19 @@ def bounded_enrichment_call(callable_, timeout_seconds: float = 8.0):
 def scan_metrics_snapshot() -> dict:
     with SCAN_METRICS_LOCK:
         return {
-            name: {
-                "calls": values["calls"],
-                "failures": values["failures"],
-                "total_seconds": round(values["total_seconds"], 2),
-                "max_seconds": round(values["max_seconds"], 2),
-                "error_counts": dict(values.get("error_counts", {})),
-            }
-            for name, values in SCAN_METRICS.items()
+            "provider_http_status_counts": dict(HTTP_STATUS_COUNTS),
+            "provider_http_429_count": sum(count for key, count in HTTP_STATUS_COUNTS.items() if key.endswith(":429")),
+            "provider_http_5xx_count": sum(count for key, count in HTTP_STATUS_COUNTS.items() if int(key.rsplit(":", 1)[-1]) >= 500),
+            "providers": {
+                name: {
+                    "calls": values["calls"],
+                    "failures": values["failures"],
+                    "total_seconds": round(values["total_seconds"], 2),
+                    "max_seconds": round(values["max_seconds"], 2),
+                    "error_counts": dict(values.get("error_counts", {})),
+                }
+                for name, values in SCAN_METRICS.items()
+            },
         }
 
 
@@ -3083,7 +3121,7 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
                 "credentials_configured": bool(os.getenv("ALPACA_API_KEY", "").strip() and os.getenv("ALPACA_API_SECRET", "").strip()),
                 "feed": os.getenv("ALPACA_STOCK_DATA_FEED", "iex").strip().lower() or "iex",
                 "candidate_status_counts": alpaca_status_counts,
-                "provider_activity": provider_activity.get("alpaca_snapshot_batch", {"calls": 0, "failures": 0, "total_seconds": 0.0, "max_seconds": 0.0, "error_counts": {}}),
+                "provider_activity": provider_activity.get("providers", {}).get("alpaca_snapshot_batch", {"calls": 0, "failures": 0, "total_seconds": 0.0, "max_seconds": 0.0, "error_counts": {}}),
             },
             "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history, invalid market data, or a provider error; low scores alone no longer remove otherwise valid discoveries.",
             "webull_quote_status": "enabled" if WEBULL_QUOTE_ENABLED else "disabled_pending_authorization",
@@ -3098,6 +3136,8 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
                 "market_conditions_seconds": round(market_conditions_seconds, 2),
                 "total_seconds": round(time.monotonic() - scan_started, 2),
                 "provider_activity": provider_activity,
+                "http_rate_limit_events": provider_activity.get("provider_http_429_count", 0),
+                "http_server_error_events": provider_activity.get("provider_http_5xx_count", 0),
             },
             "massive_fallback_policy": {
                 "max_requests_per_scan": MASSIVE_MAX_REQUESTS_PER_SCAN,
