@@ -131,3 +131,18 @@ def test_coinbase_one_monthly_volume_rolls_into_new_calendar_month():
     assert result["month"] == "2026-12"
     assert result["eligible_volume"] == 25.0
     assert result["remaining_allowance"] == 475.0
+
+
+def test_position_sizing_keeps_stop_loss_risk_within_one_percent_after_fees(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    account = paper_trading.update_account(
+        [_candidate(10.0)], [_signal()], datetime.now(timezone.utc)
+    )
+    position = account["positions"][0]
+    quantity = position["quantity"]
+    entry_fee = position["entry_fee"]
+    stop_exit_fee = paper_trading.calculate_trade_fee(
+        "stock", "sell", 9.0 * quantity, quantity
+    )["total"]
+    modeled_stop_loss = quantity * (10.0 - 9.0) + entry_fee + stop_exit_fee
+    assert modeled_stop_loss <= 2.5
