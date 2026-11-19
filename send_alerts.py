@@ -103,6 +103,38 @@ def _history_context(item):
     return reasons, catalysts
 
 
+def update_universe_rs_rank_history(record, item, now):
+    """Keep one daily cross-sectional rank sample and expose a 5-day rank change."""
+    rank = item.get("universe_rs_rank")
+    try:
+        rank = int(rank) if rank is not None else None
+    except (TypeError, ValueError, OverflowError):
+        rank = None
+    history = record.get("universe_rs_rank_history") or []
+    history = [x for x in history if isinstance(x, dict) and x.get("at") and x.get("rank") is not None]
+    if rank is not None:
+        today = now.date().isoformat()
+        sample = {"at": now.isoformat(), "rank": rank,
+                  "percentile": item.get("universe_rs_percentile")}
+        if history and str(history[-1].get("at", ""))[:10] == today:
+            history[-1] = sample
+        else:
+            history.append(sample)
+    history = history[-10:]
+    record["universe_rs_rank_history"] = history
+    prior = []
+    for sample in history[:-1]:
+        try:
+            age_days = (now - datetime.fromisoformat(str(sample["at"]).replace("Z", "+00:00"))).total_seconds() / 86400
+            if 4 <= age_days <= 8:
+                prior.append((abs(age_days - 5), int(sample["rank"])))
+        except (TypeError, ValueError, KeyError):
+            continue
+    record["universe_rs_rank_change_5d"] = (
+        prior[0][1] - rank if prior and rank is not None else None
+    )
+
+
 def update_paper_tracker(candidates, now):
     """Track recommendations with 365-day detail and cumulative lifetime checkpoint stats."""
     try:
@@ -270,7 +302,7 @@ def update_paper_tracker(candidates, now):
             record["latest_price"] = price
             record["currently_surfaced"] = True
             research_fields = (
-                "relative_strength_vs_spy", "relative_strength_vs_iwm", "rs_rank",
+                "relative_strength_vs_spy", "relative_strength_vs_iwm", "rs_rank", "universe_rs_rank", "universe_rs_percentile", "relative_strength_vs_universe_median_pct", "universe_rs_sample_size", "market_breadth", "weekly_confirmation", "weekly_confirmation_status", "weekly_breakout_confluence", "breakout_level_class", "breakout_level_reference_price", "breakout_level_lookback_sessions", "universe_rs_rank_change_5d",
                 "intraday_rvol_same_time", "same_time_relative_volume",
                 "anchored_vwap", "anchored_vwap_status", "opening_range_high", "opening_range_low",
                 "opening_range_status", "adx", "plus_di", "minus_di", "adx_dmi_status",
@@ -296,6 +328,7 @@ def update_paper_tracker(candidates, now):
             )
             for field in research_fields:
                 record[field] = item.get(field)
+            update_universe_rs_rank_history(record, item, now)
             record["research_feature_snapshot"] = {field: item.get(field) for field in research_fields}
             record["research_signal_matches"] = item.get("research_signal_matches") or []
             record["buy_readiness"] = item.get("buy_readiness") or {}
@@ -459,6 +492,7 @@ def update_paper_tracker(candidates, now):
         )
         for field in research_fields:
             record[field] = item.get(field)
+        update_universe_rs_rank_history(record, item, now)
         record["research_signal_matches"] = item.get("research_signal_matches") or item.get("research_signals") or []
         record["early_runner_signal_matches"] = item.get("early_runner_signal_matches") or []
         record["early_runner_research_score"] = item.get("early_runner_research_score")
