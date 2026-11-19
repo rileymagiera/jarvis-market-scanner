@@ -19,6 +19,7 @@ DEFAULT_CRYPTO_ORDER_TYPE = "simple_app"
 MAX_OPEN_POSITIONS = 4
 MAX_POSITION_FRACTION = 0.25
 RISK_FRACTION = 0.01
+PRICE_FRESHNESS_STALE_SECONDS = 30 * 60
 
 
 def _num(value, default=0.0):
@@ -27,6 +28,19 @@ def _num(value, default=0.0):
         return number if math.isfinite(number) else default
     except (TypeError, ValueError, OverflowError):
         return default
+
+
+def _timestamp_age_seconds(value, now):
+    """Return the age of an ISO timestamp in seconds, or None when unavailable."""
+    if not value:
+        return None
+    try:
+        stamp = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        if stamp.tzinfo is None:
+            stamp = stamp.replace(tzinfo=timezone.utc)
+        return max(0.0, (now.astimezone(timezone.utc) - stamp.astimezone(timezone.utc)).total_seconds())
+    except (TypeError, ValueError, OverflowError):
+        return None
 
 
 def calculate_trade_fee(asset_type, side, notional, quantity=0.0, order_type=None):
@@ -220,13 +234,21 @@ def update_account(candidates, buy_signals, now):
     remaining = []
     for position in account["positions"]:
         item = candidate_by_key.get((position["asset_type"], position["symbol"]))
-        if not item or item.get("price_validation_passed") is not True:
+        position["price_update_checked_at"] = now.isoformat()
+        if not item:
+            position["price_update_status"] = "not_in_latest_scan"
+            remaining.append(position)
+            continue
+        if item.get("price_validation_passed") is not True:
+            position["price_update_status"] = "latest_scan_price_unverified"
             remaining.append(position)
             continue
         price = _num(item.get("price"))
         if price <= 0:
+            position["price_update_status"] = "invalid_latest_scan_price"
             remaining.append(position)
             continue
+        position["price_update_status"] = "live_verified"
         position["latest_price"] = price
         position["latest_price_as_of"] = item.get("price_as_of")
         position["latest_observed_at"] = now.isoformat()
@@ -414,6 +436,17 @@ def update_account(candidates, buy_signals, now):
 
 def account_summary(account, now=None):
     positions = account.get("positions") or []
+    now = now or datetime.now(timezone.utc)
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=timezone.utc)
+    for position in positions:
+        age = _timestamp_age_seconds(position.get("latest_price_as_of"), now)
+        position["price_age_seconds"] = round(age) if age is not None else None
+        position["price_freshness"] = (
+            "UNKNOWN" if age is None else
+            "STALE" if age > PRICE_FRESHNESS_STALE_SECONDS else
+            "FRESH"
+        )
     market_value = sum(_num(p.get("quantity")) * _num(p.get("latest_price") or p.get("entry_price")) for p in positions)
     unrealized = sum(
         _num(p.get("quantity")) * (_num(p.get("latest_price") or p.get("entry_price")) - _num(p.get("entry_price")))
@@ -435,9 +468,6 @@ def account_summary(account, now=None):
         )["total"] for p in positions
     )
     equity = _num(account.get("cash")) + market_value - estimated_exit_fees
-    now = now or datetime.now(timezone.utc)
-    if now.tzinfo is None:
-        now = now.replace(tzinfo=timezone.utc)
     month = now.astimezone(timezone.utc).strftime("%Y-%m")
     coinbase_volume = _num((account.get("coinbase_one_monthly_volume") or {}).get(month))
     risk_off_open = [p for p in positions if p.get("strategy") == "risk_off_experimental"]
@@ -457,6 +487,8 @@ def account_summary(account, now=None):
         "unrealized_pnl": round(unrealized, 2),
         "estimated_exit_fees": round(estimated_exit_fees, 2),
         "open_positions": len(positions),
+        "stale_price_positions": sum(1 for p in positions if p.get("price_freshness") == "STALE"),
+        "unknown_price_positions": sum(1 for p in positions if p.get("price_freshness") == "UNKNOWN"),
         "closed_trades": len(account.get("closed_trades") or []),
         "risk_off_open_positions": len(risk_off_open),
         "risk_off_closed_trades": len(risk_off_closed),
