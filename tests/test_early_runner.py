@@ -1,7 +1,7 @@
 import unittest
 import pandas as pd
 
-from early_runner import compute_early_runner_metrics, summarize_crypto_cross_section, set_crypto_relative_strength_coverage, build_data_quality_record, apply_entry_quality_gate
+from early_runner import compute_early_runner_metrics, compute_early_warning_metrics, summarize_crypto_cross_section, set_crypto_relative_strength_coverage, build_data_quality_record, apply_entry_quality_gate
 
 
 class EarlyRunnerMetricsTests(unittest.TestCase):
@@ -157,3 +157,37 @@ class CryptoCrossSectionTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class EarlyWarningMetricsTests(unittest.TestCase):
+    def test_breakout_proximity_uses_prior_twenty_session_high(self):
+        closes = [10.0 + i * 0.01 for i in range(25)]
+        daily = pd.DataFrame({
+            "Close": closes,
+            "High": [x + 0.10 for x in closes],
+            "Low": [x - 0.10 for x in closes],
+            "Volume": [1000] * len(closes),
+        })
+        result = compute_early_warning_metrics(daily, pd.DataFrame(), 10.40)
+        self.assertIsNotNone(result["breakout_proximity_pct"])
+        self.assertIsNotNone(result["breakout_reference_price"])
+        self.assertIn("20-session high", result["breakout_proximity_status"])
+
+    def test_liquidity_sweep_requires_wick_below_and_close_back_above(self):
+        daily = pd.DataFrame()
+        intraday = pd.DataFrame({
+            "High": [10.2, 10.3, 10.2, 10.4, 10.3, 10.5, 10.4, 10.5],
+            "Low":  [10.0, 10.1, 10.0, 10.2, 10.1, 10.2, 10.1, 9.95],
+            "Close":[10.1, 10.2, 10.1, 10.3, 10.2, 10.4, 10.3, 10.15],
+            "Volume":[100, 110, 105, 120, 115, 130, 125, 180],
+        })
+        result = compute_early_warning_metrics(daily, intraday, 10.15)
+        self.assertTrue(result["liquidity_sweep_detected"])
+        self.assertIn("Downside liquidity sweep reclaimed", result["early_warning_matches"])
+
+    def test_missing_data_stays_unknown_not_false(self):
+        result = compute_early_warning_metrics(pd.DataFrame(), pd.DataFrame(), None)
+        self.assertIsNone(result["liquidity_sweep_detected"])
+        self.assertIsNone(result["multi_timeframe_alignment"])
+        self.assertIsNone(result["breakout_proximity_pct"])
+        self.assertEqual(result["early_warning_matches"], [])
