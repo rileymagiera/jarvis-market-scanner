@@ -66,6 +66,11 @@
       "score": 11,
       "status": "PREMARKET VERIFIED"
     },
+    "GROV": {
+      "alerted_at": "2026-11-19T21:17:46.138156+00:00",
+      "score": 21,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
     "IONQ": {
       "alerted_at": "2026-11-19T19:47:29.710708+00:00",
       "score": 11,
@@ -231,5 +236,10 @@
     "alerted_at": "2026-11-19T21:04:35.731361+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 62
+  },
+  "stock:YMM": {
+    "alerted_at": "2026-11-19T21:17:46.138156+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 76
   }
 }
