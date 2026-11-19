@@ -68,3 +68,9 @@ def test_discovery_analysis_identifies_runner_without_buy_stage():
     assert result["runner_20pct_count"] == 1
     assert len(result["potential_missed_20pct_runners"]) == 1
     assert result["potential_missed_20pct_runners"][0]["first_10pct_crossing"]["stage_at_cross"] == "DEVELOPING SETUP"
+
+
+def test_official_buy_history_counts_signal_rows_not_object_keys():
+    report = analyze({}, {}, {"active_by_key": {}, "signals": []})
+    assert report["official_buy_history_count"] == 0
+    assert report["official_buy_symbols"] == []
