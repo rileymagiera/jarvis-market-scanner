@@ -14,7 +14,7 @@ import pandas as pd
 import requests
 from io import StringIO
 import yfinance as yf
-from early_runner import compute_early_runner_metrics, compute_early_warning_metrics, summarize_crypto_cross_section, set_crypto_relative_strength_coverage, build_data_quality_record, apply_entry_quality_gate
+from early_runner import compute_early_runner_metrics, compute_early_warning_metrics, compute_stock_market_breadth, rank_stock_universe_strength, summarize_crypto_cross_section, set_crypto_relative_strength_coverage, build_data_quality_record, apply_entry_quality_gate
 from buy_intelligence import build_buy_intelligence, blend_buy_score
 from paper_trading import load_account as load_paper_account, account_summary as summarize_paper_account
 from fastapi import FastAPI, Query, Header, HTTPException, Depends
@@ -356,7 +356,7 @@ def stooq_daily_history(symbol: str) -> pd.DataFrame:
     frame = frame.rename(columns={name: name.title() for name in required})
     for column in ("Open", "High", "Low", "Close", "Volume"):
         frame[column] = pd.to_numeric(frame[column], errors="coerce")
-    frame = frame.dropna(subset=["Close", "Volume"]).sort_values("Date").tail(90)
+    frame = frame.dropna(subset=["Close", "Volume"]).sort_values("Date").tail(756)
     if len(frame) < 22 or safe_float(frame["Volume"].tail(20).mean()) <= 0:
         raise RuntimeError(f"Stooq returned insufficient usable daily history for {symbol}")
     return frame.reset_index(drop=True)
@@ -808,7 +808,7 @@ def stock_daily_history(symbol: str, ticker=None):
     ticker = ticker or yf.Ticker(symbol)
     started = time.monotonic()
     try:
-        frame = ticker.history(period="3mo", interval="1d", auto_adjust=True, timeout=8)
+        frame = ticker.history(period="2y", interval="1d", auto_adjust=True, timeout=8)
         if not frame.empty and len(frame.dropna(subset=["Close", "Volume"])) >= 22:
             record_scan_metric("yahoo_daily_history", time.monotonic() - started)
             return frame, "Yahoo Finance"
@@ -3018,6 +3018,11 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
                        key=lambda x: x["relative_strength_vs_spy"])
     for rank, item in enumerate(ranked_rs, 1):
         item["rs_rank"] = round(rank/len(ranked_rs)*100, 1) if ranked_rs else None
+    # Additive stock-universe context; research-only and never changes BUY gates.
+    stock_universe_strength = rank_stock_universe_strength(stock_items)
+    stock_market_breadth = compute_stock_market_breadth(stock_items)
+    for item in stock_items:
+        item["market_breadth"] = stock_market_breadth
     # Crypto cross-sectional intelligence uses Kraken's full ticker universe,
     # not the filtered list of symbols that happened to qualify as candidates.
     crypto_items = [x for x in results if x.get("asset_type") == "crypto"]
@@ -3128,6 +3133,8 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
     return {
         **response_payload(asset, stock_symbols + crypto_symbols, results, errors),
         "market_conditions": regime,
+        "stock_market_breadth": stock_market_breadth,
+        "stock_universe_strength": stock_universe_strength,
         "stock_candidates": len(stock_results),
         "crypto_candidates": len(crypto_results),
         "diagnostics": {
@@ -3259,7 +3266,9 @@ for(const [name,c] of Object.entries(cohorts))outcomeCards.push([name,c.observat
 document.getElementById("researchOutcomes").innerHTML=outcomeCards.map(x=>'<div class="metric"><div class="k">'+esc(x[0])+'</div><strong>'+esc(x[1])+'</strong></div>').join("");
 const coverage=d.research_field_coverage||{};
 const featureDefs=[
-["Cross-sectional relative strength","Five-day performance versus SPY/IWM plus percentile rank across scanned stocks.",["relative_strength_vs_spy","relative_strength_vs_iwm","rs_rank"]],
+["Cross-sectional relative strength","Five-day return percentile versus the current scanned stock universe, SPY and IWM; rank trend appears after five days of history.",["relative_strength_vs_spy","relative_strength_vs_iwm","rs_rank","universe_rs_percentile","universe_rs_rank_change_5d"]],
+ ["Market breadth context","Share of scanned stock candidates above their 20-day average, positive over five days, and breaking 20-day highs. Not full-exchange breadth.",["market_breadth"]],
+ ["Weekly breakout confluence","Weekly EMA10/EMA20 trend confirmation, daily/weekly breakout confluence, and highest resistance level supported by available history.",["weekly_confirmation","weekly_breakout_confluence","breakout_level_class"]],
 ["Same-time-of-day relative volume","Current 15-minute bar volume versus the median for the same clock-time across prior sessions.",["intraday_rvol_same_time"]],
 ["Liquidity and spread","Average dollar volume and observed bid/ask spread; missing spread data is explicitly shown.",["dollar_volume","liquidity_status"]],
 ["Opening range and retest","15-minute opening range, upside/downside break and retest status. 5m/30m bars are not currently sourced.",["opening_range_status"]],
@@ -3334,6 +3343,10 @@ def research_data():
             "volatility_compression_percentile","liquidity_sweep_detected","liquidity_sweep_status",
             "accumulation_signal_score","accumulation_signal_status","multi_timeframe_alignment",
             "multi_timeframe_status","early_warning_matches",
+            "weekly_confirmation","weekly_confirmation_status","weekly_breakout_confluence",
+            "breakout_level_class","breakout_level_reference_price","breakout_level_lookback_sessions",
+            "universe_rs_rank","universe_rs_percentile","relative_strength_vs_universe_median_pct",
+            "universe_rs_sample_size","universe_rs_rank_change_5d","market_breadth",
             "crqs","crqs_tier","crqs_components","crqs_data_coverage","crqs_entry_score","crqs_entry_penalty","crqs_features",
              "data_quality","daily_data_quality","intraday_data_quality","hourly_data_quality")
     # Cohort outcomes use only verified candidate records with a completed 5-day observation.
