@@ -1,8 +1,13 @@
 {
-  "crypto:LUNAUSDT": {
-    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
+  "crypto:JUPUSDT": {
+    "alerted_at": "2026-11-19T01:01:09.462873+00:00",
     "alerted_stage": "DEVELOPING SETUP",
-    "score": 67
+    "score": 62
+  },
+  "crypto:LUNAUSDT": {
+    "alerted_at": "2026-11-19T01:01:09.462873+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 76
   },
   "crypto:PEPEUSDT": {
     "alerted_at": "2026-11-19T00:26:11.887809+00:00",
@@ -25,15 +30,30 @@
       "score": 25,
       "status": "PREMARKET VERIFIED"
     },
+    "BRBR": {
+      "alerted_at": "2026-11-19T01:01:09.462873+00:00",
+      "score": 21,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
     "CDXS": {
       "alerted_at": "2026-11-19T00:26:11.887809+00:00",
       "score": 19,
       "status": "PREMARKET VERIFIED"
     },
-    "COHR": {
-      "alerted_at": "2026-11-19T00:26:11.887809+00:00",
-      "score": 7,
+    "CIEN": {
+      "alerted_at": "2026-11-19T01:01:09.462873+00:00",
+      "score": 11,
       "status": "PREMARKET VERIFIED"
+    },
+    "COHR": {
+      "alerted_at": "2026-11-19T01:01:09.462873+00:00",
+      "score": 17,
+      "status": "PREMARKET VERIFIED"
+    },
+    "CPIX": {
+      "alerted_at": "2026-11-19T01:01:09.462873+00:00",
+      "score": 24,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
     "CSHR": {
       "alerted_at": "2026-11-19T00:26:11.887809+00:00",
@@ -44,6 +64,21 @@
       "alerted_at": "2026-11-19T00:26:11.887809+00:00",
       "score": 11,
       "status": "PREMARKET VERIFIED"
+    },
+    "FIRY": {
+      "alerted_at": "2026-11-19T01:01:09.462873+00:00",
+      "score": 25,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
+    "FIX": {
+      "alerted_at": "2026-11-19T01:01:09.462873+00:00",
+      "score": 17,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
+    "IBRX": {
+      "alerted_at": "2026-11-19T01:01:09.462873+00:00",
+      "score": 10,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
     "IIIV": {
       "alerted_at": "2026-11-19T00:26:11.887809+00:00",
@@ -65,10 +100,30 @@
       "score": 6,
       "status": "PREMARKET VERIFIED"
     },
+    "MIST": {
+      "alerted_at": "2026-11-19T01:01:09.462873+00:00",
+      "score": 21,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
+    "NFE": {
+      "alerted_at": "2026-11-19T01:01:09.462873+00:00",
+      "score": 45,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
     "NMRA": {
       "alerted_at": "2026-11-19T00:26:11.887809+00:00",
       "score": 33,
       "status": "PREMARKET VERIFIED"
+    },
+    "NRXP": {
+      "alerted_at": "2026-11-19T01:01:09.462873+00:00",
+      "score": 26,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
+    "OPEN": {
+      "alerted_at": "2026-11-19T01:01:09.462873+00:00",
+      "score": 17,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
     "OPTU": {
       "alerted_at": "2026-11-19T00:26:11.887809+00:00",
@@ -90,10 +145,25 @@
       "score": 7,
       "status": "PREMARKET VERIFIED"
     },
+    "PVL": {
+      "alerted_at": "2026-11-19T01:01:09.462873+00:00",
+      "score": 15,
+      "status": "PREMARKET VERIFIED"
+    },
+    "QVCG": {
+      "alerted_at": "2026-11-19T01:01:09.462873+00:00",
+      "score": 18,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
     "STUB": {
       "alerted_at": "2026-11-19T00:26:11.887809+00:00",
       "score": 12,
       "status": "PREMARKET VERIFIED"
+    },
+    "VIK": {
+      "alerted_at": "2026-11-19T01:01:09.462873+00:00",
+      "score": 16,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     }
   },
   "stock:AES": {
@@ -181,10 +251,15 @@
     "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
     "score": 69
   },
-  "stock:QVCG": {
-    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
+  "stock:PVL": {
+    "alerted_at": "2026-11-19T01:01:09.462873+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 70
+    "score": 85
+  },
+  "stock:QVCG": {
+    "alerted_at": "2026-11-19T01:01:09.462873+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 86
   },
   "stock:TTWO": {
     "alerted_at": "2026-11-19T00:26:11.887809+00:00",

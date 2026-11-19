@@ -1,9 +1,9 @@
 {
-  "candidates_found": 183,
+  "candidates_found": 127,
   "diagnostics": {
     "alpaca_quote_status": {
       "candidate_status_counts": {
-        "no_fresh_trade_or_usable_quote": 103,
+        "no_fresh_trade_or_usable_quote": 84,
         "snapshot_unavailable": 1
       },
       "credentials_configured": true,
@@ -14,39 +14,39 @@
           "HTTPError: 400 Client Error: Bad Request for url: https://data.alpaca.markets/v2/stocks/snapshots?symbols=GTN-A&feed=iex": 1
         },
         "failures": 1,
-        "max_seconds": 0.08,
-        "total_seconds": 0.16
+        "max_seconds": 0.57,
+        "total_seconds": 1.19
       }
     },
     "crypto": {
-      "candidates_returned": 79,
-      "not_returned_or_below_early_watch_floor": 6,
+      "candidates_returned": 42,
+      "not_returned_or_below_early_watch_floor": 42,
       "price_validation": {
         "methods": {
           "coinbase_ticker_timestamp": 0,
-          "kraken_latest_trade_cross_check": 79
+          "kraken_latest_trade_cross_check": 42
         },
-        "unverified": 5,
-        "verified": 74
+        "unverified": 2,
+        "verified": 40
       },
       "scan_errors": 0,
       "stages": {
         "ACTIONABLE SETUP": 0,
         "BUY": 0,
         "DATA QUALITY \u2014 WATCH ONLY": 0,
-        "DEVELOPING SETUP": 4,
-        "EARLY WATCH": 17,
-        "LOW-CONVICTION WATCH": 58,
+        "DEVELOPING SETUP": 2,
+        "EARLY WATCH": 3,
+        "LOW-CONVICTION WATCH": 37,
         "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
       },
-      "symbols_requested": 85
+      "symbols_requested": 84
     },
     "market_session": {
-      "as_of": "2026-11-18T19:26:11.882037-05:00",
+      "as_of": "2026-11-18T20:01:09.461714-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
-      "is_extended_session": true,
+      "is_extended_session": false,
       "is_regular_session": false,
-      "phase": "AFTER-HOURS"
+      "phase": "CLOSED \u2014 OVERNIGHT"
     },
     "massive_fallback_policy": {
       "max_requests_per_scan": 3,
@@ -56,28 +56,28 @@
     "massive_live_quote_note": "Optional last-trade cross-check is disabled by default. Enable MASSIVE_LIVE_QUOTE_ENABLED=true only if the Massive Stocks plan includes /v2/last/trade; 15-minute delayed data is accepted only when its timestamp is within 45 minutes.",
     "massive_live_quote_status": "disabled_pending_entitlement_check",
     "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history/data or score below the early-watch floor; provider-specific discovery failures are not always attributable to one symbol.",
-    "scan_duration_seconds": 20.0,
+    "scan_duration_seconds": 23.31,
     "stocks": {
-      "candidates_returned": 104,
-      "not_returned_or_below_early_watch_floor": 44,
+      "candidates_returned": 85,
+      "not_returned_or_below_early_watch_floor": 63,
       "scan_errors": 0,
       "stages": {
         "ACTIONABLE SETUP": 0,
         "BUY": 0,
         "DATA QUALITY \u2014 WATCH ONLY": 0,
-        "DEVELOPING RUNNER": 20,
+        "DEVELOPING RUNNER": 9,
         "DEVELOPING SETUP": 0,
-        "EARLY SETUP": 27,
-        "EARLY WATCH": 13,
-        "LATE RUNNER \u2014 CHASE RISK": 5,
-        "LOW-CONVICTION WATCH": 39,
+        "EARLY SETUP": 17,
+        "EARLY WATCH": 5,
+        "LATE RUNNER \u2014 CHASE RISK": 1,
+        "LOW-CONVICTION WATCH": 53,
         "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
       },
       "symbols_requested": 148
     },
     "timing_breakdown": {
-      "asset_scans_wall_seconds": 18.72,
-      "market_conditions_seconds": 0.61,
+      "asset_scans_wall_seconds": 22.04,
+      "market_conditions_seconds": 0.68,
       "provider_activity": {
         "alpaca_snapshot_batch": {
           "calls": 9,
@@ -85,8 +85,8 @@
             "HTTPError: 400 Client Error: Bad Request for url: https://data.alpaca.markets/v2/stocks/snapshots?symbols=GTN-A&feed=iex": 1
           },
           "failures": 1,
-          "max_seconds": 0.08,
-          "total_seconds": 0.16
+          "max_seconds": 0.57,
+          "total_seconds": 1.19
         },
         "alpaca_snapshot_batch_split": {
           "calls": 6,
@@ -99,75 +99,75 @@
             "HTTP 400; split batch of 6 symbols": 1
           },
           "failures": 6,
-          "max_seconds": 0.03,
-          "total_seconds": 0.09
+          "max_seconds": 0.1,
+          "total_seconds": 0.44
         },
         "market_conditions": {
           "calls": 1,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.61,
-          "total_seconds": 0.61
+          "max_seconds": 0.68,
+          "total_seconds": 0.68
         },
         "scan_crypto_parallel_wall": {
           "calls": 1,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 9.59,
-          "total_seconds": 9.59
+          "max_seconds": 15.86,
+          "total_seconds": 15.86
         },
         "scan_stock_parallel_wall": {
           "calls": 1,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 18.47,
-          "total_seconds": 18.47
+          "max_seconds": 20.41,
+          "total_seconds": 20.41
         },
         "sec_recent_filings": {
-          "calls": 104,
+          "calls": 85,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.27,
-          "total_seconds": 7.29
+          "max_seconds": 0.28,
+          "total_seconds": 5.7
         },
         "yahoo_daily_history": {
           "calls": 148,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.4,
-          "total_seconds": 21.63
+          "max_seconds": 0.63,
+          "total_seconds": 27.56
         },
         "yahoo_discovery_screen": {
           "calls": 6,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.53,
-          "total_seconds": 1.51
+          "max_seconds": 0.28,
+          "total_seconds": 1.35
         },
         "yahoo_fundamentals": {
-          "calls": 67,
+          "calls": 42,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.35,
-          "total_seconds": 12.38
+          "max_seconds": 0.38,
+          "total_seconds": 9.02
         },
         "yahoo_intraday_history": {
           "calls": 148,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.18,
-          "total_seconds": 11.22
+          "max_seconds": 0.17,
+          "total_seconds": 14.37
         },
         "yahoo_stock_news": {
-          "calls": 104,
+          "calls": 85,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.78,
-          "total_seconds": 26.49
+          "max_seconds": 0.58,
+          "total_seconds": 24.82
         }
       },
-      "total_seconds": 20.0,
-      "universe_discovery_seconds": 0.64
+      "total_seconds": 23.31,
+      "universe_discovery_seconds": 0.41
     },
     "webull_quote_note": "Webull quote lookups are opt-in because app authorization was observed pending; Yahoo/Stooq scanning continues independently. Enable only after Webull market-data authorization is confirmed.",
     "webull_quote_status": "disabled_pending_authorization"
@@ -177,24 +177,24 @@
     "benchmarks": {
       "BTC-USD": {
         "above_20d_average": false,
-        "five_day_change_pct": -8.12
+        "five_day_change_pct": -7.49
       },
       "IWM": {
         "above_20d_average": false,
-        "five_day_change_pct": -4.58
+        "five_day_change_pct": -4.11
       },
       "QQQ": {
         "above_20d_average": false,
-        "five_day_change_pct": -4.47
+        "five_day_change_pct": -2.64
       },
       "SPY": {
         "above_20d_average": false,
-        "five_day_change_pct": -3.9
+        "five_day_change_pct": -2.33
       }
     },
     "note": "Benchmark context is a caution/confirmation input, not a standalone buy or sell signal.",
     "regime": "RISK-OFF",
     "score_adjustment": -8
   },
-  "timestamp": "2026-11-19T00:26:11.881949+00:00"
+  "timestamp": "2026-11-19T01:01:09.461590+00:00"
 }
