@@ -270,7 +270,7 @@ def discover_crypto_symbols(limit: int = 150) -> list[str]:
     leveraged_suffixes = ("UP", "DOWN", "BULL", "BEAR", "3L", "3S", "5L", "5S")
     try:
         pairs = kraken_pairs()
-        response = HTTP.get(f"{KRAKEN}/Ticker", timeout=20)
+        response = kraken_get(f"{KRAKEN}/Ticker", timeout=20)
         response.raise_for_status()
         payload = response.json()
         if payload.get("error"):
@@ -1991,7 +1991,7 @@ def kraken_crypto_market_data(symbol: str):
     pair_id = kraken_pairs().get(base)
     if not pair_id:
         raise RuntimeError(f"Kraken has no supported USD/USDT spot pair for {base}")
-    ticker_response = HTTP.get(f"{KRAKEN}/Ticker", params={"pair": pair_id}, timeout=12)
+    ticker_response = kraken_get(f"{KRAKEN}/Ticker", params={"pair": pair_id}, timeout=12)
     ticker_response.raise_for_status()
     ticker_payload = ticker_response.json()
     if ticker_payload.get("error"):
@@ -2021,7 +2021,7 @@ def kraken_crypto_market_data(symbol: str):
     bars = [[row[0], row[1], row[2], row[3], row[4], row[6]] for row in raw if len(row) >= 8]
     # Kraken's ticker payload has no quote timestamp. Cross-check its last
     # price against the newest public trade and use that trade's exchange time.
-    trades_response = HTTP.get(f"{KRAKEN}/Trades", params={"pair": pair_id}, timeout=12)
+    trades_response = kraken_get(f"{KRAKEN}/Trades", params={"pair": pair_id}, timeout=12)
     trades_response.raise_for_status()
     trades_payload = trades_response.json()
     if trades_payload.get("error"):
@@ -2207,7 +2207,7 @@ def scan_crypto(symbol: str) -> Optional[dict]:
 def kraken_crypto_cross_section(crypto_sectors: dict) -> dict:
     """Fetch broad Kraken 24h tickers, then summarize independently of candidate selection."""
     pair_map = kraken_pairs()
-    response = HTTP.get(f"{KRAKEN}/Ticker", timeout=20)
+    response = kraken_get(f"{KRAKEN}/Ticker", timeout=20)
     response.raise_for_status()
     payload = response.json()
     if payload.get("error"):
