@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - jarvis/coinbase-secondary-validation
+      - jarvis/binance-us-shadow-fix
 
 permissions:
   contents: read
