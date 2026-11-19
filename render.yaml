@@ -19,6 +19,7 @@ services:
         - scan_metadata.json
         - paper_trading_state.json
         - provider_usage_history.json
+        - webull_yahoo_comparison.json
         - README.md
         - docs/**
     
