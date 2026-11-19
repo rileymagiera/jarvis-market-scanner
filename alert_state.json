@@ -171,6 +171,11 @@
       "score": 14,
       "status": "PREMARKET VERIFIED"
     },
+    "PYXS": {
+      "alerted_at": "2026-11-19T18:47:37.691096+00:00",
+      "score": 0,
+      "status": "PREMARKET VERIFIED"
+    },
     "RBRK": {
       "alerted_at": "2026-11-19T15:04:24.560095+00:00",
       "score": 14,
@@ -268,13 +273,18 @@
     "score": 75
   },
   "stock:SVRA": {
-    "alerted_at": "2026-11-19T16:04:17.685779+00:00",
+    "alerted_at": "2026-11-19T18:47:37.691096+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 72
+    "score": 79
   },
   "stock:TU": {
     "alerted_at": "2026-11-19T17:04:43.742724+00:00",
     "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
     "score": 63
+  },
+  "stock:VVV": {
+    "alerted_at": "2026-11-19T18:47:37.691096+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 60
   }
 }
