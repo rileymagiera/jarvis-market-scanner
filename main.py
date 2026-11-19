@@ -1421,10 +1421,13 @@ def webull_latest_bar(symbol: str, interval: str = "M1", max_age_minutes: int = 
             time_value = next((node.get(k) for k in ("time", "timestamp", "bar_time", "trade_time") if node.get(k) is not None), None)
             if close_value is not None and time_value is not None:
                 try:
-                    stamp_value = float(time_value)
-                    if stamp_value > 1e12:
+                    try:
+                        stamp_value = float(time_value)
+                    except (TypeError, ValueError):
+                        stamp_value = None
+                    if stamp_value is not None and stamp_value > 1e12:
                         stamp = datetime.fromtimestamp(stamp_value / 1000, timezone.utc)
-                    elif stamp_value > 1e9:
+                    elif stamp_value is not None and stamp_value > 1e9:
                         stamp = datetime.fromtimestamp(stamp_value, timezone.utc)
                     else:
                         stamp = pd.Timestamp(str(time_value)).to_pydatetime()
@@ -1738,6 +1741,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
     quote_difference_pct = None
     webull_quote = None
     webull_difference_pct = None
+    webull_error = None
     webull_status = "not_configured"
     massive_quote = None
     massive_quote_status = "disabled" if not MASSIVE_LIVE_QUOTE_ENABLED else ("not_configured" if not os.getenv("MASSIVE_API_KEY", "").strip() else "not_checked")
@@ -1803,7 +1807,8 @@ def scan_stock(symbol: str) -> Optional[dict]:
             webull_status = "shadow_quote_received" if webull_shadow_requested else "fresh_quote_received"
         except Exception as exc:
             webull_status = "shadow_quote_unavailable" if webull_shadow_requested else "unavailable_or_not_entitled"
-            print(f"Webull quote unavailable for {symbol}: {type(exc).__name__}", flush=True)
+            webull_error = f"{type(exc).__name__}: {str(exc)[:180]}"
+            print(f"Webull quote unavailable for {symbol}: {webull_error}", flush=True)
     elif WEBULL_SHADOW_MODE and has_webull_credentials:
         webull_status = "shadow_not_sampled_this_scan"
     elif WEBULL_SHADOW_MODE and not has_webull_credentials:
@@ -2006,6 +2011,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "webull_price_age_minutes": webull_quote["age_minutes"] if webull_quote else None,
         "webull_price_difference_pct": round(webull_difference_pct, 2) if webull_difference_pct is not None else None,
         "webull_status": webull_status,
+        "webull_error": webull_error,
         "webull_yahoo_comparison": compare_webull_yahoo_prices(
             webull_quote, intraday_price if intraday_fresh else None,
             intraday_as_of.isoformat() if intraday_as_of is not None else None,
@@ -3139,7 +3145,7 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
         status = item.get("alpaca_quote_status", "not_reported")
         alpaca_status_counts[status] = alpaca_status_counts.get(status, 0) + 1
     webull_comparison_records = [
-        {"symbol": item.get("symbol"), **(item.get("webull_yahoo_comparison") or {})}
+        {"symbol": item.get("symbol"), "webull_error": item.get("webull_error"), "webull_status": item.get("webull_status"), **(item.get("webull_yahoo_comparison") or {})}
         for item in stock_results if item.get("webull_status") in ("shadow_quote_received", "shadow_quote_unavailable")
     ]
     webull_history = persist_webull_yahoo_history(
