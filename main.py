@@ -183,6 +183,7 @@ def discover_stock_symbols(limit: int = 120) -> list[str]:
 
 KRAKEN = "https://api.kraken.com/0/public"
 KRAKEN_PAIR_MAP = None
+KRAKEN_PAIR_QUOTE_MAP = {}
 KRAKEN_TICKER_CACHE = None
 KRAKEN_TICKER_CACHE_AT = 0.0
 KRAKEN_REQUEST_LOCK = threading.Lock()
@@ -216,7 +217,7 @@ def crypto_base(symbol: str) -> str:
 
 def kraken_pairs():
     """Map Jarvis base symbols to Kraken's public spot pair identifiers."""
-    global KRAKEN_PAIR_MAP
+    global KRAKEN_PAIR_MAP, KRAKEN_PAIR_QUOTE_MAP
     if KRAKEN_PAIR_MAP is not None:
         return KRAKEN_PAIR_MAP
     response = kraken_get(f"{KRAKEN}/AssetPairs", timeout=15)
@@ -225,6 +226,7 @@ def kraken_pairs():
     if payload.get("error"):
         raise RuntimeError("Kraken AssetPairs: " + "; ".join(payload["error"]))
     pairs = {}
+    quote_currencies = {}
     for pair_id, info in (payload.get("result") or {}).items():
         wsname = str(info.get("wsname") or "")
         if "/" not in wsname:
@@ -239,7 +241,9 @@ def kraken_pairs():
         current = pairs.get(base)
         if current is None or priority < current[0]:
             pairs[base] = (priority, pair_id)
+            quote_currencies[base] = quote
     KRAKEN_PAIR_MAP = {base: value[1] for base, value in pairs.items()}
+    KRAKEN_PAIR_QUOTE_MAP = quote_currencies
     return KRAKEN_PAIR_MAP
 
 
@@ -278,7 +282,8 @@ def discover_crypto_symbols(limit: int = 150) -> list[str]:
         ticker = tickers.get(pair_id)
         if not ticker:
             continue
-        price = safe_float((ticker.get("c") or [0])[0])
+        quote_currency = KRAKEN_PAIR_QUOTE_MAP.get(base, "USD")
+    price = safe_float((ticker.get("c") or [0])[0])
         volume = safe_float((ticker.get("v") or [0, 0])[1])
         vwap = safe_float((ticker.get("p") or [0, 0])[1])
         quote_volume = volume * vwap
@@ -2128,6 +2133,7 @@ def coinbase_crypto_market_data(symbol: str):
     passed = bool(as_of and age_seconds is not None and -30 <= age_seconds <= 300 and price > 0)
     normalized = {
         "lastPrice": price,
+        "quote_currency": quote_currency,
         "priceChangePercent": (price / opening - 1) * 100,
         "quoteVolume": volume * price,
         "price_as_of": as_of,
@@ -2160,7 +2166,7 @@ def select_crypto_shadow_symbols(symbols: list[str], run_number=None, sample_siz
     return (unique[offset:] + unique[:offset])[:size]
 
 
-def crypto_shadow_quote(provider: str, symbol: str) -> dict:
+def crypto_shadow_quote(provider: str, symbol: str, quote_currency: str = "USD") -> dict:
     """Fetch one free public spot ticker; return a timestamped normalized quote."""
     base = crypto_base(symbol)
     started = time.monotonic()
@@ -2169,7 +2175,7 @@ def crypto_shadow_quote(provider: str, symbol: str) -> dict:
     try:
         if provider == "coinbase":
             response = HTTP.get(
-                f"https://api.exchange.coinbase.com/products/{base}-USD/ticker",
+                f"https://api.exchange.coinbase.com/products/{base}-{quote_currency}/ticker",
                 timeout=(2, 5),
             )
             response.raise_for_status()
@@ -2180,7 +2186,7 @@ def crypto_shadow_quote(provider: str, symbol: str) -> dict:
         elif provider == "binance_us":
             response = HTTP.get(
                 "https://api.binance.us/api/v3/ticker/24hr",
-                params={"symbol": base + "USDT"},
+                params={"symbol": base + quote_currency},
                 timeout=(2, 5),
             )
             response.raise_for_status()
@@ -2201,7 +2207,7 @@ def crypto_shadow_quote(provider: str, symbol: str) -> dict:
         spread_pct = ((ask - bid) / ((ask + bid) / 2) * 100) if bid > 0 and ask >= bid and ask > 0 else None
         outcome = "success"
         return {
-            "provider": provider, "symbol": symbol, "base": base,
+            "provider": provider, "symbol": symbol, "base": base, "quote_currency": quote_currency,
             "price": price, "as_of": stamp.isoformat(), "age_seconds": round(age, 1),
             "bid": bid if bid > 0 else None, "ask": ask if ask > 0 else None,
             "spread_pct": round(spread_pct, 4) if spread_pct is not None else None,
@@ -2214,7 +2220,7 @@ def crypto_shadow_quote(provider: str, symbol: str) -> dict:
         record_scan_metric(f"crypto_shadow_{provider}", time.monotonic() - started, outcome, error=error_detail)
 
 
-def compare_crypto_shadow_quote(provider: str, symbol: str, primary_price, primary_as_of, quote=None, error=None) -> dict:
+def compare_crypto_shadow_quote(provider: str, symbol: str, primary_price, primary_as_of, quote=None, error=None, primary_quote_currency="USD") -> dict:
     primary = safe_float(primary_price)
     result = {
         "provider": provider, "symbol": symbol,
@@ -2223,12 +2229,15 @@ def compare_crypto_shadow_quote(provider: str, symbol: str, primary_price, prima
         "shadow_price": quote.get("price") if quote else None,
         "shadow_as_of": quote.get("as_of") if quote else None,
         "shadow_age_seconds": quote.get("age_seconds") if quote else None,
+        "quote_currency": primary_quote_currency,
         "spread_pct": quote.get("spread_pct") if quote else None,
         "difference_pct": None,
         "status": "unavailable" if error or not quote else "primary_unavailable",
         "error": str(error)[:180] if error else None,
     }
-    if quote and primary > 0:
+    if quote and quote.get("quote_currency") != primary_quote_currency:
+        result["status"] = "quote_currency_mismatch"
+    elif quote and primary > 0:
         midpoint = (primary + quote["price"]) / 2
         if midpoint > 0:
             result["difference_pct"] = round(abs(primary - quote["price"]) / midpoint * 100, 4)
@@ -2280,16 +2289,22 @@ def collect_crypto_shadow_comparisons(crypto_results: list[dict], run_number=Non
     selected = select_crypto_shadow_symbols([x.get("symbol") for x in crypto_results], run_number)
     by_symbol = {str(x.get("symbol", "")).upper(): x for x in crypto_results}
     records = []
-    for symbol in selected:
-        item = by_symbol.get(symbol, {})
-        for provider in ("coinbase", "binance_us"):
+    jobs = {}
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        for symbol in selected:
+            item = by_symbol.get(symbol, {})
+            quote_currency = str(item.get("price_quote_currency") or "USD").upper()
+            for provider in ("coinbase", "binance_us"):
+                jobs[pool.submit(crypto_shadow_quote, provider, symbol, quote_currency)] = (provider, symbol, item, quote_currency)
+        for future in as_completed(jobs):
+            provider, symbol, item, quote_currency = jobs[future]
             quote, error = None, None
             try:
-                quote = crypto_shadow_quote(provider, symbol)
+                quote = future.result()
             except Exception as exc:
                 error = f"{type(exc).__name__}: {str(exc)[:160]}"
             records.append(compare_crypto_shadow_quote(
-                provider, symbol, item.get("price"), item.get("price_as_of"), quote, error
+                provider, symbol, item.get("price"), item.get("price_as_of"), quote, error, quote_currency
             ))
     history = persist_crypto_shadow_history(records, now_iso(), run_id)
     return {"mode": "shadow_only", "sample_limit": CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN,
@@ -2511,6 +2526,7 @@ def scan_crypto(symbol: str) -> Optional[dict]:
         "price_age_seconds": ticker.get("price_age_seconds"),
         "price_cross_check_difference_pct": ticker.get("price_cross_check_difference_pct"),
         "price_source": provider,
+        "price_quote_currency": ticker.get("quote_currency") or "USD",
         "daily_change_pct": round(change_24h, 2),
         "hourly_change_pct": round(change_1h, 2),
         "relative_volume": round(relative_volume, 2),
