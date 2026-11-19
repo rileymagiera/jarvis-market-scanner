@@ -1128,6 +1128,25 @@ SEC_HEADERS = {
     "Accept-Encoding": "gzip, deflate",
 }
 SEC_TICKER_MAP = None
+SEC_TICKER_MAP_LOCK = threading.Lock()
+
+# SEC's fair-access ceiling is 10 requests/second per user across SEC hosts.
+# Keep a conservative global start-to-start interval across all scanner threads
+# and both www.sec.gov and data.sec.gov.
+SEC_REQUEST_MIN_INTERVAL_SECONDS = 0.16  # 6.25 requests/second maximum
+SEC_REQUEST_LOCK = threading.Lock()
+SEC_LAST_REQUEST_AT = 0.0
+
+
+def sec_wait_for_request_slot() -> None:
+    """Serialize SEC request starts so concurrent stock workers share one rate limit."""
+    global SEC_LAST_REQUEST_AT
+    with SEC_REQUEST_LOCK:
+        now = time.monotonic()
+        wait_seconds = SEC_REQUEST_MIN_INTERVAL_SECONDS - (now - SEC_LAST_REQUEST_AT)
+        if wait_seconds > 0:
+            time.sleep(wait_seconds)
+        SEC_LAST_REQUEST_AT = time.monotonic()
 
 
 def sec_recent_filings(symbol: str, days: int = 14) -> list[dict]:
@@ -1136,19 +1155,24 @@ def sec_recent_filings(symbol: str, days: int = 14) -> list[dict]:
     started = time.monotonic()
     outcome = "failure"
     try:
-        if SEC_TICKER_MAP is None:
-            mapping_response = HTTP.get("https://www.sec.gov/files/company_tickers.json", headers=SEC_HEADERS, timeout=5)
-            mapping_response.raise_for_status()
-            mapping = mapping_response.json()
-            SEC_TICKER_MAP = {
-                str(item.get("ticker", "")).upper(): str(item.get("cik_str", "")).zfill(10)
-                for item in mapping.values()
-                if item.get("ticker") and item.get("cik_str")
-            }
+        # Single-flight initialization prevents every worker from downloading the
+        # same ticker map when a scan starts with an empty process cache.
+        with SEC_TICKER_MAP_LOCK:
+            if SEC_TICKER_MAP is None:
+                sec_wait_for_request_slot()
+                mapping_response = HTTP.get("https://www.sec.gov/files/company_tickers.json", headers=SEC_HEADERS, timeout=5)
+                mapping_response.raise_for_status()
+                mapping = mapping_response.json()
+                SEC_TICKER_MAP = {
+                    str(item.get("ticker", "")).upper(): str(item.get("cik_str", "")).zfill(10)
+                    for item in mapping.values()
+                    if item.get("ticker") and item.get("cik_str")
+                }
         cik = SEC_TICKER_MAP.get(symbol.upper())
         if not cik:
             outcome = "success"
             return []
+        sec_wait_for_request_slot()
         response = HTTP.get(
             f"https://data.sec.gov/submissions/CIK{cik}.json",
             headers=SEC_HEADERS,
