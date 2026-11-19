@@ -2424,8 +2424,8 @@ def data_health_data():
         "data_gaps": {"missing_price": len(missing_price), "missing_source": len(missing_source),
                       "missing_timestamp": len(missing_timestamp), "older_than_15_minutes": len(stale)},
         "field_coverage": {
-            "stocks": coverage(stock, ("data_quality", "daily_data_quality", "intraday_data_quality", "float_shares", "shares_outstanding", "spread_pct", "news")),
-            "crypto": coverage(crypto, ("data_quality", "hourly_data_quality", "crqs", "crqs_data_coverage", "news")),
+            "stocks": coverage(stock, ("data_quality", "daily_data_quality", "intraday_data_quality", "float_shares", "shares_outstanding", "spread_pct", "catalyst_headline_count")),
+            "crypto": coverage(crypto, ("data_quality", "hourly_data_quality", "crqs", "crqs_data_coverage", "catalyst_headline_count")),
         },
         "providers": {
             "stock_price_feed": alpaca.get("feed"), "alpaca_credentials_configured": alpaca.get("credentials_configured"),
