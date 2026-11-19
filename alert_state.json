@@ -1,4 +1,9 @@
 {
+  "crypto:AKTUSDT": {
+    "alerted_at": "2026-11-19T17:32:38.917543+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 60
+  },
   "crypto:ALEOUSDT": {
     "alerted_at": "2026-11-19T17:04:43.742724+00:00",
     "alerted_stage": "DEVELOPING SETUP",
