@@ -69,3 +69,43 @@ def test_stop_observation_closes_position_without_reentry(tmp_path, monkeypatch)
     assert account["cash"] < 250
     saved = json.loads((tmp_path / "paper.json").read_text())
     assert saved["processed_signal_ids"] == [_signal()["signal_id"]]
+
+
+def test_coinbase_advanced_crypto_fees_use_taker_default():
+    buy = paper_trading.calculate_trade_fee("crypto", "buy", 100.0)
+    sell = paper_trading.calculate_trade_fee("crypto", "sell", 100.0)
+    maker = paper_trading.calculate_trade_fee("crypto", "buy", 100.0, order_type="maker")
+    assert buy["broker"] == "Coinbase Advanced"
+    assert buy["total"] == 0.90
+    assert sell["total"] == 0.90
+    assert maker["total"] == 0.50
+
+
+def test_webull_stock_fees_apply_cat_both_sides_and_sec_only_on_sell():
+    buy = paper_trading.calculate_trade_fee("stock", "buy", 1000.0, quantity=10)
+    sell = paper_trading.calculate_trade_fee("stock", "sell", 1000.0, quantity=10)
+    assert buy["broker"] == "Webull"
+    assert buy["commission"] == 0
+    assert buy["cat_fee"] == 0.003
+    assert buy["sec_fee"] == 0
+    assert sell["cat_fee"] == 0.003
+    assert sell["sec_fee"] == 0.0206
+    assert sell["total"] == 0.0236
+
+
+def test_paper_entry_and_exit_ledger_use_asset_specific_fees(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    signal = _signal()
+    candidate = _candidate(10.0)
+    candidate["asset_type"] = "crypto"
+    signal["asset_type"] = "crypto"
+    now = datetime.now(timezone.utc)
+    account = paper_trading.update_account([candidate], [signal], now)
+    position = account["positions"][0]
+    assert position["entry_fee"] > 0
+    assert position["entry_fee_breakdown"]["broker"] == "Coinbase Advanced"
+    candidate["price"] = 11.0
+    account = paper_trading.update_account([candidate], [signal], now)
+    sell = [x for x in account["ledger"] if x["type"] == "SELL"][0]
+    assert sell["fee_breakdown"]["broker"] == "Coinbase Advanced"
+    assert sell["fee"] > 0
