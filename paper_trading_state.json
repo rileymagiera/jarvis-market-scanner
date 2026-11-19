@@ -105,7 +105,7 @@
     "2026-11": 202.94434153
   },
   "created_at": "2026-11-19T04:34:15.459868+00:00",
-  "last_updated_at": "2026-11-19T19:04:20.988573+00:00",
+  "last_updated_at": "2026-11-19T19:17:33.809605+00:00",
   "ledger": [
     {
       "allocation_rank": 1,
@@ -241,26 +241,26 @@
     "risk_off:crypto:GRASSUSDT:2026-11-19"
   ],
   "risk_off_signal_diagnostics": {
-    "candidates_total": 238,
+    "candidates_total": 237,
     "eligible_signals": 0,
     "rejections": {
-      "failed_buy_gate:24h_breakout": 89,
+      "failed_buy_gate:24h_breakout": 90,
       "failed_buy_gate:above_24h_average": 63,
-      "failed_buy_gate:breakout_confirmed": 136,
-      "failed_buy_gate:five_bar_intraday_trend_up": 82,
+      "failed_buy_gate:breakout_confirmed": 135,
+      "failed_buy_gate:five_bar_intraday_trend_up": 103,
       "failed_buy_gate:fresh_intraday_confirmation": 1,
-      "failed_buy_gate:live_data_quality": 154,
-      "failed_buy_gate:no_risk_flags": 18,
+      "failed_buy_gate:live_data_quality": 150,
+      "failed_buy_gate:no_risk_flags": 19,
       "failed_buy_gate:not_chase_risk": 4,
       "failed_buy_gate:not_extended": 1,
       "failed_buy_gate:positive_hourly_momentum": 27,
-      "failed_buy_gate:price_verified": 18,
-      "failed_buy_gate:score_82": 238,
-      "failed_buy_gate:two_technical_confirmations": 86,
+      "failed_buy_gate:price_verified": 16,
+      "failed_buy_gate:score_82": 237,
+      "failed_buy_gate:two_technical_confirmations": 82,
       "failed_buy_gate:volume_1_8x": 77,
-      "failed_buy_gate:volume_confirmed": 133
+      "failed_buy_gate:volume_confirmed": 132
     },
-    "risk_off_candidates": 238
+    "risk_off_candidates": 237
   },
   "rules": {
     "allocation_method": "Rank active eligible official BUYs by official score, then target-2 reward/risk; scale each risk budget by official score up to the existing 1% cap; retain existing capacity limits; retry capacity-deferred signals while active",
