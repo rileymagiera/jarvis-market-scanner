@@ -275,6 +275,10 @@ def update_paper_tracker(candidates, now):
                 record["discovery_price_source"] = item.get("data_source") or item.get("price_source")
                 record["discovery_baseline_status"] = "first_verified_fallback"
                 record["discovery_baseline_timestamp_type"] = item.get("price_timestamp_type") or "provider timestamp"
+            record["discovery_peak_price"] = price
+            record["discovery_trough_price"] = price
+                record["discovery_peak_price"] = price
+                record["discovery_trough_price"] = price
             if record.get("initial_price") is None and not record.get("lifetime_recommendation_counted", False):
                 lifetime["recommendations"] = int(lifetime.get("recommendations", 0)) + 1
                 asset_stats = lifetime.setdefault("by_asset", {}).setdefault(
@@ -284,7 +288,6 @@ def update_paper_tracker(candidates, now):
                 record["lifetime_recommendation_counted"] = True
             record["quarantined_initial_price"] = record.get("initial_price")
             record["quarantined_return_pct"] = record.get("unverified_return_pct")
-            record["first_seen"] = now.isoformat()
             record["initial_price"] = price
             record["peak_price"] = price
             record["trough_price"] = price
@@ -308,6 +311,7 @@ def update_paper_tracker(candidates, now):
                 "discovery_price_source": item.get("data_source") or item.get("price_source"),
                 "discovery_baseline_status": "last_known_eod" if item_price_status == "last_known" else "live_verified",
                 "discovery_baseline_timestamp_type": item.get("price_timestamp_type") or "provider timestamp",
+                "discovery_peak_price": price, "discovery_trough_price": price,
                 "peak_price": price, "trough_price": price, "milestones": {},
                 "first_grade": item.get("stage", item.get("signal", "WATCH")),
                 "grade_history": [{"from": None, "to": item.get("stage", item.get("signal", "WATCH")), "at": now.isoformat()}],
@@ -500,6 +504,10 @@ def update_paper_tracker(candidates, now):
             discovery_initial = safe_float(record.get("discovery_initial_price"), 0)
             if discovery_initial > 0:
                 record["discovery_return_pct"] = round((price / discovery_initial - 1) * 100, 2)
+                record["discovery_peak_price"] = max(safe_float(record.get("discovery_peak_price"), discovery_initial), price)
+                record["discovery_trough_price"] = min(safe_float(record.get("discovery_trough_price"), discovery_initial), price)
+                record["discovery_max_gain_pct"] = round((record["discovery_peak_price"] / discovery_initial - 1) * 100, 2)
+                record["discovery_max_drawdown_pct"] = round((record["discovery_trough_price"] / discovery_initial - 1) * 100, 2)
             record["price_observed_at"] = now.isoformat()
             record["peak_price"] = max(float(record.get("peak_price") or price), price)
             record["trough_price"] = min(float(record.get("trough_price") or price), price)
