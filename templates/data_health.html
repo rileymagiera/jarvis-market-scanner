@@ -9,6 +9,7 @@
 <div id="summary" class="grid"><div class="card"><span>LOADING</span><strong>—</strong></div></div>
 <section class="panel"><h2>Provider status and limitations</h2><p>These are the latest saved scan settings and diagnostics. “Disabled” does not mean the provider failed.</p><div id="providers" class="scroll">Waiting for provider diagnostics…</div></section>
 <section class="panel"><h2>Why prices are unverified</h2><p>These are the exact validation notes saved for candidates whose price checks did not pass. Repeated notes are grouped; no new provider requests are made to build this view.</p><div id="failure-reasons" class="scroll">Waiting for validation notes…</div></section>
+<section class="panel"><h2>Crypto · free-source shadow comparison</h2><p>Coinbase and Binance public spot quotes are compared with Jarvis's Kraken-selected price. Shadow data never changes price selection, verification, signals, BUY eligibility, or paper trades.</p><div id="crypto-shadow">Waiting for crypto comparison data…</div></section>
 <section class="panel"><h2>Webull vs Yahoo · shadow comparison</h2><p>Read-only sample only. Differences compare Webull's 1-minute bar with Yahoo's latest fresh intraday bar. This test does not affect Jarvis prices, signals, or paper trades.</p><div id="webull-yahoo">Waiting for comparison data…</div></section>
 <section class="panel"><h2>Research field coverage</h2><p>Counts show how many surfaced candidates have each field saved. “Not collected” can be intentional for lower-priority candidates; it is not automatically a scan failure.</p><div id="coverage" class="scroll">Waiting for coverage data…</div></section>
 <section class="panel"><h2>Candidate-by-candidate data check</h2><p>Unverified and incomplete records appear first. “Age” is shown only when the source supplied an age value.</p><div class="filters"><input id="search" type="search" placeholder="Find a symbol"><select id="asset"><option value="all">All assets</option><option value="stock">Stocks</option><option value="crypto">Crypto</option></select><select id="quality"><option value="all">All data statuses</option><option value="unverified">Unverified</option><option value="last_known">Last known</option><option value="verified">Verified</option><option value="unknown">Unknown</option></select></div><div class="scroll"><table><thead><tr><th>ASSET</th><th>STAGE</th><th>PRICE STATUS</th><th>VALIDATION REASON</th><th>PRICE</th><th>SOURCE</th><th>OBSERVED</th><th>AGE</th><th>DATA TYPE</th><th>ENTRY USE</th><th>MISSING FIELDS</th></tr></thead><tbody id="rows"><tr><td colspan="11">Waiting for saved data…</td></tr></tbody></table></div></section>
@@ -44,6 +45,17 @@ function renderDataHealth(){
  document.getElementById("failure-reasons").innerHTML=reasons.length
   ? '<table><thead><tr><th>VALIDATION REASON</th><th>CANDIDATES</th></tr></thead><tbody>'+reasons.map(function(x){return '<tr><td>'+esc(x.reason)+'</td><td>'+esc(x.count)+'</td></tr>'}).join("")+'</tbody></table>'
   : '<div class="muted">No unverified candidate validation failures were recorded in this snapshot.</div>';
+ var cs=d.crypto_shadow_comparison||{},css=cs.summary||{},csp=css.providers||{},csr=cs.recent_records||[];
+ document.getElementById("crypto-shadow").innerHTML=
+  '<div class="grid">'+card("SYMBOLS SAMPLED",cs.symbols_sampled||0,"Rotating sample · maximum "+(cs.sample_limit||0))+
+  card("COINBASE COMPARABLE",(csp.coinbase||{}).comparable||0,"Of "+((csp.coinbase||{}).samples||0)+" saved observations")+
+  card("BINANCE COMPARABLE",(csp.binance||{}).comparable||0,"Of "+((csp.binance||{}).samples||0)+" saved observations")+
+  card("COINBASE AVG GAP",(csp.coinbase||{}).mean_difference_pct==null?"—":(csp.coinbase||{}).mean_difference_pct+"%","Against Kraken selected price")+
+  card("BINANCE AVG GAP",(csp.binance||{}).mean_difference_pct==null?"—":(csp.binance||{}).mean_difference_pct+"%","Against Kraken selected price")+
+  card("SAVED OBSERVATIONS",css.record_count||0,"Rolling 14-day shadow history")+'</div>'+
+  (csr.length?'<div class="scroll"><table><thead><tr><th>SYMBOL</th><th>SOURCE</th><th>KRAKEN PRICE</th><th>REFERENCE PRICE</th><th>GAP</th><th>AGE</th><th>STATUS</th><th>SCAN TIME</th></tr></thead><tbody>'+
+   csr.slice().reverse().map(function(x){return '<tr><td><b>'+esc(x.symbol)+'</b></td><td>'+esc(x.provider)+'</td><td>'+esc(x.primary_price)+'</td><td>'+esc(x.shadow_price)+'</td><td>'+esc(x.difference_pct==null?"—":x.difference_pct+"%")+'</td><td>'+esc(x.shadow_age_seconds==null?"—":x.shadow_age_seconds+" sec")+'</td><td>'+esc(x.status)+(x.error?" · "+esc(x.error):"")+'</td><td>'+esc(dateText(x.scan_timestamp))+'</td></tr>'}).join("")+'</tbody></table></div>'
+   :'<div class="muted">No crypto shadow samples saved yet. A successful scan with returned crypto candidates is required.</div>');
  var wy=d.webull_yahoo_comparison||{},ws=wy.summary||{},wr=wy.recent_records||[];
  document.getElementById("webull-yahoo").innerHTML=
   '<div class="grid">'+card("SAVED SAMPLES",ws.record_count||0,"Retained up to 14 days")+
