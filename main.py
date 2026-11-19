@@ -2358,14 +2358,14 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
  if(el)el.textContent='Overview independent check running…';
  fetch('/history/data?bootstrap='+Date.now(),{cache:'no-store'})
  .then(r=>{if(!r.ok)throw Error('History API HTTP '+r.status);return r.json()})
- .then(d=>{if(el)el.textContent='Independent check OK · '+Object.keys(d.paper_tracker||{}).length+' saved records · waiting for dashboard script';})
+ .then(d=>{document.documentElement.dataset.historyBootstrap='ok';})
  .catch(e=>{if(el)el.textContent='Independent check failed · '+(e.message||e);});
 })();
 </script>
 <script>
 window.addEventListener('error',function(ev){const el=document.getElementById('updated');if(el)el.textContent='Overview JavaScript error: '+(ev.message||'script error');});
 window.addEventListener('unhandledrejection',function(ev){const el=document.getElementById('updated');if(el)el.textContent='Overview promise error: '+(ev.reason&&ev.reason.message||ev.reason||'unknown');});
-const status=document.getElementById('updated');if(status)status.textContent='Overview script started · fetching history…';
+const status=document.getElementById('updated');if(status)status.textContent='Dashboard loading…';
 const n=v=>Number(v||0),hasPct=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v)),pct=v=>hasPct(v)?Number(v).toFixed(2)+'%':'—',cl=v=>!hasPct(v)?'':n(v)>0?'pos':n(v)<0?'neg':'',e=v=>String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#39;"),date=v=>v?new Date(v).toLocaleString():'—';
 const rank={'BUY':8,'EARLY SETUP':6,'DEVELOPING RUNNER':5,'DEVELOPING SETUP':5,'ACTIONABLE SETUP':4,'EARLY WATCH':3,'LATE RUNNER — CHASE RISK':2,'LOW-CONVICTION WATCH':1};
 const PREF_KEY='jarvisDashboardPrefsV1';const prefs={radarFilter:'all',assetFilter:'all',density:'comfortable',showTimeline:true,showPerformance:true};try{Object.assign(prefs,JSON.parse(localStorage.getItem(PREF_KEY)||'{}'));}catch(_){}
@@ -2460,7 +2460,7 @@ const moves=[];all.forEach(x=>(x.grade_history||[]).forEach(m=>moves.push({...m,
 document.getElementById('catalysts').innerHTML=all.filter(x=>(x.discovery_reasons||[]).length||(x.catalysts||[]).length||(x.risk_flags||[]).length).slice(0,40).map(x=>'<tr><td>'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'</td><td>'+e((x.discovery_reasons||[]).join(' · ')||'—')+'</td><td>'+((x.catalysts||[]).slice(0,2).map(c=>c.url?'<a target="_blank" rel="noopener" href="'+e(c.url)+'">'+e(c.title)+'</a>':e(c.title)).join('<br>')||'—')+'</td><td class="neg">'+e((x.risk_flags||[]).join(' · ')||'—')+'</td></tr>').join('')||'<tr><td colspan="4">Discovery details will populate on the next scan.</td></tr>';
 const faded=all.filter(x=>x.currently_surfaced===false).sort((a,b)=>(b.last_seen||'').localeCompare(a.last_seen||''));document.getElementById('faded').innerHTML=faded.slice(0,40).map(x=>'<tr><td>'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'</td><td>'+date(x.last_seen)+'</td><td class="'+cl(x.discovery_return_pct)+'">'+pct(x.discovery_return_pct)+'</td><td class="pos">'+pct(x.discovery_max_gain_pct??x.max_gain_pct)+'</td><td>'+e(x.last_stage||'—')+'</td></tr>').join('')||'<tr><td colspan="5">No candidates currently absent from the latest scan.</td></tr>';
 }
-fetch('/history/data?refresh='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('History request failed: HTTP '+r.status);return r.json()}).then(d=>{try{render(d)}catch(err){console.error('Jarvis history render error:',err);document.getElementById('updated').textContent='History data received, but dashboard render failed: '+(err&&err.message||err);}}).catch(err=>{console.error('Jarvis history data load error:',err);document.getElementById('updated').textContent='History data load failed: '+(err&&err.message||err);});
+fetch('/history/data?refresh='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('History request failed: HTTP '+r.status);return r.json()}).then(d=>{try{render(d);const status=document.getElementById('updated');if(status)status.textContent='Dashboard loaded · '+Object.keys((d&&d.paper_tracker)||{}).length+' tracked records';}catch(err){console.error('Jarvis history render error:',err);document.getElementById('updated').textContent='Dashboard rendering failed: '+(err&&err.message||err);}}).catch(err=>{console.error('Jarvis history data load error:',err);document.getElementById('updated').textContent='History data load failed: '+(err&&err.message||err);});
 </script></body></html>""",headers={"Cache-Control":"no-store, no-cache, must-revalidate, max-age=0","Pragma":"no-cache","Expires":"0"})
  
  
