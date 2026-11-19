@@ -284,14 +284,14 @@ jobs:
           path.write_text(json.dumps(history, indent=2) + "\n", encoding="utf-8")
           summary = Path(os.environ["GITHUB_STEP_SUMMARY"])
           week = history["summary"]["last_7_days"]
-          summary.write_text(
-              "\n## Rolling Provider Usage (7 days)\n"
-              f"- Scans recorded: **{week['scan_count']}**\n"
-              f"- Instrumented HTTP 429 / 5xx: **{week['http_429']} / {week['http_5xx']}**\n"
-              f"- Instrumented HTTP status counts: `{json.dumps(week['http_status_counts'], sort_keys=True)}`\n"
-              "- Function-level operation counts are telemetry, not guaranteed billing totals.\n",
-              encoding="utf-8", append=True
-          )
+          with summary.open("a", encoding="utf-8") as handle:
+              handle.write(
+                  "\\n## Rolling Provider Usage (7 days)\\n"
+                  f"- Scans recorded: **{week['scan_count']}**\\n"
+                  f"- Instrumented HTTP 429 / 5xx: **{week['http_429']} / {week['http_5xx']}**\\n"
+                  f"- Instrumented HTTP status counts: `{json.dumps(week['http_status_counts'], sort_keys=True)}`\\n"
+                  "- Function-level operation counts are telemetry, not guaranteed billing totals.\\n"
+              )
           print(f"Recorded provider usage for run {run_id}; retained {len(retained)} scans.")
           PY
       - name: Finalize scan attempt status
