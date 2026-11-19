@@ -47,6 +47,7 @@ def sync_history_to_site(paper, lifetime, now, buy_signals=None, scan_metadata=N
         "lifetime": lifetime,
         "buy_signals": buy_signals or [],
         "paper_trading": paper_account or {},
+        "scan_diagnostics": scan_metadata.get("scan_diagnostics") or {},
     }).encode("utf-8")
     last_error = None
     for attempt in range(2):
@@ -1002,6 +1003,8 @@ def main():
     })
     metadata_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
 
+    metadata["scan_diagnostics"] = payload.get("diagnostics") or {}
+    metadata_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
     DIAGNOSTICS_STATE.write_text(json.dumps({
         "timestamp": payload.get("timestamp"),
         "candidates_found": payload.get("candidates_found", 0),
