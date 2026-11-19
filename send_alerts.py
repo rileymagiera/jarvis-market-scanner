@@ -339,7 +339,11 @@ def update_paper_tracker(candidates, now):
         record["early_runner_research_score"] = item.get("early_runner_research_score")
         record["research_feature_snapshot"] = {field: item.get(field) for field in research_fields}
         data_quality_for_outcomes = item.get("data_quality") or {}
-        observation_eligible = bool(item.get("price_validation_passed")) and (
+        price_is_verified = (
+            bool(item.get("price_validation_passed"))
+            or str(item.get("price_validation_status") or "").lower() == "verified"
+        )
+        observation_eligible = price_is_verified and (
             asset_type != "stock" or (
                 data_quality_for_outcomes.get("data_type") == "live"
                 and safe_float(data_quality_for_outcomes.get("age_seconds"), 999999) <= 900
