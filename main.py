@@ -2380,6 +2380,79 @@ def latest_history_state() -> dict:
     return github_history_state()
 
 
+
+@app.get("/data-health", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
+def data_health_page():
+    html = (TEMPLATE_DIR / "data_health.html").read_text(encoding="utf-8")
+    return apply_workspace_preferences(HTMLResponse(html))
+
+
+@app.get("/data-health/data", dependencies=[Depends(require_site_login)])
+def data_health_data():
+    state = latest_history_state()
+    records = state.get("paper_tracker", {}) if isinstance(state, dict) else {}
+    records = records if isinstance(records, dict) else {}
+    candidates = [item for item in records.values() if isinstance(item, dict) and item.get("currently_surfaced") is not False]
+    diagnostics = state.get("scan_diagnostics", {}) if isinstance(state, dict) else {}
+    diagnostics = diagnostics if isinstance(diagnostics, dict) else {}
+    detail = diagnostics.get("diagnostics") if isinstance(diagnostics.get("diagnostics"), dict) else diagnostics
+    stock = [x for x in candidates if x.get("asset_type") == "stock"]
+    crypto = [x for x in candidates if x.get("asset_type") == "crypto"]
+    def status_counts(items):
+        result = {"verified": 0, "last_known": 0, "unverified": 0, "unknown": 0}
+        for item in items:
+            status = str(item.get("price_validation_status") or "").lower()
+            result[status if status in result else "unknown"] += 1
+        return result
+    def coverage(items, keys):
+        return {key: sum(1 for item in items if item.get(key) is not None) for key in keys}
+    def quality(item):
+        value = item.get("data_quality")
+        return value if isinstance(value, dict) else {}
+    missing_price = [x for x in candidates if safe_float(x.get("latest_price") or x.get("price"), 0) <= 0]
+    missing_source = [x for x in candidates if not (x.get("price_source") or quality(x).get("data_source"))]
+    missing_timestamp = [x for x in candidates if not (x.get("price_as_of") or quality(x).get("observed_at"))]
+    stale = [x for x in candidates if quality(x).get("age_seconds") is not None and safe_float(quality(x).get("age_seconds")) > 900]
+    alpaca = detail.get("alpaca_quote_status", {}) if isinstance(detail, dict) else {}
+    crypto_diag = detail.get("crypto", {}) if isinstance(detail, dict) else {}
+    return {
+        "last_scan_completed_at": state.get("last_scan_completed_at") if isinstance(state, dict) else None,
+        "scan_run_id": state.get("scan_run_id") if isinstance(state, dict) else None,
+        "history_source": state.get("history_source", "unknown") if isinstance(state, dict) else "unknown",
+        "candidate_count": len(candidates), "assets": {"stocks": len(stock), "crypto": len(crypto)},
+        "price_status": {"all": status_counts(candidates), "stocks": status_counts(stock), "crypto": status_counts(crypto)},
+        "data_gaps": {"missing_price": len(missing_price), "missing_source": len(missing_source),
+                      "missing_timestamp": len(missing_timestamp), "older_than_15_minutes": len(stale)},
+        "field_coverage": {
+            "stocks": coverage(stock, ("data_quality", "daily_data_quality", "intraday_data_quality", "float_shares", "shares_outstanding", "spread_pct", "news")),
+            "crypto": coverage(crypto, ("data_quality", "hourly_data_quality", "crqs", "crqs_data_coverage", "news")),
+        },
+        "providers": {
+            "stock_price_feed": alpaca.get("feed"), "alpaca_credentials_configured": alpaca.get("credentials_configured"),
+            "alpaca_candidate_status_counts": alpaca.get("candidate_status_counts", {}),
+            "webull_status": detail.get("webull_quote_status"), "webull_note": detail.get("webull_quote_note"),
+            "massive_status": detail.get("massive_live_quote_status"), "massive_note": detail.get("massive_live_quote_note"),
+            "crypto_verified": (crypto_diag.get("price_validation") or {}).get("verified"),
+            "crypto_unverified": (crypto_diag.get("price_validation") or {}).get("unverified"),
+        },
+        "scan_errors": (detail.get("stocks", {}).get("scan_errors", 0) + detail.get("crypto", {}).get("scan_errors", 0)) if isinstance(detail, dict) else 0,
+        "provider_http_429_count": detail.get("timing_breakdown", {}).get("provider_activity", {}).get("provider_http_429_count", 0) if isinstance(detail, dict) else 0,
+        "provider_http_5xx_count": detail.get("timing_breakdown", {}).get("provider_activity", {}).get("provider_http_5xx_count", 0) if isinstance(detail, dict) else 0,
+        "candidates": [{
+            "symbol": item.get("symbol") or "Unknown", "asset_type": item.get("asset_type") or "unknown",
+            "stage": item.get("last_stage") or item.get("stage") or "Not recorded",
+            "price_status": item.get("price_validation_status") or "unknown",
+            "price": item.get("latest_price") or item.get("price"), "source": item.get("price_source") or quality(item).get("data_source"),
+            "observed_at": item.get("price_as_of") or quality(item).get("observed_at"),
+            "age_seconds": quality(item).get("age_seconds"), "data_type": quality(item).get("data_type") or "unknown",
+            "buy_eligible": quality(item).get("buy_eligible"),
+            "missing": [label for label, value in (("price", item.get("latest_price") or item.get("price")),
+                ("source", item.get("price_source") or quality(item).get("data_source")),
+                ("timestamp", item.get("price_as_of") or quality(item).get("observed_at"))) if value is None or value == ""]
+        } for item in sorted(candidates, key=lambda x: (0 if x.get("price_validation_status") == "unverified" else 1 if x.get("price_validation_status") == "last_known" else 2, str(x.get("symbol") or "")))[:250]]
+    }
+
+
 @app.get("/history", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
 def history_page():
     html = (TEMPLATE_DIR / "history.html").read_text(encoding="utf-8")
@@ -2387,6 +2460,7 @@ def history_page():
 def analytics_tab_page(active: str) -> str:
     tabs = [
         ("discovery-performance", "Discovery Performance"),
+        ("data-health", "Data Health"),
         ("intelligence", "Intelligence"),
         ("market-breadth", "Market Breadth"),
         ("history", "Market Overview"),
