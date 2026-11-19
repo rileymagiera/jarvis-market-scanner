@@ -7,7 +7,8 @@ on:
       - "main.py"
       - "send_alerts.py"
       - "early_runner.py"
-      - "tests/test_provider_telemetry.py"
+      - "runner_intelligence.py"
+      - "tests/**"
       - ".github/workflows/validate-jarvis.yml"
   pull_request:
     paths:
@@ -30,7 +31,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Validate Python syntax
-        run: python -m py_compile main.py send_alerts.py early_runner.py
+        run: python -m py_compile main.py send_alerts.py early_runner.py runner_intelligence.py
       - name: Install scanner test dependencies
         run: python -m pip install --disable-pip-version-check -r requirements.txt pytest
       - name: Run provider telemetry regression tests
