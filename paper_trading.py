@@ -45,7 +45,7 @@ def calculate_trade_fee(asset_type, side, notional, quantity=0.0, order_type=Non
                 "spread_estimate_rate": COINBASE_APP_SPREAD_ESTIMATE_RATE,
                 "monthly_zero_fee_cap": COINBASE_ONE_MONTHLY_CAP,
                 "total": round(spread, 8), "rate": COINBASE_APP_SPREAD_ESTIMATE_RATE,
-                "note": "Estimated spread only; actual spread varies by asset, size and market conditions. The $500 monthly Coinbase One cap is not tracked; standard fees may apply after it is exceeded"}
+                "note": "Estimated spread only; actual spread varies by asset, size and market conditions. Monthly gross volume is tracked at account level; standard commission after the $500 cap is not configured"}
     if asset in ("stock", "stocks", "equity", "etf"):
         commission = notional * WEBULL_COMMISSION_RATE
         cat = notional * WEBULL_CAT_RATE
@@ -74,7 +74,7 @@ def load_account():
             state["rules"].update({
                 "crypto_fee_schedule": "Coinbase One Basic app: zero eligible trading commission up to $500/month; estimated spread 0.50% per side; simulated monthly gross volume tracked; standard commission after $500 cap not configured",
                 "stock_fee_schedule": "Webull US stocks: $0 commission; CAT 0.0003% per side; SEC 0.00206% sell side; FINRA TAF currently $0",
-                "crypto_default_order_type": DEFAULT_CRYPTO_ORDER_TYPE,
+                "crypto_default_order_type": DEFAULT_CRYPTO_ORDER_TYPE,\n                "allocation_method": "Rank active eligible official BUYs by official score, then target-2 reward/risk; retain existing risk and capacity limits; retry capacity-deferred signals while active",
             })
             for position in state.get("positions", []):
                 if isinstance(position, dict):
@@ -95,7 +95,7 @@ def load_account():
             "risk_per_trade_pct": 1.0, "max_position_pct": 25.0,
             "max_open_positions": MAX_OPEN_POSITIONS, "crypto_fee_schedule": "Coinbase One Basic app: zero eligible trading commission up to $500/month; estimated spread 0.50% per side; simulated monthly gross volume tracked; standard commission after $500 cap not configured",
             "stock_fee_schedule": "Webull US stocks: $0 commission; CAT 0.0003% per side; SEC 0.00206% sell side; FINRA TAF currently $0",
-            "exits": "50% at target 1, remainder at target 2; full exit at stop",
+            "exits": "50% at target 1, remainder at target 2; full exit at stop",\n            "allocation_method": "Rank active eligible official BUYs by official score, then target-2 reward/risk; retain existing risk and capacity limits; retry capacity-deferred signals while active",
         },
     }
 
