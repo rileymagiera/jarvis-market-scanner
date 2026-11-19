@@ -1,25 +1,12 @@
 {
-  "allocation_review": [
-    {
-      "asset_type": "crypto",
-      "effective_risk_budget_pct": 0.82,
-      "official_score": 82.0,
-      "paper_notional": 50.46,
-      "rank": 1,
-      "reason": "Allocated by rank; score-scaled risk stays within existing limits",
-      "signal_id": "risk_off:crypto:MEGAUSDT:2026-11-19",
-      "status": "allocated",
-      "symbol": "MEGAUSDT",
-      "target_2_reward_risk": 3.0
-    }
-  ],
+  "allocation_review": [],
   "cash": 199.28523977,
   "closed_trades": [],
   "coinbase_one_monthly_volume": {
     "2026-11": 50.46244799
   },
   "created_at": "2026-11-19T04:34:15.459868+00:00",
-  "last_updated_at": "2026-11-19T12:32:31.074037+00:00",
+  "last_updated_at": "2026-11-19T13:04:34.304288+00:00",
   "ledger": [
     {
       "allocation_rank": 1,
@@ -102,20 +89,20 @@
   ],
   "risk_off_signal_diagnostics": {
     "candidates_total": 240,
-    "eligible_signals": 1,
+    "eligible_signals": 0,
     "rejections": {
-      "failed_buy_gate:24h_breakout": 82,
-      "failed_buy_gate:above_24h_average": 15,
-      "failed_buy_gate:breakout_confirmed": 115,
-      "failed_buy_gate:five_bar_intraday_trend_up": 77,
+      "failed_buy_gate:24h_breakout": 87,
+      "failed_buy_gate:above_24h_average": 17,
+      "failed_buy_gate:breakout_confirmed": 118,
+      "failed_buy_gate:five_bar_intraday_trend_up": 80,
       "failed_buy_gate:fresh_intraday_confirmation": 148,
-      "failed_buy_gate:live_data_quality": 160,
+      "failed_buy_gate:live_data_quality": 158,
       "failed_buy_gate:no_risk_flags": 8,
       "failed_buy_gate:not_chase_risk": 5,
-      "failed_buy_gate:positive_hourly_momentum": 26,
-      "failed_buy_gate:price_verified": 16,
-      "failed_buy_gate:score_82": 239,
-      "failed_buy_gate:two_technical_confirmations": 95,
+      "failed_buy_gate:positive_hourly_momentum": 42,
+      "failed_buy_gate:price_verified": 14,
+      "failed_buy_gate:score_82": 240,
+      "failed_buy_gate:two_technical_confirmations": 96,
       "failed_buy_gate:volume_1_8x": 74,
       "failed_buy_gate:volume_confirmed": 123
     },
