@@ -116,3 +116,53 @@ def test_target_crossings_are_recorded_as_observations_not_fills(tmp_path, monke
     observations = result[0]["level_observations"]
     assert observations["target_1_observed"]["observed_price"] == 11.2
     assert "target_2_observed" not in observations
+
+
+def test_history_learning_excludes_non_live_stock_outcomes():
+    tracker = {
+        f"stock:OLD{i}": {
+            "asset_type": "stock",
+            "price_validation_status": "verified",
+            "data_quality": {"data_type": "eod"},
+            "early_runner_initial_feature_snapshot": {"catalyst_labels": ["FDA approval"]},
+            "early_runner_outcomes": {"5d": {"return_pct": 30.0}},
+        }
+        for i in range(10)
+    }
+    candidate = {
+        "asset_type": "stock",
+        "catalyst_labels": ["FDA approval"],
+        "early_runner_research_score": 80,
+    }
+
+    result = send_alerts.apply_history_runner_learning([candidate], tracker)
+
+    assert result[0]["history_runner_learning"]["score_bonus"] == 0
+    assert result[0]["history_runner_learning"]["matched_features"] == []
+
+
+def test_history_learning_requires_eight_verified_five_day_stock_outcomes():
+    tracker = {}
+    for i in range(8):
+        tracker[f"stock:LIVE{i}"] = {
+            "asset_type": "stock",
+            "price_validation_status": "verified",
+            "data_quality": {"data_type": "live"},
+            "early_runner_initial_feature_snapshot": {"catalyst_labels": ["FDA approval"]},
+            "early_runner_outcomes": {"5d": {"return_pct": 25.0}},
+        }
+    candidate = {
+        "asset_type": "stock",
+        "catalyst_labels": ["FDA approval"],
+        "early_runner_research_score": 80,
+    }
+
+    result = send_alerts.apply_history_runner_learning([candidate], tracker)
+
+    assert result[0]["history_runner_learning"]["score_bonus"] == 10
+    catalyst = [
+        item for item in result[0]["history_runner_learning"]["matched_features"]
+        if item["feature"] == "catalyst_present"
+    ]
+    assert len(catalyst) == 1
+    assert catalyst[0]["n"] == 8
