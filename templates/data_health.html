@@ -50,10 +50,10 @@ function renderDataHealth(){
   '<div class="grid">'+card("SYMBOLS SAMPLED",cs.symbols_sampled||0,"Rotating sample · maximum "+(cs.sample_limit||0))+
   card("COINBASE COMPARABLE",(csp.coinbase||{}).comparable||0,"Of "+((csp.coinbase||{}).samples||0)+" saved observations")+
   card("BINANCE US COMPARABLE",(csp.binance_us||{}).comparable||0,"Of "+((csp.binance_us||{}).samples||0)+" saved observations")+
-  card("COINBASE AVG GAP",(csp.coinbase||{}).mean_difference_pct==null?"—":(csp.coinbase||{}).mean_difference_pct+"%","Against Kraken selected price")+
+  card("COINBASE AVG GAP",(csp.coinbase||{}).mean_difference_pct==null?"—":(csp.coinbase||{}).mean_difference_pct+"%","Against Jarvis selected price")+
   card("BINANCE US AVG GAP",(csp.binance_us||{}).mean_difference_pct==null?"—":(csp.binance_us||{}).mean_difference_pct+"%","Against Kraken selected price")+
   card("SAVED OBSERVATIONS",css.record_count||0,"Rolling 14-day shadow history")+'</div>'+
-  (csr.length?'<div class="scroll"><table><thead><tr><th>SYMBOL</th><th>SOURCE</th><th>KRAKEN PRICE</th><th>REFERENCE PRICE</th><th>GAP</th><th>AGE</th><th>STATUS</th><th>SCAN TIME</th></tr></thead><tbody>'+
+  (csr.length?'<div class="scroll"><table><thead><tr><th>SYMBOL</th><th>SOURCE</th><th>JARVIS PRICE</th><th>REFERENCE PRICE</th><th>GAP</th><th>AGE</th><th>STATUS</th><th>SCAN TIME</th></tr></thead><tbody>'+
    csr.slice().reverse().map(function(x){return '<tr><td><b>'+esc(x.symbol)+'</b></td><td>'+esc(x.provider==="binance_us"?"Binance.US":x.provider)+'</td><td>'+esc(x.primary_price)+'</td><td>'+esc(x.shadow_price)+'</td><td>'+esc(x.difference_pct==null?"—":x.difference_pct+"%")+'</td><td>'+esc(x.shadow_age_seconds==null?"—":x.shadow_age_seconds+" sec")+'</td><td>'+esc(x.status)+(x.error?" · "+esc(x.error):"")+'</td><td>'+esc(dateText(x.scan_timestamp))+'</td></tr>'}).join("")+'</tbody></table></div>'
    :'<div class="muted">No crypto shadow samples saved yet. A successful scan with returned crypto candidates is required.</div>');
  var wy=d.webull_yahoo_comparison||{},ws=wy.summary||{},wr=wy.recent_records||[];
