@@ -506,7 +506,7 @@ def update_paper_tracker(candidates, now, scan_id=None):
         record["research_signal_matches"] = item.get("research_signal_matches") or item.get("research_signals") or []
         record["early_runner_signal_matches"] = item.get("early_runner_signal_matches") or []
         record["early_runner_research_score"] = item.get("early_runner_research_score")
-            append_candidate_snapshot(record, item, now.isoformat(), scan_id or now.isoformat())
+        append_candidate_snapshot(record, item, now.isoformat(), scan_id or now.isoformat())
         research_feature_snapshot = {field: item.get(field) for field in research_fields}
         data_quality_for_outcomes = item.get("data_quality") or {}
         price_is_verified = (
@@ -706,7 +706,7 @@ def update_paper_tracker(candidates, now, scan_id=None):
         update_candidate_lifecycle(record, item, now, observation_eligible=observation_eligible)
         record["early_runner_signal_matches"] = item.get("early_runner_signal_matches") or []
         record["early_runner_research_score"] = item.get("early_runner_research_score")
-            append_candidate_snapshot(record, item, now.isoformat(), scan_id or now.isoformat())
+        append_candidate_snapshot(record, item, now.isoformat(), scan_id or now.isoformat())
         record["last_seen"] = now.isoformat()
         record["last_stage"] = stage
         record["currently_surfaced"] = True
