@@ -2220,11 +2220,12 @@ def crypto_shadow_quote(provider: str, symbol: str, quote_currency: str = "USD")
         record_scan_metric(f"crypto_shadow_{provider}", time.monotonic() - started, outcome, error=error_detail)
 
 
-def compare_crypto_shadow_quote(provider: str, symbol: str, primary_price, primary_as_of, quote=None, error=None, primary_quote_currency="USD") -> dict:
+def compare_crypto_shadow_quote(provider: str, symbol: str, primary_price, primary_as_of, quote=None, error=None, primary_quote_currency="USD", primary_source=None) -> dict:
     primary = safe_float(primary_price)
     result = {
         "provider": provider, "symbol": symbol,
         "primary_price": primary if primary > 0 else None,
+        "primary_source": primary_source,
         "primary_as_of": primary_as_of,
         "shadow_price": quote.get("price") if quote else None,
         "shadow_as_of": quote.get("as_of") if quote else None,
@@ -2235,7 +2236,9 @@ def compare_crypto_shadow_quote(provider: str, symbol: str, primary_price, prima
         "status": "unavailable" if error or not quote else "primary_unavailable",
         "error": str(error)[:180] if error else None,
     }
-    if quote and quote.get("quote_currency") != primary_quote_currency:
+    if quote and provider == "coinbase" and str(primary_source or "").lower().startswith("coinbase"):
+        result["status"] = "same_as_primary_source"
+    elif quote and quote.get("quote_currency") != primary_quote_currency:
         result["status"] = "quote_currency_mismatch"
     elif quote and primary > 0:
         midpoint = (primary + quote["price"]) / 2
@@ -2304,7 +2307,7 @@ def collect_crypto_shadow_comparisons(crypto_results: list[dict], run_number=Non
             except Exception as exc:
                 error = f"{type(exc).__name__}: {str(exc)[:160]}"
             records.append(compare_crypto_shadow_quote(
-                provider, symbol, item.get("price"), item.get("price_as_of"), quote, error, quote_currency
+                provider, symbol, item.get("price"), item.get("price_as_of"), quote, error, quote_currency, item.get("price_source")
             ))
     history = persist_crypto_shadow_history(records, now_iso(), run_id)
     return {"mode": "shadow_only", "sample_limit": CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN,
