@@ -2375,7 +2375,7 @@ function elapsed(from,to){if(!from||!to)return '—';const ms=new Date(to)-new D
 const integrity=l.integrity||{};const integrityNode=document.getElementById('ledger-integrity');if(integrityNode){const missing=n(integrity.retained_stock_uncounted_baselines);integrityNode.textContent='Ledger integrity · stock baselines '+n(integrity.retained_stock_baselines)+' · counted '+n(integrity.retained_stock_counted_baselines)+' · uncounted '+missing+' · unverified without baseline '+n(integrity.unverified_stock_without_baseline)+(missing?' · CHECK REQUIRED':' · OK');}
 const fmtTime=d.last_scan_completed_at?new Intl.DateTimeFormat('en-US',{timeZone:'America/Detroit',year:'numeric',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit',timeZoneName:'short'}).format(new Date(d.last_scan_completed_at)):'No completed scan timestamp yet';document.getElementById('updated').textContent='Last scan completed: '+fmtTime;
 
-const stageRank={'BUY':8,'EARLY SETUP':6,'DEVELOPING RUNNER':5,'DEVELOPING SETUP':5,'ACTIONABLE SETUP':4,'EARLY WATCH':3,'LATE RUNNER — CHASE RISK':2,'LOW-CONVICTION WATCH':1,'PRICE UNVERIFIED — WATCH ONLY':2};
+const stageRank={'BUY':8,'EARLY SETUP':6,'DEVELOPING RUNNER':5,'DEVELOPING SETUP':5,'ACTIONABLE SETUP':4,'EARLY WATCH':3,'LATE RUNNER — CHASE RISK':2,'LOW-CONVICTION WATCH':1};
 // Active radar excludes unverified quotes. Confirmed prior-session stock closes remain research-only; crypto must be live verified.
 const surfaced=all.filter(x=>x.currently_surfaced!==false&&(x.price_validation_status==='verified'||(x.asset_type==='stock'&&x.price_validation_status==='last_known')));
 const diagnosticUnverified=all.filter(x=>x.currently_surfaced!==false&&x.price_validation_status==='unverified');
