@@ -57,11 +57,11 @@ def test_data_health_page_and_api_are_read_only_and_descriptive(monkeypatch):
         "paper_tracker": {
             "A": {"symbol": "AAA", "asset_type": "stock", "currently_surfaced": True,
                   "price_validation_status": "verified", "latest_price": 12.5,
-                  "price_source": "Alpaca IEX", "price_as_of": "2026-11-19T15:00:00+00:00",
+                  "price_source": "Alpaca IEX", "price_as_of": "2026-11-19T15:00:00+00:00", "catalyst_headline_count": 2,
                   "data_quality": {"data_type": "live", "verification_status": "verified",
                                    "age_seconds": 30, "buy_eligible": True}},
             "B": {"symbol": "BBB", "asset_type": "crypto", "currently_surfaced": True,
-                  "price_validation_status": "unverified", "latest_price": 0,
+                  "price_validation_status": "unverified", "latest_price": 0, "catalyst_headline_count": 1,
                   "data_quality": {"data_type": "unknown"}},
         },
         "scan_diagnostics": {"diagnostics": {"alpaca_quote_status": {"feed": "iex"},
@@ -80,4 +80,6 @@ def test_data_health_page_and_api_are_read_only_and_descriptive(monkeypatch):
     assert data["price_status"]["all"]["unverified"] == 1
     assert data["data_gaps"]["missing_source"] == 1
     assert data["providers"]["stock_price_feed"] == "iex"
+    assert data["field_coverage"]["stocks"]["catalyst_headline_count"] == 1
+    assert data["field_coverage"]["crypto"]["catalyst_headline_count"] == 1
     assert data["scan_errors"] == 0
