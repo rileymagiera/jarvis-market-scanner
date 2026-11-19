@@ -85,7 +85,8 @@ def load_account():
         "last_updated_at": None, "rules": {
             "entry": "Official BUY signal + verified price inside saved entry range",
             "risk_per_trade_pct": 1.0, "max_position_pct": 25.0,
-            "max_open_positions": MAX_OPEN_POSITIONS, "crypto_fee_schedule": "Coinbase One Basic app: zero eligible trading commission up to $500/month; estimated spread 0.50% per side",\n            "stock_fee_schedule": "Webull US stocks: $0 commission; CAT 0.0003% per side; SEC 0.00206% sell side; FINRA TAF currently $0",
+            "max_open_positions": MAX_OPEN_POSITIONS, "crypto_fee_schedule": "Coinbase One Basic app: zero eligible trading commission up to $500/month; estimated spread 0.50% per side",
+            "stock_fee_schedule": "Webull US stocks: $0 commission; CAT 0.0003% per side; SEC 0.00206% sell side; FINRA TAF currently $0",
             "exits": "50% at target 1, remainder at target 2; full exit at stop",
         },
     }
@@ -218,7 +219,9 @@ def update_account(candidates, buy_signals, now):
             "signal_id": signal_id, "symbol": key[1], "asset_type": key[0],
             "opened_at": now.isoformat(), "entry_price": price, "latest_price": price,
             "latest_price_as_of": item.get("price_as_of"), "quantity": quantity,
-            "initial_quantity": quantity, "notional": round(notional, 8), "entry_fee": round(fee, 8),\n            "entry_fee_remaining": round(fee, 8), "fees_paid": round(fee, 8),\n            "entry_fee_breakdown": entry_fee_info,
+            "initial_quantity": quantity, "notional": round(notional, 8), "entry_fee": round(fee, 8),
+            "entry_fee_remaining": round(fee, 8), "fees_paid": round(fee, 8),
+            "entry_fee_breakdown": entry_fee_info,
             "stop_loss": stop, "target_1": target1, "target_2": target2,
             "score": signal.get("score"), "score_model": signal.get("score_model"),
             "price_source": item.get("price_source") or item.get("data_source"),
