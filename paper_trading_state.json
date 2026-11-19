@@ -1,20 +1,23 @@
 {
-  "version": 1,
-  "mode": "PAPER_ONLY",
-  "starting_cash": 250,
-  "cash": 250,
-  "positions": [],
+  "cash": 250.0,
   "closed_trades": [],
+  "created_at": "2026-11-19T04:34:15.459868+00:00",
+  "last_updated_at": "2026-11-19T04:34:15.459868+00:00",
   "ledger": [],
+  "mode": "PAPER_ONLY",
+  "positions": [],
   "processed_signal_ids": [],
-  "created_at": null,
-  "last_updated_at": null,
   "rules": {
+    "crypto_default_order_type": "simple_app",
+    "crypto_fee_schedule": "Coinbase One Basic app: zero eligible trading commission up to $500/month; estimated spread 0.50% per side; $500 monthly cap exhaustion not yet tracked",
     "entry": "Official BUY signal + verified price inside saved entry range",
-    "risk_per_trade_pct": 1,
-    "max_position_pct": 25,
-    "max_open_positions": 4,
+    "exits": "50% at target 1, remainder at target 2; full exit at stop",
     "fee_per_side_pct": 0.1,
-    "exits": "50% at target 1, remainder at target 2; full exit at stop"
-  }
+    "max_open_positions": 4,
+    "max_position_pct": 25,
+    "risk_per_trade_pct": 1,
+    "stock_fee_schedule": "Webull US stocks: $0 commission; CAT 0.0003% per side; SEC 0.00206% sell side; FINRA TAF currently $0"
+  },
+  "starting_cash": 250,
+  "version": 1
 }
