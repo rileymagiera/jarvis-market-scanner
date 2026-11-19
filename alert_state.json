@@ -60,6 +60,11 @@
       "score": 7,
       "status": "PREMARKET VERIFIED"
     },
+    "BE": {
+      "alerted_at": "2026-11-19T17:17:31.283681+00:00",
+      "score": 9,
+      "status": "PREMARKET VERIFIED"
+    },
     "BIRD": {
       "alerted_at": "2026-11-19T16:47:27.074989+00:00",
       "score": 18,
@@ -108,6 +113,11 @@
     "IONQ": {
       "alerted_at": "2026-11-19T15:04:24.560095+00:00",
       "score": 9,
+      "status": "PREMARKET VERIFIED"
+    },
+    "IQ": {
+      "alerted_at": "2026-11-19T17:17:31.283681+00:00",
+      "score": 12,
       "status": "PREMARKET VERIFIED"
     },
     "IREN": {
@@ -195,6 +205,11 @@
       "score": 27,
       "status": "PREMARKET VERIFIED"
     }
+  },
+  "stock:GME": {
+    "alerted_at": "2026-11-19T17:17:31.283681+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 66
   },
   "stock:GNRC": {
     "alerted_at": "2026-11-19T16:32:42.129034+00:00",
