@@ -17,9 +17,9 @@ EXPECTED_NAV = [
 
 
 def nav_links(html):
-    match = re.search(r"<nav\\b[^>]*>(.*?)</nav>", html, re.DOTALL)
+    match = re.search(r"<nav\b[^>]*>(.*?)</nav>", html, re.DOTALL)
     assert match, "Navigation should be present"
-    return re.findall(r'<a\\b[^>]*href="/([^"]+)"[^>]*>([^<]+)</a>', match.group(1))
+    return re.findall(r'<a\b[^>]*href="/([^"]+)"[^>]*>([^<]+)</a>', match.group(1))
 
 
 def test_navigation_is_consistent_and_alphabetical_across_dashboard_pages():
