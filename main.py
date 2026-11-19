@@ -2430,6 +2430,19 @@ def data_health_data():
         return result
     def coverage(items, keys):
         return {key: sum(1 for item in items if item.get(key) is not None) for key in keys}
+    def validation_reason(item):
+        note = str(item.get("price_validation_note") or "").strip()
+        return note or "No validation explanation was saved"
+    unverified_candidates = [item for item in candidates
+                             if str(item.get("price_validation_status") or "").lower() == "unverified"]
+    reason_counts = {}
+    for item in unverified_candidates:
+        reason = validation_reason(item)
+        reason_counts[reason] = reason_counts.get(reason, 0) + 1
+    failure_reasons = [
+        {"reason": reason, "count": count}
+        for reason, count in sorted(reason_counts.items(), key=lambda pair: (-pair[1], pair[0].lower()))
+    ]
     def quality(item):
         value = item.get("data_quality")
         return value if isinstance(value, dict) else {}
@@ -2445,6 +2458,7 @@ def data_health_data():
         "history_source": state.get("history_source", "unknown") if isinstance(state, dict) else "unknown",
         "candidate_count": len(candidates), "assets": {"stocks": len(stock), "crypto": len(crypto)},
         "price_status": {"all": status_counts(candidates), "stocks": status_counts(stock), "crypto": status_counts(crypto)},
+        "failure_reasons": failure_reasons,
         "data_gaps": {"missing_price": len(missing_price), "missing_source": len(missing_source),
                       "missing_timestamp": len(missing_timestamp), "older_than_15_minutes": len(stale)},
         "field_coverage": {
@@ -2466,6 +2480,8 @@ def data_health_data():
             "symbol": item.get("symbol") or "Unknown", "asset_type": item.get("asset_type") or "unknown",
             "stage": item.get("last_stage") or item.get("stage") or "Not recorded",
             "price_status": item.get("price_validation_status") or "unknown",
+            "validation_note": item.get("price_validation_note") or "No validation explanation was saved",
+            "failure_reason": validation_reason(item) if str(item.get("price_validation_status") or "").lower() == "unverified" else None,
             "price": item.get("latest_price") or item.get("price"), "source": item.get("price_source") or quality(item).get("data_source"),
             "observed_at": item.get("price_as_of") or quality(item).get("observed_at"),
             "age_seconds": quality(item).get("age_seconds"), "data_type": quality(item).get("data_type") or "unknown",
