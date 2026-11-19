@@ -1,4 +1,5 @@
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from market_data_cache import HourlyCandleCache
@@ -27,17 +28,19 @@ class HourlyCandleCacheTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "kraken.json"
             first = HourlyCandleCache(cache_path=path)
-            first.put("XBTUSD", [[1, 2]], now_epoch=3601)
+            now = time.time()
+            first.put("XBTUSD", [[1, 2]], now_epoch=now)
             second = HourlyCandleCache(cache_path=path)
-            self.assertEqual(second.get("XBTUSD", now_epoch=3602), [[1, 2]])
+            self.assertEqual(second.get("XBTUSD", now_epoch=now + 1), [[1, 2]])
 
     def test_persistent_cache_discards_previous_hour(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "kraken.json"
             first = HourlyCandleCache(cache_path=path)
-            first.put("XBTUSD", [[1, 2]], now_epoch=3599)
+            previous_hour = int(time.time() // 3600) * 3600 - 1
+            first.put("XBTUSD", [[1, 2]], now_epoch=previous_hour)
             second = HourlyCandleCache(cache_path=path)
-            self.assertIsNone(second.get("XBTUSD", now_epoch=3600))
+            self.assertIsNone(second.get("XBTUSD"))
 
 
 if __name__ == "__main__":
