@@ -341,6 +341,10 @@ jobs:
       - name: Save alert deduplication state
         if: ${{ always() && inputs.send_test_email != true }}
         run: |
+          # Ensure the shadow-history state path exists even if the scan failed early.
+          if [ ! -f webull_yahoo_comparison.json ]; then
+            printf '{"schema_version":1,"summary":{},"recent_records":[],"records":[]}\\n' > webull_yahoo_comparison.json
+          fi
           # Force-add the machine-owned state files before checking for changes.
           # This also prevents an ignored/untracked local state file from blocking
           # a later rebase with "would be overwritten" errors.
