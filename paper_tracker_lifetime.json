@@ -3,9 +3,9 @@
     "crypto": {
       "checkpoints": {
         "1": {
-          "flat": 8,
+          "flat": 10,
           "losses": 25,
-          "observations": 52,
+          "observations": 54,
           "total_return_pct": 2.96,
           "wins": 19
         }
@@ -18,15 +18,15 @@
   },
   "checkpoints": {
     "1": {
-      "flat": 8,
+      "flat": 10,
       "losses": 25,
-      "observations": 52,
+      "observations": 54,
       "total_return_pct": 2.96,
       "wins": 19
     }
   },
   "integrity": {
-    "checked_at": "2026-11-19T10:34:22.248469+00:00",
+    "checked_at": "2026-11-19T11:04:23.302048+00:00",
     "retained_stock_baselines": 296,
     "retained_stock_counted_baselines": 296,
     "retained_stock_uncounted_baselines": 0,
