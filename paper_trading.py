@@ -398,6 +398,8 @@ def update_account(candidates, buy_signals, now, enable_early_entry_experimental
                    fee=round(fee, 8), fee_breakdown=fee_info, entry_fee_allocated=round(entry_fee_allocated, 8),
                    realized_pnl=round(realized, 8), coinbase_one_volume=coinbase_volume,
                    strategy=position.get("strategy"), experimental=bool(position.get("experimental")),
+                   experiment_registry_version=position.get("experiment_registry_version"),
+                   stop_experiment_version=position.get("stop_experiment_version"),
                    signal_id=position["signal_id"])
             if exit_reason == "TARGET_1":
                 position["target_1_filled"] = True
@@ -565,7 +567,10 @@ def update_account(candidates, buy_signals, now, enable_early_entry_experimental
                notional=round(notional, 8), fee=round(fee, 8),
                allocation_rank=rank, official_score=row["score"], target_2_reward_risk=round(row["reward_risk"], 4),
                effective_risk_budget_pct=round(RISK_FRACTION * quality_risk_multiplier * 100, 3),
-               coinbase_one_volume=coinbase_volume, signal_id=signal_id)
+               coinbase_one_volume=coinbase_volume,
+               experiment_registry_version=signal.get("experiment_registry_version"),
+               stop_experiment_version="STOP-CURRENT-01-v1",
+               signal_id=signal_id)
     account["allocation_review"] = allocation_review
     account["processed_signal_ids"] = list(processed)[-2000:]
     account["closed_trades"] = account["closed_trades"][-500:]
