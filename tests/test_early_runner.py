@@ -129,6 +129,21 @@ class StockCrossSectionTests(unittest.TestCase):
         self.assertEqual(result["regime"], "FAVORABLE")
         self.assertIn("not full NYSE/NASDAQ breadth", result["scope"])
 
+    def test_weekly_confirmation_and_52_week_breakout_level(self):
+        from early_runner import compute_early_warning_metrics
+        dates = pd.date_range("2025-11-01", periods=260, freq="B")
+        closes = [100 + i * 0.35 for i in range(len(dates))]
+        daily = pd.DataFrame({
+            "Open": closes, "High": [x + 1 for x in closes],
+            "Low": [x - 1 for x in closes], "Close": closes,
+            "Volume": [100000] * len(closes),
+        }, index=dates)
+        result = compute_early_warning_metrics(daily, pd.DataFrame(), closes[-1])
+        self.assertIs(result["weekly_confirmation"], True)
+        self.assertEqual(result["breakout_level_class"], "52-week high")
+        self.assertEqual(result["breakout_level_lookback_sessions"], 252)
+        self.assertIn("Weekly trend confirmation", result["early_warning_matches"])
+
     def test_universe_relative_strength_rank_and_missing_values(self):
         from early_runner import rank_stock_universe_strength
         items = [
