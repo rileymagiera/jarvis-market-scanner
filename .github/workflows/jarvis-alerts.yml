@@ -80,7 +80,7 @@ jobs:
           WEBULL_APP_SECRET: ${{ secrets.WEBULL_APP_SECRET }}
           WEBULL_SHADOW_MODE: 'true'
           WEBULL_SHADOW_MAX_SYMBOLS_PER_SCAN: '30'
-          CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN: '20'
+          CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN: '50'
           SEND_TEST_EMAIL: ${{ inputs.send_test_email }}
         run: |
           test -n "$JARVIS_GMAIL_USER" || (echo "Missing JARVIS_GMAIL_USER" && exit 1)
