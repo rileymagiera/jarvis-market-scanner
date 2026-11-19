@@ -10,9 +10,9 @@
     "score": 65
   },
   "crypto:GRASSUSDT": {
-    "alerted_at": "2026-11-19T13:04:34.304288+00:00",
+    "alerted_at": "2026-11-19T14:04:38.983524+00:00",
     "alerted_stage": "DEVELOPING SETUP",
-    "score": 63
+    "score": 85
   },
   "crypto:ICNTUSDT": {
     "alerted_at": "2026-11-19T12:04:20.046085+00:00",
@@ -170,6 +170,11 @@
       "score": 0,
       "status": "PREMARKET VERIFIED"
     },
+    "EHTH": {
+      "alerted_at": "2026-11-19T14:04:38.983524+00:00",
+      "score": 15,
+      "status": "PREMARKET VERIFIED"
+    },
     "ENVX": {
       "alerted_at": "2026-11-19T12:04:20.046085+00:00",
       "score": 19,
@@ -220,6 +225,11 @@
       "score": 23,
       "status": "PREMARKET VERIFIED"
     },
+    "ILMN": {
+      "alerted_at": "2026-11-19T14:04:38.983524+00:00",
+      "score": 6,
+      "status": "PREMARKET VERIFIED"
+    },
     "ITG": {
       "alerted_at": "2026-11-19T12:04:20.046085+00:00",
       "score": 29,
@@ -241,9 +251,9 @@
       "status": "PREMARKET VERIFIED"
     },
     "MIST": {
-      "alerted_at": "2026-11-19T01:01:09.462873+00:00",
-      "score": 21,
-      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+      "alerted_at": "2026-11-19T14:04:38.983524+00:00",
+      "score": 8,
+      "status": "PREMARKET VERIFIED"
     },
     "MOD": {
       "alerted_at": "2026-11-19T12:04:20.046085+00:00",
@@ -325,9 +335,19 @@
       "score": 7,
       "status": "PREMARKET VERIFIED"
     },
+    "PRGO": {
+      "alerted_at": "2026-11-19T14:04:38.983524+00:00",
+      "score": 12,
+      "status": "PREMARKET VERIFIED"
+    },
     "PVL": {
       "alerted_at": "2026-11-19T01:01:09.462873+00:00",
       "score": 15,
+      "status": "PREMARKET VERIFIED"
+    },
+    "QLYS": {
+      "alerted_at": "2026-11-19T14:04:38.983524+00:00",
+      "score": 47,
       "status": "PREMARKET VERIFIED"
     },
     "QVCG": {
