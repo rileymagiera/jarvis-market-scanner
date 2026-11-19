@@ -2555,7 +2555,8 @@ const bootStatus=document.getElementById('updated');if(bootStatus)bootStatus.tex
   await new Promise(resolve=>requestAnimationFrame(()=>resolve()));
   try{
    render(data);
-   if(status)status.textContent='Dashboard loaded · '+recordCount+' tracked records · Last loaded '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+   const snapshotTime=data.last_scan_completed_at?new Intl.DateTimeFormat('en-US',{timeZone:'America/Detroit',year:'numeric',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit',timeZoneName:'short'}).format(new Date(data.last_scan_completed_at)):'timestamp unavailable';
+   if(status)status.textContent='Dashboard loaded · '+recordCount+' tracked records · Data snapshot: '+snapshotTime;
   }catch(err){
    console.error('Jarvis history render error:',err);
    if(status)status.textContent='Dashboard rendering failed: '+(err&&err.message||err);
