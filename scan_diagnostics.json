@@ -1,45 +1,48 @@
 {
-  "candidates_found": 124,
+  "candidates_found": 192,
   "diagnostics": {
     "alpaca_quote_status": {
       "candidate_status_counts": {
-        "no_fresh_trade_or_usable_quote": 102
+        "no_fresh_trade_or_usable_quote": 79,
+        "snapshot_unavailable": 33
       },
       "credentials_configured": true,
       "feed": "iex",
       "provider_activity": {
         "calls": 3,
-        "error_counts": {},
-        "failures": 0,
-        "max_seconds": 0.19,
-        "total_seconds": 0.28
+        "error_counts": {
+          "HTTPError: 400 Client Error: Bad Request for url: https://data.alpaca.markets/v2/stocks/snapshots?symbols=TTWO%2CNL%2CGTN-A%2CVIK%2CEHTH%2CPLCE%2CWSM%2CRFL%2CRBLX%2CSN%2CZ": 1
+        },
+        "failures": 1,
+        "max_seconds": 0.3,
+        "total_seconds": 0.53
       }
     },
     "crypto": {
-      "candidates_returned": 22,
-      "not_returned_or_below_early_watch_floor": 64,
+      "candidates_returned": 80,
+      "not_returned_or_below_early_watch_floor": 6,
       "price_validation": {
         "methods": {
           "coinbase_ticker_timestamp": 0,
-          "kraken_latest_trade_cross_check": 22
+          "kraken_latest_trade_cross_check": 80
         },
-        "unverified": 3,
-        "verified": 19
+        "unverified": 8,
+        "verified": 72
       },
       "scan_errors": 0,
       "stages": {
         "ACTIONABLE SETUP": 0,
         "BUY": 0,
         "DATA QUALITY \u2014 WATCH ONLY": 0,
-        "DEVELOPING SETUP": 2,
-        "EARLY WATCH": 4,
-        "LOW-CONVICTION WATCH": 16,
+        "DEVELOPING SETUP": 4,
+        "EARLY WATCH": 19,
+        "LOW-CONVICTION WATCH": 57,
         "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
       },
       "symbols_requested": 86
     },
     "market_session": {
-      "as_of": "2026-11-18T17:17:21.036463-05:00",
+      "as_of": "2026-11-18T19:01:01.758755-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": true,
       "is_regular_session": false,
@@ -53,102 +56,104 @@
     "massive_live_quote_note": "Optional last-trade cross-check is disabled by default. Enable MASSIVE_LIVE_QUOTE_ENABLED=true only if the Massive Stocks plan includes /v2/last/trade; 15-minute delayed data is accepted only when its timestamp is within 45 minutes.",
     "massive_live_quote_status": "disabled_pending_entitlement_check",
     "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history/data or score below the early-watch floor; provider-specific discovery failures are not always attributable to one symbol.",
-    "scan_duration_seconds": 30.93,
+    "scan_duration_seconds": 21.07,
     "stocks": {
-      "candidates_returned": 102,
-      "not_returned_or_below_early_watch_floor": 46,
+      "candidates_returned": 112,
+      "not_returned_or_below_early_watch_floor": 36,
       "scan_errors": 0,
       "stages": {
         "ACTIONABLE SETUP": 0,
         "BUY": 0,
         "DATA QUALITY \u2014 WATCH ONLY": 0,
-        "DEVELOPING RUNNER": 28,
+        "DEVELOPING RUNNER": 25,
         "DEVELOPING SETUP": 0,
-        "EARLY SETUP": 17,
-        "EARLY WATCH": 8,
+        "EARLY SETUP": 26,
+        "EARLY WATCH": 14,
         "LATE RUNNER \u2014 CHASE RISK": 5,
-        "LOW-CONVICTION WATCH": 44,
+        "LOW-CONVICTION WATCH": 42,
         "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
       },
       "symbols_requested": 148
     },
     "timing_breakdown": {
-      "asset_scans_wall_seconds": 28.91,
-      "market_conditions_seconds": 1.21,
+      "asset_scans_wall_seconds": 20.22,
+      "market_conditions_seconds": 0.49,
       "provider_activity": {
         "alpaca_snapshot_batch": {
           "calls": 3,
-          "error_counts": {},
-          "failures": 0,
-          "max_seconds": 0.19,
-          "total_seconds": 0.28
+          "error_counts": {
+            "HTTPError: 400 Client Error: Bad Request for url: https://data.alpaca.markets/v2/stocks/snapshots?symbols=TTWO%2CNL%2CGTN-A%2CVIK%2CEHTH%2CPLCE%2CWSM%2CRFL%2CRBLX%2CSN%2CZ": 1
+          },
+          "failures": 1,
+          "max_seconds": 0.3,
+          "total_seconds": 0.53
         },
         "market_conditions": {
           "calls": 1,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 1.21,
-          "total_seconds": 1.21
+          "max_seconds": 0.49,
+          "total_seconds": 0.49
         },
         "scan_crypto_parallel_wall": {
           "calls": 1,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 14.07,
-          "total_seconds": 14.07
+          "max_seconds": 14.37,
+          "total_seconds": 14.37
         },
         "scan_stock_parallel_wall": {
           "calls": 1,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 28.63,
-          "total_seconds": 28.63
+          "max_seconds": 19.69,
+          "total_seconds": 19.69
         },
         "sec_recent_filings": {
-          "calls": 102,
+          "calls": 112,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.53,
-          "total_seconds": 7.56
+          "max_seconds": 0.75,
+          "total_seconds": 18.36
         },
         "yahoo_daily_history": {
           "calls": 148,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.78,
-          "total_seconds": 37.36
+          "max_seconds": 0.41,
+          "total_seconds": 16.35
         },
         "yahoo_discovery_screen": {
           "calls": 6,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.62,
-          "total_seconds": 3.05
+          "max_seconds": 0.2,
+          "total_seconds": 1.0
         },
         "yahoo_fundamentals": {
-          "calls": 62,
+          "calls": 75,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.83,
-          "total_seconds": 22.75
+          "max_seconds": 0.18,
+          "total_seconds": 9.29
         },
         "yahoo_intraday_history": {
           "calls": 148,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.2,
-          "total_seconds": 18.72
+          "max_seconds": 0.16,
+          "total_seconds": 8.94
         },
         "yahoo_stock_news": {
-          "calls": 102,
+          "calls": 112,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.82,
-          "total_seconds": 32.62
+          "max_seconds": 0.95,
+          "total_seconds": 40.53
         }
       },
-      "total_seconds": 30.93,
-      "universe_discovery_seconds": 0.76
+      "total_seconds": 21.07,
+      "universe_discovery_seconds": 0.33
     },
     "webull_quote_note": "Webull quote lookups are opt-in because app authorization was observed pending; Yahoo/Stooq scanning continues independently. Enable only after Webull market-data authorization is confirmed.",
     "webull_quote_status": "disabled_pending_authorization"
@@ -158,7 +163,7 @@
     "benchmarks": {
       "BTC-USD": {
         "above_20d_average": false,
-        "five_day_change_pct": -8.68
+        "five_day_change_pct": -7.91
       },
       "IWM": {
         "above_20d_average": false,
@@ -177,5 +182,5 @@
     "regime": "RISK-OFF",
     "score_adjustment": -8
   },
-  "timestamp": "2026-11-18T22:17:21.036390+00:00"
+  "timestamp": "2026-11-19T00:01:01.758651+00:00"
 }

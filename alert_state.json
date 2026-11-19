@@ -9,10 +9,25 @@
     "alerted_stage": "DEVELOPING SETUP",
     "score": 92
   },
+  "crypto:PEPEUSDT": {
+    "alerted_at": "2026-11-19T00:01:01.792334+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 60
+  },
   "crypto:PIEVERSEUSDT": {
     "alerted_at": "2026-11-18T22:17:21.037465+00:00",
     "alerted_stage": "DEVELOPING SETUP",
     "score": 76
+  },
+  "crypto:POLUSDT": {
+    "alerted_at": "2026-11-19T00:01:01.792334+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 60
+  },
+  "crypto:VVVUSDT": {
+    "alerted_at": "2026-11-19T00:01:01.792334+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 67
   },
   "daily_status_date": "2026-11-18",
   "premarket_alert_history": {
@@ -136,10 +151,20 @@
       "score": 38,
       "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
+    "PRAA": {
+      "alerted_at": "2026-11-19T00:01:01.792334+00:00",
+      "score": 10,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
     "RXRX": {
       "alerted_at": "2026-11-18T18:01:11.833239+00:00",
       "score": 9,
       "status": "PREMARKET VERIFIED"
+    },
+    "STUB": {
+      "alerted_at": "2026-11-19T00:01:01.792334+00:00",
+      "score": 10,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     }
   },
   "stock:ABX": {
@@ -257,6 +282,11 @@
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 63
   },
+  "stock:GTN-A": {
+    "alerted_at": "2026-11-19T00:01:01.792334+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 63
+  },
   "stock:HUYA": {
     "alerted_at": "2026-11-18T21:01:14.253122+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
@@ -271,6 +301,11 @@
     "alerted_at": "2026-11-18T18:01:11.833239+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 85
+  },
+  "stock:ITG": {
+    "alerted_at": "2026-11-19T00:01:01.792334+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 61
   },
   "stock:JJSF": {
     "alerted_at": "2026-11-18T21:01:14.253122+00:00",
@@ -297,15 +332,20 @@
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 86
   },
+  "stock:MOD": {
+    "alerted_at": "2026-11-19T00:01:01.792334+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 65
+  },
   "stock:NFE": {
     "alerted_at": "2026-11-18T21:01:14.253122+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 62
   },
   "stock:NL": {
-    "alerted_at": "2026-11-18T18:01:11.833239+00:00",
+    "alerted_at": "2026-11-19T00:01:01.792334+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 61
+    "score": 87
   },
   "stock:NTSK": {
     "alerted_at": "2026-11-18T21:01:14.253122+00:00",
@@ -428,9 +468,14 @@
     "score": 89
   },
   "stock:WSM": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_at": "2026-11-19T00:01:01.792334+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 61
+    "score": 76
+  },
+  "stock:WWW": {
+    "alerted_at": "2026-11-19T00:01:01.792334+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 85
   },
   "stock:ZIP": {
     "alerted_at": "2026-11-18T21:01:14.253122+00:00",
