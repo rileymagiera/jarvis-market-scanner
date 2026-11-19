@@ -5,16 +5,16 @@ from pathlib import Path
 
 STATE_PATH = Path("paper_trading_state.json")
 STARTING_CASH = 250.0
-# Default US Coinbase Advanced entry tier (marketable paper orders use taker rates).
-# These are explicit assumptions, not a claim about the user's private account tier.
-COINBASE_ADVANCED_TAKER_RATE = 0.009
-COINBASE_ADVANCED_MAKER_RATE = 0.005
+# Coinbase One Basic: eligible simple app trades have $0 trading commission up to $500 monthly volume.
+# App quotes include a variable spread; use a labeled 0.50% per-side estimate until a trade-preview spread is supplied.
+COINBASE_ONE_MONTHLY_CAP = 500.0
+COINBASE_APP_SPREAD_ESTIMATE_RATE = 0.005
 # Webull U.S.-listed stock pass-through fees from its published pricing schedule.
 WEBULL_COMMISSION_RATE = 0.0
 WEBULL_CAT_RATE = 0.000003
 WEBULL_SEC_SELL_RATE = 0.0000206
 WEBULL_FINRA_TAF_PER_SHARE = 0.0
-DEFAULT_CRYPTO_ORDER_TYPE = "taker"
+DEFAULT_CRYPTO_ORDER_TYPE = "simple_app"
 MAX_OPEN_POSITIONS = 4
 MAX_POSITION_FRACTION = 0.25
 RISK_FRACTION = 0.01
@@ -29,19 +29,22 @@ def _num(value, default=0.0):
 
 
 def calculate_trade_fee(asset_type, side, notional, quantity=0.0, order_type=None):
-    """Return a broker-specific simulated fee breakdown for one side of a fill."""
+    """Estimate Coinbase app spread or Webull U.S. stock regulatory pass-through fees."""
     asset = str(asset_type or "").lower()
     side = str(side or "").lower()
     notional = max(0.0, _num(notional))
     quantity = max(0.0, _num(quantity))
     if asset in ("crypto", "cryptocurrency"):
-        kind = str(order_type or DEFAULT_CRYPTO_ORDER_TYPE).lower()
-        if kind not in ("maker", "taker"):
-            kind = DEFAULT_CRYPTO_ORDER_TYPE
-        rate = COINBASE_ADVANCED_MAKER_RATE if kind == "maker" else COINBASE_ADVANCED_TAKER_RATE
-        fee = notional * rate
-        return {"broker": "Coinbase Advanced", "order_type": kind, "commission": round(fee, 8),
-                "regulatory": 0.0, "total": round(fee, 8), "rate": rate}
+        # Coinbase One Basic waives eligible simple-app trading commission within
+        # its $500 monthly cap. Spread varies and is visible in each trade preview.
+        spread = notional * COINBASE_APP_SPREAD_ESTIMATE_RATE
+        return {"broker": "Coinbase app + Coinbase One Basic",
+                "order_type": "simple_app", "commission": 0.0,
+                "estimated_spread_cost": round(spread, 8),
+                "spread_estimate_rate": COINBASE_APP_SPREAD_ESTIMATE_RATE,
+                "monthly_zero_fee_cap": COINBASE_ONE_MONTHLY_CAP,
+                "total": round(spread, 8), "rate": COINBASE_APP_SPREAD_ESTIMATE_RATE,
+                "note": "Estimated spread only; actual spread varies by asset, size and market conditions"}
     if asset in ("stock", "stocks", "equity", "etf"):
         commission = notional * WEBULL_COMMISSION_RATE
         cat = notional * WEBULL_CAT_RATE
@@ -52,7 +55,6 @@ def calculate_trade_fee(asset_type, side, notional, quantity=0.0, order_type=Non
                 "cat_fee": round(cat, 8), "sec_fee": round(sec, 8),
                 "finra_taf": round(finra, 8), "regulatory": round(cat + sec + finra, 8),
                 "total": round(total, 8), "rate": (total / notional if notional else 0.0)}
-    # Unknown instruments are not assigned an invented fee schedule.
     return {"broker": "Unspecified", "order_type": "unknown", "commission": 0.0,
             "regulatory": 0.0, "total": 0.0, "rate": 0.0}
 
@@ -69,7 +71,7 @@ def load_account():
             state.setdefault("processed_signal_ids", [])
             state.setdefault("rules", {})
             state["rules"].update({
-                "crypto_fee_schedule": "Coinbase Advanced US entry tier; taker 0.90%, maker 0.50%",
+                "crypto_fee_schedule": "Coinbase One Basic app: zero eligible trading commission up to $500/month; estimated spread 0.50% per side",
                 "stock_fee_schedule": "Webull US stocks: $0 commission; CAT 0.0003% per side; SEC 0.00206% sell side; FINRA TAF currently $0",
                 "crypto_default_order_type": DEFAULT_CRYPTO_ORDER_TYPE,
             })
@@ -83,7 +85,7 @@ def load_account():
         "last_updated_at": None, "rules": {
             "entry": "Official BUY signal + verified price inside saved entry range",
             "risk_per_trade_pct": 1.0, "max_position_pct": 25.0,
-            "max_open_positions": MAX_OPEN_POSITIONS, "crypto_fee_schedule": "Coinbase Advanced US entry tier; taker 0.90%, maker 0.50%",\n            "stock_fee_schedule": "Webull US stocks: $0 commission; CAT 0.0003% per side; SEC 0.00206% sell side; FINRA TAF currently $0",
+            "max_open_positions": MAX_OPEN_POSITIONS, "crypto_fee_schedule": "Coinbase One Basic app: zero eligible trading commission up to $500/month; estimated spread 0.50% per side",\n            "stock_fee_schedule": "Webull US stocks: $0 commission; CAT 0.0003% per side; SEC 0.00206% sell side; FINRA TAF currently $0",
             "exits": "50% at target 1, remainder at target 2; full exit at stop",
         },
     }
