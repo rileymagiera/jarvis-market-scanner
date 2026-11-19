@@ -245,3 +245,44 @@ def test_open_position_unrealized_pnl_deducts_estimated_exit_fee(tmp_path, monke
     expected_equity = account["cash"] + position["quantity"] * 10.0 - expected_exit_fee
     assert summary["equity"] == round(expected_equity, 2)
     assert summary["total_return_pct"] == round((expected_equity / 250.0 - 1) * 100, 2)
+
+
+def test_gap_directly_to_target_two_closes_full_position_at_observed_scan_price(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
+    account = paper_trading.update_account([_candidate(10.0)], [_signal()], now)
+    initial_qty = account["positions"][0]["quantity"]
+
+    # The next completed scan is already beyond both targets. The simulator
+    # records the verified sampled price; it does not invent a fill at target 2.
+    account = paper_trading.update_account([_candidate(12.5)], [_signal()], now)
+
+    assert account["positions"] == []
+    assert len(account["closed_trades"]) == 1
+    trade = account["closed_trades"][0]
+    assert trade["close_reason"] == "TARGET_2"
+    assert trade["close_price"] == 12.5
+    assert trade["quantity"] == 0.0
+    sells = [event for event in account["ledger"] if event["type"] == "SELL"]
+    assert len(sells) == 1
+    assert sells[0]["quantity"] == initial_qty
+    assert sells[0]["price"] == 12.5
+    assert "observed" in sells[0]["message"]
+
+
+def test_gap_below_stop_uses_verified_sampled_price_and_stop_priority(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
+    account = paper_trading.update_account([_candidate(10.0)], [_signal()], now)
+
+    # With no intrabar path available, the observed verified scan price decides.
+    # A sampled price at/below the stop takes the conservative stop branch.
+    account = paper_trading.update_account([_candidate(8.5)], [_signal()], now)
+
+    assert account["positions"] == []
+    trade = account["closed_trades"][0]
+    assert trade["close_reason"] == "STOP"
+    assert trade["close_price"] == 8.5
+    sell = [event for event in account["ledger"] if event["type"] == "SELL"][0]
+    assert sell["price"] == 8.5
+    assert "STOP observed" in sell["message"]
