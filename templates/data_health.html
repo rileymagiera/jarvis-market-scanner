@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Jarvis · Data Health</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#142235;--line:#2b4058;--muted:#9eb0c5;--text:#edf3fa;--green:#4bd6a0;--red:#ff7185;--amber:#f2c66d}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 Inter,system-ui,sans-serif}main{max-width:1240px;margin:auto;padding:24px 18px 60px}.eyebrow{font-size:10px;letter-spacing:.16em;color:#8ca8c5;font-weight:800}h1{font-size:clamp(27px,5vw,38px);margin:5px 0}.sub,.muted{color:var(--muted)}.status{margin:12px 0 18px;font-size:12px;color:var(--muted)}.tabs{display:flex;gap:7px;flex-wrap:wrap;margin:18px 0 22px}.tabs a{padding:9px 13px;border:1px solid var(--line);border-radius:10px;color:var(--text);text-decoration:none;background:#101d2d}.tabs a.active{background:#203b55;border-color:#6d94ba}.guide,.panel,.card{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:15px}.guide{margin:14px 0}.guide h2,.panel h2{font-size:16px;margin:0 0 6px}.guide p{margin:0;color:var(--muted);font-size:12px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:10px;margin:16px 0}.card span{display:block;color:var(--muted);font-size:10px;letter-spacing:.09em}.card strong{display:block;font-size:25px;margin-top:4px}.card small{display:block;color:var(--muted);font-size:10px;margin-top:4px}.panel{margin-top:14px}.panel p{color:var(--muted);font-size:12px;margin:3px 0}.scroll{overflow:auto;margin-top:10px}table{border-collapse:collapse;width:100%;min-width:850px}th,td{text-align:left;padding:9px;border-bottom:1px solid var(--line);vertical-align:top;font-size:12px}th{font-size:10px;color:var(--muted);letter-spacing:.08em}.good{color:var(--green)}.warn{color:var(--amber)}.bad{color:var(--red)}.filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.filters input,.filters select{background:#0d1b2a;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:9px}.foot{font-size:11px;color:var(--muted);margin-top:18px}@media(max-width:600px){main{padding:18px 12px}.tabs a{font-size:12px;padding:8px 10px}}
+</style></head><body><main><div class="eyebrow">JARVIS · SYSTEM RELIABILITY</div><h1>Data Health</h1><div class="sub">A plain-English check of the information behind Jarvis’s research list.</div><div id="status" class="status">Loading latest saved scan diagnostics…</div>
+<nav class="tabs"><a href="/discovery-performance">Discovery Performance</a><a class="active" href="/data-health" aria-current="page">Data Health</a><a href="/intelligence">Intelligence</a><a href="/market-breadth">Market Breadth</a><a href="/history">Market Overview</a><a href="/momentum-evidence">Momentum Evidence</a><a href="/paper-trading">Paper Trading</a><a href="/settings">Settings</a></nav>
+<section class="guide"><h2>What this page tells you</h2><p><b>Verified</b> means a price passed its configured cross-check. <b>Unverified</b> means Jarvis has a price but could not confirm it. <b>Missing</b> means the saved record lacks that field. Historical or delayed data can still help research, but it is not a live entry quote. This page reports data quality only—it does not change rankings, BUY eligibility, or paper trades.</p></section>
+<div id="summary" class="grid"><div class="card"><span>LOADING</span><strong>—</strong></div></div>
+<section class="panel"><h2>Provider status and limitations</h2><p>These are the latest saved scan settings and diagnostics. “Disabled” does not mean the provider failed.</p><div id="providers" class="scroll">Waiting for provider diagnostics…</div></section>
+<section class="panel"><h2>Candidate-by-candidate data check</h2><p>Unverified and incomplete records appear first. “Age” is shown only when the source supplied an age value.</p><div class="filters"><input id="search" type="search" placeholder="Find a symbol"><select id="asset"><option value="all">All assets</option><option value="stock">Stocks</option><option value="crypto">Crypto</option></select><select id="quality"><option value="all">All data statuses</option><option value="unverified">Unverified</option><option value="last_known">Last known</option><option value="verified">Verified</option><option value="unknown">Unknown</option></select></div><div class="scroll"><table><thead><tr><th>ASSET</th><th>STAGE</th><th>PRICE STATUS</th><th>PRICE</th><th>SOURCE</th><th>OBSERVED</th><th>AGE</th><th>DATA TYPE</th><th>ENTRY USE</th><th>MISSING FIELDS</th></tr></thead><tbody id="rows"><tr><td colspan="10">Waiting for saved data…</td></tr></tbody></table></div></section>
+<div class="foot">Saved scan snapshot only · No extra market-data requests · Research display only · Paper simulation only · No live orders</div></main>
+<script>
+var esc=function(v){return String(v==null?"—":v).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;")};
+var dateText=function(v){if(!v)return "Not recorded";var d=new Date(v);return isNaN(d.getTime())?"Unrecognized timestamp":d.toLocaleString()};
+var payload={};
+var card=function(label,value,note){return '<div class="card"><span>'+esc(label)+'</span><strong>'+esc(value)+'</strong><small>'+esc(note)+'</small></div>'};
+function renderDataHealth(){
+ var d=payload,p=d.price_status||{},all=p.all||{},g=d.data_gaps||{},assets=d.assets||{};
+ document.getElementById("status").textContent="Saved scan: "+dateText(d.last_scan_completed_at)+" · "+(d.candidate_count||0)+" candidates · run "+(d.scan_run_id||"not recorded")+" · source "+(d.history_source||"unknown");
+ var verified=all.verified||0,unverified=all.unverified||0,last=all.last_known||0,unknown=all.unknown||0,total=d.candidate_count||0;
+ document.getElementById("summary").innerHTML=[
+ card("CANDIDATES CHECKED",total,(assets.stocks||0)+" stocks · "+(assets.crypto||0)+" crypto"),
+ card("PRICE VERIFIED",verified,verified+" / "+total+" passed validation"),
+ card("PRICE UNVERIFIED",unverified,"Price exists, but confirmation did not pass"),
+ card("LAST KNOWN",last,"Previously observed; not a live quote"),
+ card("UNKNOWN STATUS",unknown,"No clear verification label was saved"),
+ card("MISSING PRICE / SOURCE / TIME",(g.missing_price||0)+" / "+(g.missing_source||0)+" / "+(g.missing_timestamp||0),"Missing fields in saved candidate records"),
+ card("OLDER THAN 15 MINUTES",g.older_than_15_minutes||0,"Only records with a recorded age are counted"),
+ card("SCAN / PROVIDER ERRORS",(d.scan_errors==null?"—":d.scan_errors)+" / "+((d.provider_http_429_count||0)+(d.provider_http_5xx_count||0)),"Scan errors / HTTP rate-limit or server errors")
+ ].join("");
+ var pr=d.providers||{};
+ document.getElementById("providers").innerHTML='<table><tbody>'+
+ '<tr><th>Stock quote feed</th><td>'+esc(pr.stock_price_feed||"Not recorded")+'</td><td>'+(pr.alpaca_credentials_configured===true?'<span class="good">Credentials configured</span>':pr.alpaca_credentials_configured===false?'<span class="warn">Credentials not configured</span>':"Status unavailable")+'</td></tr>'+
+ '<tr><th>Alpaca quote outcomes</th><td colspan="2">'+esc(JSON.stringify(pr.alpaca_candidate_status_counts||{}))+'</td></tr>'+
+ '<tr><th>Webull quotes</th><td colspan="2">'+esc(pr.webull_status||"Not recorded")+' · '+esc(pr.webull_note||"")+'</td></tr>'+
+ '<tr><th>Massive live quotes</th><td colspan="2">'+esc(pr.massive_status||"Not recorded")+' · '+esc(pr.massive_note||"")+'</td></tr>'+
+ '<tr><th>Crypto price cross-check</th><td colspan="2">'+esc(pr.crypto_verified==null?"—":pr.crypto_verified)+' verified · '+esc(pr.crypto_unverified==null?"—":pr.crypto_unverified)+' unverified</td></tr></tbody></table>';
+ var term=document.getElementById("search").value.trim().toLowerCase(),asset=document.getElementById("asset").value,quality=document.getElementById("quality").value;
+ var rows=(d.candidates||[]).filter(function(x){return (asset==="all"||x.asset_type===asset)&&(quality==="all"||x.price_status===quality)&&(!term||String(x.symbol).toLowerCase().includes(term))});
+ document.getElementById("rows").innerHTML=rows.length?rows.map(function(x){
+  var st=x.price_status||"unknown",cls=st==="verified"?"good":st==="unverified"?"bad":st==="last_known"?"warn":"";
+  var age=x.age_seconds==null?"—":Math.round(Number(x.age_seconds)/60)+" min";
+  return '<tr><td><b>'+esc(String(x.asset_type).toUpperCase())+' · '+esc(x.symbol)+'</b></td><td>'+esc(x.stage)+'</td><td class="'+cls+'">'+esc(st)+'</td><td>'+esc(x.price)+'</td><td>'+esc(x.source)+'</td><td>'+esc(dateText(x.observed_at))+'</td><td>'+esc(age)+'</td><td>'+esc(x.data_type)+'</td><td>'+(x.buy_eligible===true?'<span class="good">Eligible flag</span>':x.buy_eligible===false?'<span class="warn">Not eligible</span>':"Not recorded")+'</td><td>'+(x.missing.length?x.missing.map(esc).join(", "):'<span class="good">Core quote fields present</span>')+'</td></tr>';
+ }).join(""):'<tr><td colspan="10" class="muted">No candidates match these filters.</td></tr>';
+}
+["search","asset","quality"].forEach(function(id){document.getElementById(id).addEventListener("input",renderDataHealth)});
+fetch("/data-health/data",{cache:"no-store"}).then(function(r){if(!r.ok)throw Error("HTTP "+r.status);return r.json()}).then(function(d){payload=d;renderDataHealth()}).catch(function(e){document.getElementById("status").textContent="Data Health could not load the saved scan: "+e.message;document.getElementById("rows").innerHTML='<tr><td colspan="10">Saved diagnostics are unavailable. Try again after a successful scan sync.</td></tr>'});
+</script></body></html>
