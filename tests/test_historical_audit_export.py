@@ -19,7 +19,7 @@ class HistoricalAuditExportTests(unittest.TestCase):
         )
         self.assertTrue(result["read_only"])
         self.assertEqual(result["production_effect"], "none")
-        self.assertEqual(result["missed_runners"]["by_asset"], {"stocks": 1, "crypto": 1})
+        self.assertEqual(result["missed_runners"]["included_candidates_by_asset"], {"stocks": 1, "crypto": 1})
         self.assertEqual(result["provenance"]["scan_run_id"], "124")
         self.assertNotIn("paper_tracker", result)
         self.assertNotIn("paper_trading", result)
