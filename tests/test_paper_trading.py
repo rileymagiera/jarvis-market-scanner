@@ -352,3 +352,95 @@ def test_capacity_deferred_buy_is_reconsidered_after_a_position_closes(tmp_path,
     assert signals[4]["signal_id"] in second["processed_signal_ids"]
     assert second["allocation_review"][0]["symbol"] == "FIVE"
     assert second["allocation_review"][0]["status"] == "allocated"
+
+
+
+def _risk_off_candidate(price=10.0):
+    candidate = _candidate(price)
+    candidate.update({
+        "market_regime": "RISK-OFF", "score": 90,
+        "score_model": "hybrid_offline_v2",
+        "data_quality": {"buy_eligible": True},
+        "levels": {
+            "watch_entry_low": 9.5, "watch_entry_high": 10.5,
+            "stop_loss": 9.0, "target_1": 11.0, "target_2": 12.0,
+            "target_2_reward_risk_ratio": 3.0,
+        },
+        "buy_readiness": {"checks": {
+            "score_82": True, "volume_confirmed": True, "breakout_confirmed": True,
+            "two_technical_confirmations": True, "market_not_risk_off": False,
+            "fresh_intraday_confirmation": True, "five_bar_intraday_trend_up": True,
+            "no_risk_flags": True, "not_chase_risk": True,
+            "price_verified": True, "live_data_quality": True,
+        }},
+    })
+    return candidate
+
+
+def test_risk_off_experimental_paper_entry_bypasses_only_regime_gate(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
+    account = paper_trading.update_account([_risk_off_candidate()], [], now)
+    position = account["positions"][0]
+    assert len(account["positions"]) == 1
+    assert position["strategy"] == "risk_off_experimental"
+    assert position["experimental"] is True
+    assert position["market_regime_at_entry"] == "RISK-OFF"
+    assert position["notional"] <= 62.5
+    assert account["cash"] < 250
+    assert account["ledger"][0]["strategy"] == "risk_off_experimental"
+    summary = paper_trading.account_summary(account, now)
+    assert summary["risk_off_open_positions"] == 1
+    assert summary["risk_off_total_trades"] == 1
+
+
+def test_risk_off_experimental_paper_entry_rejects_any_other_failed_gate(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    candidate = _risk_off_candidate()
+    candidate["buy_readiness"]["checks"]["volume_confirmed"] = False
+    account = paper_trading.update_account([candidate], [], datetime.now(timezone.utc))
+    assert account["cash"] == 250
+    assert account["positions"] == []
+    assert account["ledger"] == []
+
+
+def test_risk_off_experimental_paper_entry_requires_verified_live_eligible_price(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    candidate = _risk_off_candidate()
+    candidate["price_validation_passed"] = False
+    account = paper_trading.update_account([candidate], [], datetime.now(timezone.utc))
+    assert account["cash"] == 250
+    assert account["positions"] == []
+    assert account["ledger"] == []
+
+
+def test_risk_off_signal_is_idempotent_across_repeated_scans(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
+    candidate = _risk_off_candidate()
+    first = paper_trading.update_account([candidate], [], now)
+    second = paper_trading.update_account([candidate], [], now)
+    assert len(second["positions"]) == 1
+    assert second["cash"] == first["cash"]
+    assert len([e for e in second["ledger"] if e.get("strategy") == "risk_off_experimental"]) == 1
+
+
+def test_official_buy_signal_path_remains_separately_labeled(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
+    candidate = _candidate(10.0)
+    candidate["market_regime"] = "RISK-ON"
+    account = paper_trading.update_account([candidate], [_signal()], now)
+    assert len(account["positions"]) == 1
+    assert account["positions"][0]["strategy"] == "official_buy"
+    assert account["positions"][0]["experimental"] is False
+
+
+
+def test_risk_off_candidate_requires_regime_gate_to_be_the_failed_gate(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    candidate = _risk_off_candidate()
+    candidate["buy_readiness"]["checks"]["market_not_risk_off"] = True
+    account = paper_trading.update_account([candidate], [], datetime.now(timezone.utc))
+    assert account["cash"] == 250
+    assert account["positions"] == []

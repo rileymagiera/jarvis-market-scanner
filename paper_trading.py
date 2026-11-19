@@ -130,6 +130,49 @@ def _event(account, kind, message, **fields):
     account["ledger"] = account["ledger"][-500:]
 
 
+
+def build_risk_off_paper_signals(candidates, now):
+    """Create experimental paper-only signals when Risk-Off is the sole failed BUY gate."""
+    signals = []
+    day = now.strftime("%Y-%m-%d")
+    for item in candidates:
+        if not isinstance(item, dict) or item.get("market_regime") != "RISK-OFF":
+            continue
+        checks = ((item.get("buy_readiness") or {}).get("checks") or {})
+        if not checks or checks.get("market_not_risk_off") is not False:
+            continue
+        if any(not bool(value) for key, value in checks.items() if key != "market_not_risk_off"):
+            continue
+        if item.get("price_validation_passed") is not True:
+            continue
+        if (item.get("data_quality") or {}).get("buy_eligible") is not True:
+            continue
+        asset = str(item.get("asset_type") or "").lower()
+        symbol = str(item.get("symbol") or "").upper()
+        price = _num(item.get("price"))
+        levels = item.get("levels") or {}
+        low = _num(levels.get("watch_entry_low"))
+        high = _num(levels.get("watch_entry_high"))
+        stop = _num(levels.get("stop_loss") or levels.get("invalidation_level"))
+        target1 = _num(levels.get("target_1"))
+        target2 = _num(levels.get("target_2"))
+        if not asset or not symbol or price <= 0 or not (0 < low <= price <= high):
+            continue
+        if not (0 < stop < price < target1 <= target2):
+            continue
+        signal_id = "risk_off:{}:{}:{}".format(asset, symbol, day)
+        signals.append({
+            "signal_id": signal_id, "asset_type": asset, "symbol": symbol,
+            "status": "active", "entry_low": low, "entry_high": high,
+            "stop_loss": stop, "target_1": target1, "target_2": target2,
+            "score": _num(item.get("score")), "score_model": item.get("score_model"),
+            "target_2_reward_risk_ratio": _num(levels.get("target_2_reward_risk_ratio") or levels.get("reward_risk_ratio")),
+            "strategy": "risk_off_experimental", "market_regime": "RISK-OFF",
+            "experimental": True,
+        })
+    return signals
+
+
 def update_account(candidates, buy_signals, now):
     """Process one completed scan; sampled exits are explicitly not tick-level fills."""
     account = load_account()
@@ -209,7 +252,9 @@ def update_account(candidates, buy_signals, now):
 
 
     processed = set(account.get("processed_signal_ids") or [])
-    active = [s for s in buy_signals if isinstance(s, dict) and s.get("status") == "active"]
+    official_active = [s for s in buy_signals if isinstance(s, dict) and s.get("status") == "active"]
+    risk_off_active = build_risk_off_paper_signals(candidates, now)
+    active = official_active + risk_off_active
     eligible = []
     allocation_review = []
     for signal in active:
@@ -241,6 +286,8 @@ def update_account(candidates, buy_signals, now):
             "signal": signal, "signal_id": signal_id, "key": key, "item": item,
             "price": price, "stop": stop, "target1": target1, "target2": target2,
             "score": score, "reward_risk": reward_risk,
+            "strategy": signal.get("strategy") or "official_buy",
+            "market_regime": signal.get("market_regime") or item.get("market_regime") or "UNKNOWN",
         })
 
     # Rank only already-active official BUY signals. The existing BUY gates remain upstream.
@@ -289,6 +336,8 @@ def update_account(candidates, buy_signals, now):
         account["cash"] = round(_num(account["cash"]) - notional - fee, 8)
         position = {
             "signal_id": signal_id, "symbol": key[1], "asset_type": key[0],
+            "strategy": row["strategy"], "experimental": row["strategy"] == "risk_off_experimental",
+            "market_regime_at_entry": row["market_regime"],
             "opened_at": now.isoformat(), "entry_price": price, "latest_price": price,
             "latest_price_as_of": item.get("price_as_of"), "quantity": quantity,
             "initial_quantity": quantity, "notional": round(notional, 8), "entry_fee": round(fee, 8),
@@ -307,8 +356,15 @@ def update_account(candidates, buy_signals, now):
         processed.add(signal_id)
         review.update({"status": "allocated", "reason": "Allocated by rank; score-scaled risk stays within existing limits", "paper_notional": round(notional, 2)})
         allocation_review.append(review)
-        _event(account, "BUY", "Auto paper BUY: {}".format(key[1]), symbol=key[1], asset_type=key[0],
-               price=price, quantity=quantity, notional=round(notional, 8), fee=round(fee, 8),
+        event_message = (
+            "Risk-Off experimental paper BUY: {}".format(key[1])
+            if row["strategy"] == "risk_off_experimental"
+            else "Auto paper BUY: {}".format(key[1])
+        )
+        _event(account, "BUY", event_message, symbol=key[1], asset_type=key[0],
+               strategy=row["strategy"], experimental=row["strategy"] == "risk_off_experimental",
+               market_regime=row["market_regime"], price=price, quantity=quantity,
+               notional=round(notional, 8), fee=round(fee, 8),
                allocation_rank=rank, official_score=row["score"], target_2_reward_risk=round(row["reward_risk"], 4),
                effective_risk_budget_pct=round(RISK_FRACTION * quality_risk_multiplier * 100, 3),
                coinbase_one_volume=coinbase_volume, signal_id=signal_id)
@@ -349,6 +405,10 @@ def account_summary(account, now=None):
         now = now.replace(tzinfo=timezone.utc)
     month = now.astimezone(timezone.utc).strftime("%Y-%m")
     coinbase_volume = _num((account.get("coinbase_one_monthly_volume") or {}).get(month))
+    risk_off_open = [p for p in positions if p.get("strategy") == "risk_off_experimental"]
+    risk_off_closed = [t for t in (account.get("closed_trades") or []) if t.get("strategy") == "risk_off_experimental"]
+    risk_off_realized = sum(_num(t.get("realized_pnl")) for t in risk_off_closed)
+    risk_off_realized += sum(_num(p.get("realized_pnl")) for p in risk_off_open)
     return {
         "starting_cash": _num(account.get("starting_cash"), STARTING_CASH),
         "coinbase_one_monthly_volume": round(coinbase_volume, 2),
@@ -363,4 +423,8 @@ def account_summary(account, now=None):
         "estimated_exit_fees": round(estimated_exit_fees, 2),
         "open_positions": len(positions),
         "closed_trades": len(account.get("closed_trades") or []),
+        "risk_off_open_positions": len(risk_off_open),
+        "risk_off_closed_trades": len(risk_off_closed),
+        "risk_off_total_trades": len(risk_off_open) + len(risk_off_closed),
+        "risk_off_realized_pnl": round(risk_off_realized, 2),
     }
