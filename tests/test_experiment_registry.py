@@ -104,4 +104,5 @@ def test_verified_position_records_stop_inputs_and_counterfactuals(tmp_path, mon
     account = paper_trading.update_account([next_candidate], [], 
         datetime(2026, 11, 19, 15, 5, tzinfo=timezone.utc), scan_id="scan-2")
     assert account["positions"][0]["stop_counterfactuals"]["STOP-FIXED-025"]["first_touch"] is not None
+    assert account["positions"][0]["stop_counterfactuals"]["STOP-SUPPORT-025"]["first_touch"] is not None
     assert account["cash"] == cash_after_entry
