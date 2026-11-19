@@ -73,6 +73,18 @@ DEFAULT_EXPERIMENTS = [
         "created_at": "2026-11-19",
     },
     {
+        "experiment_id": "STOP-SUPPORT-025",
+        "version": 1,
+        "name": "Support-aware 0.25x ATR buffer counterfactual",
+        "category": "stop_loss",
+        "hypothesis": "A wider buffer below the recorded support reference may reduce noise exits near support.",
+        "status": "testing",
+        "activation": "shadow_counterfactual_only",
+        "parameters": {"method": "support_buffer", "atr_buffer_multiple": 0.25},
+        "success_criteria": "Compare sampled stop touches and later price path against current support-aware baseline.",
+        "created_at": "2026-11-19",
+    },
+    {
         "experiment_id": "STOP-ATR-125",
         "version": 1,
         "name": "ATR 1.25x risk-unit counterfactual",
@@ -191,6 +203,13 @@ def record_stop_observation(account, position, price, observed_at, price_as_of, 
             stop_price = entry * (1 - float(params["distance_pct"]) / 100)
         elif params.get("method") == "atr_multiple" and risk_unit:
             stop_price = entry - float(params["multiple"]) * float(risk_unit)
+        elif params.get("method") == "support_buffer" and risk_unit:
+            support = calc.get("support_reference")
+            if not support or float(support) <= 0 or float(support) >= entry:
+                continue
+            stop_price = float(support) - float(params["atr_buffer_multiple"]) * float(risk_unit)
+            if not (0 < stop_price < entry and (entry - stop_price) <= entry * 0.10):
+                continue
         else:
             continue
         result["stop_price"] = round(stop_price, 10)
