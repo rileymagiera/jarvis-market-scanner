@@ -118,7 +118,7 @@ def test_target_crossings_are_recorded_as_observations_not_fills(tmp_path, monke
     assert "target_2_observed" not in observations
 
 
-def test_history_learning_excludes_non_live_stock_outcomes():
+def test_history_learning_uses_frozen_live_baseline_even_if_latest_quote_is_eod():
     tracker = {
         f"stock:OLD{i}": {
             "asset_type": "stock",
@@ -139,8 +139,11 @@ def test_history_learning_excludes_non_live_stock_outcomes():
 
     result = send_alerts.apply_history_runner_learning([candidate], tracker)
 
-    assert result[0]["history_runner_learning"]["score_bonus"] == 0
-    assert result[0]["history_runner_learning"]["matched_features"] == []
+    learning = result[0]["history_runner_learning"]
+    assert learning["score_bonus"] == 0
+    assert len(learning["matched_features"]) == 1
+    assert learning["matched_features"][0]["n"] == 10
+    assert learning["matched_features"][0]["uplift_pct_points"] == 0
 
 
 def test_history_learning_requires_eight_verified_five_day_stock_outcomes():
