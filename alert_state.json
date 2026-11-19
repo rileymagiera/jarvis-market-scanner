@@ -50,6 +50,11 @@
       "score": 7,
       "status": "PREMARKET VERIFIED"
     },
+    "BIRD": {
+      "alerted_at": "2026-11-19T16:47:27.074989+00:00",
+      "score": 18,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
     "CGON": {
       "alerted_at": "2026-11-19T15:32:35.859925+00:00",
       "score": 8,
@@ -202,9 +207,9 @@
     "score": 61
   },
   "stock:SCOR": {
-    "alerted_at": "2026-11-19T16:04:17.685779+00:00",
+    "alerted_at": "2026-11-19T16:47:27.074989+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 63
+    "score": 75
   },
   "stock:SVRA": {
     "alerted_at": "2026-11-19T16:04:17.685779+00:00",
