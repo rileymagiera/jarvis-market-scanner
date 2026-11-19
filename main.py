@@ -2805,23 +2805,50 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(prefs))}catch(_){}pa
 document.querySelectorAll('[data-color]').forEach(b=>b.addEventListener('click',()=>{prefs.accent=b.dataset.color;save()}));$('font').addEventListener('change',e=>{prefs.font=e.target.value;save()});$('fontSize').addEventListener('change',e=>{prefs.fontSize=e.target.value;save()});$('density').addEventListener('change',e=>{prefs.density=e.target.value;save()});$('reset').addEventListener('click',()=>{prefs={...defaults};save()});paint();
 </script></body></html>"""
 
+
+def apply_workspace_preferences(response: HTMLResponse) -> HTMLResponse:
+    """Apply browser-saved appearance preferences consistently across Jarvis pages."""
+    if not isinstance(response, HTMLResponse):
+        return response
+    injection = """<style id="jarvis-workspace-preferences">
+.tabs a.active,.tabs a[aria-current="page"]{border-color:var(--accent)!important}
+.eyebrow{color:var(--accent)!important}
+body.jarvis-compact .hero,body.jarvis-compact .panel{padding:12px!important}
+body.jarvis-compact .section{margin-top:16px!important}
+</style><script>
+(()=>{const key='jarvisDashboardPrefsV1';let p={};try{p=JSON.parse(localStorage.getItem(key)||'{}')||{}}catch(_){}
+if(/^#[0-9a-f]{6}$/i.test(String(p.accent||'')))document.documentElement.style.setProperty('--accent',p.accent);
+if(typeof p.font==='string'&&p.font.length<100)document.body.style.fontFamily=p.font;
+const size=Number(p.fontSize);if(Number.isFinite(size)&&size>=13&&size<=16)document.body.style.fontSize=size+'px';
+document.body.classList.toggle('jarvis-compact',p.density==='compact');
+})();
+</script>"""
+    try:
+        html = response.body.decode("utf-8")
+        if "</body>" in html and "jarvis-workspace-preferences" not in html:
+            response.body = html.replace("</body>", injection + "</body>", 1).encode("utf-8")
+            response.headers["content-length"] = str(len(response.body))
+    except (AttributeError, UnicodeDecodeError):
+        return response
+    return response
+
 @app.get("/customize", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
 def customize():
     return HTMLResponse(customize_page(), headers={"Cache-Control":"no-store"})
     
 @app.get("/discovery-performance", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
 def discovery_performance_page():
-    return HTMLResponse(analytics_tab_page("discovery-performance"))
+    return apply_workspace_preferences(HTMLResponse(analytics_tab_page("discovery-performance")))
 
 
 @app.get("/momentum-evidence", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
 def momentum_evidence_page():
-    return HTMLResponse(analytics_tab_page("momentum-evidence"))
+    return apply_workspace_preferences(HTMLResponse(analytics_tab_page("momentum-evidence")))
 
 
 @app.get("/market-breadth", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
 def market_breadth_page():
-    return HTMLResponse(analytics_tab_page("market-breadth"))
+    return apply_workspace_preferences(HTMLResponse(analytics_tab_page("market-breadth")))
 
 
 @app.get("/history/dashboard.js", dependencies=[Depends(require_site_login)])
@@ -2944,7 +2971,7 @@ def history_sync(payload: dict, x_jarvis_history_token: Optional[str] = Header(N
 
 @app.get("/paper-trading", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
 def paper_trading_page():
-    return HTMLResponse("""<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Jarvis Paper Trading</title><style>
+    return apply_workspace_preferences(HTMLResponse("""<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Jarvis Paper Trading</title><style>
 :root{color-scheme:dark;--bg:#0b1119;--surface:#121e2b;--surface2:#172638;--line:#293b50;--muted:#9aabbd;--text:#edf3fa;--accent:#83b8ff;--green:#63d9a0;--red:#ff9292;--amber:#f0c477}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -15%,#1a2b40 0%,var(--bg) 58%);color:var(--text);font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{width:min(100% - 32px,1320px);margin:auto;padding:28px 0 55px}a{color:var(--accent);text-decoration:none}.eyebrow{font-size:10px;letter-spacing:.16em;color:#8edbd5;font-weight:800}h1{font-size:clamp(28px,4vw,38px);margin:5px 0}.muted{color:var(--muted);font-size:12px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0;border-bottom:1px solid var(--line);padding-bottom:10px}.tabs a{padding:8px 14px;border:1px solid var(--line);border-radius:10px;color:var(--muted)}.tabs .active{background:#16392f;color:#9ae5c3;border-color:#397e69}.hero,.metric,.panel{background:linear-gradient(145deg,var(--surface2),var(--surface));border:1px solid var(--line);border-radius:14px;padding:16px}.hero{display:grid;grid-template-columns:1.5fr 1fr;gap:18px}.notice{border-left:3px solid var(--green);padding:11px;background:#63d9a012;border-radius:7px;color:#c6e9dc;font-size:12px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px;margin:15px 0 25px}.metric .k{font-size:10px;color:var(--muted);letter-spacing:.08em}.metric strong{display:block;font-size:25px;margin-top:5px;font-variant-numeric:tabular-nums}.section{margin-top:26px}.scroll{overflow:auto;border:1px solid var(--line);border-radius:12px;margin-top:12px}table{width:100%;border-collapse:collapse;min-width:760px}th,td{text-align:left;padding:11px 12px;border-bottom:1px solid #26384a;font-size:12px;vertical-align:top}th{background:#172638;color:#b9c9da;font-size:10px;text-transform:uppercase;letter-spacing:.06em}tbody tr:nth-child(even){background:#ffffff06}.empty{text-align:center;padding:20px;color:var(--muted)}.pos{color:var(--green)}.neg{color:var(--red)}.pill{padding:3px 7px;border-radius:999px;background:#293b50;font-size:10px}.foot{font-size:11px;color:var(--muted);margin-top:22px}.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:9px}.rule{padding:12px;border:1px solid var(--line);border-radius:10px;background:#101b28;font-size:11px;color:#c1d0df}.rule b{display:block;color:#e6f3fb;margin-bottom:4px}
 @media(max-width:700px){main{width:calc(100% - 24px);padding-top:20px}.hero{grid-template-columns:1fr}.metric{padding:12px}.metric strong{font-size:21px}}
@@ -2975,7 +3002,7 @@ function render(d){
  document.getElementById("ledger").innerHTML=ledger.length?ledger.slice().reverse().map(x=>'<tr><td>'+stamp(x.at)+'</td><td><span class="pill">'+esc(x.type)+'</span></td><td>'+esc(x.message)+'</td><td>'+money(x.price)+'</td><td>'+qty(x.quantity)+'</td><td>'+money(x.fee)+'</td><td>'+esc(x.signal_id||"—")+'</td></tr>').join(""):'<tr><td colspan="7" class="empty">No paper execution events recorded yet.</td></tr>';
 }
 fetch("/paper-trading/data?refresh="+Date.now(),{cache:"no-store"}).then(r=>{if(!r.ok)throw Error("HTTP "+r.status);return r.json()}).then(render).catch(e=>{document.getElementById("updated").textContent="Paper account data unavailable · "+e.message;});
-</script></body></html>""")
+</script></body></html>"""))
 
 
 @app.get("/paper-trading/data", dependencies=[Depends(require_site_login)])
@@ -3300,7 +3327,7 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
 @app.get("/intelligence", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
 @app.get("/research", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
 def research_page():
-    return HTMLResponse("""<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Jarvis Intelligence</title><style>
+    return apply_workspace_preferences(HTMLResponse("""<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Jarvis Intelligence</title><style>
 :root{color-scheme:dark;--bg:#0b1119;--surface:#121e2b;--surface2:#172638;--line:#293b50;--muted:#9aabbd;--text:#edf3fa;--accent:#83b8ff;--green:#63d9a0;--amber:#f0c477}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -15%,#1a2b40 0%,var(--bg) 58%);color:var(--text);font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{width:min(100% - 32px,1320px);margin:auto;padding:28px 0 55px}
 a{color:var(--accent);text-decoration:none}.muted,.sub{color:var(--muted);font-size:13px}.eyebrow{font-size:10px;letter-spacing:.15em;color:var(--accent);font-weight:750}h1{font-size:clamp(28px,4vw,38px);margin:5px 0}h2{font-size:19px;margin:0 0 6px}
@@ -3410,7 +3437,7 @@ return '<tr><td><b>'+esc((x.asset_type||"").toUpperCase()+" "+x.symbol)+'</b><br
 }).join(""):'<tr><td colspan="5" class="empty">Readiness records will appear after a scan runs with the new tracking fields saved.</td></tr>';
 document.getElementById("ledger").innerHTML=all.length?all.sort((a,b)=>(b.last_seen||"").localeCompare(a.last_seen||"")).slice(0,100).map(x=>'<tr><td><b>'+esc((x.asset_type||"").toUpperCase()+" "+x.symbol)+'</b></td><td><span class="pill">'+esc(x.last_stage||"—")+'</span></td><td>'+esc(x.price_validation_status||"unknown")+'<br><span class="muted">Type: '+esc((x.data_quality&&x.data_quality.data_type)||"unknown")+'</span><br><span class="muted">'+esc((x.data_quality&&x.data_quality.verification_status)||"unknown")+' · age '+esc((x.data_quality&&x.data_quality.age_seconds)!=null?Math.round(x.data_quality.age_seconds)+"s":"—")+'</span><br><span class="muted">Observed: '+esc((x.data_quality&&x.data_quality.observed_at)||"unknown")+'</span><br><span class="muted">Received: '+esc((x.data_quality&&x.data_quality.received_at)||"unknown")+' · '+esc((x.data_quality&&x.data_quality.session)||"session unknown")+'</span><br><span class="muted">'+esc(x.price_source||"source not recorded")+'</span><br><span class="muted">'+esc(x.price_validation_note||"Validation detail not recorded")+'</span><br><span class="muted">Massive: '+esc(x.massive_quote_status||"not reported")+'</span></td><td>'+pick(x,["relative_strength_vs_spy","relative_strength_pct","rs_rank"])+'</td><td>'+pick(x,["intraday_rvol_same_time","same_time_relative_volume"])+'</td><td>'+pick(x,["anchored_vwap_status","opening_range_status","vwap_reclaim"])+'</td><td>'+pick(x,["adx","adx_dmi_status"])+'</td><td>'+pick(x,["spread_pct","dollar_volume","liquidity_status"])+'</td><td>'+researchDetail(x.catalyst_dilution_status??x.dilution_flags??x.catalysts)+'</td></tr>').join(""):'<tr><td colspan="9" class="empty">No candidate records available.</td></tr>';}
 fetch("/intelligence/data").then(r=>{if(!r.ok)throw Error();return r.json()}).then(render).catch(()=>{document.getElementById("updated").textContent="Intelligence data unavailable";document.getElementById("ledger").innerHTML='<tr><td colspan="9" class="empty">Could not load saved intelligence data. Try again after the next successful sync.</td></tr>';});
-</script></body></html>""")
+</script></body></html>"""))
 
 
 @app.get("/intelligence/data", dependencies=[Depends(require_site_login)])
