@@ -203,37 +203,61 @@ def blend_buy_score(legacy_score: int, intelligence: dict, weight: float = 0.20)
     for key in feature_keys:
         row = coverage.get(key) or {}
         try:
-            available += max(0.0, float(row.get("available") or 0))
-            possible += max(0.0, float(row.get("possible") or 0))
-        except (TypeError, ValueError, OverflowError):
+            row_available = float(row.get("available") or 0)
+            row_possible = float(row.get("possible") or 0)
+            if not np.isfinite(row_available) or not np.isfinite(row_possible):
+                continue
+            row_possible = max(0.0, row_possible)
+            if row_possible <= 0:
+                continue
+            available += min(row_possible, max(0.0, row_available))
+            possible += row_possible
+        except (TypeError, ValueError, OverflowError, AttributeError):
             continue
     coverage_pct = round(available / possible * 100, 1) if possible > 0 else 0.0
-    model_score = intelligence.get("score")
     try:
-        model_score = float(model_score) if model_score is not None else None
-        legacy = max(0.0, min(100.0, float(legacy_score)))
+        model_score = float(intelligence.get("score"))
+        if not np.isfinite(model_score):
+            model_score = None
+        elif not 0 <= model_score <= 100:
+            model_score = None
+    except (TypeError, ValueError, OverflowError):
+        model_score = None
+    try:
+        legacy = float(legacy_score)
+        legacy = max(0.0, min(100.0, legacy)) if np.isfinite(legacy) else 0.0
     except (TypeError, ValueError, OverflowError):
         legacy = 0.0
-        model_score = None
-    max_available = float(intelligence.get("maximum_available_points") or 0)
+    try:
+        max_available = float(intelligence.get("maximum_available_points") or 0)
+        if not np.isfinite(max_available):
+            max_available = 0.0
+    except (TypeError, ValueError, OverflowError):
+        max_available = 0.0
+    # The production-facing influence is hard-capped at 20%, even if a caller
+    # supplies a larger weight. Invalid weights disable the pilot blend.
+    try:
+        requested_weight = float(weight)
+        safe_weight = requested_weight if np.isfinite(requested_weight) and 0 < requested_weight <= 0.20 else 0.0
+    except (TypeError, ValueError, OverflowError):
+        safe_weight = 0.0
     applied = (
         model_score is not None
-        and np.isfinite(model_score)
         and max_available >= 70
         and coverage_pct >= 60
-        and 0 < weight <= 0.25
+        and safe_weight > 0
     )
-    blended = round(legacy * (1 - weight) + model_score * weight) if applied else round(legacy)
+    blended = round(legacy * (1 - safe_weight) + model_score * safe_weight) if applied else round(legacy)
     return {
         "score": max(0, min(100, int(blended))),
         "legacy_score": round(legacy),
         "intelligence_score": round(model_score, 1) if model_score is not None and np.isfinite(model_score) else None,
         "feature_coverage_pct": coverage_pct,
-        "weight": weight if applied else 0.0,
+        "weight": safe_weight if applied else 0.0,
         "applied": bool(applied),
         "model": "hybrid_offline_v2" if applied else "legacy_fallback",
         "note": (
-            "80% legacy scanner score + 20% coverage-qualified BUY intelligence score; paper validation only."
+            f"{(1 - safe_weight) * 100:.0f}% legacy scanner score + {safe_weight * 100:.0f}% coverage-qualified BUY intelligence score; paper validation only."
             if applied else
             "Legacy score retained because the BUY intelligence score or feature coverage did not meet pilot requirements."
         ),
