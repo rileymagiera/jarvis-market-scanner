@@ -112,6 +112,39 @@ class EarlyRunnerMetricsTests(unittest.TestCase):
 
 
 
+class StockCrossSectionTests(unittest.TestCase):
+    def test_market_breadth_is_scoped_to_scanned_candidates(self):
+        from early_runner import compute_stock_market_breadth
+        items = [
+            {"asset_type": "stock", "above_20d_average": True, "five_day_change_pct": 3, "breakout_20d": True}
+            for _ in range(7)
+        ] + [
+            {"asset_type": "stock", "above_20d_average": False, "five_day_change_pct": -2, "breakout_20d": False}
+            for _ in range(3)
+        ]
+        result = compute_stock_market_breadth(items)
+        self.assertEqual(result["sample_size"], 10)
+        self.assertEqual(result["above_20d_average_pct"], 70.0)
+        self.assertEqual(result["positive_5d_pct"], 70.0)
+        self.assertEqual(result["regime"], "FAVORABLE")
+        self.assertIn("not full NYSE/NASDAQ breadth", result["scope"])
+
+    def test_universe_relative_strength_rank_and_missing_values(self):
+        from early_runner import rank_stock_universe_strength
+        items = [
+            {"asset_type": "stock", "symbol": "AAA", "five_day_change_pct": 10},
+            {"asset_type": "stock", "symbol": "BBB", "five_day_change_pct": 0},
+            {"asset_type": "stock", "symbol": "CCC", "five_day_change_pct": -5},
+            {"asset_type": "stock", "symbol": "DDD", "five_day_change_pct": None},
+        ]
+        summary = rank_stock_universe_strength(items)
+        self.assertEqual(summary["sample_size"], 3)
+        self.assertEqual(items[0]["universe_rs_rank"], 1)
+        self.assertEqual(items[0]["universe_rs_percentile"], 100.0)
+        self.assertEqual(items[2]["universe_rs_percentile"], 0.0)
+        self.assertIsNone(items[3]["universe_rs_rank"])
+
+
 class CryptoCrossSectionTests(unittest.TestCase):
     def test_legacy_and_canonical_relative_strength_flags_match(self):
         coverage = {"relative_strength_vs_btc": False, "market_relative_strength": False}
