@@ -6,6 +6,9 @@ on:
       - "main.py"
       - "send_alerts.py"
       - "early_runner.py"
+      - "paper_trading.py"
+      - "buy_intelligence.py"
+      - "requirements.txt"
       - "tests/**"
       - ".github/workflows/validate-early-runner.yml"
   workflow_dispatch:
