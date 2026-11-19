@@ -309,6 +309,9 @@ def update_paper_tracker(candidates, now):
         record["price_age_seconds"] = item.get("price_age_seconds")
         record["price_cross_check_difference_pct"] = item.get("price_cross_check_difference_pct")
         record["price_as_of"] = item.get("price_as_of")
+        record["price_checked_at"] = item.get("price_checked_at") or now.isoformat()
+        record["price_timestamp_type"] = item.get("price_timestamp_type")
+        record["price_session_date"] = item.get("price_session_date")
         record["price_freshness"] = item.get("price_freshness")
         record["data_quality"] = item.get("data_quality") or {}
         record["daily_data_quality"] = item.get("daily_data_quality") or {}
