@@ -8,17 +8,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - name: Extract and syntax-check Overview script
         run: |
-          python - <<'PY' > /tmp/overview.js
-          import re
-          source = open("main.py", encoding="utf-8").read()
-          match = re.search(r"const status=document.getElementById\('updated'\);.*?</script>", source, re.S)
-          if not match:
-              raise SystemExit("Overview dashboard script block not found")
-          print(match.group(0).removesuffix("</script>"))
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+          tree = ast.parse(Path("main.py").read_text(encoding="utf-8"))
+          value = next(
+              node.value for node in tree.body
+              if isinstance(node, ast.Assign)
+              and any(isinstance(target, ast.Name) and target.id == "HISTORY_DASHBOARD_JS"
+                      for target in node.targets)
+          )
+          Path("/tmp/overview.js").write_text(ast.literal_eval(value), encoding="utf-8")
           PY
           node --check /tmp/overview.js
