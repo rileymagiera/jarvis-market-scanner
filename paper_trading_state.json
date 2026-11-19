@@ -113,7 +113,7 @@
       "risk_off_or_unknown_regime": 238
     }
   },
-  "last_updated_at": "2026-11-19T22:19:22.169834+00:00",
+  "last_updated_at": "2026-11-19T22:32:35.637938+00:00",
   "ledger": [
     {
       "allocation_rank": 1,
@@ -254,8 +254,8 @@
     "rejections": {
       "failed_buy_gate:24h_breakout": 92,
       "failed_buy_gate:above_24h_average": 80,
-      "failed_buy_gate:breakout_confirmed": 130,
-      "failed_buy_gate:five_bar_intraday_trend_up": 67,
+      "failed_buy_gate:breakout_confirmed": 131,
+      "failed_buy_gate:five_bar_intraday_trend_up": 57,
       "failed_buy_gate:fresh_intraday_confirmation": 146,
       "failed_buy_gate:live_data_quality": 152,
       "failed_buy_gate:no_risk_flags": 9,
@@ -265,8 +265,8 @@
       "failed_buy_gate:price_verified": 7,
       "failed_buy_gate:score_82": 238,
       "failed_buy_gate:two_technical_confirmations": 81,
-      "failed_buy_gate:volume_1_8x": 69,
-      "failed_buy_gate:volume_confirmed": 104
+      "failed_buy_gate:volume_1_8x": 71,
+      "failed_buy_gate:volume_confirmed": 105
     },
     "risk_off_candidates": 238
   },
