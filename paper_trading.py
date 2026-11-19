@@ -248,8 +248,9 @@ def build_early_entry_paper_signals(candidates, now, diagnostics=None):
         if str(item.get("stage") or "").upper() == "BUY":
             reject("official_buy_candidate")
             continue
-        if str(item.get("market_regime") or "").upper() == "RISK-OFF":
-            reject("risk_off_regime")
+        regime = str(item.get("market_regime") or "").upper()
+        if regime in ("", "UNKNOWN", "RISK-OFF"):
+            reject("risk_off_or_unknown_regime")
             continue
         snapshot = build_candidate_snapshot(
             item, now.isoformat(), "early-entry:{}:{}:{}".format(asset, symbol, day)
@@ -411,9 +412,14 @@ def update_account(candidates, buy_signals, now, enable_early_entry_experimental
         (str(s.get("asset_type") or ""), str(s.get("symbol") or "").upper())
         for s in official_active
     }
+    held_keys = {
+        (str(position.get("asset_type") or ""), str(position.get("symbol") or "").upper())
+        for position in account.get("positions") or []
+    }
     early_entry_active = [
         s for s in early_entry_active
         if (str(s.get("asset_type") or ""), str(s.get("symbol") or "").upper()) not in official_keys
+        and (str(s.get("asset_type") or ""), str(s.get("symbol") or "").upper()) not in held_keys
     ]
     account["early_entry_signal_diagnostics"] = early_entry_diagnostics
     active = official_active + risk_off_active + early_entry_active
