@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "summary": {
+    "record_count": 0,
+    "comparable_count": 0,
+    "non_comparable_count": 0,
+    "mean_difference_pct": null,
+    "median_difference_pct": null,
+    "p90_difference_pct": null,
+    "within_0_25_pct": 0,
+    "within_0_5_pct": 0,
+    "within_1_pct": 0,
+    "within_2_pct": 0,
+    "retention_days": 14
+  },
+  "recent_records": [],
+  "updated_at": "2026-11-19T17:47:42.654232+00:00",
+  "records": []
+}

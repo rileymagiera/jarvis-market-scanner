@@ -236,6 +236,11 @@
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 61
   },
+  "stock:PLBL": {
+    "alerted_at": "2026-11-19T17:47:42.658335+00:00",
+    "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
+    "score": 77
+  },
   "stock:SCOR": {
     "alerted_at": "2026-11-19T16:47:27.074989+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
