@@ -20,8 +20,8 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install test dependency
-        run: python -m pip install --disable-pip-version-check pandas numpy
+        run: python -m pip install --disable-pip-version-check -r requirements.txt pytest
       - name: Compile scanner modules
         run: python -m py_compile main.py send_alerts.py early_runner.py
       - name: Run early runner tests
-        run: python -m unittest discover -s tests -v
+        run: python -m pytest -q tests
