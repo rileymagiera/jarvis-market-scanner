@@ -171,6 +171,11 @@
       "score": 14,
       "status": "PREMARKET VERIFIED"
     },
+    "PMVP": {
+      "alerted_at": "2026-11-19T19:04:20.988573+00:00",
+      "score": 22,
+      "status": "PREMARKET VERIFIED"
+    },
     "PYXS": {
       "alerted_at": "2026-11-19T18:47:37.691096+00:00",
       "score": 0,
@@ -287,4 +292,4 @@
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 60
   }
-}
+}\n
