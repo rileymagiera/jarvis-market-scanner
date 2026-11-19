@@ -2949,8 +2949,8 @@ def history_page():
     return HTMLResponse(html, headers={"Cache-Control":"no-store, no-cache, must-revalidate, max-age=0","Pragma":"no-cache","Expires":"0"})
 def analytics_tab_page(active: str) -> str:
     tabs = [
-        ("discovery-performance", "Discovery Performance"),
         ("data-health", "Data Health"),
+        ("discovery-performance", "Discovery Performance"),
         ("intelligence", "Intelligence"),
         ("market-breadth", "Market Breadth"),
         ("history", "Market Overview"),
