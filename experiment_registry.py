@@ -2,6 +2,7 @@
 
 Counterfactual stop variants observe the same verified scan prices as the real
 position. They never create fills, positions, cash movements, or account P/L.
+A counterfactual touch is an observed scan-price crossing, not an intrabar fill.
 """
 from __future__ import annotations
 
