@@ -191,6 +191,7 @@ def discovery_analysis(records: list[dict], asset: str) -> dict:
     ]
     gains = [number(record.get("max_gain_pct")) for record in eligible]
     drawdowns = [number(record.get("max_drawdown_pct")) for record in eligible]
+    first_seen_values = sorted(str(record.get("first_seen")) for record in eligible if record.get("first_seen"))
     stage_groups = {}
     for record in eligible:
         stage = str(record.get("first_grade") or "UNKNOWN")
@@ -231,7 +232,19 @@ def discovery_analysis(records: list[dict], asset: str) -> dict:
                     "stage_at_cross": stage_at(record, str(crossing.get("at") or "")),
                 }
         grade_history = record.get("grade_history") or []
-        ever_buy = any(str(item.get("to") or "").upper() == "BUY" for item in grade_history)
+        ever_buy = any(str(item.get("to") or "").upper() == "BUY" for item in grade_history) or str(record.get("last_stage") or "").upper() == "BUY"
+        snapshot = get_snapshot(record)
+        feature_keys = (
+            "score", "raw_score", "early_runner_research_score", "relative_volume",
+            "intraday_relative_volume", "cumulative_rvol_same_time", "volume_acceleration_3bar",
+            "float_rotation_pct", "premarket_rvol_same_time", "hourly_change_pct",
+            "daily_change_pct", "crqs", "crqs_relative_strength_vs_btc_24h_pct",
+            "breakout_24h", "above_24h_average", "higher_lows", "breakout_proximity_pct",
+            "volatility_compression_percentile", "accumulation_signal_score",
+            "liquidity_sweep_detected", "multi_timeframe_alignment", "early_warning_matches",
+            "early_runner_signal_matches", "buy_readiness", "buy_intelligence",
+        )
+        snapshot_summary = {key: snapshot.get(key) for key in feature_keys if key in snapshot}
         row = {
             "symbol": record.get("symbol"),
             "first_seen": record.get("first_seen"),
@@ -249,6 +262,11 @@ def discovery_analysis(records: list[dict], asset: str) -> dict:
             "first_10pct_crossing": crossings.get("10"),
             "first_20pct_crossing": crossings.get("20"),
             "ever_reached_buy_stage_in_grade_history": ever_buy,
+            "initial_feature_snapshot": snapshot_summary,
+            "latest_score": record.get("score"),
+            "latest_stage_reasons": record.get("stage_reasons") or [],
+            "latest_buy_readiness": record.get("buy_readiness") or {},
+            "price_validation_status": record.get("price_validation_status"),
             "grade_history": grade_history[-20:],
         }
         top.append(row)
@@ -256,6 +274,7 @@ def discovery_analysis(records: list[dict], asset: str) -> dict:
             missed.append(row)
     return {
         "verified_recommendation_count": len(eligible),
+        "first_seen_range": {"earliest": first_seen_values[0], "latest": first_seen_values[-1]} if first_seen_values else None,
         "runner_10pct_count": sum(value >= 10 for value in gains),
         "runner_20pct_count": sum(value >= 20 for value in gains),
         "median_observed_max_gain_pct": round(statistics.median(gains), 2) if gains else None,
@@ -291,9 +310,16 @@ def analyze(tracker: dict, paper_state: dict, buy_history: Any) -> dict:
         "top_runners": {},
         "gate_failure_evidence": {},
         "paper_trading": {},
-        "official_buy_history_count": len(buy_history) if isinstance(buy_history, list) else (
-            len(buy_history) if isinstance(buy_history, dict) else 0
+        "official_buy_history_count": (
+            len(buy_history.get("signals") or []) if isinstance(buy_history, dict)
+            else len(buy_history) if isinstance(buy_history, list) else 0
         ),
+        "official_buy_symbols": [
+            item.get("symbol") for item in (buy_history.get("signals") or [])
+            if isinstance(item, dict) and item.get("symbol")
+        ] if isinstance(buy_history, dict) else [
+            item.get("symbol") for item in buy_history if isinstance(item, dict) and item.get("symbol")
+        ] if isinstance(buy_history, list) else [],
         "limitations": [
             "Historical candidate tracking is observational and may have survivorship or scan-coverage bias.",
             "The 5-day outcome is sampled at the first completed scan after the horizon, not a guaranteed entry or exit.",
@@ -410,6 +436,7 @@ def render_markdown(report: dict) -> str:
         f"- Tracker records: {report['tracker_record_count']}",
         f"- Eligible frozen snapshots: {report['eligible_snapshot_count']}",
         f"- Official BUY history records: {report['official_buy_history_count']}",
+        f"- Official BUY symbols: {report.get('official_buy_symbols') or 'none'}",
         "",
         "## Verified first-recommendation opportunity audit",
         "",
@@ -432,6 +459,7 @@ def render_markdown(report: dict) -> str:
             f"### {asset.title()} verified discovery performance",
             "",
             f"- Verified first-recommendation baselines: {discovery['verified_recommendation_count']}",
+            f"- First-seen coverage: {discovery.get('first_seen_range')}",
             f"- Observed 10%+ runners: {discovery['runner_10pct_count']}",
             f"- Observed 20%+ runners: {discovery['runner_20pct_count']}",
             f"- Median observed max gain: {discovery['median_observed_max_gain_pct']}%",
