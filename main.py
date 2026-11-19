@@ -2644,12 +2644,55 @@ def scan_premarket(limit: int = Query(150, ge=20, le=200)):
             "PREMARKET VERIFIED" if item.get("price_validation_passed") and item.get("data_quality", {}).get("verification_status") == "verified"
             else "PREMARKET PROVISIONAL — SINGLE / UNCONFIRMED SOURCE"
         )
+        # Extended-hours provider audit: distinguish a recent Yahoo bar from a
+        # genuinely timestamped IEX quote. Yahoo entitlement is not confirmed,
+        # and IEX is only one exchange, so neither is represented as consolidated
+        # real-time US-market coverage.
+        checked_at = datetime.now(timezone.utc)
+        yahoo_as_of = item.get("intraday_as_of")
+        yahoo_age_seconds = None
+        try:
+            yahoo_stamp = pd.Timestamp(yahoo_as_of)
+            if yahoo_stamp.tzinfo is None:
+                yahoo_stamp = yahoo_stamp.tz_localize("UTC")
+            yahoo_age_seconds = (checked_at - yahoo_stamp.tz_convert("UTC").to_pydatetime()).total_seconds()
+        except (TypeError, ValueError, OverflowError):
+            pass
+        yahoo_recent = bool(
+            item.get("intraday_price") and yahoo_age_seconds is not None
+            and -300 <= yahoo_age_seconds <= 300
+        )
+        alpaca_price = safe_float(item.get("alpaca_price"), 0)
+        alpaca_age = item.get("alpaca_price_age_minutes")
+        alpaca_feed = str(item.get("alpaca_feed") or "").lower()
+        alpaca_fresh = bool(
+            alpaca_price > 0 and alpaca_age is not None
+            and -1 <= safe_float(alpaca_age, 9999) <= 5
+        )
+        item["premarket_provider_checks"] = {
+            "yahoo": {
+                "price": item.get("intraday_price") or None,
+                "as_of": yahoo_as_of,
+                "age_seconds": round(yahoo_age_seconds, 1) if yahoo_age_seconds is not None else None,
+                "status": "RECENT — ENTITLEMENT UNVERIFIED" if yahoo_recent else "STALE / UNAVAILABLE",
+                "counts_as_live": False,
+            },
+            "alpaca": {
+                "price": alpaca_price or None,
+                "as_of": item.get("alpaca_price_as_of"),
+                "age_minutes": alpaca_age,
+                "feed": alpaca_feed or None,
+                "status": "FRESH IEX/SIP QUOTE" if alpaca_fresh and alpaca_feed in {"iex", "sip"} else "STALE / UNAVAILABLE",
+                "coverage_note": "IEX is exchange-limited; SIP coverage depends on feed entitlement",
+                "counts_as_consolidated_live": bool(alpaca_fresh and alpaca_feed == "sip"),
+            },
+        }
         item["premarket_quote"] = {
             "price": item.get("intraday_price") if item.get("intraday_price") else None,
             "as_of": item.get("intraday_as_of"),
             "source": "Yahoo Finance extended-hours intraday bars",
-            "fresh": bool(item.get("intraday_quote_available")),
-            "verification": item["premarket_alert_status"],
+            "fresh": yahoo_recent,
+            "verification": "PROVISIONAL — Yahoo delay entitlement unverified",
         }
         item["premarket_reasons"] = [
             f"Gap {gap:+.2f}%" if item.get("premarket_gap_pct") is not None else None,
