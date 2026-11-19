@@ -39,7 +39,10 @@ class HistoricalAuditExportTests(unittest.TestCase):
 
     def test_official_buy_record_excludes_matching_symbol(self):
         records = [{"asset_type": "crypto", "symbol": "AAA",
-                    "discovery_return_status": "verified", "discovery_max_gain_pct": 40}]
+                    "discovery_return_status": "verified",
+                    "discovery_baseline_status": "live_verified", "discovery_initial_price": 2.0,
+                    "discovery_price_as_of": "2026-11-19T20:00:00+00:00",
+                    "discovery_max_gain_pct": 40}]
         result = build_historical_audit_export(
             records, [{"asset_type": "crypto", "symbol": "AAA"}]
         )
