@@ -462,4 +462,5 @@ def account_summary(account, now=None):
         "risk_off_closed_trades": len(risk_off_closed),
         "risk_off_total_trades": len(risk_off_open) + len(risk_off_closed),
         "risk_off_realized_pnl": round(risk_off_realized, 2),
+        "risk_off_signal_diagnostics": account.get("risk_off_signal_diagnostics") or {},
     }
