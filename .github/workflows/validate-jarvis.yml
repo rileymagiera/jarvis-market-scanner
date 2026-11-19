@@ -7,6 +7,7 @@ on:
       - "main.py"
       - "send_alerts.py"
       - "early_runner.py"
+      - "tests/test_provider_telemetry.py"
       - ".github/workflows/validate-jarvis.yml"
   pull_request:
     paths:
@@ -29,6 +30,10 @@ jobs:
           python-version: "3.12"
       - name: Validate Python syntax
         run: python -m py_compile main.py send_alerts.py early_runner.py
+      - name: Install scanner test dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt pytest
+      - name: Run provider telemetry regression tests
+        run: python -m pytest -q tests/test_provider_telemetry.py
       - name: Extract dashboard JavaScript
         run: |
           python - <<'PY'
