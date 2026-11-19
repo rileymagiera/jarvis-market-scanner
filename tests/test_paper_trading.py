@@ -317,6 +317,9 @@ def test_allocation_ranks_highest_official_buy_score_before_older_signals(tmp_pa
     assert [p["symbol"] for p in account["positions"]] == ["STRONG", "MIDDLE", "OLDER"]
     assert [p["allocation_rank"] for p in account["positions"]] == [1, 2, 3]
     assert [row["official_score"] for row in account["allocation_review"]] == [95, 82, 70]
+    assert account["positions"][0]["quality_risk_multiplier"] == 0.95
+    assert account["positions"][0]["quantity"] > account["positions"][-1]["quantity"]
+    assert account["allocation_review"][0]["effective_risk_budget_pct"] == 0.95
     assert all(row["status"] == "allocated" for row in account["allocation_review"])
 
 
