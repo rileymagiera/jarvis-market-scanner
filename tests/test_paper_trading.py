@@ -109,3 +109,25 @@ def test_paper_entry_and_exit_ledger_use_asset_specific_fees(tmp_path, monkeypat
     sell = [x for x in account["ledger"] if x["type"] == "SELL"][0]
     assert sell["fee_breakdown"]["broker"] == "Coinbase app + Coinbase One Basic"
     assert sell["fee"] > 0
+
+
+def test_coinbase_one_monthly_volume_tracks_buys_sells_and_allowance_overrun():
+    now = datetime(2026, 11, 19, tzinfo=timezone.utc)
+    account = {"coinbase_one_monthly_volume": {}}
+    first = paper_trading._record_coinbase_monthly_volume(account, 320.0, now)
+    second = paper_trading._record_coinbase_monthly_volume(account, 220.0, now)
+    assert first["eligible_volume"] == 320.0
+    assert first["remaining_allowance"] == 180.0
+    assert second["eligible_volume"] == 180.0
+    assert second["volume_over_cap"] == 40.0
+    assert second["monthly_volume_after"] == 540.0
+    assert second["standard_commission_status"] == "rate_not_configured"
+
+
+def test_coinbase_one_monthly_volume_rolls_into_new_calendar_month():
+    account = {"coinbase_one_monthly_volume": {"2026-11": 500.0}}
+    december = datetime(2026, 12, 1, tzinfo=timezone.utc)
+    result = paper_trading._record_coinbase_monthly_volume(account, 25.0, december)
+    assert result["month"] == "2026-12"
+    assert result["eligible_volume"] == 25.0
+    assert result["remaining_allowance"] == 475.0
