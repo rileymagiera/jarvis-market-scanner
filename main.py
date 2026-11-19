@@ -1283,6 +1283,107 @@ WEBULL_QUOTE_SEMAPHORE = threading.BoundedSemaphore(2)
 # Keep this optional provider off by default so it cannot hold up a complete scan.
 # Enable only after the Webull app's market-data authorization is confirmed.
 WEBULL_QUOTE_ENABLED = os.getenv("WEBULL_QUOTE_ENABLED", "false").strip().lower() in ("1", "true", "yes", "on")
+# Shadow mode collects read-only Webull quotes but never affects scanner decisions.
+WEBULL_SHADOW_MODE = os.getenv("WEBULL_SHADOW_MODE", "false").strip().lower() in ("1", "true", "yes", "on")
+WEBULL_SHADOW_MAX_SYMBOLS_PER_SCAN = max(1, min(100, int(os.getenv("WEBULL_SHADOW_MAX_SYMBOLS_PER_SCAN", "30") or 30)))
+WEBULL_SHADOW_SYMBOLS = set()
+
+
+def select_webull_shadow_symbols(symbols: list[str], run_number=None, sample_size=None) -> list[str]:
+    """Rotate a bounded Webull sample across the stock universe between scans."""
+    unique = list(dict.fromkeys(str(symbol).upper() for symbol in symbols if str(symbol).strip()))
+    if not unique:
+        return []
+    size = max(1, min(len(unique), int(sample_size or WEBULL_SHADOW_MAX_SYMBOLS_PER_SCAN)))
+    try:
+        sequence = max(1, int(run_number))
+    except (TypeError, ValueError):
+        sequence = max(1, int(time.time() // 900))
+    offset = ((sequence - 1) * size) % len(unique)
+    return (unique[offset:] + unique[:offset])[:size]
+
+
+def compare_webull_yahoo_prices(webull_quote: dict | None, yahoo_price, yahoo_as_of=None, yahoo_age_minutes=None) -> dict:
+    """Compare contemporaneous Webull and Yahoo observations without changing scanner price."""
+    result = {
+        "status": "webull_unavailable" if not webull_quote else "yahoo_unavailable_or_stale",
+        "webull_price": safe_float(webull_quote.get("price")) if webull_quote else None,
+        "webull_as_of": webull_quote.get("as_of") if webull_quote else None,
+        "webull_age_minutes": webull_quote.get("age_minutes") if webull_quote else None,
+        "yahoo_price": safe_float(yahoo_price) if yahoo_price is not None else None,
+        "yahoo_as_of": yahoo_as_of,
+        "yahoo_age_minutes": yahoo_age_minutes,
+        "difference_pct": None,
+        "timestamp_difference_seconds": None,
+    }
+    if not webull_quote or result["webull_price"] <= 0:
+        return result
+    if yahoo_price is None or safe_float(yahoo_price) <= 0 or not yahoo_as_of or yahoo_age_minutes is None or not (-5 <= safe_float(yahoo_age_minutes) <= 45):
+        return result
+    webull_stamp = pd.Timestamp(result["webull_as_of"])
+    yahoo_stamp = pd.Timestamp(yahoo_as_of)
+    if webull_stamp.tzinfo is None:
+        webull_stamp = webull_stamp.tz_localize("UTC")
+    if yahoo_stamp.tzinfo is None:
+        yahoo_stamp = yahoo_stamp.tz_localize("UTC")
+    midpoint = (result["webull_price"] + result["yahoo_price"]) / 2
+    if midpoint <= 0:
+        return result
+    result["status"] = "comparable"
+    result["difference_pct"] = round(abs(result["webull_price"] - result["yahoo_price"]) / midpoint * 100, 4)
+    result["timestamp_difference_seconds"] = round(abs((webull_stamp - yahoo_stamp).total_seconds()), 1)
+    return result
+
+
+def persist_webull_yahoo_history(records: list[dict], timestamp: str, run_id=None, path=None) -> dict:
+    """Persist a bounded rolling shadow-comparison sample; never feeds trading logic."""
+    history_path = Path(path or os.getenv("WEBULL_YAHOO_HISTORY_PATH", "webull_yahoo_comparison.json"))
+    try:
+        history = json.loads(history_path.read_text(encoding="utf-8"))
+        if not isinstance(history, dict):
+            history = {}
+    except (OSError, json.JSONDecodeError):
+        history = {}
+    existing = [item for item in history.get("records", []) if isinstance(item, dict)]
+    run_key = str(run_id or timestamp)
+    existing = [item for item in existing if str(item.get("run_id") or "") != run_key]
+    new_records = []
+    for item in records:
+        if isinstance(item, dict):
+            row = dict(item)
+            row["scan_timestamp"] = timestamp
+            row["run_id"] = run_key
+            new_records.append(row)
+    cutoff = datetime.now(timezone.utc) - timedelta(days=14)
+    retained = []
+    for item in existing + new_records:
+        try:
+            observed = datetime.fromisoformat(str(item.get("scan_timestamp")).replace("Z", "+00:00"))
+            if observed.tzinfo is None:
+                observed = observed.replace(tzinfo=timezone.utc)
+        except (TypeError, ValueError):
+            continue
+        if observed >= cutoff:
+            retained.append(item)
+    retained = retained[-20000:]
+    comparable = [safe_float(item.get("difference_pct"), np.nan) for item in retained if item.get("status") == "comparable"]
+    comparable = [value for value in comparable if np.isfinite(value)]
+    ordered = sorted(comparable)
+    def percentile(values, fraction):
+        return round(values[min(len(values)-1, int((len(values)-1)*fraction))], 4) if values else None
+    summary = {
+        "record_count": len(retained), "comparable_count": len(comparable),
+        "non_comparable_count": len(retained) - len(comparable),
+        "mean_difference_pct": round(float(np.mean(comparable)), 4) if comparable else None,
+        "median_difference_pct": percentile(ordered, 0.5), "p90_difference_pct": percentile(ordered, 0.9),
+        "within_0_25_pct": sum(value <= 0.25 for value in comparable),
+        "within_0_5_pct": sum(value <= 0.5 for value in comparable),
+        "within_1_pct": sum(value <= 1.0 for value in comparable),
+        "within_2_pct": sum(value <= 2.0 for value in comparable), "retention_days": 14,
+    }
+    result = {"summary": summary, "recent_records": retained[-100:], "updated_at": timestamp}
+    history_path.write_text(json.dumps({"schema_version": 1, **result, "records": retained}, indent=2) + "\n", encoding="utf-8")
+    return result
 
 
 def webull_latest_bar(symbol: str) -> dict:
@@ -1649,7 +1750,8 @@ def scan_stock(symbol: str) -> Optional[dict]:
         os.getenv("WEBULL_APP_KEY", "").strip()
         and os.getenv("WEBULL_APP_SECRET", "").strip()
     )
-    webull_enabled = has_webull_credentials and WEBULL_QUOTE_ENABLED
+    webull_enabled = has_webull_credentials and WEBULL_QUOTE_ENABLED and not WEBULL_SHADOW_MODE
+    webull_shadow_requested = bool(WEBULL_SHADOW_MODE and has_webull_credentials and symbol.upper() in WEBULL_SHADOW_SYMBOLS)
 
     # Stooq's quote endpoint is returning 404s for valid symbols; retain Stooq
     # only for daily-history fallback, not independent live-price validation.
@@ -1690,14 +1792,18 @@ def scan_stock(symbol: str) -> Optional[dict]:
             massive_quote_status = "fresh_quote_received"
         except Exception as exc:            massive_quote_status = "not_entitled" if "not entitled" in str(exc).lower() else "unavailable"
 
-    if webull_enabled:
-        try:            # Optional read-only Webull cross-check; explicitly enabled only after
-            # app authorization is confirmed. The scan remains usable without it.
+    if webull_enabled or webull_shadow_requested:
+        try:
+            # Shadow-mode collection is read-only and does not enter the validation path.
             webull_quote = webull_latest_bar(symbol)
-            webull_status = "fresh_quote_received"
-        except Exception:
-            # Missing entitlement, credentials, SDK, or endpoint must not stop a scan.
-            webull_status = "unavailable_or_not_entitled"
+            webull_status = "shadow_quote_received" if webull_shadow_requested else "fresh_quote_received"
+        except Exception as exc:
+            webull_status = "shadow_quote_unavailable" if webull_shadow_requested else "unavailable_or_not_entitled"
+            print(f"Webull quote unavailable for {symbol}: {type(exc).__name__}", flush=True)
+    elif WEBULL_SHADOW_MODE and has_webull_credentials:
+        webull_status = "shadow_not_sampled_this_scan"
+    elif WEBULL_SHADOW_MODE and not has_webull_credentials:
+        webull_status = "shadow_credentials_missing"
     elif has_webull_credentials:
         webull_status = "disabled_pending_authorization"
 
@@ -1728,7 +1834,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
     selected_price_freshness = "daily_bar_unverified"
     selected_data_source = f"{price_provider} daily; live quote unverified"
 
-    if webull_quote:
+    if webull_quote and webull_enabled:
         webull_price = webull_quote["price"]
         webull_differences = [
             (name, abs(reference_price - webull_price)
@@ -1896,6 +2002,11 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "webull_price_age_minutes": webull_quote["age_minutes"] if webull_quote else None,
         "webull_price_difference_pct": round(webull_difference_pct, 2) if webull_difference_pct is not None else None,
         "webull_status": webull_status,
+        "webull_yahoo_comparison": compare_webull_yahoo_prices(
+            webull_quote, intraday_price if intraday_fresh else None,
+            intraday_as_of.isoformat() if intraday_as_of is not None else None,
+            (datetime.now(timezone.utc) - intraday_as_of.to_pydatetime()).total_seconds() / 60 if intraday_as_of is not None else None,
+        ),
         "massive_price": round(massive_quote["price"], 4) if massive_quote else None,
         "massive_price_as_of": massive_quote["as_of"] if massive_quote else None,
         "massive_price_age_minutes": massive_quote["age_minutes"] if massive_quote else None,
@@ -2459,6 +2570,7 @@ def data_health_data():
         "candidate_count": len(candidates), "assets": {"stocks": len(stock), "crypto": len(crypto)},
         "price_status": {"all": status_counts(candidates), "stocks": status_counts(stock), "crypto": status_counts(crypto)},
         "failure_reasons": failure_reasons,
+        "webull_yahoo_comparison": detail.get("webull_yahoo_comparison") or {},
         "data_gaps": {"missing_price": len(missing_price), "missing_source": len(missing_source),
                       "missing_timestamp": len(missing_timestamp), "older_than_15_minutes": len(stale)},
         "field_coverage": {
@@ -2469,6 +2581,7 @@ def data_health_data():
             "stock_price_feed": alpaca.get("feed"), "alpaca_credentials_configured": alpaca.get("credentials_configured"),
             "alpaca_candidate_status_counts": alpaca.get("candidate_status_counts", {}),
             "webull_status": detail.get("webull_quote_status"), "webull_note": detail.get("webull_quote_note"),
+            "webull_shadow_credentials_configured": (detail.get("webull_shadow_sample") or {}).get("credentials_configured", False),
             "massive_status": detail.get("massive_live_quote_status"), "massive_note": detail.get("massive_live_quote_note"),
             "crypto_verified": (crypto_diag.get("price_validation") or {}).get("verified"),
             "crypto_unverified": (crypto_diag.get("price_validation") or {}).get("unverified"),
@@ -2863,6 +2976,12 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
     stock_symbols = stock_universe() if asset in ("all", "stocks") else []
     crypto_symbols = crypto_universe() if asset in ("all", "crypto") else []
     discovery_seconds = time.monotonic() - discovery_started
+    global WEBULL_SHADOW_SYMBOLS
+    webull_credentials_configured = bool(os.getenv("WEBULL_APP_KEY", "").strip() and os.getenv("WEBULL_APP_SECRET", "").strip())
+    WEBULL_SHADOW_SYMBOLS = set(
+        select_webull_shadow_symbols(stock_symbols, os.getenv("GITHUB_RUN_NUMBER"))
+        if WEBULL_SHADOW_MODE and webull_credentials_configured else []
+    )
     stock_results, stock_errors = ([], [])
     crypto_results, crypto_errors = ([], [])
 
@@ -3015,6 +3134,13 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
     for item in stock_results:
         status = item.get("alpaca_quote_status", "not_reported")
         alpaca_status_counts[status] = alpaca_status_counts.get(status, 0) + 1
+    webull_comparison_records = [
+        {"symbol": item.get("symbol"), **(item.get("webull_yahoo_comparison") or {})}
+        for item in stock_results if item.get("webull_yahoo_comparison")
+    ]
+    webull_history = persist_webull_yahoo_history(
+        webull_comparison_records, now_iso(), os.getenv("GITHUB_RUN_ID")
+    ) if WEBULL_SHADOW_MODE else {}
     return {
         **response_payload(asset, stock_symbols + crypto_symbols, results, errors),
         "market_conditions": regime,
@@ -3049,8 +3175,18 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
                 "provider_activity": provider_activity.get("providers", {}).get("alpaca_snapshot_batch", {"calls": 0, "failures": 0, "total_seconds": 0.0, "max_seconds": 0.0, "error_counts": {}}),
             },
             "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history, invalid market data, or a provider error; low scores alone no longer remove otherwise valid discoveries.",
-            "webull_quote_status": "enabled" if WEBULL_QUOTE_ENABLED else "disabled_pending_authorization",
-            "webull_quote_note": "Webull quote lookups are opt-in because app authorization was observed pending; Yahoo/Stooq scanning continues independently. Enable only after Webull market-data authorization is confirmed.",
+            "webull_quote_status": "shadow_mode" if WEBULL_SHADOW_MODE else ("enabled" if WEBULL_QUOTE_ENABLED else "disabled_pending_authorization"),
+            "webull_quote_note": (
+                "Shadow mode only: read-only Webull quotes are sampled and compared with Yahoo; they do not affect price selection, verification, scoring, BUY gates, or paper trades."
+                if WEBULL_SHADOW_MODE else "Webull quote lookups remain opt-in; Yahoo/Alpaca scanning continues independently."
+            ),
+            "webull_yahoo_comparison": webull_history,
+            "webull_shadow_sample": {
+                "enabled": WEBULL_SHADOW_MODE,
+                "credentials_configured": webull_credentials_configured,
+                "sample_limit_per_scan": WEBULL_SHADOW_MAX_SYMBOLS_PER_SCAN,
+                "symbols_selected": len(WEBULL_SHADOW_SYMBOLS),
+            },
             "massive_live_quote_status": "enabled" if MASSIVE_LIVE_QUOTE_ENABLED else "disabled_pending_entitlement_check",
             "massive_live_quote_note": "Optional last-trade cross-check is disabled by default. Enable MASSIVE_LIVE_QUOTE_ENABLED=true only if the Massive Stocks plan includes /v2/last/trade; 15-minute delayed data is accepted only when its timestamp is within 45 minutes.",
             "market_session": market_session_status(),
