@@ -1,6 +1,6 @@
 import unittest
 
-from buy_intelligence import build_buy_intelligence
+from buy_intelligence import build_buy_intelligence, blend_buy_score
 
 
 class BuyIntelligenceMappingTests(unittest.TestCase):
@@ -73,6 +73,41 @@ class BuyIntelligenceMappingTests(unittest.TestCase):
         })
         self.assertEqual(result["historical_confidence"], "insufficient")
         self.assertIsNone(result["components"]["historical_edge"])
+
+    def test_coverage_qualified_pilot_blends_scores_at_twenty_percent(self):
+        intelligence = {
+            "score": 100,
+            "maximum_available_points": 85,
+            "component_coverage": {
+                "early_formation": {"available": 30, "possible": 30},
+                "momentum_confirmation": {"available": 25, "possible": 25},
+                "unusual_activity": {"available": 25, "possible": 25},
+                "catalyst_quality": {"available": 1, "possible": 1},
+                "historical_edge": {"available": 0, "possible": 1},
+            },
+        }
+        result = blend_buy_score(70, intelligence)
+        self.assertTrue(result["applied"])
+        self.assertEqual(result["score"], 76)
+        self.assertEqual(result["legacy_score"], 70)
+        self.assertEqual(result["weight"], 0.20)
+        self.assertEqual(result["model"], "hybrid_offline_v1")
+
+    def test_insufficient_coverage_keeps_legacy_score(self):
+        intelligence = {
+            "score": 100,
+            "maximum_available_points": 85,
+            "component_coverage": {
+                "early_formation": {"available": 5, "possible": 30},
+                "momentum_confirmation": {"available": 5, "possible": 25},
+                "unusual_activity": {"available": 2, "possible": 25},
+                "catalyst_quality": {"available": 0, "possible": 1},
+            },
+        }
+        result = blend_buy_score(70, intelligence)
+        self.assertFalse(result["applied"])
+        self.assertEqual(result["score"], 70)
+        self.assertEqual(result["model"], "legacy_fallback")
 
 
 if __name__ == "__main__":
