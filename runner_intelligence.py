@@ -155,7 +155,79 @@ def build_runner_intelligence_report(records, buy_signals=None):
     radar.sort(key=lambda row: (row["research_score"] if row["research_score"] is not None else -1,
                                 len(row["matches"])), reverse=True)
 
+    gate_events = []
+    gate_stats = defaultdict(list)
+    catalyst_rows = []
+    for record in values:
+        asset = str(record.get("asset_type") or "").lower()
+        symbol = str(record.get("symbol") or "").upper()
+        if asset not in ("stock", "crypto") or not symbol:
+            continue
+        for event in record.get("buy_gate_history") or []:
+            if not isinstance(event, dict):
+                continue
+            row = {
+                "asset_type": asset, "symbol": symbol,
+                "at": event.get("at"), "stage": event.get("stage"),
+                "score": _number(event.get("score")),
+                "readiness_pct": _number(event.get("readiness_pct")),
+                "failed_gate_keys": event.get("failed_gate_keys") or [],
+                "missing_conditions": event.get("missing_conditions") or [],
+                "price_verified": bool(event.get("price_verified")),
+                "price": _number(event.get("price")),
+                "market_regime": event.get("market_regime"),
+                "max_favorable_since_pct": _number(event.get("max_favorable_since_pct")),
+                "max_adverse_since_pct": _number(event.get("max_adverse_since_pct")),
+                "latest_return_since_pct": _number(event.get("latest_return_since_pct")),
+                "follow_up_observations": int(event.get("follow_up_observations") or 0),
+            }
+            gate_events.append(row)
+            for key in row["failed_gate_keys"]:
+                gate_stats[key].append(row)
+        history = record.get("catalyst_dilution_history") or []
+        if history:
+            latest = history[-1]
+            catalyst_rows.append({
+                "asset_type": asset, "symbol": symbol,
+                "status": record.get("catalyst_lifecycle_status") or latest.get("status"),
+                "changed_at": latest.get("at"),
+                "catalyst_labels": latest.get("catalyst_labels") or [],
+                "dilution_flags": latest.get("dilution_flags") or [],
+                "headline_count": latest.get("headline_count", 0),
+                "history_count": len(history),
+            })
+
+    gate_summaries = []
+    for key, samples in gate_stats.items():
+        measured = [x for x in samples if x["max_favorable_since_pct"] is not None]
+        gate_summaries.append({
+            "gate": key,
+            "events": len(samples),
+            "followed_up": sum(1 for x in samples if x["follow_up_observations"] > 0),
+            "measured": len(measured),
+            "average_max_favorable_pct": round(mean([x["max_favorable_since_pct"] for x in measured]), 2) if measured else None,
+            "average_max_adverse_pct": round(mean([x["max_adverse_since_pct"] for x in measured]), 2) if measured else None,
+            "later_reached_5pct": sum(1 for x in measured if x["max_favorable_since_pct"] >= 5),
+            "later_reached_10pct": sum(1 for x in measured if x["max_favorable_since_pct"] >= 10),
+            "sample_status": "directional review only" if len(measured) >= MIN_COHORT_OBSERVATIONS else "collecting observations",
+        })
+    gate_summaries.sort(key=lambda x: (x["measured"], x["events"]), reverse=True)
+    gate_events.sort(key=lambda x: x.get("at") or "", reverse=True)
+    catalyst_rows.sort(key=lambda x: x.get("changed_at") or "", reverse=True)
+
     return {
+        "buy_gate_failure_tracker": {
+            "event_count": len(gate_events),
+            "gate_summaries": gate_summaries,
+            "recent_events": gate_events[:50],
+            "definition": "Research-only record of failed BUY readiness checks for promising candidates. Later outcomes use fresh verified observations and are not causal estimates. No gate is changed by this report.",
+        },
+        "catalyst_lifecycle": {
+            "tracked_candidates": len(catalyst_rows),
+            "active_catalyst_or_dilution": sum(1 for x in catalyst_rows if x["status"] != "NO CURRENT CLASSIFIED CATALYST"),
+            "candidates": catalyst_rows[:50],
+            "definition": "Change history of classified catalysts and dilution flags already detected by Jarvis. This does not imply every SEC filing or financing event has been detected.",
+        },
         "missed_runner_tracker": {
             "threshold_pct": MISSED_RUNNER_THRESHOLD_PCT,
             "verified_watchlist_runners": len(missed),
