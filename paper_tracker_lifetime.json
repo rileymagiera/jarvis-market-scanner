@@ -10,10 +10,10 @@
           "wins": 15
         }
       },
-      "recommendations": 133
+      "recommendations": 138
     },
     "stock": {
-      "recommendations": 424
+      "recommendations": 428
     }
   },
   "checkpoints": {
@@ -26,11 +26,11 @@
     }
   },
   "integrity": {
-    "checked_at": "2026-11-19T01:01:09.462873+00:00",
-    "retained_stock_baselines": 284,
-    "retained_stock_counted_baselines": 284,
+    "checked_at": "2026-11-19T02:01:11.978257+00:00",
+    "retained_stock_baselines": 288,
+    "retained_stock_counted_baselines": 288,
     "retained_stock_uncounted_baselines": 0,
-    "unverified_stock_without_baseline": 25
+    "unverified_stock_without_baseline": 26
   },
-  "recommendations": 557
+  "recommendations": 566
 }
