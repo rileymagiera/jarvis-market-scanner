@@ -897,7 +897,7 @@ def build_buy_intelligence(item: dict) -> dict:
             observations = max(0, int(historical.get("observations") or 0))
         except (TypeError, ValueError, OverflowError):
             observations = 0
-        runner_rate = number_from = historical.get("runner_rate_pct")
+        runner_rate = historical.get("runner_rate_pct")
         avg_return = historical.get("average_5d_return_pct")
         try:
             runner_rate = float(runner_rate) if runner_rate is not None else None
