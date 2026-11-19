@@ -28,7 +28,7 @@ class BuyIntelligenceMappingTests(unittest.TestCase):
             "news": [],
         }
         result = build_buy_intelligence(item)
-        self.assertEqual(result["version"], "shadow_v2")
+        self.assertEqual(result["version"], "shadow_v3")
         self.assertGreater(result["components"]["early_formation"], 0)
         self.assertGreater(result["components"]["momentum_confirmation"], 0)
         self.assertGreater(result["components"]["unusual_activity"], 0)
@@ -60,6 +60,26 @@ class BuyIntelligenceMappingTests(unittest.TestCase):
         self.assertFalse(result["affects_production_buy_score"])
         self.assertFalse(result["can_execute_trades"])
 
+    def test_early_warning_evidence_maps_into_existing_score_families(self):
+        result = build_buy_intelligence({
+            "asset_type": "stock",
+            "breakout_proximity_pct": 1.2,
+            "volatility_compression_percentile": 12.0,
+            "multi_timeframe_alignment": True,
+            "liquidity_sweep_detected": True,
+            "accumulation_signal_score": 100,
+            "news": [],
+        })
+        coverage = result["component_coverage"]
+        self.assertEqual(coverage["early_formation"]["available"], 8)
+        self.assertEqual(coverage["early_formation"]["possible"], 38)
+        self.assertEqual(coverage["momentum_confirmation"]["available"], 5)
+        self.assertEqual(coverage["unusual_activity"]["available"], 8)
+        self.assertGreater(result["components"]["early_formation"], 0)
+        self.assertGreater(result["components"]["momentum_confirmation"], 0)
+        self.assertGreater(result["components"]["unusual_activity"], 0)
+        self.assertEqual(result["version"], "shadow_v3")
+
     def test_missing_inputs_are_not_scored_as_failures(self):
         result = build_buy_intelligence({"asset_type": "stock"})
         self.assertIsNone(result["score"])
@@ -79,9 +99,9 @@ class BuyIntelligenceMappingTests(unittest.TestCase):
             "score": 100,
             "maximum_available_points": 85,
             "component_coverage": {
-                "early_formation": {"available": 30, "possible": 30},
-                "momentum_confirmation": {"available": 25, "possible": 25},
-                "unusual_activity": {"available": 25, "possible": 25},
+                "early_formation": {"available": 38, "possible": 38},
+                "momentum_confirmation": {"available": 30, "possible": 30},
+                "unusual_activity": {"available": 33, "possible": 33},
                 "catalyst_quality": {"available": 1, "possible": 1},
                 "historical_edge": {"available": 0, "possible": 1},
             },
@@ -91,16 +111,16 @@ class BuyIntelligenceMappingTests(unittest.TestCase):
         self.assertEqual(result["score"], 76)
         self.assertEqual(result["legacy_score"], 70)
         self.assertEqual(result["weight"], 0.20)
-        self.assertEqual(result["model"], "hybrid_offline_v1")
+        self.assertEqual(result["model"], "hybrid_offline_v2")
 
     def test_insufficient_coverage_keeps_legacy_score(self):
         intelligence = {
             "score": 100,
             "maximum_available_points": 85,
             "component_coverage": {
-                "early_formation": {"available": 5, "possible": 30},
-                "momentum_confirmation": {"available": 5, "possible": 25},
-                "unusual_activity": {"available": 2, "possible": 25},
+                "early_formation": {"available": 5, "possible": 38},
+                "momentum_confirmation": {"available": 5, "possible": 30},
+                "unusual_activity": {"available": 2, "possible": 33},
                 "catalyst_quality": {"available": 0, "possible": 1},
             },
         }
