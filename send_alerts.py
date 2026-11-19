@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 from email.message import EmailMessage
 from pathlib import Path
 from paper_trading import update_account as update_paper_trading_account, account_summary as paper_account_summary
+from candidate_lifecycle import update_candidate_lifecycle
 from early_runner import has_session_aware_early_runner_baseline
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
@@ -699,6 +700,7 @@ def update_paper_tracker(candidates, now):
         record["research_feature_snapshot"] = {field: item.get(field) for field in research_fields}
         record["research_signal_matches"] = item.get("research_signal_matches") or []
         record["buy_readiness"] = item.get("buy_readiness") or {}
+        update_candidate_lifecycle(record, item, now, observation_eligible=observation_eligible)
         record["early_runner_signal_matches"] = item.get("early_runner_signal_matches") or []
         record["early_runner_research_score"] = item.get("early_runner_research_score")
         record["last_seen"] = now.isoformat()
