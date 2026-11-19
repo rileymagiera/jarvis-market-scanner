@@ -19,6 +19,11 @@
     "alerted_stage": "DEVELOPING SETUP",
     "score": 60
   },
+  "crypto:MEGAUSDT": {
+    "alerted_at": "2026-11-19T23:04:35.762315+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 65
+  },
   "crypto:SKYUSDT": {
     "alerted_at": "2026-11-19T20:04:21.408382+00:00",
     "alerted_stage": "DEVELOPING SETUP",
