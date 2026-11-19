@@ -273,7 +273,7 @@ def update_paper_tracker(candidates, now):
                 record["discovery_price_as_of"] = item.get("price_as_of") or now.isoformat()
                 record["discovery_price_checked_at"] = item.get("price_checked_at") or now.isoformat()
                 record["discovery_price_source"] = item.get("data_source") or item.get("price_source")
-                record["discovery_baseline_status"] = "first_verified_fallback"
+                record["discovery_baseline_status"] = "last_known_eod" if item_price_status == "last_known" else "first_verified_fallback"
                 record["discovery_baseline_timestamp_type"] = item.get("price_timestamp_type") or "provider timestamp"
                 record["discovery_peak_price"] = price
                 record["discovery_trough_price"] = price
