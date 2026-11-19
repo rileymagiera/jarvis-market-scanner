@@ -15,7 +15,7 @@ import requests
 from io import StringIO
 import yfinance as yf
 from early_runner import compute_early_runner_metrics, summarize_crypto_cross_section, set_crypto_relative_strength_coverage, build_data_quality_record, apply_entry_quality_gate
-from buy_intelligence import build_buy_intelligence
+from buy_intelligence import build_buy_intelligence, blend_buy_score
 from fastapi import FastAPI, Query, Header, HTTPException, Depends
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.responses import HTMLResponse, Response
@@ -821,8 +821,20 @@ def market_conditions() -> dict:
 def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
     item["buy_intelligence"] = build_buy_intelligence(item)
     raw_score = int(item.get("score") or 0)
-    adjusted = max(0, min(100, raw_score + adjustment))
+    legacy_adjusted = max(0, min(100, raw_score + adjustment))
+    blend = blend_buy_score(legacy_adjusted, item["buy_intelligence"])
+    adjusted = blend["score"]
     item["raw_score"] = raw_score
+    item["legacy_score"] = legacy_adjusted
+    item["score_model"] = blend["model"]
+    item["score_model_note"] = blend["note"]
+    item["buy_intelligence"]["affects_production_buy_score"] = blend["applied"]
+    item["buy_intelligence"]["can_execute_trades"] = False
+    item["buy_intelligence"]["pilot_blend"] = blend
+    item["buy_intelligence"]["status"] = (
+        "PAPER PILOT — hybrid score active" if blend["applied"]
+        else "SHADOW ONLY — legacy score retained"
+    )
     item["score"] = adjusted
     item["market_regime"] = regime["regime"]
     item["market_score_adjustment"] = adjustment
