@@ -2364,6 +2364,34 @@ const PREF_KEY='jarvisDashboardPrefsV1';const prefs={radarFilter:'all',assetFilt
 function savePrefs(){try{localStorage.setItem(PREF_KEY,JSON.stringify(prefs));}catch(_){}document.body.classList.toggle('compact-mode',prefs.density==='compact');document.getElementById('radar-timeline').hidden=!prefs.showTimeline;document.getElementById('performance-archive').hidden=!prefs.showPerformance;}
 function bindPrefs(){const radar=document.getElementById('radar-filter'),assetFilter=document.getElementById('radar-asset-filter'),density=document.getElementById('layout-density'),timeline=document.getElementById('show-timeline'),performance=document.getElementById('show-performance');radar.value=prefs.radarFilter;assetFilter.value=prefs.assetFilter||'all';density.value=prefs.density;timeline.checked=prefs.showTimeline;performance.checked=prefs.showPerformance;radar.addEventListener('change',()=>{prefs.radarFilter=radar.value;savePrefs();if(window.jarvisRenderData)render(window.jarvisRenderData);});assetFilter.addEventListener('change',()=>{prefs.assetFilter=assetFilter.value;savePrefs();if(window.jarvisRenderData)render(window.jarvisRenderData);});density.addEventListener('change',()=>{prefs.density=density.value;savePrefs();});timeline.addEventListener('change',()=>{prefs.showTimeline=timeline.checked;savePrefs();});performance.addEventListener('change',()=>{prefs.showPerformance=performance.checked;savePrefs();});document.getElementById('reset-dashboard-settings').addEventListener('click',()=>{Object.assign(prefs,{radarFilter:'all',assetFilter:'all',density:'comfortable',showTimeline:true,showPerformance:true});radar.value=prefs.radarFilter;assetFilter.value=prefs.assetFilter;density.value=prefs.density;timeline.checked=prefs.showTimeline;performance.checked=prefs.showPerformance;savePrefs();if(window.jarvisRenderData)render(window.jarvisRenderData);});savePrefs();}
 document.addEventListener('DOMContentLoaded',bindPrefs);
+(async function loadHistoryDashboard(){
+ const status=document.getElementById('updated');
+ const controller=new AbortController();
+ const timeout=setTimeout(()=>controller.abort(),25000);
+ try{
+  const response=await fetch('/history/data?refresh='+Date.now(),{cache:'no-store',signal:controller.signal});
+  if(!response.ok)throw Error('History request failed: HTTP '+response.status);
+  const data=await response.json();
+  if(!data||typeof data.paper_tracker!=='object'||data.paper_tracker===null)throw Error('History API returned an invalid candidate ledger');
+  const recordCount=Object.keys(data.paper_tracker).length;
+  // Update and paint the connection state before the heavier DOM/table rendering work.
+  if(status)status.textContent='Saved history received · preparing '+recordCount+' tracked records…';
+  await new Promise(resolve=>requestAnimationFrame(()=>resolve()));
+  try{
+   render(data);
+   if(status)status.textContent='Dashboard loaded · '+recordCount+' tracked records';
+  }catch(err){
+   console.error('Jarvis history render error:',err);
+   if(status)status.textContent='Dashboard rendering failed: '+(err&&err.message||err);
+  }
+ }catch(err){
+  console.error('Jarvis history data load error:',err);
+  if(status)status.textContent=(err&&err.name==='AbortError')?'History data timed out · reload to retry':'History data load failed: '+(err&&err.message||err);
+  const pick=document.getElementById('action-top-pick');
+  if(pick)pick.innerHTML='<div><div class="action-pick-title">TOP RADAR CANDIDATE</div><div class="action-pick-symbol">Dashboard data unavailable</div><div class="action-pick-reason">The saved scan could not be loaded. Reload to retry; no trade signal is implied.</div></div><span class="action-pick-status">DATA UNAVAILABLE</span>';
+ }finally{clearTimeout(timeout);}
+})()
+
 function elapsed(from,to){if(!from||!to)return '—';const ms=new Date(to)-new Date(from);if(!Number.isFinite(ms)||ms<0)return '—';const hours=Math.floor(ms/3600000);return hours<24?hours+'h':Math.floor(hours/24)+'d '+Math.floor(hours%24)+'h';}const etStamp=v=>v?new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'}).format(new Date(v)):'—';function priceTiming(x){const lastKnown=x.price_validation_status==='last_known'||x.price_timestamp_type==='daily_session_close';const sessionDate=x.price_session_date||(lastKnown&&x.price_as_of?new Date(x.price_as_of).toISOString().slice(0,10):null);const priceTime=lastKnown?(sessionDate?sessionDate+' · regular close scheduled 4:00 PM ET':'Daily session close · date unavailable'):etStamp(x.price_as_of);const checked=etStamp(x.price_checked_at||x.last_seen||(x.data_quality&&x.data_quality.received_at));const note=lastKnown?'Daily-bar source provides the session date, not the exact final-trade timestamp; early closes can differ.':'Exchange/provider timestamp';const status=lastKnown?'LAST KNOWN · EOD':x.price_validation_status==='verified'?'LIVE VERIFIED':'UNVERIFIED';const baseStatus=x.discovery_baseline_status==='last_known_eod'?'LAST KNOWN EOD':x.discovery_baseline_status==='live_verified'?'LIVE VERIFIED':x.discovery_baseline_status==='first_verified_legacy'?'LEGACY FIRST-VERIFIED':x.discovery_baseline_status==='first_verified_fallback'?'FIRST VERIFIED FALLBACK':'AWAITING RELIABLE PRICE';const baseTime=x.discovery_baseline_timestamp_type==='daily_session_close'?String(x.discovery_price_as_of||'').slice(0,10):etStamp(x.discovery_price_as_of);return '<div class="tiny"><b>'+e(status)+'</b></div><div class="tiny">PRICE TIME: '+e(priceTime)+'</div><div class="tiny">JARVIS CHECKED: '+e(checked)+'</div><div class="tiny">DISCOVERY BASELINE: '+e(baseStatus)+' · '+e(baseTime||'date unavailable')+'</div><div class="tiny">'+e(note)+'</div>';}function render(d){window.jarvisRenderData=d;const t=d.paper_tracker||{},l=d.lifetime||{},all=Object.values(t),buySignals=d.buy_signals||[],activeBuys=buySignals.filter(x=>x.status==="active"),verified=all.filter(x=>x.price_validation_status==="verified"),trackedReturns=all.filter(x=>hasPct(x.discovery_return_pct)),live=all.filter(x=>x.currently_surfaced!==false&&(x.price_validation_status==='verified'||(x.asset_type==='stock'&&x.price_validation_status==='last_known'))),avg=trackedReturns.length?trackedReturns.reduce((s,x)=>s+n(x.discovery_return_pct),0)/trackedReturns.length:null;
 const integrity=l.integrity||{};const integrityNode=document.getElementById('ledger-integrity');if(integrityNode){const missing=n(integrity.retained_stock_uncounted_baselines);integrityNode.textContent='Ledger integrity · stock baselines '+n(integrity.retained_stock_baselines)+' · counted '+n(integrity.retained_stock_counted_baselines)+' · uncounted '+missing+' · unverified without baseline '+n(integrity.unverified_stock_without_baseline)+(missing?' · CHECK REQUIRED':' · OK');}
 const fmtTime=d.last_scan_completed_at?new Intl.DateTimeFormat('en-US',{timeZone:'America/Detroit',year:'numeric',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit',timeZoneName:'short'}).format(new Date(d.last_scan_completed_at)):'No completed scan timestamp yet';document.getElementById('updated').textContent='Last scan completed: '+fmtTime;
@@ -2452,33 +2480,7 @@ const moves=[];all.forEach(x=>(x.grade_history||[]).forEach(m=>moves.push({...m,
 document.getElementById('catalysts').innerHTML=all.filter(x=>(x.discovery_reasons||[]).length||(x.catalysts||[]).length||(x.risk_flags||[]).length).slice(0,40).map(x=>'<tr><td>'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'</td><td>'+e((x.discovery_reasons||[]).join(' · ')||'—')+'</td><td>'+((x.catalysts||[]).slice(0,2).map(c=>c.url?'<a target="_blank" rel="noopener" href="'+e(c.url)+'">'+e(c.title)+'</a>':e(c.title)).join('<br>')||'—')+'</td><td class="neg">'+e((x.risk_flags||[]).join(' · ')||'—')+'</td></tr>').join('')||'<tr><td colspan="4">Discovery details will populate on the next scan.</td></tr>';
 const faded=all.filter(x=>x.currently_surfaced===false).sort((a,b)=>(b.last_seen||'').localeCompare(a.last_seen||''));document.getElementById('faded').innerHTML=faded.slice(0,40).map(x=>'<tr><td>'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'</td><td>'+date(x.last_seen)+'</td><td class="'+cl(x.discovery_return_pct)+'">'+pct(x.discovery_return_pct)+'</td><td class="pos">'+pct(x.discovery_max_gain_pct??x.max_gain_pct)+'</td><td>'+e(x.last_stage||'—')+'</td></tr>').join('')||'<tr><td colspan="5">No candidates currently absent from the latest scan.</td></tr>';
 }
-(async function loadHistoryDashboard(){
- const status=document.getElementById('updated');
- const controller=new AbortController();
- const timeout=setTimeout(()=>controller.abort(),25000);
- try{
-  const response=await fetch('/history/data?refresh='+Date.now(),{cache:'no-store',signal:controller.signal});
-  if(!response.ok)throw Error('History request failed: HTTP '+response.status);
-  const data=await response.json();
-  if(!data||typeof data.paper_tracker!=='object'||data.paper_tracker===null)throw Error('History API returned an invalid candidate ledger');
-  const recordCount=Object.keys(data.paper_tracker).length;
-  // Update and paint the connection state before the heavier DOM/table rendering work.
-  if(status)status.textContent='Saved history received · preparing '+recordCount+' tracked records…';
-  await new Promise(resolve=>requestAnimationFrame(()=>resolve()));
-  try{
-   render(data);
-   if(status)status.textContent='Dashboard loaded · '+recordCount+' tracked records';
-  }catch(err){
-   console.error('Jarvis history render error:',err);
-   if(status)status.textContent='Dashboard rendering failed: '+(err&&err.message||err);
-  }
- }catch(err){
-  console.error('Jarvis history data load error:',err);
-  if(status)status.textContent=(err&&err.name==='AbortError')?'History data timed out · reload to retry':'History data load failed: '+(err&&err.message||err);
-  const pick=document.getElementById('action-top-pick');
-  if(pick)pick.innerHTML='<div><div class="action-pick-title">TOP RADAR CANDIDATE</div><div class="action-pick-symbol">Dashboard data unavailable</div><div class="action-pick-reason">The saved scan could not be loaded. Reload to retry; no trade signal is implied.</div></div><span class="action-pick-status">DATA UNAVAILABLE</span>';
- }finally{clearTimeout(timeout);}
-})();
+;
 </script></body></html>""",headers={"Cache-Control":"no-store, no-cache, must-revalidate, max-age=0","Pragma":"no-cache","Expires":"0"})
  
  
