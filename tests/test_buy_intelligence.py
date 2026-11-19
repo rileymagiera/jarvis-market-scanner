@@ -113,6 +113,55 @@ class BuyIntelligenceMappingTests(unittest.TestCase):
         self.assertEqual(result["weight"], 0.20)
         self.assertEqual(result["model"], "hybrid_offline_v2")
 
+    def test_blend_weight_cannot_exceed_twenty_percent(self):
+        intelligence = {
+            "score": 100,
+            "maximum_available_points": 85,
+            "component_coverage": {
+                "early_formation": {"available": 38, "possible": 38},
+                "momentum_confirmation": {"available": 30, "possible": 30},
+                "unusual_activity": {"available": 33, "possible": 33},
+                "catalyst_quality": {"available": 1, "possible": 1},
+            },
+        }
+        result = blend_buy_score(50, intelligence, weight=0.25)
+        self.assertFalse(result["applied"])
+        self.assertEqual(result["weight"], 0.0)
+        self.assertEqual(result["score"], 50)
+
+    def test_invalid_model_scores_and_nonfinite_legacy_values_fall_back_safely(self):
+        base = {
+            "maximum_available_points": 85,
+            "component_coverage": {
+                "early_formation": {"available": 38, "possible": 38},
+                "momentum_confirmation": {"available": 30, "possible": 30},
+                "unusual_activity": {"available": 33, "possible": 33},
+                "catalyst_quality": {"available": 1, "possible": 1},
+            },
+        }
+        for invalid_score in (float("nan"), float("inf"), 101, -1):
+            result = blend_buy_score(70, {**base, "score": invalid_score})
+            self.assertFalse(result["applied"])
+            self.assertEqual(result["score"], 70)
+        result = blend_buy_score(float("nan"), {**base, "score": 100})
+        self.assertEqual(result["score"], 20)
+
+    def test_coverage_cannot_be_inflated_above_possible_points(self):
+        intelligence = {
+            "score": 100,
+            "maximum_available_points": 85,
+            "component_coverage": {
+                "early_formation": {"available": 380, "possible": 38},
+                "momentum_confirmation": {"available": 300, "possible": 30},
+                "unusual_activity": {"available": 330, "possible": 33},
+                "catalyst_quality": {"available": 10, "possible": 1},
+            },
+        }
+        result = blend_buy_score(70, intelligence)
+        self.assertTrue(result["applied"])
+        self.assertEqual(result["feature_coverage_pct"], 100.0)
+        self.assertEqual(result["score"], 76)
+
     def test_insufficient_coverage_keeps_legacy_score(self):
         intelligence = {
             "score": 100,
