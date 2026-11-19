@@ -3,6 +3,7 @@ import json
 import math
 from datetime import datetime, timezone
 from pathlib import Path
+from early_opportunity_radar import build_candidate_snapshot
 
 STATE_PATH = Path("paper_trading_state.json")
 STARTING_CASH = 250.0
@@ -220,6 +221,94 @@ def build_risk_off_paper_signals(candidates, now, diagnostics=None):
     return signals
 
 
+def build_early_entry_paper_signals(candidates, now, diagnostics=None):
+    """Build conservative early-entry experiments for the existing shared paper account.
+
+    These are explicitly experimental, never official BUYs. They require a radar
+    early-accumulation/pre-breakout label, a verified BUY-quality quote, existing
+    valid stop/target levels, and a non-Risk-Off regime.
+    """
+    signals = []
+    audit = {"candidates_total": 0, "eligible_signals": 0, "rejections": {}}
+
+    def reject(reason):
+        counts = audit["rejections"]
+        counts[reason] = counts.get(reason, 0) + 1
+
+    day = now.astimezone(timezone.utc).strftime("%Y-%m-%d")
+    for item in candidates or []:
+        if not isinstance(item, dict):
+            continue
+        audit["candidates_total"] += 1
+        asset = str(item.get("asset_type") or "").lower()
+        symbol = str(item.get("symbol") or "").upper()
+        if asset not in ("stock", "crypto") or not symbol:
+            reject("unsupported_asset_or_missing_symbol")
+            continue
+        if str(item.get("stage") or "").upper() == "BUY":
+            reject("official_buy_candidate")
+            continue
+        if str(item.get("market_regime") or "").upper() == "RISK-OFF":
+            reject("risk_off_regime")
+            continue
+        snapshot = build_candidate_snapshot(
+            item, now.isoformat(), "early-entry:{}:{}:{}".format(asset, symbol, day)
+        )
+        if not snapshot or snapshot.get("shadow_classification") not in {
+            "EARLY ACCUMULATION", "PRE-BREAKOUT WATCH"
+        }:
+            reject("not_early_accumulation_or_pre_breakout")
+            continue
+        if item.get("price_validation_passed") is not True:
+            reject("price_not_independently_verified")
+            continue
+        quality = item.get("data_quality") if isinstance(item.get("data_quality"), dict) else {}
+        if quality.get("buy_eligible") is not True:
+            reject("price_not_live_buy_eligible")
+            continue
+        if snapshot.get("outcome_eligible") is not True:
+            reject("price_or_session_not_outcome_eligible")
+            continue
+        score = _num(item.get("score"))
+        if score < 60:
+            reject("score_below_experimental_floor")
+            continue
+        price = _num(item.get("price"))
+        levels = item.get("levels") if isinstance(item.get("levels"), dict) else {}
+        low = _num(levels.get("watch_entry_low"))
+        high = _num(levels.get("watch_entry_high"))
+        stop = _num(levels.get("stop_loss") or levels.get("invalidation_level"))
+        target1 = _num(levels.get("target_1"))
+        target2 = _num(levels.get("target_2"))
+        if price <= 0 or not (0 < low <= price <= high):
+            reject("invalid_or_out_of_range_entry")
+            continue
+        if not (0 < stop < price < target1 <= target2):
+            reject("invalid_existing_stop_or_target_levels")
+            continue
+        signal_id = "early_entry:{}:{}:{}".format(asset, symbol, day)
+        signals.append({
+            "signal_id": signal_id, "asset_type": asset, "symbol": symbol,
+            "status": "active", "entry_low": low, "entry_high": high,
+            "stop_loss": stop, "target_1": target1, "target_2": target2,
+            "score": score, "score_model": item.get("score_model"),
+            "target_2_reward_risk_ratio": _num(
+                levels.get("target_2_reward_risk_ratio") or levels.get("reward_risk_ratio")
+            ),
+            "strategy": "early_entry_experimental", "experimental": True,
+            "market_regime": item.get("market_regime") or "UNKNOWN",
+            "research_classification": snapshot.get("shadow_classification"),
+            "experiment_version": "early-entry-v1",
+            "entry_rationale": snapshot.get("evidence") or [],
+            "research_snapshot": snapshot,
+        })
+    audit["eligible_signals"] = len(signals)
+    if diagnostics is not None:
+        diagnostics.clear()
+        diagnostics.update(audit)
+    return signals
+
+
 def update_account(candidates, buy_signals, now):
     """Process one completed scan; sampled exits are explicitly not tick-level fills."""
     account = load_account()
@@ -292,6 +381,7 @@ def update_account(candidates, buy_signals, now):
                    asset_type=position["asset_type"], price=price, quantity=sell_qty,
                    fee=round(fee, 8), fee_breakdown=fee_info, entry_fee_allocated=round(entry_fee_allocated, 8),
                    realized_pnl=round(realized, 8), coinbase_one_volume=coinbase_volume,
+                   strategy=position.get("strategy"), experimental=bool(position.get("experimental")),
                    signal_id=position["signal_id"])
             if exit_reason == "TARGET_1":
                 position["target_1_filled"] = True
@@ -311,7 +401,18 @@ def update_account(candidates, buy_signals, now):
     risk_off_diagnostics = {}
     risk_off_active = build_risk_off_paper_signals(candidates, now, risk_off_diagnostics)
     account["risk_off_signal_diagnostics"] = risk_off_diagnostics
-    active = official_active + risk_off_active
+    early_entry_diagnostics = {}
+    early_entry_active = build_early_entry_paper_signals(candidates, now, early_entry_diagnostics)
+    official_keys = {
+        (str(s.get("asset_type") or ""), str(s.get("symbol") or "").upper())
+        for s in official_active
+    }
+    early_entry_active = [
+        s for s in early_entry_active
+        if (str(s.get("asset_type") or ""), str(s.get("symbol") or "").upper()) not in official_keys
+    ]
+    account["early_entry_signal_diagnostics"] = early_entry_diagnostics
+    active = official_active + risk_off_active + early_entry_active
     eligible = []
     allocation_review = []
     for signal in active:
@@ -349,7 +450,7 @@ def update_account(candidates, buy_signals, now):
 
     # Rank only already-active official BUY signals. The existing BUY gates remain upstream.
     # Existing official score is primary; target-2 reward/risk breaks ties; ID makes ties stable.
-    eligible.sort(key=lambda row: (-row["score"], -row["reward_risk"], row["signal_id"]))
+    eligible.sort(key=lambda row: (row["strategy"] == "early_entry_experimental", -row["score"], -row["reward_risk"], row["signal_id"]))
     for rank, row in enumerate(eligible, start=1):
         signal, signal_id = row["signal"], row["signal_id"]
         key, item = row["key"], row["item"]
@@ -357,7 +458,7 @@ def update_account(candidates, buy_signals, now):
         target1, target2 = row["target1"], row["target2"]
         review = {
             "rank": rank, "signal_id": signal_id, "symbol": key[1],
-            "asset_type": key[0], "official_score": row["score"],
+            "asset_type": key[0], "strategy": row["strategy"], "experimental": bool(signal.get("experimental")), "official_score": row["score"],
             "target_2_reward_risk": round(row["reward_risk"], 4),
             "effective_risk_budget_pct": round(RISK_FRACTION * max(0.0, min(1.0, row["score"] / 100.0)) * 100, 3),
         }
@@ -393,7 +494,11 @@ def update_account(candidates, buy_signals, now):
         account["cash"] = round(_num(account["cash"]) - notional - fee, 8)
         position = {
             "signal_id": signal_id, "symbol": key[1], "asset_type": key[0],
-            "strategy": row["strategy"], "experimental": row["strategy"] == "risk_off_experimental",
+            "strategy": row["strategy"], "experimental": bool(signal.get("experimental")),
+            "research_classification": signal.get("research_classification"),
+            "experiment_version": signal.get("experiment_version"),
+            "entry_rationale": signal.get("entry_rationale") or [],
+            "entry_research_snapshot": signal.get("research_snapshot") or {},
             "market_regime_at_entry": row["market_regime"],
             "opened_at": now.isoformat(), "entry_price": price, "latest_price": price,
             "latest_price_as_of": item.get("price_as_of"), "quantity": quantity,
@@ -414,12 +519,15 @@ def update_account(candidates, buy_signals, now):
         review.update({"status": "allocated", "reason": "Allocated by rank; score-scaled risk stays within existing limits", "paper_notional": round(notional, 2)})
         allocation_review.append(review)
         event_message = (
-            "Risk-Off experimental paper BUY: {}".format(key[1])
+            "Early-entry experimental paper BUY: {}".format(key[1])
+            if row["strategy"] == "early_entry_experimental"
+            else "Risk-Off experimental paper BUY: {}".format(key[1])
             if row["strategy"] == "risk_off_experimental"
             else "Auto paper BUY: {}".format(key[1])
         )
         _event(account, "BUY", event_message, symbol=key[1], asset_type=key[0],
-               strategy=row["strategy"], experimental=row["strategy"] == "risk_off_experimental",
+               strategy=row["strategy"], experimental=bool(signal.get("experimental")),
+               research_classification=signal.get("research_classification"),
                market_regime=row["market_regime"], price=price, quantity=quantity,
                notional=round(notional, 8), fee=round(fee, 8),
                allocation_rank=rank, official_score=row["score"], target_2_reward_risk=round(row["reward_risk"], 4),
