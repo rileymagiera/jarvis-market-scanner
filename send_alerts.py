@@ -3,11 +3,13 @@ import math
 import os
 import smtplib
 import sys
+import time
 from datetime import datetime, timezone, timedelta
 from zoneinfo import ZoneInfo
 from email.message import EmailMessage
 from pathlib import Path
 from urllib.request import Request, urlopen
+from urllib.error import HTTPError
 
 STATE = Path("alert_state.json")
 PAPER_STATE = Path("paper_tracker.json")
@@ -25,11 +27,8 @@ def email(subject, body):
     msg["From"], msg["To"], msg["Subject"] = SENDER, RECIPIENT, subject
     msg.set_content(body)
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=30) as smtp:
-        smtp.login(SENDER, PASSWORD)
-        smtp.send_message(msg)
-
-
-def sync_history_to_site(paper, lifetime, now, buy_signals=None, scan_metadata=None):
+        smtp.login(SENDER, PASSWORDdef sync_history_to_site(paper, lifetime, now, buy_signals=None, scan_metadata=None):
+    """Sync dashboard history with one bounded retry for transient Render timeouts."""
     token = os.getenv("JARVIS_HISTORY_SYNC_TOKEN", "")
     if not token:
         print("History sync skipped: JARVIS_HISTORY_SYNC_TOKEN is not configured.")
@@ -49,9 +48,29 @@ def sync_history_to_site(paper, lifetime, now, buy_signals=None, scan_metadata=N
         headers={"Content-Type": "application/json", "X-Jarvis-History-Token": token},
         method="POST",
     )
-    with urlopen(req, timeout=30) as response:
-        result = json.loads(response.read().decode("utf-8"))
-    print(f"History synced to website: {result.get('records', 0)} records.")
+    last_error = None
+    for attempt in range(2):
+        try:
+            with urlopen(req, timeout=45) as response:
+                result = json.loads(response.read().decode("utf-8"))
+            print(
+                f"History synced to website: {result.get('records', 0)} records "
+                f"(payload={len(body)} bytes, attempt={attempt + 1})."
+            )
+            return
+        except Exception as exc:
+            last_error = exc
+            # A timeout may occur after the server accepted the idempotent state
+            # replacement. Retrying the same timestamped snapshot is safe.
+            if attempt == 0 and not isinstance(exc, HTTPError):
+                print(f"History sync transient failure; retrying once: {type(exc).__name__}: {str(exc)[:160]}")
+                time.sleep(2)
+                continue
+            raise
+    if last_error:
+        raise last_error
+
+lt.get('records', 0)} records.")
 
 
 def safe_float(value, default=0.0):
