@@ -2794,7 +2794,7 @@ def customize_page() -> str:
 <label class="field">Font<select id="font"><option value="Inter,system-ui,sans-serif">Modern · Inter / System</option><option value="Arial,Helvetica,sans-serif">Clean · Arial</option><option value="Georgia,serif">Editorial · Georgia</option><option value="ui-monospace,SFMono-Regular,monospace">Technical · Monospace</option></select></label>
 <label class="field">Font size<select id="fontSize"><option value="13">Small</option><option value="14">Default</option><option value="15">Large</option><option value="16">Extra large</option></select></label>
 <label class="field">Layout density<select id="density"><option value="comfortable">Comfortable</option><option value="compact">Compact</option></select></label></div>
-<div class="actions"><button id="reset" type="button">Reset to defaults</button></div><div class="note">Preferences are saved in this browser on this device and automatically apply when you return to the dashboard.</div></section>
+<div class="actions"><button id="reset" type="button">Reset to defaults</button></div><div class="note">Preferences are saved in this browser on this device and automatically apply across Jarvis dashboard pages.</div></section>
 <section class="panel"><h2 style="margin-top:0">Live preview</h2><div class="preview"><div style="font-weight:800;letter-spacing:.1em">JARVIS · MARKET INTELLIGENCE</div><p>Early-move detection · stocks + digital assets</p><button type="button">Sample action button</button></div></section>
 </main><script>
 const KEY='jarvisDashboardPrefsV1',defaults={radarFilter:'all',assetFilter:'all',density:'comfortable',showTimeline:true,showPerformance:true,accent:'#4aa3df',font:'Inter,system-ui,sans-serif',fontSize:'14'};
