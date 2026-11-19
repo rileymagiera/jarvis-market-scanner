@@ -109,10 +109,19 @@ jobs:
           crypto_stages = crypto.get("stages") or {}
           stock_records = [r for r in (parsed.get("paper_tracker") or {}).values()
                            if isinstance(r, dict) and r.get("asset_type") == "stock" and r.get("currently_surfaced") is True]
-          stock_verified = sum(1 for r in stock_records
-                                if r.get("price_validation_passed") is True
-                                or str(r.get("price_validation_status") or "").lower() == "verified")
-          stock_unverified = max(0, len(stock_records) - stock_verified)
+          stock_last_known = sum(
+              1 for r in stock_records
+              if str(r.get("price_validation_status") or "").lower() == "last_known"
+          )
+          stock_verified = sum(
+              1 for r in stock_records
+              if str(r.get("price_validation_status") or "").lower() == "verified"
+              or (
+                  not r.get("price_validation_status")
+                  and r.get("price_validation_passed") is True
+              )
+          )
+          stock_unverified = max(0, len(stock_records) - stock_verified - stock_last_known)
           stock_stage_unverified = stock_stages.get("PRICE UNVERIFIED — WATCH ONLY", 0)
           crypto_unverified = crypto.get("price_validation", {}).get("unverified", 0)
           audit = {
@@ -124,6 +133,7 @@ jobs:
               "candidates_total": d.get("candidates_found", 0),
               "stocks_returned": stocks.get("candidates_returned", 0),
               "stocks_price_verified": stock_verified,
+              "stocks_price_last_known": stock_last_known,
               "stocks_price_unverified": stock_unverified,
               "stocks_stage_unverified_watch_only": stock_stage_unverified,
               "crypto_returned": crypto.get("candidates_returned", 0),
@@ -142,7 +152,7 @@ jobs:
               "## Jarvis Scan Audit",
               f"- Audit status: **{audit['audit_status']}**",
               f"- Candidates: **{audit['candidates_total']}**",
-              f"- Stocks: {audit['stocks_returned']} returned; {audit['stocks_price_verified']} actually price-verified; {audit['stocks_price_unverified']} unverified (stage-only watch label count: {audit['stocks_stage_unverified_watch_only']})",
+              f"- Stocks: {audit['stocks_returned']} returned; {audit['stocks_price_verified']} live-verified; {audit['stocks_price_last_known']} last-known EOD references; {audit['stocks_price_unverified']} genuinely unverified (stage-only watch label count: {audit['stocks_stage_unverified_watch_only']})",
               f"- Crypto: {audit['crypto_returned']} returned; {audit['crypto_price_verified']} price-verified; {audit['crypto_price_unverified']} unverified",
               f"- Scanner errors: **{len(audit['scan_errors'])}**",
               f"- JSON persistence checks: {len(parsed)}/{len(paths)} files valid",
