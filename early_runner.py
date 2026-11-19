@@ -530,9 +530,9 @@ def compute_early_warning_metrics(daily, intraday, price):
         lookback = len(d)
         if px > 0 and lookback >= 20:
             if lookback >= 500:
-                reference = float(highs.max())
-                label = "2-year high (available history)"
                 window = min(504, lookback)
+                reference = float(highs.tail(window).max())
+                label = "2-year high (available history)"
             elif lookback >= 200:
                 reference = float(highs.tail(252).max())
                 label = "52-week high"
