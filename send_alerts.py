@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 from email.message import EmailMessage
 from pathlib import Path
 from paper_trading import update_account as update_paper_trading_account, account_summary as paper_account_summary
+from early_runner import has_session_aware_early_runner_baseline
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
 
@@ -911,9 +912,7 @@ def apply_history_runner_learning(candidates, tracker):
     cohort_stats = {}
     for asset in ("stock", "crypto"):
         eligible = [r for r in records if r.get("asset_type") == asset
-                    and r.get("price_validation_status") == "verified"
-                    and (asset != "stock" or (r.get("data_quality") or {}).get("data_type") == "live")
-                    and isinstance(r.get("early_runner_initial_feature_snapshot"), dict)
+                    and has_session_aware_early_runner_baseline(r)
                     and isinstance((r.get("early_runner_outcomes") or {}).get("5d"), dict)]
         outcomes = [safe_float((r.get("early_runner_outcomes") or {}).get("5d", {}).get("return_pct"), None)
                     for r in eligible]
