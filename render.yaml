@@ -19,4 +19,6 @@ services:
         - scan_metadata.json
         - paper_trading_state.json
         - provider_usage_history.json
+        - README.md
+        - docs/**
     
