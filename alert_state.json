@@ -20,6 +20,11 @@
       "score": 17,
       "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
+    "ACMR": {
+      "alerted_at": "2026-11-19T15:32:35.859925+00:00",
+      "score": 7,
+      "status": "PREMARKET VERIFIED"
+    },
     "AEIS": {
       "alerted_at": "2026-11-19T15:04:24.560095+00:00",
       "score": 7,
@@ -38,6 +43,11 @@
     "AXTI": {
       "alerted_at": "2026-11-19T15:04:24.560095+00:00",
       "score": 7,
+      "status": "PREMARKET VERIFIED"
+    },
+    "CGON": {
+      "alerted_at": "2026-11-19T15:32:35.859925+00:00",
+      "score": 8,
       "status": "PREMARKET VERIFIED"
     },
     "CIEN": {
@@ -150,5 +160,15 @@
       "score": 27,
       "status": "PREMARKET VERIFIED"
     }
+  },
+  "stock:INSM": {
+    "alerted_at": "2026-11-19T15:32:35.859925+00:00",
+    "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
+    "score": 76
+  },
+  "stock:MAGN": {
+    "alerted_at": "2026-11-19T15:32:35.859925+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 62
   }
 }
