@@ -168,3 +168,52 @@ def build_buy_intelligence(item: dict) -> dict:
         "can_execute_trades": False,
         "note": "Coverage-aware research ranking aid, not a probability. Missing inputs are excluded rather than scored as failures. Historical edge requires at least 30 comparable completed verified 5-day outcomes.",
     }
+
+
+
+def blend_buy_score(legacy_score: int, intelligence: dict, weight: float = 0.20) -> dict:
+    """Apply a bounded, coverage-gated pilot blend for paper-only BUY validation."""
+    coverage = intelligence.get("component_coverage") or {}
+    feature_keys = (
+        "early_formation", "momentum_confirmation",
+        "unusual_activity", "catalyst_quality",
+    )
+    available = possible = 0.0
+    for key in feature_keys:
+        row = coverage.get(key) or {}
+        try:
+            available += max(0.0, float(row.get("available") or 0))
+            possible += max(0.0, float(row.get("possible") or 0))
+        except (TypeError, ValueError, OverflowError):
+            continue
+    coverage_pct = round(available / possible * 100, 1) if possible > 0 else 0.0
+    model_score = intelligence.get("score")
+    try:
+        model_score = float(model_score) if model_score is not None else None
+        legacy = max(0.0, min(100.0, float(legacy_score)))
+    except (TypeError, ValueError, OverflowError):
+        legacy = 0.0
+        model_score = None
+    max_available = float(intelligence.get("maximum_available_points") or 0)
+    applied = (
+        model_score is not None
+        and np.isfinite(model_score)
+        and max_available >= 70
+        and coverage_pct >= 60
+        and 0 < weight <= 0.25
+    )
+    blended = round(legacy * (1 - weight) + model_score * weight) if applied else round(legacy)
+    return {
+        "score": max(0, min(100, int(blended))),
+        "legacy_score": round(legacy),
+        "intelligence_score": round(model_score, 1) if model_score is not None and np.isfinite(model_score) else None,
+        "feature_coverage_pct": coverage_pct,
+        "weight": weight if applied else 0.0,
+        "applied": bool(applied),
+        "model": "hybrid_offline_v1" if applied else "legacy_fallback",
+        "note": (
+            "80% legacy scanner score + 20% coverage-qualified BUY intelligence score; paper validation only."
+            if applied else
+            "Legacy score retained because the BUY intelligence score or feature coverage did not meet pilot requirements."
+        ),
+    }
