@@ -125,10 +125,13 @@ def test_webull_yahoo_history_persists_comparison_records(tmp_path):
 
 
 def test_crypto_shadow_comparison_is_observational_and_persisted(tmp_path):
-    quote = {"price": 100.0, "as_of": "2026-11-19T15:00:00+00:00", "age_seconds": 20.0, "spread_pct": 0.1}
+    quote = {"price": 100.0, "as_of": "2026-11-19T15:00:00+00:00", "age_seconds": 20.0, "spread_pct": 0.1, "quote_currency": "USD"}
     row = main.compare_crypto_shadow_quote("coinbase", "BTCUSDT", 100.2, "2026-11-19T15:00:00+00:00", quote)
     assert row["status"] == "comparable"
     assert row["difference_pct"] == 0.1998
+    mismatch = main.compare_crypto_shadow_quote("binance_us", "BTCUSDT", 100.2, "2026-11-19T15:00:00+00:00", {**quote, "quote_currency": "USDT"})
+    assert mismatch["status"] == "quote_currency_mismatch"
+    assert mismatch["difference_pct"] is None
     missing = main.compare_crypto_shadow_quote("binance_us", "BTCUSDT", 100.2, None, None, "HTTPError")
     assert missing["status"] == "unavailable"
     assert missing["difference_pct"] is None
