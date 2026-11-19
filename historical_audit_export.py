@@ -9,9 +9,10 @@ from datetime import datetime, timezone
 from typing import Any
 
 from runner_intelligence import build_runner_intelligence_report
+from signal_lead_time_audit import build_signal_lead_time_audit
 
 
-EXPORT_VERSION = "1.0"
+EXPORT_VERSION = "1.1"
 MAX_MISSED_RUNNERS = 50
 MAX_GATE_EVENTS = 100
 MAX_RADAR_CANDIDATES = 30
@@ -75,6 +76,7 @@ def build_historical_audit_export(
             "recent_events": gate_rows[:MAX_GATE_EVENTS],
             "truncated": gates.get("event_count", 0) > len(gate_rows[:MAX_GATE_EVENTS]),
         },
+        "signal_lead_time": build_signal_lead_time_audit(values),
         "early_warning_cohorts": {
             "minimum_observations": cohorts.get("minimum_observations"),
             "cohorts": cohort_rows,
@@ -93,6 +95,7 @@ def build_historical_audit_export(
             "BUY-gate follow-up returns are sampled observations, not intrabar paths or causal estimates.",
             "Only retained records and available official BUY history are included.",
             "Asset breakdowns describe included candidate samples, not full-universe totals.",
+            "Lead-time measurements use only retained, verified per-scan observations and cannot establish intrabar timing or trade profitability.",
             "This export does not change scoring, eligibility, risk, paper trades, or live trading.",
         ],
     }

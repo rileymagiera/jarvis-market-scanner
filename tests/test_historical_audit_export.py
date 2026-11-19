@@ -45,6 +45,25 @@ class HistoricalAuditExportTests(unittest.TestCase):
         self.assertEqual([x["symbol"] for x in result["missed_runners"]["candidates"]], ["GOOD"])
         self.assertEqual(result["missed_runners"]["total_verified_watchlist_runners"], 1)
 
+    def test_export_embeds_read_only_time_audit_without_raw_snapshots(self):
+        stamp0 = "2026-11-19T15:00:00+00:00"
+        stamp1 = "2026-11-19T15:15:00+00:00"
+        record = {"asset_type": "crypto", "symbol": "XYZUSDT", "signal_history": [
+            {"scan_id": "one", "observed_at": stamp0, "price_as_of": stamp0,
+             "price_verified": True, "outcome_eligible": True,
+             "price": 2, "shadow_classification": "EARLY ACCUMULATION"},
+            {"scan_id": "two", "observed_at": stamp1, "price_as_of": stamp1,
+             "price_verified": True, "outcome_eligible": True,
+             "price": 2.2, "shadow_classification": "BREAKOUT DEVELOPING"},
+        ]}
+        output = build_historical_audit_export([record])
+        audit = output["signal_lead_time"]
+        self.assertEqual(audit["mode"], "read_only_research")
+        self.assertEqual(audit["eligible_snapshots"], 2)
+        self.assertEqual(audit["candidates_with_followup"], 1)
+        self.assertNotIn("signal_history", str(output))
+        self.assertEqual(len(record["signal_history"]), 2)
+
     def test_official_buy_record_excludes_matching_symbol(self):
         records = [{"asset_type": "crypto", "symbol": "AAA",
                     "discovery_return_status": "verified",
