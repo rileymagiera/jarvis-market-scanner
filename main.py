@@ -199,6 +199,8 @@ def discover_stock_symbols(limit: int = 120) -> list[str]:
 
 KRAKEN = "https://api.kraken.com/0/public"
 KRAKEN_PAIR_MAP = None
+KRAKEN_TICKER_CACHE = None
+KRAKEN_TICKER_CACHE_AT = 0.0
 KRAKEN_REQUEST_LOCK = threading.Lock()
 KRAKEN_LAST_REQUEST_AT = 0.0
 KRAKEN_MIN_REQUEST_INTERVAL_SECONDS = 1.05
@@ -269,6 +271,7 @@ def discover_crypto_symbols(limit: int = 150) -> list[str]:
         "PYUSD", "USDE", "USDS", "UST", "USTC",
     }
     leveraged_suffixes = ("UP", "DOWN", "BULL", "BEAR", "3L", "3S", "5L", "5S")
+    global KRAKEN_TICKER_CACHE, KRAKEN_TICKER_CACHE_AT
     try:
         pairs = kraken_pairs()
         response = kraken_get(f"{KRAKEN}/Ticker", timeout=20)
@@ -277,6 +280,8 @@ def discover_crypto_symbols(limit: int = 150) -> list[str]:
         if payload.get("error"):
             raise RuntimeError("Kraken Ticker: " + "; ".join(payload["error"]))
         tickers = payload.get("result") or {}
+        KRAKEN_TICKER_CACHE = tickers
+        KRAKEN_TICKER_CACHE_AT = time.monotonic()
     except Exception as exc:
         print(f"Kraken crypto discovery unavailable: {type(exc).__name__}: {str(exc)[:160]}", flush=True)
         return []
@@ -1992,15 +1997,21 @@ def kraken_crypto_market_data(symbol: str):
     pair_id = kraken_pairs().get(base)
     if not pair_id:
         raise RuntimeError(f"Kraken has no supported USD/USDT spot pair for {base}")
-    ticker_response = kraken_get(f"{KRAKEN}/Ticker", params={"pair": pair_id}, timeout=12)
-    ticker_response.raise_for_status()
-    ticker_payload = ticker_response.json()
-    if ticker_payload.get("error"):
-        raise RuntimeError("Kraken Ticker: " + "; ".join(ticker_payload["error"]))
-    ticker_rows = ticker_payload.get("result") or {}
-    if not ticker_rows:
-        raise RuntimeError(f"Kraken returned no ticker for {base}")
-    ticker = next(iter(ticker_rows.values()))
+    cached_tickers = KRAKEN_TICKER_CACHE
+    cache_age = time.monotonic() - KRAKEN_TICKER_CACHE_AT if cached_tickers is not None else float("inf")
+    if cached_tickers is not None and cache_age <= 300 and pair_id in cached_tickers:
+        ticker = cached_tickers[pair_id]
+        record_scan_metric("kraken_ticker_cache_hit", 0.0, "success")
+    else:
+        ticker_response = kraken_get(f"{KRAKEN}/Ticker", params={"pair": pair_id}, timeout=12)
+        ticker_response.raise_for_status()
+        ticker_payload = ticker_response.json()
+        if ticker_payload.get("error"):
+            raise RuntimeError("Kraken Ticker: " + "; ".join(ticker_payload["error"]))
+        ticker_rows = ticker_payload.get("result") or {}
+        if not ticker_rows:
+            raise RuntimeError(f"Kraken returned no ticker for {base}")
+        ticker = next(iter(ticker_rows.values()))
     price = safe_float((ticker.get("c") or [0])[0])
     opening = safe_float(ticker.get("o"))
     volume = safe_float((ticker.get("v") or [0, 0])[1])
