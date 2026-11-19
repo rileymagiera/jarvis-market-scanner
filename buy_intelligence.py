@@ -40,6 +40,14 @@ def build_buy_intelligence(item: dict) -> dict:
     if any(key in item and item.get(key) is not None for key in breakout_keys):
         formation_available += 5
         if any(item.get(key) for key in breakout_keys): formation_points += 5
+    breakout_distance = number("breakout_proximity_pct")
+    if breakout_distance is not None:
+        formation_available += 4
+        if -0.5 <= breakout_distance <= 3.0: formation_points += 4
+    compression_percentile = number("volatility_compression_percentile")
+    if compression_percentile is not None:
+        formation_available += 4
+        if compression_percentile <= 20: formation_points += 4
     formation = scaled_component(formation_points, formation_available, 25)
 
     momentum_points = momentum_available = 0
@@ -76,6 +84,11 @@ def build_buy_intelligence(item: dict) -> dict:
         momentum_available += 5
         if item.get(positioning_key):
             momentum_points += 5
+    timeframe_alignment = item.get("multi_timeframe_alignment")
+    if timeframe_alignment is not None:
+        momentum_available += 5
+        if timeframe_alignment:
+            momentum_points += 5
     momentum = scaled_component(momentum_points, momentum_available, 25)
 
     activity_points = activity_available = 0
@@ -101,6 +114,14 @@ def build_buy_intelligence(item: dict) -> dict:
         if value is not None:
             activity_available += points
             if value >= threshold: activity_points += points
+    liquidity_sweep = item.get("liquidity_sweep_detected")
+    if liquidity_sweep is not None:
+        activity_available += 4
+        if liquidity_sweep: activity_points += 4
+    accumulation_score = number("accumulation_signal_score")
+    if accumulation_score is not None:
+        activity_available += 4
+        if accumulation_score >= 50: activity_points += 4
     activity = scaled_component(activity_points, activity_available, 20)
 
     catalysts = item.get("catalyst_labels")
@@ -147,14 +168,14 @@ def build_buy_intelligence(item: dict) -> dict:
     available = sum(value for value in components.values() if value is not None)
     max_available = sum(weights[key] for key, value in components.items() if value is not None)
     coverage = {
-        "early_formation": {"available": formation_available, "possible": 30},
-        "momentum_confirmation": {"available": momentum_available, "possible": 25},
-        "unusual_activity": {"available": activity_available, "possible": 25},
+        "early_formation": {"available": formation_available, "possible": 38},
+        "momentum_confirmation": {"available": momentum_available, "possible": 30},
+        "unusual_activity": {"available": activity_available, "possible": 33},
         "catalyst_quality": {"available": 1 if catalyst_available else 0, "possible": 1},
         "historical_edge": {"available": 1 if historical_score is not None else 0, "possible": 1},
     }
     return {
-        "version": "shadow_v2",
+        "version": "shadow_v3",
         "status": "SHADOW ONLY — historical validation pending" if historical_score is None else "SHADOW ONLY — historical cohort available",
         "score": round(available / max_available * 100) if max_available else None,
         "weighted_points": round(available, 1),
@@ -210,7 +231,7 @@ def blend_buy_score(legacy_score: int, intelligence: dict, weight: float = 0.20)
         "feature_coverage_pct": coverage_pct,
         "weight": weight if applied else 0.0,
         "applied": bool(applied),
-        "model": "hybrid_offline_v1" if applied else "legacy_fallback",
+        "model": "hybrid_offline_v2" if applied else "legacy_fallback",
         "note": (
             "80% legacy scanner score + 20% coverage-qualified BUY intelligence score; paper validation only."
             if applied else
