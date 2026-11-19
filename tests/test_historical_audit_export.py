@@ -7,9 +7,13 @@ class HistoricalAuditExportTests(unittest.TestCase):
     def test_export_is_compact_read_only_and_splits_assets(self):
         records = [
             {"asset_type": "stock", "symbol": "AAA", "discovery_return_status": "verified",
+             "discovery_baseline_status": "live_verified", "discovery_initial_price": 10.0,
+             "discovery_price_as_of": "2026-11-19T20:00:00+00:00",
              "discovery_max_gain_pct": 25.0, "currently_surfaced": True,
              "early_runner_research_score": 62, "early_runner_signal_matches": ["Volume acceleration"]},
             {"asset_type": "crypto", "symbol": "BBB", "discovery_return_status": "verified",
+             "discovery_baseline_status": "live_verified",
+             "discovery_initial_price": 1.0, "discovery_price_as_of": "2026-11-19T20:00:00+00:00",
              "discovery_max_gain_pct": 35.0, "currently_surfaced": True,
              "early_runner_research_score": 71, "early_runner_signal_matches": ["Higher lows"]},
         ]
@@ -27,8 +31,12 @@ class HistoricalAuditExportTests(unittest.TestCase):
     def test_export_does_not_mutate_records_and_excludes_unverified_misses(self):
         records = [
             {"asset_type": "stock", "symbol": "GOOD", "discovery_return_status": "verified",
+             "discovery_baseline_status": "live_verified", "discovery_initial_price": 5.0,
+             "discovery_price_as_of": "2026-11-19T20:00:00+00:00",
              "discovery_max_gain_pct": 22.0},
             {"asset_type": "crypto", "symbol": "BAD", "discovery_return_status": "provisional",
+             "discovery_baseline_status": "live_verified", "discovery_initial_price": 0.5,
+             "discovery_price_as_of": "2026-11-19T20:00:00+00:00",
              "discovery_max_gain_pct": 90.0},
         ]
         before = [dict(row) for row in records]
@@ -39,7 +47,10 @@ class HistoricalAuditExportTests(unittest.TestCase):
 
     def test_official_buy_record_excludes_matching_symbol(self):
         records = [{"asset_type": "crypto", "symbol": "AAA",
-                    "discovery_return_status": "verified", "discovery_max_gain_pct": 40}]
+                    "discovery_return_status": "verified",
+                    "discovery_baseline_status": "live_verified", "discovery_initial_price": 2.0,
+                    "discovery_price_as_of": "2026-11-19T20:00:00+00:00",
+                    "discovery_max_gain_pct": 40}]
         result = build_historical_audit_export(
             records, [{"asset_type": "crypto", "symbol": "AAA"}]
         )
