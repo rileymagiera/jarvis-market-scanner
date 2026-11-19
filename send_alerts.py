@@ -959,7 +959,7 @@ def select_premarket_alerts(candidates, state, now):
 
 def main():
     if "--test" in sys.argv:
-        email("Jarvis email test", "Jarvis successfully sent a test email. Email delivery is connected. This test does not confirm market scanning. Jarvis is recommendation-only and never places trades.")
+        email("Jarvis email test", "Jarvis successfully sent a test email. Email delivery is connected. This test does not confirm market scanning. Real trades remain user-approved; the separate $250 paper account may simulate BUY signals.")
         print("Test email sent.")
         return
 
@@ -1072,7 +1072,7 @@ def main():
             lines = [
                 "JARVIS PREMARKET EARLY RUNNER WATCH",
                 "Generated: " + str(payload.get("timestamp", now.isoformat())),
-                "Hourly scan only — no schedule changes. Research alerts; no trades are placed.",
+                "Hourly scan only — no schedule changes. Research alerts and paper-only simulated execution; no live orders are placed.",
                 "",
             ]
             for item in premarket_selected:
@@ -1110,8 +1110,8 @@ def main():
             "Scan coverage: " + json.dumps(payload.get("diagnostics") or {}, sort_keys=True),
             f"Scanner errors reported: {len(errors)}",
             "",
-            "This is a monitoring update, not a buy or sell instruction.",
-            "Jarvis is recommendation-only and never places trades.",
+            "This is a monitoring update, not a real-money buy or sell instruction. Paper positions may be simulated separately.",
+            "Jarvis never places live orders. Eligible BUY signals may be simulated in the isolated paper account.",
         ])
         email("Jarvis daily status: no new setups", body)
         state["daily_status_date"] = daily_key
@@ -1124,7 +1124,7 @@ def main():
         "JARVIS MARKET SCANNER — BUY SIGNALS" if has_buy_signal else "JARVIS MARKET SCANNER — NEW SETUPS",
         "Generated: " + str(payload.get("timestamp", now.isoformat())),
         "",
-        "Research watchlist only. Not personalized financial advice. No trades are placed.",
+        "Research watchlist only. Not personalized financial advice. The separate $250 paper account simulates eligible BUY signals; no live orders are placed.",
         "Detailed paper history: rolling 365 days; lifetime checkpoint totals are retained.",
         f"Lifetime tracked candidates: {paper_lifetime.get('tracked_candidates', paper_lifetime.get('recommendations', 0))}",
         "Lifetime checkpoint wins/observations: " + str({h: (v.get('wins', 0), v.get('observations', 0)) for h, v in paper_lifetime.get('checkpoints', {}).items()}),
