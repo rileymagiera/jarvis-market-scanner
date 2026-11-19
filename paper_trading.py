@@ -270,6 +270,11 @@ def build_early_entry_paper_signals(candidates, now, diagnostics=None):
         if snapshot.get("outcome_eligible") is not True:
             reject("price_or_session_not_outcome_eligible")
             continue
+        if asset == "stock":
+            stock_age = _num(quality.get("age_seconds"))
+            if str(quality.get("data_type") or "").lower() != "live" or stock_age is None or stock_age > 900:
+                reject("stock_quote_not_fresh_live_data")
+                continue
         score = _num(item.get("score"))
         if score < 60:
             reject("score_below_experimental_floor")
