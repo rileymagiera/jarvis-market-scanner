@@ -2149,7 +2149,7 @@ def coinbase_crypto_market_data(symbol: str):
 
 # Free public crypto feeds are collected in shadow mode only. They never enter
 # the price-selection, verification, scoring, BUY, or paper-trading paths.
-CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN = max(1, min(50, int(os.getenv("CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN", "20") or 20)))
+CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN = max(1, min(50, int(os.getenv("CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN", "50") or 50)))
 CRYPTO_SHADOW_HISTORY_PATH = os.getenv("CRYPTO_SHADOW_HISTORY_PATH", "crypto_shadow_comparison.json")
 
 
