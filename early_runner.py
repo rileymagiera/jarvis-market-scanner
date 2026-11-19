@@ -306,7 +306,11 @@ def build_data_quality_record(asset_type, price_source, price_freshness, observe
     elif "prior_session_close" in freshness:
         data_type = "eod"
     elif "fresh_multi_provider" in freshness:
-        if "massive" in source or str(provider_feed or "").lower() == "delayed_sip":
+        # Yahoo Finance intraday timing/entitlement is not independently established
+        # in this app. A fresh timestamp and agreement with Alpaca IEX do not make
+        # the Yahoo observation real-time; keep the combined reference research-only.
+        if ("yahoo" in source or "massive" in source
+                or str(provider_feed or "").lower() == "delayed_sip"):
             data_type = "delayed"
         elif ("alpaca" in source and str(provider_feed or "").lower() in {"iex", "sip"}
               and age_seconds is not None and -30 <= age_seconds <= 120):
