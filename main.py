@@ -3144,6 +3144,7 @@ const featureDefs=[
 ["Intraday structure","Higher highs/higher lows, pullback from session high and premarket-high reclaim.",["higher_highs_higher_lows","pullback_from_session_high_pct","premarket_high_reclaimed"]],
 ["Early runner research score","Transparent feature score for ranking research candidates; not a probability or BUY trigger.",["early_runner_research_score","early_runner_score_components"]],
 ["Early-warning engine","Completed-candle breakout proximity, liquidity sweep/reclaim, accumulation, volatility compression and timeframe alignment; included in the offline BUY intelligence blend.",["breakout_proximity_pct","liquidity_sweep_detected","accumulation_signal_score","multi_timeframe_alignment","volatility_compression_percentile"]],
+["Unified BUY intelligence","Coverage-aware formation, momentum, unusual activity, catalyst, historical and early-warning evidence. Paper pilot only; the hybrid blend remains capped at 20%.",["buy_intelligence","score_model"]],
 ["Crypto Runner Quality Score (CRQS)","Crypto-specific quality score, tier, component breakdown, entry penalty, and data-coverage flags.",["crqs","crqs_tier","crqs_components","crqs_data_coverage","crqs_entry_score","crqs_entry_penalty","crqs_features"]]
 ];
 const features=featureDefs.map(([name,description,keys])=>{const covered=Math.max(0,...keys.map(k=>Number(coverage[k]||0)));const total=all.length;const status=covered>0?"Collecting · "+covered+"/"+total+" records":"No measurements saved yet";return [name,description,status];});
