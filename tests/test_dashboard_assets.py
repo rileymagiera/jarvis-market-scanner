@@ -78,9 +78,9 @@ def test_data_health_page_and_api_are_read_only_and_descriptive(monkeypatch):
     assert data["candidate_count"] == 2
     assert data["price_status"]["all"]["verified"] == 1
     assert data["price_status"]["all"]["unverified"] == 1
-    assert data["candidates"][1]["validation_note"].startswith("Kraken ticker not validated")
-    assert data["candidates"][1]["failure_reason"] == "Kraken ticker not validated: trade age=412.0s; ticker/trade difference=0.12%"
-    assert data["failure_reasons"] == [{"reason": data["candidates"][1]["failure_reason"], "count": 1}]
+    assert data["candidates"][0]["validation_note"].startswith("Kraken ticker not validated")
+    assert data["candidates"][0]["failure_reason"] == "Kraken ticker not validated: trade age=412.0s; ticker/trade difference=0.12%"
+    assert data["failure_reasons"] == [{"reason": data["candidates"][0]["failure_reason"], "count": 1}]
     assert data["data_gaps"]["missing_source"] == 1
     assert data["providers"]["stock_price_feed"] == "iex"
     assert data["field_coverage"]["stocks"]["catalyst_headline_count"] == 1
