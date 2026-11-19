@@ -1680,13 +1680,14 @@ def scan_stock(symbol: str) -> Optional[dict]:
     elif webull_enabled and not webull_quote:
         validation_note = "Yahoo intraday quote unavailable; Webull quote request also unavailable or not entitled"
 
-    # During overnight closure, independently cross-check the completed daily
-    # close. This permits research visibility only; intraday confirmation remains
-    # false, so the existing BUY/actionable gates cannot pass on a stale close.
+    # Whenever the regular session is closed (pre-market, after-hours,
+    # overnight, weekends), retain a prior-session close only when Yahoo's
+    # completed daily bar independently agrees with Alpaca's daily bar.
+    # This is a LAST KNOWN research reference, never a live entry quote:
+    # data_quality.buy_eligible remains false and intraday BUY gates stay strict.
     if (
         not validation_passed
         and not equity_session["is_regular_session"]
-        and not equity_session["is_extended_session"]
         and alpaca_snapshot
         and alpaca_snapshot.get("daily_price", 0) > 0
     ):
@@ -1778,6 +1779,10 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "intraday_data_quality": intraday_data_quality,
         "price_age_seconds": selected_age_seconds,
         "price_validation_passed": validation_passed,
+        "price_validation_status": (
+            "last_known" if selected_price_freshness == "prior_session_close_cross_checked"
+            else "verified" if validation_passed else "unverified"
+        ),
         "price_validation_note": validation_note,
         "secondary_price": round(secondary_quote["price"], 4) if secondary_quote else None,
         "price_difference_pct": round(quote_difference_pct, 2) if quote_difference_pct is not None else None,
