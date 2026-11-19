@@ -105,9 +105,19 @@
       "score": 38,
       "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
+    "ASTS": {
+      "alerted_at": "2026-11-19T14:32:40.936458+00:00",
+      "score": 0,
+      "status": "PREMARKET VERIFIED"
+    },
     "ATEN": {
       "alerted_at": "2026-11-19T12:04:20.046085+00:00",
       "score": 21,
+      "status": "PREMARKET VERIFIED"
+    },
+    "AXTI": {
+      "alerted_at": "2026-11-19T14:32:40.936458+00:00",
+      "score": 7,
       "status": "PREMARKET VERIFIED"
     },
     "BIPC": {
@@ -140,6 +150,11 @@
       "score": 13,
       "status": "PREMARKET VERIFIED"
     },
+    "CAMT": {
+      "alerted_at": "2026-11-19T14:32:40.936458+00:00",
+      "score": 6,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
     "CDXS": {
       "alerted_at": "2026-11-19T12:04:20.046085+00:00",
       "score": 10,
@@ -165,8 +180,18 @@
       "score": 24,
       "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
+    "CRDO": {
+      "alerted_at": "2026-11-19T14:32:40.936458+00:00",
+      "score": 6,
+      "status": "PREMARKET VERIFIED"
+    },
     "CSHR": {
       "alerted_at": "2026-11-19T12:04:20.046085+00:00",
+      "score": 0,
+      "status": "PREMARKET VERIFIED"
+    },
+    "DDD": {
+      "alerted_at": "2026-11-19T14:32:40.936458+00:00",
       "score": 0,
       "status": "PREMARKET VERIFIED"
     },
@@ -178,6 +203,11 @@
     "ENVX": {
       "alerted_at": "2026-11-19T12:04:20.046085+00:00",
       "score": 19,
+      "status": "PREMARKET VERIFIED"
+    },
+    "EROC": {
+      "alerted_at": "2026-11-19T14:32:40.936458+00:00",
+      "score": 8,
       "status": "PREMARKET VERIFIED"
     },
     "FEAM": {
@@ -194,6 +224,11 @@
       "alerted_at": "2026-11-19T12:04:20.046085+00:00",
       "score": 10,
       "status": "PREMARKET VERIFIED"
+    },
+    "FORM": {
+      "alerted_at": "2026-11-19T14:32:40.936458+00:00",
+      "score": 0,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
     "FROG": {
       "alerted_at": "2026-11-19T12:04:20.046085+00:00",
@@ -230,6 +265,21 @@
       "score": 6,
       "status": "PREMARKET VERIFIED"
     },
+    "IONQ": {
+      "alerted_at": "2026-11-19T14:32:40.936458+00:00",
+      "score": 6,
+      "status": "PREMARKET VERIFIED"
+    },
+    "IQ": {
+      "alerted_at": "2026-11-19T14:32:40.936458+00:00",
+      "score": 9,
+      "status": "PREMARKET VERIFIED"
+    },
+    "IREN": {
+      "alerted_at": "2026-11-19T14:32:40.936458+00:00",
+      "score": 6,
+      "status": "PREMARKET VERIFIED"
+    },
     "ITG": {
       "alerted_at": "2026-11-19T12:04:20.046085+00:00",
       "score": 29,
@@ -245,6 +295,11 @@
       "score": 21,
       "status": "PREMARKET VERIFIED"
     },
+    "LGN": {
+      "alerted_at": "2026-11-19T14:32:40.936458+00:00",
+      "score": 12,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
     "MARA": {
       "alerted_at": "2026-11-19T12:04:20.046085+00:00",
       "score": 6,
@@ -258,6 +313,16 @@
     "MOD": {
       "alerted_at": "2026-11-19T12:04:20.046085+00:00",
       "score": 12,
+      "status": "PREMARKET VERIFIED"
+    },
+    "MXCT": {
+      "alerted_at": "2026-11-19T14:32:40.936458+00:00",
+      "score": 22,
+      "status": "PREMARKET VERIFIED"
+    },
+    "MXL": {
+      "alerted_at": "2026-11-19T14:32:40.936458+00:00",
+      "score": 8,
       "status": "PREMARKET VERIFIED"
     },
     "NBIS": {
@@ -300,6 +365,11 @@
       "score": 36,
       "status": "PREMARKET VERIFIED"
     },
+    "ONTO": {
+      "alerted_at": "2026-11-19T14:32:40.936458+00:00",
+      "score": 6,
+      "status": "PREMARKET VERIFIED"
+    },
     "OPEN": {
       "alerted_at": "2026-11-19T12:04:20.046085+00:00",
       "score": 13,
@@ -314,6 +384,11 @@
       "alerted_at": "2026-11-19T13:32:30.704383+00:00",
       "score": 22,
       "status": "PREMARKET VERIFIED"
+    },
+    "P": {
+      "alerted_at": "2026-11-19T14:32:40.936458+00:00",
+      "score": 6,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
     "PAL": {
       "alerted_at": "2026-11-19T12:04:20.046085+00:00",
@@ -385,6 +460,16 @@
       "score": 18,
       "status": "PREMARKET VERIFIED"
     },
+    "SEAT": {
+      "alerted_at": "2026-11-19T14:32:40.936458+00:00",
+      "score": 8,
+      "status": "PREMARKET VERIFIED"
+    },
+    "SECZ": {
+      "alerted_at": "2026-11-19T14:32:40.936458+00:00",
+      "score": 0,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
     "SG": {
       "alerted_at": "2026-11-19T12:32:31.074037+00:00",
       "score": 11,
@@ -393,6 +478,16 @@
     "SGI": {
       "alerted_at": "2026-11-19T12:04:20.046085+00:00",
       "score": 12,
+      "status": "PREMARKET VERIFIED"
+    },
+    "SIMO": {
+      "alerted_at": "2026-11-19T14:32:40.936458+00:00",
+      "score": 6,
+      "status": "PREMARKET VERIFIED"
+    },
+    "SMTC": {
+      "alerted_at": "2026-11-19T14:32:40.936458+00:00",
+      "score": 7,
       "status": "PREMARKET VERIFIED"
     },
     "SN": {
@@ -435,6 +530,11 @@
       "score": 7,
       "status": "PREMARKET VERIFIED"
     },
+    "TSEM": {
+      "alerted_at": "2026-11-19T14:32:40.936458+00:00",
+      "score": 6,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
     "TTWO": {
       "alerted_at": "2026-11-19T12:04:20.046085+00:00",
       "score": 13,
@@ -449,6 +549,11 @@
       "alerted_at": "2026-11-19T12:04:20.046085+00:00",
       "score": 10,
       "status": "PREMARKET VERIFIED"
+    },
+    "VICR": {
+      "alerted_at": "2026-11-19T14:32:40.936458+00:00",
+      "score": 7,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
     "VIK": {
       "alerted_at": "2026-11-19T13:32:30.704383+00:00",
@@ -606,4 +711,4 @@
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 85
   }
-}
+}\n
