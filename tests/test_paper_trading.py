@@ -186,3 +186,21 @@ def test_target_one_is_partial_once_then_target_two_closes_remainder(tmp_path, m
     assert summary["open_positions"] == 0
     assert summary["closed_trades"] == 1
     assert summary["equity"] == round(account["cash"], 2)
+
+
+def test_unverified_followup_cannot_mark_open_position_to_market_or_trigger_stop(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
+    account = paper_trading.update_account([_candidate(10.0)], [_signal()], now)
+    cash_after_entry = account["cash"]
+
+    account = paper_trading.update_account(
+        [_candidate(8.0, verified=False)], [_signal()], now
+    )
+
+    assert len(account["positions"]) == 1
+    assert account["positions"][0]["latest_price"] == 10.0
+    assert account["cash"] == cash_after_entry
+    assert not [event for event in account["ledger"] if event["type"] == "SELL"]
+    summary = paper_trading.account_summary(account)
+    assert summary["equity"] == round(cash_after_entry + account["positions"][0]["quantity"] * 10.0, 2)
