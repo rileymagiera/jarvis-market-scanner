@@ -109,7 +109,9 @@ jobs:
           crypto_stages = crypto.get("stages") or {}
           stock_records = [r for r in (parsed.get("paper_tracker") or {}).values()
                            if isinstance(r, dict) and r.get("asset_type") == "stock" and r.get("currently_surfaced") is True]
-          stock_verified = sum(1 for r in stock_records if r.get("price_validation_status") == "verified")
+          stock_verified = sum(1 for r in stock_records
+                                if r.get("price_validation_passed") is True
+                                or str(r.get("price_validation_status") or "").lower() == "verified")
           stock_unverified = max(0, len(stock_records) - stock_verified)
           stock_stage_unverified = stock_stages.get("PRICE UNVERIFIED — WATCH ONLY", 0)
           crypto_unverified = crypto.get("price_validation", {}).get("unverified", 0)
