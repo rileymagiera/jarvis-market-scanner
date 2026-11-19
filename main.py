@@ -416,7 +416,7 @@ ALPACA_SNAPSHOT_CACHE_LOCK = threading.Lock()
 
 
 def prefetch_alpaca_snapshots(symbols: list[str]) -> None:
-    """Fetch Alpaca snapshots in batches, including latest trades and daily bars."""
+    """Fetch Alpaca snapshots in batches; isolate invalid symbols instead of losing a whole batch."""
     api_key = os.getenv("ALPACA_API_KEY", "").strip()
     api_secret = os.getenv("ALPACA_API_SECRET", "").strip()
     if not api_key or not api_secret or not symbols:
@@ -424,8 +424,57 @@ def prefetch_alpaca_snapshots(symbols: list[str]) -> None:
     feed = os.getenv("ALPACA_STOCK_DATA_FEED", "iex").strip().lower() or "iex"
     headers = {"APCA-API-KEY-ID": api_key, "APCA-API-SECRET-KEY": api_secret}
     fetched = {}
-    for offset in range(0, len(symbols), 50):
-        batch_symbols = list(dict.fromkeys(str(x).upper() for x in symbols[offset:offset + 50]))
+    rejected_symbols = []
+
+    def store_snapshot(symbol: str, snapshot: dict) -> None:
+        if not isinstance(snapshot, dict):
+            return
+        trade = snapshot.get("latestTrade") or {}
+        trade_price = safe_float(trade.get("p"))
+        trade_stamp = pd.Timestamp(trade["t"]) if trade.get("t") else None
+        if trade_stamp is not None and pd.notna(trade_stamp):
+            if trade_stamp.tzinfo is None:
+                trade_stamp = trade_stamp.tz_localize("UTC")
+            trade_stamp = trade_stamp.tz_convert("UTC")
+            trade_age = (datetime.now(timezone.utc) - trade_stamp.to_pydatetime()).total_seconds() / 60
+        else:
+            trade_age = None
+        quote = snapshot.get("latestQuote") or {}
+        bid, ask = safe_float(quote.get("bp")), safe_float(quote.get("ap"))
+        quote_stamp = pd.Timestamp(quote["t"]) if quote.get("t") else None
+        if quote_stamp is not None and pd.notna(quote_stamp):
+            if quote_stamp.tzinfo is None:
+                quote_stamp = quote_stamp.tz_localize("UTC")
+            quote_stamp = quote_stamp.tz_convert("UTC")
+            quote_age = (datetime.now(timezone.utc) - quote_stamp.to_pydatetime()).total_seconds() / 60
+        else:
+            quote_age = None
+        spread = ((ask - bid) / ((ask + bid) / 2) * 100) if bid > 0 and ask >= bid and ask > 0 else None
+        daily = snapshot.get("dailyBar") or {}
+        daily_price = safe_float(daily.get("c"))
+        daily_stamp = pd.Timestamp(daily["t"]) if daily.get("t") else None
+        if daily_stamp is not None and pd.notna(daily_stamp):
+            if daily_stamp.tzinfo is None:
+                daily_stamp = daily_stamp.tz_localize("UTC")
+            daily_stamp = daily_stamp.tz_convert("UTC")
+        fetched[str(symbol).upper()] = {
+            "trade_price": trade_price,
+            "trade_as_of": trade_stamp.isoformat() if trade_stamp is not None and pd.notna(trade_stamp) else None,
+            "trade_age_minutes": round(trade_age, 2) if trade_age is not None else None,
+            "bid": bid if bid > 0 else None,
+            "ask": ask if ask > 0 else None,
+            "quote_price": (bid + ask) / 2 if bid > 0 and ask >= bid and ask > 0 else None,
+            "quote_as_of": quote_stamp.isoformat() if quote_stamp is not None and pd.notna(quote_stamp) else None,
+            "quote_age_minutes": round(quote_age, 2) if quote_age is not None else None,
+            "spread_pct": round(spread, 3) if spread is not None else None,
+            "daily_price": daily_price,
+            "daily_as_of": daily_stamp.isoformat() if daily_stamp is not None and pd.notna(daily_stamp) else None,
+            "feed": feed,
+        }
+
+    def fetch_batch(batch_symbols: list[str]) -> None:
+        if not batch_symbols:
+            return
         started = time.monotonic()
         try:
             response = HTTP.get(
@@ -434,55 +483,49 @@ def prefetch_alpaca_snapshots(symbols: list[str]) -> None:
                 headers=headers, timeout=(3, 8),
             )
             response.raise_for_status()
-            for symbol, snapshot in (response.json() or {}).items():
-                if not isinstance(snapshot, dict):
-                    continue
-                trade = snapshot.get("latestTrade") or {}
-                trade_price = safe_float(trade.get("p"))
-                trade_stamp = pd.Timestamp(trade["t"]) if trade.get("t") else None
-                if trade_stamp is not None and pd.notna(trade_stamp):
-                    if trade_stamp.tzinfo is None: trade_stamp = trade_stamp.tz_localize("UTC")
-                    trade_stamp = trade_stamp.tz_convert("UTC")
-                    trade_age = (datetime.now(timezone.utc) - trade_stamp.to_pydatetime()).total_seconds() / 60
-                else: trade_age = None
-                quote = snapshot.get("latestQuote") or {}
-                bid, ask = safe_float(quote.get("bp")), safe_float(quote.get("ap"))
-                quote_stamp = pd.Timestamp(quote["t"]) if quote.get("t") else None
-                if quote_stamp is not None and pd.notna(quote_stamp):
-                    if quote_stamp.tzinfo is None: quote_stamp = quote_stamp.tz_localize("UTC")
-                    quote_stamp = quote_stamp.tz_convert("UTC")
-                    quote_age = (datetime.now(timezone.utc) - quote_stamp.to_pydatetime()).total_seconds() / 60
-                else: quote_age = None
-                spread = ((ask-bid)/((ask+bid)/2)*100) if bid > 0 and ask >= bid and ask > 0 else None
-                daily = snapshot.get("dailyBar") or {}
-                daily_price = safe_float(daily.get("c"))
-                daily_stamp = pd.Timestamp(daily["t"]) if daily.get("t") else None
-                if daily_stamp is not None and pd.notna(daily_stamp):
-                    if daily_stamp.tzinfo is None: daily_stamp = daily_stamp.tz_localize("UTC")
-                    daily_stamp = daily_stamp.tz_convert("UTC")
-                fetched[str(symbol).upper()] = {
-                    "trade_price": trade_price,
-                    "trade_as_of": trade_stamp.isoformat() if trade_stamp is not None and pd.notna(trade_stamp) else None,
-                    "trade_age_minutes": round(trade_age, 2) if trade_age is not None else None,
-                    "bid": bid if bid > 0 else None,
-                    "ask": ask if ask > 0 else None,
-                    "quote_price": (bid+ask)/2 if bid > 0 and ask >= bid and ask > 0 else None,
-                    "quote_as_of": quote_stamp.isoformat() if quote_stamp is not None and pd.notna(quote_stamp) else None,
-                    "quote_age_minutes": round(quote_age, 2) if quote_age is not None else None,
-                    "spread_pct": round(spread, 3) if spread is not None else None,
-                    "daily_price": daily_price,
-                    "daily_as_of": daily_stamp.isoformat() if daily_stamp is not None and pd.notna(daily_stamp) else None,
-                    "feed": feed,
-                }
-            record_scan_metric("alpaca_snapshot_batch", time.monotonic()-started)
+            payload = response.json() or {}
+            for symbol, snapshot in payload.items():
+                store_snapshot(symbol, snapshot)
+            record_scan_metric("alpaca_snapshot_batch", time.monotonic() - started)
         except Exception as exc:
-            record_scan_metric("alpaca_snapshot_batch", time.monotonic()-started, "failure",
-                               error=f"{type(exc).__name__}: {str(exc)[:160]}")
+            status_code = getattr(getattr(exc, "response", None), "status_code", None)
+            # Alpaca rejects an entire snapshots request if one symbol is invalid.
+            # Split only HTTP 400 batches to preserve valid symbols without retrying
+            # authentication, entitlement, rate-limit, or server failures.
+            if status_code == 400 and len(batch_symbols) > 1:
+                midpoint = len(batch_symbols) // 2
+                record_scan_metric(
+                    "alpaca_snapshot_batch_split", time.monotonic() - started,
+                    "recovered", error=f"HTTP 400; split batch of {len(batch_symbols)} symbols",
+                )
+                fetch_batch(batch_symbols[:midpoint])
+                fetch_batch(batch_symbols[midpoint:])
+                return
+            if status_code == 400 and len(batch_symbols) == 1:
+                rejected_symbols.append(batch_symbols[0])
+            record_scan_metric(
+                "alpaca_snapshot_batch", time.monotonic() - started, "failure",
+                error=f"{type(exc).__name__}: {str(exc)[:160]}",
+            )
+
+    unique_symbols = list(dict.fromkeys(str(x).upper() for x in symbols if str(x).strip()))
+    for offset in range(0, len(unique_symbols), 50):
+        fetch_batch(unique_symbols[offset:offset + 50])
+
     with ALPACA_SNAPSHOT_CACHE_LOCK:
         ALPACA_SNAPSHOT_CACHE.clear()
         ALPACA_SNAPSHOT_CACHE.update(fetched)
-    print(f"Alpaca snapshot batch: requested={len(symbols)} returned={len(fetched)} feed={feed}", flush=True)
-
+    if rejected_symbols:
+        print(
+            f"Alpaca snapshot rejected unsupported symbols: {','.join(rejected_symbols[:20])}"
+            + (f" (+{len(rejected_symbols) - 20} more)" if len(rejected_symbols) > 20 else ""),
+            flush=True,
+        )
+    print(
+        f"Alpaca snapshot batch: requested={len(unique_symbols)} returned={len(fetched)} "
+        f"rejected={len(rejected_symbols)} feed={feed}",
+        flush=True,
+    )
 
 def alpaca_snapshot_for(symbol: str) -> Optional[dict]:
     with ALPACA_SNAPSHOT_CACHE_LOCK:
