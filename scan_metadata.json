@@ -1,17 +1,17 @@
 {
-  "last_scan_started_at": "2026-11-19T05:00:43.857916+00:00",
+  "last_scan_started_at": "2026-11-19T05:30:47.076813+00:00",
   "last_attempt_status": "completed",
-  "run_id": "44462114576",
-  "run_number": "83",
-  "commit_sha": "ac135a2f87c3f2985092886bc0831793bb0a539d",
-  "last_scan_completed_at": "2026-11-19T05:04:20.955389+00:00",
+  "run_id": "44465596610",
+  "run_number": "84",
+  "commit_sha": "c26c94f9cac94d55017d881206ba203448e74494",
+  "last_scan_completed_at": "2026-11-19T05:34:28.880942+00:00",
   "last_attempt_error": null,
-  "scan_duration_seconds": 216.41,
+  "scan_duration_seconds": 221.45,
   "scan_errors": 0,
   "execution_environment": "github_actions_runner",
   "scan_audit": {
-    "audit_timestamp": "2026-11-19T05:04:20.955174+00:00",
-    "audit_run_id": "44462114576",
+    "audit_timestamp": "2026-11-19T05:34:28.880676+00:00",
+    "audit_run_id": "44465596610",
     "audit_status": "passed",
     "files_valid_json": [
       "diagnostics",
@@ -45,12 +45,12 @@
       "ACTIONABLE SETUP": 0,
       "BUY": 0,
       "DATA QUALITY \u2014 WATCH ONLY": 0,
-      "DEVELOPING RUNNER": 15,
+      "DEVELOPING RUNNER": 17,
       "DEVELOPING SETUP": 0,
-      "EARLY SETUP": 27,
+      "EARLY SETUP": 29,
       "EARLY WATCH": 6,
       "LATE RUNNER \u2014 CHASE RISK": 5,
-      "LOW-CONVICTION WATCH": 95,
+      "LOW-CONVICTION WATCH": 91,
       "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
     },
     "crypto_stage_counts": {
@@ -74,12 +74,12 @@
       "stages": {
         "BUY": 0,
         "ACTIONABLE SETUP": 0,
-        "DEVELOPING RUNNER": 15,
+        "DEVELOPING RUNNER": 17,
         "DEVELOPING SETUP": 0,
-        "EARLY SETUP": 27,
+        "EARLY SETUP": 29,
         "EARLY WATCH": 6,
         "LATE RUNNER \u2014 CHASE RISK": 5,
-        "LOW-CONVICTION WATCH": 95,
+        "LOW-CONVICTION WATCH": 91,
         "PRICE UNVERIFIED \u2014 WATCH ONLY": 0,
         "DATA QUALITY \u2014 WATCH ONLY": 0
       }
@@ -117,8 +117,8 @@
       "provider_activity": {
         "calls": 9,
         "failures": 1,
-        "total_seconds": 0.57,
-        "max_seconds": 0.16,
+        "total_seconds": 0.82,
+        "max_seconds": 0.26,
         "error_counts": {
           "HTTPError: 400 Client Error: Bad Request for url: https://data.alpaca.markets/v2/stocks/snapshots?symbols=GTN-A&feed=iex": 1
         }
@@ -133,15 +133,15 @@
       "phase": "CLOSED \u2014 OVERNIGHT",
       "is_regular_session": false,
       "is_extended_session": false,
-      "as_of": "2026-11-19T00:04:20.955340-05:00",
+      "as_of": "2026-11-19T00:34:28.880877-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked."
     },
-    "scan_duration_seconds": 216.41,
+    "scan_duration_seconds": 221.45,
     "timing_breakdown": {
-      "universe_discovery_seconds": 1.87,
-      "asset_scans_wall_seconds": 213.43,
-      "market_conditions_seconds": 0.77,
-      "total_seconds": 216.41,
+      "universe_discovery_seconds": 1.83,
+      "asset_scans_wall_seconds": 218.62,
+      "market_conditions_seconds": 0.8,
+      "total_seconds": 221.45,
       "provider_activity": {
         "provider_http_status_counts": {
           "kraken:200": 181,
@@ -156,36 +156,36 @@
           "yahoo_discovery_screen": {
             "calls": 6,
             "failures": 0,
-            "total_seconds": 1.83,
-            "max_seconds": 0.44,
+            "total_seconds": 2.4,
+            "max_seconds": 0.46,
             "error_counts": {}
           },
           "http_kraken_status_200": {
             "calls": 181,
             "failures": 0,
-            "total_seconds": 26.55,
-            "max_seconds": 0.38,
+            "total_seconds": 31.43,
+            "max_seconds": 0.45,
             "error_counts": {}
           },
           "kraken_request_pacing": {
-            "calls": 180,
+            "calls": 179,
             "failures": 0,
-            "total_seconds": 186.72,
+            "total_seconds": 186.43,
             "max_seconds": 1.05,
             "error_counts": {}
           },
           "http_alpaca_status_200": {
             "calls": 8,
             "failures": 0,
-            "total_seconds": 0.49,
-            "max_seconds": 0.14,
+            "total_seconds": 0.69,
+            "max_seconds": 0.21,
             "error_counts": {}
           },
           "alpaca_snapshot_batch": {
             "calls": 9,
             "failures": 1,
-            "total_seconds": 0.57,
-            "max_seconds": 0.16,
+            "total_seconds": 0.82,
+            "max_seconds": 0.26,
             "error_counts": {
               "HTTPError: 400 Client Error: Bad Request for url: https://data.alpaca.markets/v2/stocks/snapshots?symbols=GTN-A&feed=iex": 1
             }
@@ -193,8 +193,8 @@
           "http_alpaca_status_400": {
             "calls": 7,
             "failures": 7,
-            "total_seconds": 0.29,
-            "max_seconds": 0.05,
+            "total_seconds": 0.48,
+            "max_seconds": 0.07,
             "error_counts": {
               "HTTP 400": 7
             }
@@ -202,8 +202,8 @@
           "alpaca_snapshot_batch_split": {
             "calls": 6,
             "failures": 6,
-            "total_seconds": 0.26,
-            "max_seconds": 0.05,
+            "total_seconds": 0.41,
+            "max_seconds": 0.07,
             "error_counts": {
               "HTTP 400; split batch of 48 symbols": 1,
               "HTTP 400; split batch of 24 symbols": 1,
@@ -223,71 +223,71 @@
           "yahoo_daily_history": {
             "calls": 148,
             "failures": 0,
-            "total_seconds": 28.43,
-            "max_seconds": 0.7,
+            "total_seconds": 33.03,
+            "max_seconds": 0.91,
             "error_counts": {}
           },
           "yahoo_intraday_history": {
             "calls": 148,
             "failures": 0,
-            "total_seconds": 14.31,
-            "max_seconds": 0.15,
+            "total_seconds": 14.93,
+            "max_seconds": 0.22,
             "error_counts": {}
           },
           "http_www_sec_gov_status_200": {
             "calls": 4,
             "failures": 0,
-            "total_seconds": 2.71,
-            "max_seconds": 0.78,
+            "total_seconds": 4.53,
+            "max_seconds": 1.18,
             "error_counts": {}
           },
           "http_data_sec_gov_status_200": {
             "calls": 148,
             "failures": 0,
-            "total_seconds": 6.1,
-            "max_seconds": 0.19,
+            "total_seconds": 6.81,
+            "max_seconds": 0.21,
             "error_counts": {}
           },
           "sec_recent_filings": {
             "calls": 148,
             "failures": 0,
-            "total_seconds": 10.81,
-            "max_seconds": 0.92,
+            "total_seconds": 12.86,
+            "max_seconds": 1.38,
             "error_counts": {}
           },
           "yahoo_stock_news": {
             "calls": 148,
             "failures": 0,
-            "total_seconds": 42.6,
-            "max_seconds": 1.17,
+            "total_seconds": 49.4,
+            "max_seconds": 1.69,
             "error_counts": {}
           },
           "yahoo_fundamentals": {
-            "calls": 65,
+            "calls": 72,
             "failures": 0,
-            "total_seconds": 14.61,
-            "max_seconds": 0.36,
+            "total_seconds": 18.8,
+            "max_seconds": 0.4,
             "error_counts": {}
           },
           "scan_stock_parallel_wall": {
             "calls": 1,
             "failures": 0,
-            "total_seconds": 27.53,
-            "max_seconds": 27.53,
+            "total_seconds": 30.65,
+            "max_seconds": 30.65,
             "error_counts": {}
           },
           "scan_crypto_parallel_wall": {
             "calls": 1,
             "failures": 0,
-            "total_seconds": 212.6,
-            "max_seconds": 212.6,
+            "total_seconds": 217.39,
+            "max_seconds": 217.39,
             "error_counts": {}
           },
           "market_conditions": {
             "calls": 1,
             "failures": 0,
-            "total_seconds": 0.77,
-            "max_seconds": 0.77,
+            "total_seconds": 0.8,
+            "max_seconds": 0.8,
             "error_counts": {}
           }
         }
