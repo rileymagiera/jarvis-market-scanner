@@ -817,7 +817,87 @@ def market_conditions() -> dict:
     }
 
 
+def build_buy_intelligence(item: dict) -> dict:
+    """Shadow-only evidence model inspired by public breakout research.
+
+    It does not change production scores or BUY gates. Historical confidence is
+    withheld until enough comparable, completed, verified outcomes are available.
+    """
+    def number(key):
+        try:
+            value = float(item.get(key))
+            return value if np.isfinite(value) else None
+        except (TypeError, ValueError):
+            return None
+
+    tech = item.get("technical_analysis") or {}
+    formation = 0
+    if tech.get("bollinger_squeeze"): formation += 8
+    if number("base_tightness_pct") is not None and number("base_tightness_pct") <= 8: formation += 7
+    if number("atr_contraction_pct") is not None and number("atr_contraction_pct") >= 10: formation += 5
+    if item.get("higher_highs_higher_lows"): formation += 5
+    if item.get("breakout_20d") or item.get("breakout_24h") or item.get("intraday_breakout"): formation += 5
+
+    momentum = 0
+    if number("relative_strength_vs_spy") is not None and number("relative_strength_vs_spy") > 0: momentum += 8
+    if number("relative_strength_vs_iwm") is not None and number("relative_strength_vs_iwm") > 0: momentum += 5
+    if number("five_day_change_pct") is not None and number("five_day_change_pct") > 0: momentum += 4
+    if number("hourly_change_pct") is not None and number("hourly_change_pct") > 0: momentum += 3
+    if item.get("above_session_vwap") or item.get("above_24h_average"): momentum += 5
+
+    activity = 0
+    for key, threshold, points in (
+        ("relative_volume", 1.5, 5), ("intraday_relative_volume", 1.5, 5),
+        ("cumulative_rvol_same_time", 1.5, 5), ("volume_acceleration_3bar", 1.8, 3),
+        ("premarket_rvol_same_time", 1.5, 2),
+    ):
+        value = number(key)
+        if value is not None and value >= threshold: activity += points
+    rotation = number("float_rotation_pct")
+    if rotation is not None and rotation >= 20: activity += 5
+
+    catalysts = item.get("catalyst_labels") or []
+    if not isinstance(catalysts, list): catalysts = [str(catalysts)]
+    dilution = item.get("dilution_flags") or []
+    if not isinstance(dilution, list): dilution = [str(dilution)]
+    catalyst_score = max(0, min(15, len(catalysts) * 5 - (10 if dilution else 0)))
+
+    historical = item.get("historical_setup_evidence") or {}
+    observations = int(historical.get("observations") or 0) if isinstance(historical, dict) else 0
+    historical_score = None
+    if isinstance(historical, dict) and observations >= 30:
+        runner_rate = historical.get("runner_rate_pct")
+        avg_return = historical.get("average_5d_return_pct")
+        if runner_rate is not None and avg_return is not None:
+            historical_score = max(0, min(15, round(float(runner_rate) * 0.10 + max(-5, min(10, float(avg_return))) * 0.5)))
+
+    components = {
+        "early_formation": min(25, formation),
+        "momentum_confirmation": min(25, momentum),
+        "unusual_activity": min(20, activity),
+        "catalyst_quality": catalyst_score,
+        "historical_edge": historical_score,
+    }
+    available = sum(value for value in components.values() if value is not None)
+    max_available = sum({"early_formation":25,"momentum_confirmation":25,"unusual_activity":20,"catalyst_quality":15,"historical_edge":15}[key] for key,value in components.items() if value is not None)
+    return {
+        "version": "shadow_v1",
+        "status": "SHADOW ONLY — historical validation pending" if historical_score is None else "SHADOW ONLY — historical cohort available",
+        "score": round(available / max_available * 100) if max_available else None,
+        "weighted_points": round(available, 1),
+        "maximum_available_points": max_available,
+        "components": components,
+        "historical_observations": observations,
+        "historical_confidence": "insufficient" if observations < 30 else "provisional",
+        "required_historical_observations": 30,
+        "affects_production_buy_score": False,
+        "can_execute_trades": False,
+        "note": "Research-derived ranking aid, not a probability. Historical edge is withheld until at least 30 comparable completed verified 5-day outcomes exist.",
+    }
+
+
 def classify_setup(item: dict, adjustment: int, regime: dict) -> None:
+    item["buy_intelligence"] = build_buy_intelligence(item)
     raw_score = int(item.get("score") or 0)
     adjusted = max(0, min(100, raw_score + adjustment))
     item["raw_score"] = raw_score
