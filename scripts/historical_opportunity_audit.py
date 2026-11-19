@@ -79,11 +79,17 @@ def outcome_summary(rows: list[dict]) -> dict:
 def feature_match(snapshot: dict, name: str) -> bool | None:
     """Return None for unavailable data; never count missing features as false."""
     features = snapshot.get("crqs_features") if isinstance(snapshot.get("crqs_features"), dict) else {}
+    def ge(value, threshold):
+        parsed = number(value)
+        return None if parsed is None else parsed >= threshold
+    def gt(value, threshold):
+        parsed = number(value)
+        return None if parsed is None else parsed > threshold
     checks = {
-        "stock_volume_rvol_1_5x": lambda: number(snapshot.get("cumulative_rvol_same_time")) >= 1.5,
-        "stock_volume_acceleration_1_8x": lambda: number(snapshot.get("volume_acceleration_3bar")) >= 1.8,
-        "stock_float_rotation_20pct": lambda: number(snapshot.get("float_rotation_pct")) >= 20,
-        "stock_premarket_rvol_1_5x": lambda: number(snapshot.get("premarket_rvol_same_time")) >= 1.5,
+        "stock_volume_rvol_1_5x": lambda: ge(snapshot.get("cumulative_rvol_same_time"), 1.5),
+        "stock_volume_acceleration_1_8x": lambda: ge(snapshot.get("volume_acceleration_3bar"), 1.8),
+        "stock_float_rotation_20pct": lambda: ge(snapshot.get("float_rotation_pct"), 20),
+        "stock_premarket_rvol_1_5x": lambda: ge(snapshot.get("premarket_rvol_same_time"), 1.5),
         "stock_higher_highs_lows": lambda: snapshot.get("higher_highs_higher_lows") is True,
         "stock_premarket_reclaim": lambda: snapshot.get("premarket_high_reclaimed") is True,
         "stock_catalyst": lambda: bool(snapshot.get("catalyst_labels")),
@@ -95,14 +101,14 @@ def feature_match(snapshot: dict, name: str) -> bool | None:
             number(snapshot.get("volatility_compression_percentile")) is not None
             and number(snapshot.get("volatility_compression_percentile")) <= 20
         ),
-        "crypto_hourly_momentum_positive": lambda: number(snapshot.get("hourly_change_pct")) > 0,
-        "crypto_24h_momentum_3pct": lambda: number(snapshot.get("daily_change_pct")) >= 3,
-        "crypto_relative_strength_vs_btc_positive": lambda: number(snapshot.get("crqs_relative_strength_vs_btc_24h_pct")) > 0,
-        "crypto_volume_consistency_70pct": lambda: number(features.get("volume_consistency_6h")) >= 0.70,
+        "crypto_hourly_momentum_positive": lambda: gt(snapshot.get("hourly_change_pct"), 0),
+        "crypto_24h_momentum_3pct": lambda: ge(snapshot.get("daily_change_pct"), 3),
+        "crypto_relative_strength_vs_btc_positive": lambda: gt(snapshot.get("crqs_relative_strength_vs_btc_24h_pct"), 0),
+        "crypto_volume_consistency_70pct": lambda: ge(features.get("volume_consistency_6h"), 0.70),
         "crypto_higher_lows": lambda: features.get("higher_lows") is True or snapshot.get("higher_lows") is True,
         "crypto_breakout_24h": lambda: snapshot.get("breakout_24h") is True,
         "crypto_above_24h_average": lambda: snapshot.get("above_24h_average") is True,
-        "crypto_accumulation_50": lambda: number(snapshot.get("accumulation_signal_score")) >= 50,
+        "crypto_accumulation_50": lambda: ge(snapshot.get("accumulation_signal_score"), 50),
         "crypto_liquidity_sweep": lambda: snapshot.get("liquidity_sweep_detected") is True,
         "crypto_breakout_nearby": lambda: (
             number(snapshot.get("breakout_proximity_pct")) is not None
