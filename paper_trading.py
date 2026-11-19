@@ -76,6 +76,13 @@ def load_account():
                 "stock_fee_schedule": "Webull US stocks: $0 commission; CAT 0.0003% per side; SEC 0.00206% sell side; FINRA TAF currently $0",
                 "crypto_default_order_type": DEFAULT_CRYPTO_ORDER_TYPE,
             })
+            for position in state.get("positions", []):
+                if isinstance(position, dict):
+                    quantity = _num(position.get("quantity"))
+                    price = _num(position.get("latest_price") or position.get("entry_price"))
+                    position["estimated_exit_fee"] = calculate_trade_fee(
+                        position.get("asset_type"), "sell", quantity * price, quantity
+                    )["total"]
             return state
     except (OSError, json.JSONDecodeError):
         pass
@@ -146,6 +153,9 @@ def update_account(candidates, buy_signals, now):
         position["latest_price_as_of"] = item.get("price_as_of")
         position["latest_observed_at"] = now.isoformat()
         qty = _num(position.get("quantity"))
+        position["estimated_exit_fee"] = calculate_trade_fee(
+            position["asset_type"], "sell", qty * price, qty
+        )["total"]
         stop = _num(position.get("stop_loss"))
         target1 = _num(position.get("target_1"))
         target2 = _num(position.get("target_2"))
@@ -174,6 +184,10 @@ def update_account(candidates, buy_signals, now):
             position["fees_paid"] = round(_num(position.get("fees_paid")) + fee, 8)
             position["realized_pnl"] = round(_num(position.get("realized_pnl")) + realized, 8)
             position["quantity"] = round(qty - sell_qty, 10)
+            position["estimated_exit_fee"] = calculate_trade_fee(
+                position["asset_type"], "sell",
+                position["quantity"] * price, position["quantity"]
+            )["total"]
             _event(account, "SELL", f'{exit_reason} observed for {position["symbol"]}', symbol=position["symbol"],
                    asset_type=position["asset_type"], price=price, quantity=sell_qty,
                    fee=round(fee, 8), fee_breakdown=fee_info, entry_fee_allocated=round(entry_fee_allocated, 8),
@@ -253,6 +267,7 @@ def update_account(candidates, buy_signals, now):
             "latest_price_as_of": item.get("price_as_of"), "quantity": quantity,
             "initial_quantity": quantity, "notional": round(notional, 8), "entry_fee": round(fee, 8),
             "entry_fee_remaining": round(fee, 8), "fees_paid": round(fee, 8),
+            "estimated_exit_fee": calculate_trade_fee(key[0], "sell", notional, quantity)["total"],
             "entry_fee_breakdown": entry_fee_info,
             "stop_loss": stop, "target_1": target1, "target_2": target2,
             "score": signal.get("score"), "score_model": signal.get("score_model"),
@@ -279,6 +294,11 @@ def account_summary(account, now=None):
     unrealized = sum(
         _num(p.get("quantity")) * (_num(p.get("latest_price") or p.get("entry_price")) - _num(p.get("entry_price")))
         - _num(p.get("entry_fee_remaining"))
+        - calculate_trade_fee(
+            p.get("asset_type"), "sell",
+            _num(p.get("quantity")) * _num(p.get("latest_price") or p.get("entry_price")),
+            _num(p.get("quantity"))
+        )["total"]
         for p in positions
     )
     realized = sum(_num(t.get("realized_pnl")) for t in (account.get("closed_trades") or []))
@@ -300,6 +320,13 @@ def account_summary(account, now=None):
         "total_return_pct": round((equity / STARTING_CASH - 1) * 100, 2),
         "realized_pnl": round(realized, 2),
         "unrealized_pnl": round(unrealized, 2),
+        "estimated_exit_fees": round(sum(
+            calculate_trade_fee(
+                p.get("asset_type"), "sell",
+                _num(p.get("quantity")) * _num(p.get("latest_price") or p.get("entry_price")),
+                _num(p.get("quantity"))
+            )["total"] for p in positions
+        ), 2),
         "open_positions": len(positions),
         "closed_trades": len(account.get("closed_trades") or []),
     }
