@@ -285,6 +285,11 @@ def update_paper_tracker(candidates, now):
                 "hourly_change_pct", "daily_change_pct", "higher_lows", "breakout_24h", "above_24h_average",
                 "trend_up", "relative_volume", "change_1h_pct", "change_24h_pct", "price_validation_passed",
                 "price_validation_status", "price_validation_method",
+                "breakout_proximity_pct", "breakout_reference_price", "breakout_proximity_status",
+                "volatility_compression_percentile", "liquidity_sweep_detected",
+                "liquidity_sweep_status", "accumulation_signal_score",
+                "accumulation_signal_status", "multi_timeframe_alignment",
+                "multi_timeframe_status", "early_warning_matches",
             )
             for field in research_fields:
                 record[field] = item.get(field)
