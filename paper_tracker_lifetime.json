@@ -5,9 +5,9 @@
         "1": {
           "flat": 6,
           "losses": 25,
-          "observations": 49,
-          "total_return_pct": 2.73,
-          "wins": 18
+          "observations": 50,
+          "total_return_pct": 2.96,
+          "wins": 19
         }
       },
       "recommendations": 145
@@ -20,13 +20,13 @@
     "1": {
       "flat": 6,
       "losses": 25,
-      "observations": 49,
-      "total_return_pct": 2.73,
-      "wins": 18
+      "observations": 50,
+      "total_return_pct": 2.96,
+      "wins": 19
     }
   },
   "integrity": {
-    "checked_at": "2026-11-19T09:34:34.405164+00:00",
+    "checked_at": "2026-11-19T10:04:28.414295+00:00",
     "retained_stock_baselines": 296,
     "retained_stock_counted_baselines": 296,
     "retained_stock_uncounted_baselines": 0,
