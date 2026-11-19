@@ -142,6 +142,8 @@ class StockCrossSectionTests(unittest.TestCase):
         self.assertIs(result["weekly_confirmation"], True)
         self.assertEqual(result["breakout_level_class"], "52-week high")
         self.assertEqual(result["breakout_level_lookback_sessions"], 252)
+        self.assertTrue(result["above_20d_average"])
+        self.assertTrue(result["breakout_20d"])
         self.assertIn("Weekly trend confirmation", result["early_warning_matches"])
 
     def test_universe_relative_strength_rank_and_missing_values(self):
