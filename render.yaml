@@ -17,4 +17,5 @@ services:
         - buy_signal_history.json
         - scan_diagnostics.json
         - scan_metadata.json
+        - paper_trading_state.json
     
