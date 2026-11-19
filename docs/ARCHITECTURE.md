@@ -47,7 +47,7 @@ Currently a large combined module (about 3,600 lines at the 2026-11-19 review). 
 - Lines 1,520–1,927: stock scan.
 - Lines 1,928–2,078: crypto news and provider market data.
 - Lines 2,079–2,274: crypto scan, cross-section analysis, parallel scanning, response composition.
-- Lines 2,275 onward: FastAPI routes, history/dashboard HTML and JavaScript, paper dashboard, scan endpoints, Intelligence page.
+- Lines 2,275 onward: FastAPI routes, history/dashboard HTML, paper dashboard, scan endpoints, and Intelligence page. The Home dashboard JavaScript now lives in `static/history_dashboard.js` and is served at `/history/dashboard.js`.
 
 These are approximate line ranges, not stable APIs. Prefer moving one cohesive responsibility at a time and preserving imports/routes until compatibility tests exist.
 
@@ -61,6 +61,7 @@ These are approximate line ranges, not stable APIs. Prefer moving one cohesive r
 - `candidate_lifecycle.py`: lifecycle and outcome evidence.
 - `market_data_cache.py`: persistent cache serialization.
 - `market_calendar.py`: exchange calendar and session classification.
+- `static/history_dashboard.js`: standalone Home/history dashboard browser code, syntax-checked directly by CI.
 
 ## Market-data providers
 
@@ -88,7 +89,7 @@ The scanner records provider activity and price-quality diagnostics. Preserve th
 
 ### State-size observation
 
-At the 2026-11-19 audit, `paper_tracker.json` was approximately 9.88 MB and contained 414 candidate records (317 stocks, 97 crypto). Each record carries many snapshots and audit fields. The file is large because it preserves detailed research evidence, not because the tracker contains millions of candidates.
+At the 2026-11-19 audit, `paper_tracker.json` was approximately 9.88 MB and contained 414 candidate records (317 stocks, 97 crypto). Each record carries many snapshots and audit fields. The file is large because it preserves detailed research evidence, not because the tracker contains millions of candidates. This was measured before the storage cleanup merged on 2026-11-19. The current writer no longer persists the mutable `research_feature_snapshot` duplicate; it keeps the frozen `early_runner_initial_feature_snapshot` used by cohort learning and writes deterministic compact JSON. The next completed scan will rewrite the tracked ledger in the smaller format; the actual resulting size will depend on the candidate records and evidence retained.
 
 Do not simply delete fields or shorten the 365-day window to reduce size. First identify which dashboard, learning, audit, and outcome consumers depend on each field. Any compaction should preserve immutable discovery baselines, verified/unverified distinctions, checkpoint outcomes, and lifetime aggregates. A safer future design may split compact dashboard summaries from detailed archival evidence, with migration and round-trip tests.
 
@@ -129,7 +130,7 @@ Never put secret values in the repository or documentation. The list above names
 
 ## Validation and release
 
-The consolidated GitHub Actions validation workflow runs on relevant Python, dependency, test, and workflow changes. It:
+The consolidated GitHub Actions validation workflow runs on relevant Python, dependency, test, workflow, and static-asset changes. It:
 
 1. Compiles Python sources.
 2. Runs the full `tests/` suite.

@@ -6,6 +6,7 @@ on:
     paths:
       - "**/*.py"
       - "requirements.txt"
+      - "static/**"
       - "tests/**"
       - ".github/workflows/**"
   pull_request:
@@ -13,6 +14,7 @@ on:
     paths:
       - "**/*.py"
       - "requirements.txt"
+      - "static/**"
       - "tests/**"
       - ".github/workflows/**"
   workflow_dispatch:
@@ -42,21 +44,8 @@ jobs:
         run: python -m compileall -q .
       - name: Run full Jarvis regression suite
         run: python -m pytest -q tests
-      - name: Extract and validate dashboard JavaScript
-        run: |
-          python - <<'PY'
-          import ast
-          from pathlib import Path
-          tree = ast.parse(Path("main.py").read_text(encoding="utf-8"))
-          value = next(
-              node.value for node in tree.body
-              if isinstance(node, ast.Assign)
-              and any(isinstance(target, ast.Name) and target.id == "HISTORY_DASHBOARD_JS"
-                      for target in node.targets)
-          )
-          Path("/tmp/jarvis-dashboard.js").write_text(ast.literal_eval(value), encoding="utf-8")
-          PY
-          node --check /tmp/jarvis-dashboard.js
+      - name: Validate dashboard JavaScript asset
+        run: node --check static/history_dashboard.js
       - name: Extract and validate Intelligence page scripts
         run: |
           python - <<'PY'
