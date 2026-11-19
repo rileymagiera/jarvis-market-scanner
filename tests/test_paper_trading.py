@@ -242,3 +242,6 @@ def test_open_position_unrealized_pnl_deducts_estimated_exit_fee(tmp_path, monke
     assert summary["unrealized_pnl"] == round(
         -position["entry_fee_remaining"] - expected_exit_fee, 2
     )
+    expected_equity = account["cash"] + position["quantity"] * 10.0 - expected_exit_fee
+    assert summary["equity"] == round(expected_equity, 2)
+    assert summary["total_return_pct"] == round((expected_equity / 250.0 - 1) * 100, 2)
