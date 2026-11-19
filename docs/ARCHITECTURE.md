@@ -37,7 +37,7 @@ The external cron-job.org schedule is the sole scheduler. Do not add a second Gi
 
 ### `main.py` — application and scanner composition
 
-Currently a large combined module (about 3,600 lines at the 2026-11-19 review). Its responsibilities are grouped approximately as follows:
+Still a substantial combined module (about 3,010 lines and 163 KB after the dashboard extraction completed on 2026-11-19). Its responsibilities are grouped approximately as follows:
 
 - Lines 1–80: imports, FastAPI setup, authentication, default universes.
 - Lines 80–327: symbol discovery and market-session/provider setup.
@@ -47,7 +47,7 @@ Currently a large combined module (about 3,600 lines at the 2026-11-19 review). 
 - Lines 1,520–1,927: stock scan.
 - Lines 1,928–2,078: crypto news and provider market data.
 - Lines 2,079–2,274: crypto scan, cross-section analysis, parallel scanning, response composition.
-- Lines 2,275 onward: FastAPI routes, history/dashboard HTML, paper dashboard, scan endpoints, and Intelligence page. The Home dashboard JavaScript now lives in `static/history_dashboard.js` and is served at `/history/dashboard.js`.
+- Lines 2,275–3,009: FastAPI routes, state/history loading, scan endpoints, and page-builder functions. Page markup now lives in `templates/`; Home dashboard JavaScript lives in `static/history_dashboard.js` and is served at `/history/dashboard.js`.
 
 These are approximate line ranges, not stable APIs. Prefer moving one cohesive responsibility at a time and preserving imports/routes until compatibility tests exist.
 
