@@ -175,6 +175,99 @@ def failed_gate_labels(snapshot: dict) -> list[str]:
     return list(dict.fromkeys(labels))
 
 
+
+def discovery_analysis(records: list[dict], asset: str) -> dict:
+    """Analyze verified first-recommendation baselines and retained price observations.
+
+    This is a high-water-mark opportunity study, not an executable backtest.
+    """
+    eligible = [
+        record for record in records
+        if record.get("asset_type") == asset
+        and number(record.get("initial_price")) is not None
+        and number(record.get("initial_price")) > 0
+        and record.get("discovery_return_status") == "verified"
+        and number(record.get("max_gain_pct")) is not None
+    ]
+    gains = [number(record.get("max_gain_pct")) for record in eligible]
+    drawdowns = [number(record.get("max_drawdown_pct")) for record in eligible]
+    stage_groups = {}
+    for record in eligible:
+        stage = str(record.get("first_grade") or "UNKNOWN")
+        stage_groups.setdefault(stage, []).append(record)
+    stage_stats = {}
+    for stage, group in sorted(stage_groups.items()):
+        stage_gains = [number(row.get("max_gain_pct")) for row in group]
+        stage_stats[stage] = {
+            "n": len(group),
+            "runner_10pct_rate_pct": round(sum(x >= 10 for x in stage_gains) / len(group) * 100, 1),
+            "runner_20pct_rate_pct": round(sum(x >= 20 for x in stage_gains) / len(group) * 100, 1),
+            "median_observed_max_gain_pct": round(statistics.median(stage_gains), 2),
+        }
+
+    def stage_at(record: dict, timestamp: str) -> str | None:
+        history = record.get("grade_history") or []
+        current = record.get("first_grade")
+        for change in sorted(history, key=lambda item: str(item.get("at") or "")):
+            if str(change.get("at") or "") <= timestamp:
+                current = change.get("to") or current
+        return current
+
+    top = []
+    missed = []
+    for record in sorted(eligible, key=lambda row: number(row.get("max_gain_pct")) or -999, reverse=True):
+        history = sorted(record.get("price_history") or [], key=lambda item: str(item.get("at") or ""))
+        crossings = {}
+        for threshold in (5, 10, 20):
+            crossing = next(
+                (item for item in history if number(item.get("return_pct")) is not None
+                 and number(item.get("return_pct")) >= threshold),
+                None,
+            )
+            if crossing:
+                crossings[str(threshold)] = {
+                    "at": crossing.get("at"),
+                    "return_pct": crossing.get("return_pct"),
+                    "stage_at_cross": stage_at(record, str(crossing.get("at") or "")),
+                }
+        grade_history = record.get("grade_history") or []
+        ever_buy = any(str(item.get("to") or "").upper() == "BUY" for item in grade_history)
+        row = {
+            "symbol": record.get("symbol"),
+            "first_seen": record.get("first_seen"),
+            "initial_price": record.get("initial_price"),
+            "first_stage": record.get("first_grade"),
+            "latest_stage": record.get("last_stage"),
+            "observed_max_gain_pct": record.get("max_gain_pct"),
+            "observed_max_drawdown_pct": record.get("max_drawdown_pct"),
+            "current_return_pct": record.get("return_pct"),
+            "milestones": record.get("milestones") or {},
+            "price_observation_count": len(history),
+            "retained_history_start": history[0].get("at") if history else None,
+            "retained_history_end": history[-1].get("at") if history else None,
+            "first_5pct_crossing": crossings.get("5"),
+            "first_10pct_crossing": crossings.get("10"),
+            "first_20pct_crossing": crossings.get("20"),
+            "ever_reached_buy_stage_in_grade_history": ever_buy,
+            "grade_history": grade_history[-20:],
+        }
+        top.append(row)
+        if number(record.get("max_gain_pct")) >= 20 and not ever_buy:
+            missed.append(row)
+    return {
+        "verified_recommendation_count": len(eligible),
+        "runner_10pct_count": sum(value >= 10 for value in gains),
+        "runner_20pct_count": sum(value >= 20 for value in gains),
+        "median_observed_max_gain_pct": round(statistics.median(gains), 2) if gains else None,
+        "average_observed_max_gain_pct": round(statistics.mean(gains), 2) if gains else None,
+        "average_observed_max_drawdown_pct": round(statistics.mean([x for x in drawdowns if x is not None]), 2)
+            if any(x is not None for x in drawdowns) else None,
+        "first_stage_performance": stage_stats,
+        "top_observed_runners": top[:25],
+        "potential_missed_20pct_runners": missed[:50],
+        "definition": "Verified first-recommendation baseline with observed high-water mark; not a trade return or proof that a BUY was executable.",
+    }
+
 def analyze(tracker: dict, paper_state: dict, buy_history: Any) -> dict:
     records = list(tracker.values()) if isinstance(tracker, dict) else (
         tracker if isinstance(tracker, list) else []
@@ -194,6 +287,7 @@ def analyze(tracker: dict, paper_state: dict, buy_history: Any) -> dict:
         "tracker_record_count": len(records),
         "eligible_snapshot_count": len(valid_records),
         "assets": {},
+        "discovery_performance": {},
         "top_runners": {},
         "gate_failure_evidence": {},
         "paper_trading": {},
@@ -260,6 +354,7 @@ def analyze(tracker: dict, paper_state: dict, buy_history: Any) -> dict:
                 ),
             }
         report["assets"][asset] = asset_report
+        report["discovery_performance"][asset] = discovery_analysis(records, asset)
         ranked = sorted(
             complete,
             key=lambda row: number(row["outcome"].get("return_pct")) or -999,
@@ -316,6 +411,10 @@ def render_markdown(report: dict) -> str:
         f"- Eligible frozen snapshots: {report['eligible_snapshot_count']}",
         f"- Official BUY history records: {report['official_buy_history_count']}",
         "",
+        "## Verified first-recommendation opportunity audit",
+        "",
+        "This section uses verified first-recommendation prices and observed high-water marks. It is not an executable backtest.",
+        ""
         "## Method and cautions",
         "",
         report["methodology"]["primary_cohort"],
@@ -328,6 +427,32 @@ def render_markdown(report: dict) -> str:
         "",
     ]
     for asset in ("stock", "crypto"):
+        discovery = report["discovery_performance"][asset]
+        lines += [
+            f"### {asset.title()} verified discovery performance",
+            "",
+            f"- Verified first-recommendation baselines: {discovery['verified_recommendation_count']}",
+            f"- Observed 10%+ runners: {discovery['runner_10pct_count']}",
+            f"- Observed 20%+ runners: {discovery['runner_20pct_count']}",
+            f"- Median observed max gain: {discovery['median_observed_max_gain_pct']}%",
+            f"- Average observed max drawdown: {discovery['average_observed_max_drawdown_pct']}%",
+            "",
+            "| First stage | n | 10%+ max-gain rate | 20%+ max-gain rate | Median max gain |",
+            "|---|---:|---:|---:|---:|",
+        ]
+        for stage, stats in discovery["first_stage_performance"].items():
+            lines.append(f"| {stage} | {stats['n']} | {stats['runner_10pct_rate_pct']}% | {stats['runner_20pct_rate_pct']}% | {stats['median_observed_max_gain_pct']}% |")
+        lines += [
+            "",
+            "#### Potential missed 20% runners (no BUY stage recorded)",
+            "",
+            "| Symbol | First seen | First stage | Max gain | Max drawdown | First 10% crossing stage |",
+            "|---|---|---|---:|---:|---|",
+        ]
+        for row in discovery["potential_missed_20pct_runners"][:20]:
+            crossing = row.get("first_10pct_crossing") or {}
+            lines.append(f"| {row.get('symbol')} | {row.get('first_seen')} | {row.get('first_stage')} | {row.get('observed_max_gain_pct')}% | {row.get('observed_max_drawdown_pct')}% | {crossing.get('stage_at_cross', 'not retained')} |")
+        lines += [""]
         data = report["assets"][asset]
         stats = data["five_day_outcomes"]
         lines += [
