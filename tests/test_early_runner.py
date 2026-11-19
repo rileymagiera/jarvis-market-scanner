@@ -173,6 +173,21 @@ class StockCrossSectionTests(unittest.TestCase):
         self.assertIsNone(items[3]["universe_rs_rank"])
 
 
+    def test_two_year_breakout_reference_uses_only_last_504_sessions(self):
+        from early_runner import compute_early_warning_metrics
+        dates = pd.date_range("2024-01-01", periods=600, freq="B")
+        closes = [100 + i * 0.1 for i in range(600)]
+        highs = [500.0] + [x + 1 for x in closes[1:]]
+        daily = pd.DataFrame({
+            "Open": closes, "High": highs,
+            "Low": [x - 1 for x in closes], "Close": closes,
+            "Volume": [100000] * len(closes),
+        }, index=dates)
+        result = compute_early_warning_metrics(daily, pd.DataFrame(), closes[-1])
+        self.assertEqual(result["breakout_level_lookback_sessions"], 504)
+        self.assertLess(result["breakout_level_reference_price"], 200)
+
+
 class CryptoCrossSectionTests(unittest.TestCase):
     def test_legacy_and_canonical_relative_strength_flags_match(self):
         coverage = {"relative_strength_vs_btc": False, "market_relative_strength": False}
