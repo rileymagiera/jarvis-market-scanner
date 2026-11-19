@@ -9,10 +9,20 @@
     "alerted_stage": "DEVELOPING SETUP",
     "score": 65
   },
+  "crypto:CTUSDT": {
+    "alerted_at": "2026-11-19T18:04:37.274996+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 63
+  },
   "crypto:GRASSUSDT": {
     "alerted_at": "2026-11-19T15:04:24.560095+00:00",
     "alerted_stage": "DEVELOPING SETUP",
     "score": 85
+  },
+  "crypto:HYPEUSDT": {
+    "alerted_at": "2026-11-19T18:04:37.274996+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 63
   },
   "crypto:ICNTUSDT": {
     "alerted_at": "2026-11-19T15:04:24.560095+00:00",

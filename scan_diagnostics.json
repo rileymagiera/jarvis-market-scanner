@@ -3,8 +3,8 @@
   "diagnostics": {
     "alpaca_quote_status": {
       "candidate_status_counts": {
-        "fresh_trade_received": 133,
-        "no_fresh_trade_or_usable_quote": 14
+        "fresh_trade_received": 132,
+        "no_fresh_trade_or_usable_quote": 15
       },
       "credentials_configured": true,
       "feed": "iex",
@@ -13,7 +13,7 @@
         "error_counts": {},
         "failures": 0,
         "max_seconds": 0.27,
-        "total_seconds": 0.42
+        "total_seconds": 0.41
       }
     },
     "crypto": {
@@ -24,23 +24,733 @@
           "coinbase_ticker_timestamp": 0,
           "kraken_latest_trade_cross_check": 91
         },
-        "unverified": 10,
-        "verified": 81
+        "unverified": 13,
+        "verified": 78
       },
       "scan_errors": 0,
       "stages": {
         "ACTIONABLE SETUP": 0,
         "BUY": 0,
         "DATA QUALITY \u2014 WATCH ONLY": 0,
-        "DEVELOPING SETUP": 6,
-        "EARLY WATCH": 10,
+        "DEVELOPING SETUP": 5,
+        "EARLY WATCH": 11,
         "LOW-CONVICTION WATCH": 75,
         "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
       },
       "symbols_requested": 91
     },
+    "crypto_shadow_comparison": {
+      "mode": "shadow_only",
+      "recent_records": [
+        {
+          "difference_pct": 0.2862,
+          "error": null,
+          "primary_as_of": "2026-11-19T18:03:10.924935+00:00",
+          "primary_price": 0.07699,
+          "primary_source": "Kraken Spot public API",
+          "provider": "coinbase",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": 51.9,
+          "shadow_as_of": "2026-11-19T18:03:44.279231288+00:00",
+          "shadow_price": 0.07677,
+          "spread_pct": 0.0651,
+          "status": "comparable",
+          "symbol": "ALGOUSDT"
+        },
+        {
+          "difference_pct": 0.7158,
+          "error": null,
+          "primary_as_of": "2026-11-19T18:03:04.495131+00:00",
+          "primary_price": 0.021171,
+          "primary_source": "Kraken Spot public API",
+          "provider": "coinbase",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": 15.3,
+          "shadow_as_of": "2026-11-19T18:04:20.906191473+00:00",
+          "shadow_price": 0.02102,
+          "spread_pct": 0.0951,
+          "status": "comparable",
+          "symbol": "SENTUSDT"
+        },
+        {
+          "difference_pct": 0.3071,
+          "error": null,
+          "primary_as_of": "2026-11-19T18:01:09.394619+00:00",
+          "primary_price": 193.9933,
+          "primary_source": "Kraken Spot public API",
+          "provider": "coinbase",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": 15.3,
+          "shadow_as_of": "2026-11-19T18:04:20.940988623+00:00",
+          "shadow_price": 194.59,
+          "spread_pct": 0.0051,
+          "status": "comparable",
+          "symbol": "TAOUSDT"
+        },
+        {
+          "difference_pct": null,
+          "error": "HTTPError: 404 Client Error: Not Found for url: https://api.exchange.coinbase.com/products/XDC-USD/ticker",
+          "primary_as_of": "2026-11-19T18:02:40.581811+00:00",
+          "primary_price": 0.02869,
+          "primary_source": "Kraken Spot public API",
+          "provider": "coinbase",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": null,
+          "shadow_as_of": null,
+          "shadow_price": null,
+          "spread_pct": null,
+          "status": "unavailable",
+          "symbol": "XDCUSDT"
+        },
+        {
+          "difference_pct": 0.0795,
+          "error": null,
+          "primary_as_of": "2026-11-19T17:55:48.916571+00:00",
+          "primary_price": 1.385,
+          "primary_source": "Kraken Spot public API",
+          "provider": "coinbase",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": 132.8,
+          "shadow_as_of": "2026-11-19T18:02:23.563979316+00:00",
+          "shadow_price": 1.3839,
+          "spread_pct": 0.1371,
+          "status": "comparable",
+          "symbol": "RAYUSDT"
+        },
+        {
+          "difference_pct": 0.1814,
+          "error": null,
+          "primary_as_of": "2026-11-19T18:04:20.258348+00:00",
+          "primary_price": 0.00881,
+          "primary_source": "Kraken Spot public API",
+          "provider": "coinbase",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": 17.8,
+          "shadow_as_of": "2026-11-19T18:04:18.676536228+00:00",
+          "shadow_price": 0.008826,
+          "spread_pct": 0.1133,
+          "status": "comparable",
+          "symbol": "WUSDT"
+        },
+        {
+          "difference_pct": 0.1645,
+          "error": null,
+          "primary_as_of": "2026-11-19T18:01:57.410430+00:00",
+          "primary_price": 1.2757,
+          "primary_source": "Kraken Spot public API",
+          "provider": "coinbase",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": 8.0,
+          "shadow_as_of": "2026-11-19T18:04:28.451565+00:00",
+          "shadow_price": 1.2778,
+          "spread_pct": 0.1017,
+          "status": "comparable",
+          "symbol": "ATOMUSDT"
+        },
+        {
+          "difference_pct": null,
+          "error": "TypeError: '>' not supported between instances of 'NoneType' and 'int'",
+          "primary_as_of": "2026-11-19T18:03:10.924935+00:00",
+          "primary_price": 0.07699,
+          "primary_source": "Kraken Spot public API",
+          "provider": "binance_us",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": null,
+          "shadow_as_of": null,
+          "shadow_price": null,
+          "spread_pct": null,
+          "status": "unavailable",
+          "symbol": "ALGOUSDT"
+        },
+        {
+          "difference_pct": null,
+          "error": "HTTPError: 400 Client Error: Bad Request for url: https://api.binance.us/api/v3/ticker/24hr?symbol=SENTUSD",
+          "primary_as_of": "2026-11-19T18:03:04.495131+00:00",
+          "primary_price": 0.021171,
+          "primary_source": "Kraken Spot public API",
+          "provider": "binance_us",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": null,
+          "shadow_as_of": null,
+          "shadow_price": null,
+          "spread_pct": null,
+          "status": "unavailable",
+          "symbol": "SENTUSDT"
+        },
+        {
+          "difference_pct": null,
+          "error": "HTTPError: 400 Client Error: Bad Request for url: https://api.binance.us/api/v3/ticker/24hr?symbol=TAOUSD",
+          "primary_as_of": "2026-11-19T18:01:09.394619+00:00",
+          "primary_price": 193.9933,
+          "primary_source": "Kraken Spot public API",
+          "provider": "binance_us",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": null,
+          "shadow_as_of": null,
+          "shadow_price": null,
+          "spread_pct": null,
+          "status": "unavailable",
+          "symbol": "TAOUSDT"
+        },
+        {
+          "difference_pct": null,
+          "error": "HTTPError: 400 Client Error: Bad Request for url: https://api.binance.us/api/v3/ticker/24hr?symbol=XDCUSD",
+          "primary_as_of": "2026-11-19T18:02:40.581811+00:00",
+          "primary_price": 0.02869,
+          "primary_source": "Kraken Spot public API",
+          "provider": "binance_us",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": null,
+          "shadow_as_of": null,
+          "shadow_price": null,
+          "spread_pct": null,
+          "status": "unavailable",
+          "symbol": "XDCUSDT"
+        },
+        {
+          "difference_pct": 0.3497,
+          "error": null,
+          "primary_as_of": "2026-11-19T18:03:09.530391+00:00",
+          "primary_price": 0.51101,
+          "primary_source": "Kraken Spot public API",
+          "provider": "coinbase",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": 115.1,
+          "shadow_as_of": "2026-11-19T18:02:41.476447512+00:00",
+          "shadow_price": 0.5128,
+          "spread_pct": 0.0781,
+          "status": "comparable",
+          "symbol": "ASTERUSDT"
+        },
+        {
+          "difference_pct": 0.1854,
+          "error": null,
+          "primary_as_of": "2026-11-19T18:01:11.409170+00:00",
+          "primary_price": 8.9993,
+          "primary_source": "Kraken Spot public API",
+          "provider": "coinbase",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": 4.4,
+          "shadow_as_of": "2026-11-19T18:04:32.223542531+00:00",
+          "shadow_price": 9.016,
+          "spread_pct": 0.0111,
+          "status": "comparable",
+          "symbol": "LINKUSDT"
+        },
+        {
+          "difference_pct": null,
+          "error": "HTTPError: 400 Client Error: Bad Request for url: https://api.binance.us/api/v3/ticker/24hr?symbol=RAYUSD",
+          "primary_as_of": "2026-11-19T17:55:48.916571+00:00",
+          "primary_price": 1.385,
+          "primary_source": "Kraken Spot public API",
+          "provider": "binance_us",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": null,
+          "shadow_as_of": null,
+          "shadow_price": null,
+          "spread_pct": null,
+          "status": "unavailable",
+          "symbol": "RAYUSDT"
+        },
+        {
+          "difference_pct": null,
+          "error": "HTTPError: 400 Client Error: Bad Request for url: https://api.binance.us/api/v3/ticker/24hr?symbol=WUSD",
+          "primary_as_of": "2026-11-19T18:04:20.258348+00:00",
+          "primary_price": 0.00881,
+          "primary_source": "Kraken Spot public API",
+          "provider": "binance_us",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": null,
+          "shadow_as_of": null,
+          "shadow_price": null,
+          "spread_pct": null,
+          "status": "unavailable",
+          "symbol": "WUSDT"
+        },
+        {
+          "difference_pct": null,
+          "error": "TypeError: '>' not supported between instances of 'NoneType' and 'int'",
+          "primary_as_of": "2026-11-19T18:01:11.409170+00:00",
+          "primary_price": 8.9993,
+          "primary_source": "Kraken Spot public API",
+          "provider": "binance_us",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": null,
+          "shadow_as_of": null,
+          "shadow_price": null,
+          "spread_pct": null,
+          "status": "unavailable",
+          "symbol": "LINKUSDT"
+        },
+        {
+          "difference_pct": 0.1319,
+          "error": null,
+          "primary_as_of": "2026-11-19T18:00:56.747545+00:00",
+          "primary_price": 0.03788,
+          "primary_source": "Kraken Spot public API",
+          "provider": "coinbase",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": 3.9,
+          "shadow_as_of": "2026-11-19T18:04:32.821247405+00:00",
+          "shadow_price": 0.03793,
+          "spread_pct": 0.0527,
+          "status": "comparable",
+          "symbol": "SEIUSDT"
+        },
+        {
+          "difference_pct": 0.2656,
+          "error": null,
+          "primary_as_of": "2026-11-19T18:01:36.762826+00:00",
+          "primary_price": 3.76e-06,
+          "primary_source": "Kraken Spot public API",
+          "provider": "coinbase",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": 4.0,
+          "shadow_as_of": "2026-11-19T18:04:32.694298879+00:00",
+          "shadow_price": 3.77e-06,
+          "spread_pct": 0.2656,
+          "status": "comparable",
+          "symbol": "PEPEUSDT"
+        },
+        {
+          "difference_pct": null,
+          "error": "RuntimeError: binance_us returned no usable price or exchange timestamp",
+          "primary_as_of": "2026-11-19T18:01:36.694357+00:00",
+          "primary_price": 0.25848,
+          "primary_source": "Kraken Spot public API",
+          "provider": "binance_us",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": null,
+          "shadow_as_of": null,
+          "shadow_price": null,
+          "spread_pct": null,
+          "status": "unavailable",
+          "symbol": "JUPUSDT"
+        },
+        {
+          "difference_pct": 0.1066,
+          "error": null,
+          "primary_as_of": "2026-11-19T18:01:30.605002+00:00",
+          "primary_price": 0.075,
+          "primary_source": "Kraken Spot public API",
+          "provider": "coinbase",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": 0.5,
+          "shadow_as_of": "2026-11-19T18:04:36.254895378+00:00",
+          "shadow_price": 0.07508,
+          "spread_pct": 0.0799,
+          "status": "comparable",
+          "symbol": "OPUSDT"
+        },
+        {
+          "difference_pct": null,
+          "error": "TypeError: '>' not supported between instances of 'NoneType' and 'int'",
+          "primary_as_of": "2026-11-19T18:01:57.410430+00:00",
+          "primary_price": 1.2757,
+          "primary_source": "Kraken Spot public API",
+          "provider": "binance_us",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": null,
+          "shadow_as_of": null,
+          "shadow_price": null,
+          "spread_pct": null,
+          "status": "unavailable",
+          "symbol": "ATOMUSDT"
+        },
+        {
+          "difference_pct": null,
+          "error": "TypeError: '>' not supported between instances of 'NoneType' and 'int'",
+          "primary_as_of": "2026-11-19T18:01:30.605002+00:00",
+          "primary_price": 0.075,
+          "primary_source": "Kraken Spot public API",
+          "provider": "binance_us",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": null,
+          "shadow_as_of": null,
+          "shadow_price": null,
+          "spread_pct": null,
+          "status": "unavailable",
+          "symbol": "OPUSDT"
+        },
+        {
+          "difference_pct": null,
+          "error": "HTTPError: 400 Client Error: Bad Request for url: https://api.exchange.coinbase.com/products/JUP-USD/ticker",
+          "primary_as_of": "2026-11-19T18:01:36.694357+00:00",
+          "primary_price": 0.25848,
+          "primary_source": "Kraken Spot public API",
+          "provider": "coinbase",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": null,
+          "shadow_as_of": null,
+          "shadow_price": null,
+          "spread_pct": null,
+          "status": "unavailable",
+          "symbol": "JUPUSDT"
+        },
+        {
+          "difference_pct": 0.1808,
+          "error": null,
+          "primary_as_of": "2026-11-19T18:02:28.786174+00:00",
+          "primary_price": 42.56,
+          "primary_source": "Kraken Spot public API",
+          "provider": "coinbase",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": 17.4,
+          "shadow_as_of": "2026-11-19T18:04:19.475548865+00:00",
+          "shadow_price": 42.637,
+          "spread_pct": 0.0399,
+          "status": "comparable",
+          "symbol": "LTCUSDT"
+        },
+        {
+          "difference_pct": null,
+          "error": "HTTPError: 400 Client Error: Bad Request for url: https://api.binance.us/api/v3/ticker/24hr?symbol=ASTERUSD",
+          "primary_as_of": "2026-11-19T18:03:09.530391+00:00",
+          "primary_price": 0.51101,
+          "primary_source": "Kraken Spot public API",
+          "provider": "binance_us",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": null,
+          "shadow_as_of": null,
+          "shadow_price": null,
+          "spread_pct": null,
+          "status": "unavailable",
+          "symbol": "ASTERUSDT"
+        },
+        {
+          "difference_pct": null,
+          "error": "HTTPError: 404 Client Error: Not Found for url: https://api.exchange.coinbase.com/products/XMR-USD/ticker",
+          "primary_as_of": "2026-11-19T18:01:40.246294+00:00",
+          "primary_price": 488.64,
+          "primary_source": "Kraken Spot public API",
+          "provider": "coinbase",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": null,
+          "shadow_as_of": null,
+          "shadow_price": null,
+          "spread_pct": null,
+          "status": "unavailable",
+          "symbol": "XMRUSDT"
+        },
+        {
+          "difference_pct": 0.2718,
+          "error": null,
+          "primary_as_of": "2026-11-19T18:02:29.269804+00:00",
+          "primary_price": 4.9229,
+          "primary_source": "Kraken Spot public API",
+          "provider": "coinbase",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": 8.4,
+          "shadow_as_of": "2026-11-19T18:04:28.460519090+00:00",
+          "shadow_price": 4.9363,
+          "spread_pct": 0.0486,
+          "status": "comparable",
+          "symbol": "UNIUSDT"
+        },
+        {
+          "difference_pct": 0.0786,
+          "error": null,
+          "primary_as_of": "2026-11-19T18:02:54.720093+00:00",
+          "primary_price": 3.817e-06,
+          "primary_source": "Kraken Spot public API",
+          "provider": "coinbase",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": 95.9,
+          "shadow_as_of": "2026-11-19T18:03:01.049555653+00:00",
+          "shadow_price": 3.82e-06,
+          "spread_pct": 0.2614,
+          "status": "comparable",
+          "symbol": "SHIBUSDT"
+        },
+        {
+          "difference_pct": null,
+          "error": "TypeError: '>' not supported between instances of 'NoneType' and 'int'",
+          "primary_as_of": "2026-11-19T18:02:28.786174+00:00",
+          "primary_price": 42.56,
+          "primary_source": "Kraken Spot public API",
+          "provider": "binance_us",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": null,
+          "shadow_as_of": null,
+          "shadow_price": null,
+          "spread_pct": null,
+          "status": "unavailable",
+          "symbol": "LTCUSDT"
+        },
+        {
+          "difference_pct": null,
+          "error": "HTTPError: 400 Client Error: Bad Request for url: https://api.binance.us/api/v3/ticker/24hr?symbol=SEIUSD",
+          "primary_as_of": "2026-11-19T18:00:56.747545+00:00",
+          "primary_price": 0.03788,
+          "primary_source": "Kraken Spot public API",
+          "provider": "binance_us",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": null,
+          "shadow_as_of": null,
+          "shadow_price": null,
+          "spread_pct": null,
+          "status": "unavailable",
+          "symbol": "SEIUSDT"
+        },
+        {
+          "difference_pct": null,
+          "error": "TypeError: '>' not supported between instances of 'NoneType' and 'int'",
+          "primary_as_of": "2026-11-19T18:01:36.762826+00:00",
+          "primary_price": 3.76e-06,
+          "primary_source": "Kraken Spot public API",
+          "provider": "binance_us",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": null,
+          "shadow_as_of": null,
+          "shadow_price": null,
+          "spread_pct": null,
+          "status": "unavailable",
+          "symbol": "PEPEUSDT"
+        },
+        {
+          "difference_pct": 0.1985,
+          "error": null,
+          "primary_as_of": "2026-11-19T18:00:48.970345+00:00",
+          "primary_price": 583.95,
+          "primary_source": "Kraken Spot public API",
+          "provider": "coinbase",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": 4.0,
+          "shadow_as_of": "2026-11-19T18:04:32.979664249+00:00",
+          "shadow_price": 585.11,
+          "spread_pct": 0.0274,
+          "status": "comparable",
+          "symbol": "BNBUSDT"
+        },
+        {
+          "difference_pct": null,
+          "error": "TypeError: '>' not supported between instances of 'NoneType' and 'int'",
+          "primary_as_of": "2026-11-19T18:02:29.269804+00:00",
+          "primary_price": 4.9229,
+          "primary_source": "Kraken Spot public API",
+          "provider": "binance_us",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": null,
+          "shadow_as_of": null,
+          "shadow_price": null,
+          "spread_pct": null,
+          "status": "unavailable",
+          "symbol": "UNIUSDT"
+        },
+        {
+          "difference_pct": 0.2153,
+          "error": null,
+          "primary_as_of": "2026-11-19T17:57:47.758268+00:00",
+          "primary_price": 0.0464,
+          "primary_source": "Kraken Spot public API",
+          "provider": "coinbase",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": 4.4,
+          "shadow_as_of": "2026-11-19T18:04:32.640563099+00:00",
+          "shadow_price": 0.0465,
+          "spread_pct": 0.0645,
+          "status": "comparable",
+          "symbol": "XPLUSDT"
+        },
+        {
+          "difference_pct": null,
+          "error": "HTTPError: 400 Client Error: Bad Request for url: https://api.binance.us/api/v3/ticker/24hr?symbol=XPLUSD",
+          "primary_as_of": "2026-11-19T17:57:47.758268+00:00",
+          "primary_price": 0.0464,
+          "primary_source": "Kraken Spot public API",
+          "provider": "binance_us",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": null,
+          "shadow_as_of": null,
+          "shadow_price": null,
+          "spread_pct": null,
+          "status": "unavailable",
+          "symbol": "XPLUSDT"
+        },
+        {
+          "difference_pct": null,
+          "error": "TypeError: '>' not supported between instances of 'NoneType' and 'int'",
+          "primary_as_of": "2026-11-19T18:00:48.970345+00:00",
+          "primary_price": 583.95,
+          "primary_source": "Kraken Spot public API",
+          "provider": "binance_us",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": null,
+          "shadow_as_of": null,
+          "shadow_price": null,
+          "spread_pct": null,
+          "status": "unavailable",
+          "symbol": "BNBUSDT"
+        },
+        {
+          "difference_pct": 0.4005,
+          "error": null,
+          "primary_as_of": "2026-11-19T18:01:15.100029+00:00",
+          "primary_price": 3.2645,
+          "primary_source": "Kraken Spot public API",
+          "provider": "coinbase",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": 2.2,
+          "shadow_as_of": "2026-11-19T18:04:34.835924166+00:00",
+          "shadow_price": 3.2776,
+          "spread_pct": 0.0366,
+          "status": "comparable",
+          "symbol": "NEARUSDT"
+        },
+        {
+          "difference_pct": null,
+          "error": "TypeError: '>' not supported between instances of 'NoneType' and 'int'",
+          "primary_as_of": "2026-11-19T18:01:15.100029+00:00",
+          "primary_price": 3.2645,
+          "primary_source": "Kraken Spot public API",
+          "provider": "binance_us",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": null,
+          "shadow_as_of": null,
+          "shadow_price": null,
+          "spread_pct": null,
+          "status": "unavailable",
+          "symbol": "NEARUSDT"
+        },
+        {
+          "difference_pct": null,
+          "error": "HTTPError: 400 Client Error: Bad Request for url: https://api.binance.us/api/v3/ticker/24hr?symbol=XMRUSD",
+          "primary_as_of": "2026-11-19T18:01:40.246294+00:00",
+          "primary_price": 488.64,
+          "primary_source": "Kraken Spot public API",
+          "provider": "binance_us",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": null,
+          "shadow_as_of": null,
+          "shadow_price": null,
+          "spread_pct": null,
+          "status": "unavailable",
+          "symbol": "XMRUSDT"
+        },
+        {
+          "difference_pct": null,
+          "error": "TypeError: '>' not supported between instances of 'NoneType' and 'int'",
+          "primary_as_of": "2026-11-19T18:02:54.720093+00:00",
+          "primary_price": 3.817e-06,
+          "primary_source": "Kraken Spot public API",
+          "provider": "binance_us",
+          "quote_currency": "USD",
+          "run_id": "44583145384",
+          "scan_timestamp": "2026-11-19T18:04:37.270164+00:00",
+          "shadow_age_seconds": null,
+          "shadow_as_of": null,
+          "shadow_price": null,
+          "spread_pct": null,
+          "status": "unavailable",
+          "symbol": "SHIBUSDT"
+        }
+      ],
+      "records_this_scan": 40,
+      "sample_limit": 20,
+      "summary": {
+        "providers": {
+          "binance_us": {
+            "comparable": 0,
+            "mean_difference_pct": null,
+            "median_difference_pct": null,
+            "samples": 20,
+            "unavailable": 20,
+            "within_0_5_pct": 0
+          },
+          "coinbase": {
+            "comparable": 17,
+            "mean_difference_pct": 0.2423,
+            "median_difference_pct": 0.1985,
+            "samples": 20,
+            "unavailable": 3,
+            "within_0_5_pct": 16
+          }
+        },
+        "record_count": 40,
+        "retention_days": 14
+      },
+      "symbols_sampled": 20
+    },
     "market_session": {
-      "as_of": "2026-11-19T12:47:42.654663-05:00",
+      "as_of": "2026-11-19T13:04:37.272192-05:00",
       "calendar_note": "XNYS holidays and early closes are calendar-aware; extended-hours boundaries use the configured 04:00\u201320:00 ET window.",
       "calendar_source": "XNYS exchange calendar",
       "calendar_verified": true,
@@ -59,7 +769,7 @@
     "massive_live_quote_note": "Optional last-trade cross-check is disabled by default. Enable MASSIVE_LIVE_QUOTE_ENABLED=true only if the Massive Stocks plan includes /v2/last/trade; 15-minute delayed data is accepted only when its timestamp is within 45 minutes.",
     "massive_live_quote_status": "disabled_pending_entitlement_check",
     "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history, invalid market data, or a provider error; low scores alone no longer remove otherwise valid discoveries.",
-    "scan_duration_seconds": 113.97,
+    "scan_duration_seconds": 227.53,
     "stocks": {
       "candidates_returned": 147,
       "not_returned_or_insufficient_data": 0,
@@ -68,28 +778,33 @@
         "ACTIONABLE SETUP": 0,
         "BUY": 0,
         "DATA QUALITY \u2014 WATCH ONLY": 0,
-        "DEVELOPING RUNNER": 5,
+        "DEVELOPING RUNNER": 4,
         "DEVELOPING SETUP": 0,
-        "EARLY SETUP": 13,
-        "EARLY WATCH": 5,
+        "EARLY SETUP": 15,
+        "EARLY WATCH": 6,
         "LATE RUNNER \u2014 CHASE RISK": 4,
-        "LOW-CONVICTION WATCH": 120,
+        "LOW-CONVICTION WATCH": 118,
         "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
       },
       "symbols_requested": 148
     },
     "timing_breakdown": {
-      "asset_scans_wall_seconds": 111.39,
+      "asset_scans_wall_seconds": 223.66,
       "http_rate_limit_events": 0,
       "http_server_error_events": 0,
-      "market_conditions_seconds": 0.72,
+      "market_conditions_seconds": 0.93,
       "provider_activity": {
         "provider_http_429_count": 0,
         "provider_http_5xx_count": 0,
         "provider_http_status_counts": {
           "alpaca:200": 3,
+          "api_binance_us:200": 11,
+          "api_binance_us:400": 9,
+          "coinbase_exchange:200": 17,
+          "coinbase_exchange:400": 1,
+          "coinbase_exchange:404": 2,
           "data_sec_gov:200": 147,
-          "kraken:200": 94,
+          "kraken:200": 185,
           "stooq:200": 1,
           "www_sec_gov:200": 1
         },
@@ -99,28 +814,99 @@
             "error_counts": {},
             "failures": 0,
             "max_seconds": 0.27,
-            "total_seconds": 0.42
+            "total_seconds": 0.41
+          },
+          "crypto_shadow_binance_us": {
+            "calls": 20,
+            "error_counts": {
+              "HTTPError: 400 Client Error: Bad Request for url: https://api.binance.us/api/v3/ticker/24hr?symbol=ASTERUSD": 1,
+              "HTTPError: 400 Client Error: Bad Request for url: https://api.binance.us/api/v3/ticker/24hr?symbol=RAYUSD": 1,
+              "HTTPError: 400 Client Error: Bad Request for url: https://api.binance.us/api/v3/ticker/24hr?symbol=SEIUSD": 1,
+              "HTTPError: 400 Client Error: Bad Request for url: https://api.binance.us/api/v3/ticker/24hr?symbol=SENTUSD": 1,
+              "HTTPError: 400 Client Error: Bad Request for url: https://api.binance.us/api/v3/ticker/24hr?symbol=TAOUSD": 1,
+              "HTTPError: 400 Client Error: Bad Request for url: https://api.binance.us/api/v3/ticker/24hr?symbol=WUSD": 1,
+              "HTTPError: 400 Client Error: Bad Request for url: https://api.binance.us/api/v3/ticker/24hr?symbol=XDCUSD": 1,
+              "HTTPError: 400 Client Error: Bad Request for url: https://api.binance.us/api/v3/ticker/24hr?symbol=XMRUSD": 1,
+              "HTTPError: 400 Client Error: Bad Request for url: https://api.binance.us/api/v3/ticker/24hr?symbol=XPLUSD": 1,
+              "RuntimeError: binance_us returned no usable price or exchange timestamp": 1,
+              "TypeError: '>' not supported between instances of 'NoneType' and 'int'": 10
+            },
+            "failures": 20,
+            "max_seconds": 0.44,
+            "total_seconds": 5.62
+          },
+          "crypto_shadow_coinbase": {
+            "calls": 20,
+            "error_counts": {
+              "HTTPError: 400 Client Error: Bad Request for url: https://api.exchange.coinbase.com/products/JUP-USD/ticker": 1,
+              "HTTPError: 404 Client Error: Not Found for url: https://api.exchange.coinbase.com/products/XDC-USD/ticker": 1,
+              "HTTPError: 404 Client Error: Not Found for url: https://api.exchange.coinbase.com/products/XMR-USD/ticker": 1
+            },
+            "failures": 3,
+            "max_seconds": 0.17,
+            "total_seconds": 2.2
           },
           "http_alpaca_status_200": {
             "calls": 3,
             "error_counts": {},
             "failures": 0,
             "max_seconds": 0.21,
-            "total_seconds": 0.36
+            "total_seconds": 0.35
+          },
+          "http_api_binance_us_status_200": {
+            "calls": 11,
+            "error_counts": {},
+            "failures": 0,
+            "max_seconds": 0.44,
+            "total_seconds": 2.34
+          },
+          "http_api_binance_us_status_400": {
+            "calls": 9,
+            "error_counts": {
+              "HTTP 400": 9
+            },
+            "failures": 9,
+            "max_seconds": 0.44,
+            "total_seconds": 3.26
+          },
+          "http_coinbase_exchange_status_200": {
+            "calls": 17,
+            "error_counts": {},
+            "failures": 0,
+            "max_seconds": 0.16,
+            "total_seconds": 1.74
+          },
+          "http_coinbase_exchange_status_400": {
+            "calls": 1,
+            "error_counts": {
+              "HTTP 400": 1
+            },
+            "failures": 1,
+            "max_seconds": 0.17,
+            "total_seconds": 0.17
+          },
+          "http_coinbase_exchange_status_404": {
+            "calls": 2,
+            "error_counts": {
+              "HTTP 404": 2
+            },
+            "failures": 2,
+            "max_seconds": 0.17,
+            "total_seconds": 0.28
           },
           "http_data_sec_gov_status_200": {
             "calls": 147,
             "error_counts": {},
             "failures": 0,
-            "max_seconds": 0.29,
-            "total_seconds": 10.4
+            "max_seconds": 0.22,
+            "total_seconds": 7.26
           },
           "http_kraken_status_200": {
-            "calls": 94,
+            "calls": 185,
             "error_counts": {},
             "failures": 0,
-            "max_seconds": 0.45,
-            "total_seconds": 15.7
+            "max_seconds": 0.46,
+            "total_seconds": 32.24
           },
           "http_stooq_status_200": {
             "calls": 1,
@@ -133,10 +919,10 @@
             "calls": 1,
             "error_counts": {},
             "failures": 0,
-            "max_seconds": 0.15,
-            "total_seconds": 0.15
+            "max_seconds": 0.08,
+            "total_seconds": 0.08
           },
-          "kraken_ohlc_cache_hit": {
+          "kraken_ohlc_cache_miss": {
             "calls": 91,
             "error_counts": {},
             "failures": 0,
@@ -144,11 +930,11 @@
             "total_seconds": 0.0
           },
           "kraken_request_pacing": {
-            "calls": 93,
+            "calls": 183,
             "error_counts": {},
             "failures": 0,
             "max_seconds": 1.05,
-            "total_seconds": 95.89
+            "total_seconds": 191.22
           },
           "kraken_ticker_cache_hit": {
             "calls": 91,
@@ -161,8 +947,8 @@
             "calls": 1,
             "error_counts": {},
             "failures": 0,
-            "max_seconds": 0.72,
-            "total_seconds": 0.72
+            "max_seconds": 0.93,
+            "total_seconds": 0.93
           },
           "massive_daily_fallback": {
             "calls": 1,
@@ -175,69 +961,69 @@
             "calls": 1,
             "error_counts": {},
             "failures": 0,
-            "max_seconds": 110.97,
-            "total_seconds": 110.97
+            "max_seconds": 223.25,
+            "total_seconds": 223.25
           },
           "scan_stock_parallel_wall": {
             "calls": 1,
             "error_counts": {},
             "failures": 1,
-            "max_seconds": 28.03,
-            "total_seconds": 28.03
+            "max_seconds": 31.81,
+            "total_seconds": 31.81
           },
           "sec_recent_filings": {
             "calls": 147,
             "error_counts": {},
             "failures": 0,
-            "max_seconds": 0.43,
-            "total_seconds": 23.85
+            "max_seconds": 0.57,
+            "total_seconds": 19.01
           },
           "stooq_daily_fallback": {
             "calls": 1,
             "error_counts": {},
             "failures": 1,
-            "max_seconds": 0.65,
-            "total_seconds": 0.65
+            "max_seconds": 0.64,
+            "total_seconds": 0.64
           },
           "yahoo_daily_history": {
             "calls": 148,
             "error_counts": {},
             "failures": 1,
-            "max_seconds": 0.5,
-            "total_seconds": 26.65
+            "max_seconds": 0.68,
+            "total_seconds": 36.1
           },
           "yahoo_discovery_screen": {
             "calls": 6,
             "error_counts": {},
             "failures": 0,
-            "max_seconds": 0.28,
-            "total_seconds": 1.22
+            "max_seconds": 0.49,
+            "total_seconds": 2.46
           },
           "yahoo_fundamentals": {
-            "calls": 41,
+            "calls": 42,
             "error_counts": {},
             "failures": 0,
-            "max_seconds": 0.71,
-            "total_seconds": 9.18
+            "max_seconds": 0.43,
+            "total_seconds": 12.43
           },
           "yahoo_intraday_history": {
             "calls": 147,
             "error_counts": {},
             "failures": 0,
-            "max_seconds": 0.23,
-            "total_seconds": 13.95
+            "max_seconds": 0.42,
+            "total_seconds": 17.37
           },
           "yahoo_stock_news": {
             "calls": 147,
             "error_counts": {},
             "failures": 0,
-            "max_seconds": 0.96,
-            "total_seconds": 52.45
+            "max_seconds": 0.88,
+            "total_seconds": 53.78
           }
         }
       },
-      "total_seconds": 113.97,
-      "universe_discovery_seconds": 1.58
+      "total_seconds": 227.53,
+      "universe_discovery_seconds": 1.72
     },
     "webull_quote_note": "Shadow mode only: read-only Webull quotes are sampled and compared with Yahoo; they do not affect price selection, verification, scoring, BUY gates, or paper trades.",
     "webull_quote_status": "shadow_mode",
@@ -262,7 +1048,7 @@
         "within_1_pct": 0,
         "within_2_pct": 0
       },
-      "updated_at": "2026-11-19T17:47:42.654232+00:00"
+      "updated_at": "2026-11-19T18:04:37.271538+00:00"
     }
   },
   "errors": [
@@ -275,24 +1061,24 @@
     "benchmarks": {
       "BTC-USD": {
         "above_20d_average": false,
-        "five_day_change_pct": -2.09
+        "five_day_change_pct": -2.1
       },
       "IWM": {
         "above_20d_average": false,
-        "five_day_change_pct": -4.39
+        "five_day_change_pct": -4.37
       },
       "QQQ": {
         "above_20d_average": false,
-        "five_day_change_pct": -5.17
+        "five_day_change_pct": -5.31
       },
       "SPY": {
         "above_20d_average": false,
-        "five_day_change_pct": -4.55
+        "five_day_change_pct": -4.66
       }
     },
     "note": "Benchmark context is a caution/confirmation input, not a standalone buy or sell signal.",
     "regime": "RISK-OFF",
     "score_adjustment": -8
   },
-  "timestamp": "2026-11-19T17:47:42.654506+00:00"
+  "timestamp": "2026-11-19T18:04:37.271956+00:00"
 }
