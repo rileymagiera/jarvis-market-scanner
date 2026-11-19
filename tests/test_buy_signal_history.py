@@ -124,6 +124,8 @@ def test_history_learning_excludes_non_live_stock_outcomes():
             "asset_type": "stock",
             "price_validation_status": "verified",
             "data_quality": {"data_type": "eod"},
+            "early_runner_snapshot_at": "2026-10-01T14:30:00+00:00",
+            "session_aware_tracking": True,
             "early_runner_initial_feature_snapshot": {"catalyst_labels": ["FDA approval"]},
             "early_runner_outcomes": {"5d": {"return_pct": 30.0}},
         }
@@ -148,6 +150,8 @@ def test_history_learning_requires_eight_verified_five_day_stock_outcomes():
             "asset_type": "stock",
             "price_validation_status": "verified",
             "data_quality": {"data_type": "live"},
+            "early_runner_snapshot_at": "2026-10-01T14:30:00+00:00",
+            "session_aware_tracking": True,
             "early_runner_initial_feature_snapshot": {"catalyst_labels": ["FDA approval"]},
             "early_runner_outcomes": {"5d": {"return_pct": 25.0}},
         }
@@ -156,6 +160,8 @@ def test_history_learning_requires_eight_verified_five_day_stock_outcomes():
             "asset_type": "stock",
             "price_validation_status": "verified",
             "data_quality": {"data_type": "live"},
+            "early_runner_snapshot_at": "2026-10-01T14:30:00+00:00",
+            "session_aware_tracking": True,
             "early_runner_initial_feature_snapshot": {"catalyst_labels": []},
             "early_runner_outcomes": {"5d": {"return_pct": 0.0}},
         }
