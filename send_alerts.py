@@ -672,6 +672,11 @@ def update_paper_tracker(candidates, now):
             # Persist the full research feature snapshot for verified/normal records too.
         research_fields = (
             "relative_strength_vs_spy", "relative_strength_vs_iwm", "rs_rank",
+            "universe_rs_rank", "universe_rs_percentile",
+            "relative_strength_vs_universe_median_pct", "universe_rs_sample_size",
+            "universe_rs_rank_change_5d", "market_breadth", "above_20d_average", "breakout_20d",
+            "weekly_confirmation", "weekly_confirmation_status", "weekly_breakout_confluence",
+            "breakout_level_class", "breakout_level_reference_price", "breakout_level_lookback_sessions",
             "intraday_rvol_same_time", "same_time_relative_volume",
             "anchored_vwap", "anchored_vwap_status", "opening_range_high", "opening_range_low",
             "opening_range_status", "adx", "plus_di", "minus_di", "adx_dmi_status",
@@ -685,10 +690,11 @@ def update_paper_tracker(candidates, now):
             "catalyst_labels", "catalyst_dilution_status", "dilution_flags",
             "catalyst_headline_count", "early_runner_research_score", "early_runner_score_components",
             "crqs", "crqs_tier", "crqs_components", "crqs_data_coverage", "crqs_entry_score", "crqs_entry_penalty", "crqs_features", "crqs_relative_strength_vs_btc_24h_pct", "crqs_sector_activity", "crqs_sector_rank", "crqs_sector_count", "crypto_sector", "buy_readiness",
-                "data_quality", "daily_data_quality", "intraday_data_quality", "hourly_data_quality",
+            "data_quality", "daily_data_quality", "intraday_data_quality", "hourly_data_quality",
         )
         for field in research_fields:
             record[field] = item.get(field)
+        update_universe_rs_rank_history(record, item, now)
         record["research_feature_snapshot"] = {field: item.get(field) for field in research_fields}
         record["research_signal_matches"] = item.get("research_signal_matches") or []
         record["buy_readiness"] = item.get("buy_readiness") or {}
