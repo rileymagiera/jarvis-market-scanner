@@ -76,6 +76,10 @@ jobs:
           ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
           ALPACA_API_SECRET: ${{ secrets.ALPACA_API_SECRET }}
           ALPACA_STOCK_DATA_FEED: ${{ vars.ALPACA_STOCK_DATA_FEED || 'iex' }}
+          WEBULL_APP_KEY: ${{ secrets.WEBULL_APP_KEY }}
+          WEBULL_APP_SECRET: ${{ secrets.WEBULL_APP_SECRET }}
+          WEBULL_SHADOW_MODE: 'true'
+          WEBULL_SHADOW_MAX_SYMBOLS_PER_SCAN: '30'
           SEND_TEST_EMAIL: ${{ inputs.send_test_email }}
         run: |
           test -n "$JARVIS_GMAIL_USER" || (echo "Missing JARVIS_GMAIL_USER" && exit 1)
@@ -85,6 +89,11 @@ jobs:
             echo "Alpaca credentials are configured for the local scanner."
           else
             echo "Alpaca credentials are missing; scan will report Alpaca as not configured."
+          fi
+          if [ -n "$WEBULL_APP_KEY" ] && [ -n "$WEBULL_APP_SECRET" ]; then
+            echo "Webull credentials are configured; read-only shadow sampling is enabled."
+          else
+            echo "Webull credentials are missing; shadow sampling will remain idle until GitHub Actions secrets are added."
           fi
           python -m py_compile main.py send_alerts.py early_runner.py paper_trading.py
           python -m pytest -q tests
@@ -332,10 +341,14 @@ jobs:
       - name: Save alert deduplication state
         if: ${{ always() && inputs.send_test_email != true }}
         run: |
+          # Ensure the shadow-history state path exists even if the scan failed early.
+          if [ ! -f webull_yahoo_comparison.json ]; then
+            printf '{"schema_version":1,"summary":{},"recent_records":[],"records":[]}\\n' > webull_yahoo_comparison.json
+          fi
           # Force-add the machine-owned state files before checking for changes.
           # This also prevents an ignored/untracked local state file from blocking
           # a later rebase with "would be overwritten" errors.
-          git add -f alert_state.json paper_tracker.json paper_tracker_lifetime.json buy_signal_history.json paper_trading_state.json scan_diagnostics.json scan_metadata.json provider_usage_history.json
+          git add -f alert_state.json paper_tracker.json paper_tracker_lifetime.json buy_signal_history.json paper_trading_state.json scan_diagnostics.json scan_metadata.json provider_usage_history.json webull_yahoo_comparison.json
           if git diff --cached --quiet; then
             echo "No Jarvis state changes to persist."
             exit 0
@@ -369,7 +382,7 @@ jobs:
 
             while IFS= read -r path; do
               case "$path" in
-                alert_state.json|paper_tracker.json|paper_tracker_lifetime.json|buy_signal_history.json|paper_trading_state.json|scan_diagnostics.json|scan_metadata.json|provider_usage_history.json)
+                alert_state.json|paper_tracker.json|paper_tracker_lifetime.json|buy_signal_history.json|paper_trading_state.json|scan_diagnostics.json|scan_metadata.json|provider_usage_history.json|webull_yahoo_comparison.json)
                   echo "Resolving generated state conflict with this run's completed scan: $path"
                   git checkout --theirs -- "$path"
                   git add -f "$path"

@@ -86,3 +86,39 @@ def test_data_health_page_and_api_are_read_only_and_descriptive(monkeypatch):
     assert data["field_coverage"]["stocks"]["catalyst_headline_count"] == 1
     assert data["field_coverage"]["crypto"]["catalyst_headline_count"] == 1
     assert data["scan_errors"] == 0
+
+
+
+def test_webull_yahoo_shadow_comparison_is_observational_only():
+    webull = {"price": 100.0, "as_of": "2026-11-19T15:00:00+00:00", "age_minutes": 1.0}
+    comparison = main.compare_webull_yahoo_prices(webull, 100.5, "2026-11-19T15:00:30+00:00", 1.5)
+    assert comparison["status"] == "comparable"
+    assert comparison["difference_pct"] == 0.4988
+    assert comparison["timestamp_difference_seconds"] == 30.0
+    stale = main.compare_webull_yahoo_prices(webull, 100.5, "2026-11-19T14:00:00+00:00", 60)
+    assert stale["status"] == "yahoo_unavailable_or_stale"
+    assert stale["difference_pct"] is None
+
+
+def test_webull_shadow_sample_rotates_without_changing_universe():
+    symbols = [f"SYM{i}" for i in range(65)]
+    first = main.select_webull_shadow_symbols(symbols, run_number=1, sample_size=30)
+    second = main.select_webull_shadow_symbols(symbols, run_number=2, sample_size=30)
+    assert len(first) == len(second) == 30
+    assert set(first).isdisjoint(set(second))
+    assert set(first + second).issubset(set(symbols))
+
+
+def test_webull_yahoo_history_persists_comparison_records(tmp_path):
+    path = tmp_path / "comparison.json"
+    records = [
+        {"symbol": "AAA", "status": "comparable", "difference_pct": 0.25},
+        {"symbol": "BBB", "status": "yahoo_unavailable_or_stale", "difference_pct": None},
+    ]
+    result = main.persist_webull_yahoo_history(records, "2026-11-19T15:00:00+00:00", run_id="test-run", path=path)
+    assert result["summary"]["record_count"] == 2
+    assert result["summary"]["comparable_count"] == 1
+    assert result["summary"]["mean_difference_pct"] == 0.25
+    saved = __import__("json").loads(path.read_text())
+    assert len(saved["records"]) == 2
+    assert saved["records"][0]["run_id"] == "test-run"
