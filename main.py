@@ -283,7 +283,7 @@ def discover_crypto_symbols(limit: int = 150) -> list[str]:
         if not ticker:
             continue
         quote_currency = KRAKEN_PAIR_QUOTE_MAP.get(base, "USD")
-    price = safe_float((ticker.get("c") or [0])[0])
+        price = safe_float((ticker.get("c") or [0])[0])
         volume = safe_float((ticker.get("v") or [0, 0])[1])
         vwap = safe_float((ticker.get("p") or [0, 0])[1])
         quote_volume = volume * vwap
