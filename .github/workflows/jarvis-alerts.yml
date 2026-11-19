@@ -180,6 +180,120 @@ jobs:
               raise SystemExit(1)
           print("Scan audit verified and recorded.")
           PY
+      - name: Record rolling provider usage history
+        if: ${{ steps.jarvis.outcome == 'success' && inputs.send_test_email != true }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from datetime import datetime, timedelta, timezone
+          from pathlib import Path
+
+          diagnostics = json.loads(Path("scan_diagnostics.json").read_text(encoding="utf-8"))
+          details = diagnostics.get("diagnostics") or {}
+          timing = details.get("timing_breakdown") or {}
+          activity = timing.get("provider_activity") or {}
+          now = datetime.now(timezone.utc)
+          run_id = str(os.environ.get("GITHUB_RUN_ID") or "")
+          timestamp = diagnostics.get("timestamp") or now.isoformat()
+          providers = {}
+          for name, item in (activity.get("providers") or {}).items():
+              if not isinstance(item, dict):
+                  continue
+              providers[name] = {
+                  "calls": int(item.get("calls") or 0),
+                  "failures": int(item.get("failures") or 0),
+                  "total_seconds": round(float(item.get("total_seconds") or 0), 3),
+              }
+          record = {
+              "timestamp": timestamp,
+              "run_id": run_id,
+              "scan_duration_seconds": round(float(timing.get("total_seconds") or details.get("scan_duration_seconds") or 0), 2),
+              "http_status_counts": activity.get("provider_http_status_counts") or {},
+              "http_429": int(activity.get("provider_http_429_count") or 0),
+              "http_5xx": int(activity.get("provider_http_5xx_count") or 0),
+              "instrumentation_calls_by_operation": providers,
+          }
+          path = Path("provider_usage_history.json")
+          try:
+              history = json.loads(path.read_text(encoding="utf-8"))
+          except (OSError, json.JSONDecodeError):
+              history = {"schema_version": 1, "records": []}
+          records = [r for r in history.get("records", []) if isinstance(r, dict)]
+          if run_id and any(str(r.get("run_id")) == run_id for r in records):
+              records = [r for r in records if str(r.get("run_id")) != run_id]
+          cutoff = now - timedelta(days=90)
+          retained = []
+          for item in records + [record]:
+              try:
+                  item_time = datetime.fromisoformat(str(item.get("timestamp")).replace("Z", "+00:00"))
+                  if item_time.tzinfo is None:
+                      item_time = item_time.replace(tzinfo=timezone.utc)
+              except (TypeError, ValueError):
+                  continue
+              if item_time >= cutoff:
+                  retained.append(item)
+          retained = retained[-1000:]
+
+          def summarize(items):
+              result = {
+                  "scan_count": len(items),
+                  "http_429": 0,
+                  "http_5xx": 0,
+                  "http_status_counts": {},
+                  "instrumentation_calls_by_operation": {},
+                  "scan_duration_seconds_total": 0.0,
+              }
+              for item in items:
+                  result["http_429"] += int(item.get("http_429") or 0)
+                  result["http_5xx"] += int(item.get("http_5xx") or 0)
+                  result["scan_duration_seconds_total"] += float(item.get("scan_duration_seconds") or 0)
+                  for key, value in (item.get("http_status_counts") or {}).items():
+                      result["http_status_counts"][key] = result["http_status_counts"].get(key, 0) + int(value or 0)
+                  for key, stats in (item.get("instrumentation_calls_by_operation") or {}).items():
+                      target = result["instrumentation_calls_by_operation"].setdefault(key, {"calls": 0, "failures": 0, "total_seconds": 0.0})
+                      target["calls"] += int(stats.get("calls") or 0)
+                      target["failures"] += int(stats.get("failures") or 0)
+                      target["total_seconds"] += float(stats.get("total_seconds") or 0)
+              result["scan_duration_seconds_total"] = round(result["scan_duration_seconds_total"], 2)
+              for stats in result["instrumentation_calls_by_operation"].values():
+                  stats["total_seconds"] = round(stats["total_seconds"], 2)
+              return result
+
+          day_ago = now - timedelta(days=1)
+          week_ago = now - timedelta(days=7)
+          def in_window(item, start):
+              try:
+                  value = datetime.fromisoformat(str(item.get("timestamp")).replace("Z", "+00:00"))
+                  if value.tzinfo is None:
+                      value = value.replace(tzinfo=timezone.utc)
+                  return value >= start
+              except (TypeError, ValueError):
+                  return False
+
+          history = {
+              "schema_version": 1,
+              "updated_at": now.isoformat(),
+              "retention_days": 90,
+              "records": retained,
+              "summary": {
+                  "last_24_hours": summarize([r for r in retained if in_window(r, day_ago)]),
+                  "last_7_days": summarize([r for r in retained if in_window(r, week_ago)]),
+              },
+              "measurement_note": "HTTP status counts reflect instrumented HTTP responses. Operation call counts are function-level telemetry where available; they are not guaranteed billing or quota request totals.",
+          }
+          path.write_text(json.dumps(history, indent=2) + "\n", encoding="utf-8")
+          summary = Path(os.environ["GITHUB_STEP_SUMMARY"])
+          week = history["summary"]["last_7_days"]
+          summary.write_text(
+              "\n## Rolling Provider Usage (7 days)\n"
+              f"- Scans recorded: **{week['scan_count']}**\n"
+              f"- Instrumented HTTP 429 / 5xx: **{week['http_429']} / {week['http_5xx']}**\n"
+              f"- Instrumented HTTP status counts: `{json.dumps(week['http_status_counts'], sort_keys=True)}`\n"
+              "- Function-level operation counts are telemetry, not guaranteed billing totals.\n",
+              encoding="utf-8", append=True
+          )
+          print(f"Recorded provider usage for run {run_id}; retained {len(retained)} scans.")
+          PY
       - name: Finalize scan attempt status
         if: ${{ always() && inputs.send_test_email != true }}
         env:
@@ -213,7 +327,7 @@ jobs:
           # Force-add the machine-owned state files before checking for changes.
           # This also prevents an ignored/untracked local state file from blocking
           # a later rebase with "would be overwritten" errors.
-          git add -f alert_state.json paper_tracker.json paper_tracker_lifetime.json buy_signal_history.json paper_trading_state.json scan_diagnostics.json scan_metadata.json
+          git add -f alert_state.json paper_tracker.json paper_tracker_lifetime.json buy_signal_history.json paper_trading_state.json scan_diagnostics.json scan_metadata.json provider_usage_history.json
           if git diff --cached --quiet; then
             echo "No Jarvis state changes to persist."
             exit 0
