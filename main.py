@@ -2596,7 +2596,7 @@ document.getElementById('opportunities').innerHTML=candidates.length?candidates.
  const discoveryTime=discoveryCaptured?new Date(discoveryCaptured).toLocaleString():'Not recorded';
  const discoveryAsOf=discoveryPriceAsOf?new Date(discoveryPriceAsOf).toLocaleString():null;
  const lv=x.levels||{}, verified=x.price_validation_status==='verified';
- const activeSignal=activeBuys.find(s=>s.asset_type===x.asset_type&&String(s.symbol||'').toUpperCase()===String(x.symbol||'').toUpperCase());
+ const activeSignal=((d.paper_trading&&Array.isArray(d.paper_trading.positions))?d.paper_trading.positions:[]).find(p=>p.asset_type===x.asset_type&&String(p.symbol||'').toUpperCase()===String(x.symbol||'').toUpperCase());
  const earlySignals=(x.stage_signals&&x.stage_signals.early)||[],lateSignals=(x.stage_signals&&x.stage_signals.late)||[];
  const riskFlags=x.risk_flags||[],components=x.score_components||{},levels=x.levels||{};
  const clamp=(v,max)=>Math.max(0,Math.min(1,(Number(v)||0)/max));
