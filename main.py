@@ -2585,7 +2585,7 @@ document.getElementById('stats').innerHTML=[['Tracked candidates',all.length],['
 document.getElementById('assets').innerHTML=['stock','crypto'].map(k=>{const a=trackedReturns.filter(x=>x.asset_type===k),m=a.length?a.reduce((s,x)=>s+n(x.discovery_return_pct),0)/a.length:null;return '<button type="button" class="panel asset-jump" data-asset="'+k+'" aria-label="Show '+(k==='stock'?'stock':'crypto')+' candidates"><div class="muted">'+(k==='stock'?'Stocks':'Crypto')+'</div><div class="value">'+a.length+' performance tracked</div><div class="'+cl(m)+'">Average return '+(m===null?'—':pct(m))+'</div><div class="tiny">'+a.filter(x=>n(x.discovery_return_pct)>0).length+' positive · '+a.filter(x=>x.last_stage==='ACTIONABLE SETUP').length+' actionable grade</div><div class="tiny" style="margin-top:8px;color:var(--accent)">View '+(k==='stock'?'stock':'crypto')+' list →</div></button>'}).join('');
 document.getElementById('buy-history').innerHTML=[...buySignals].sort((a,b)=>new Date(b.at)-new Date(a.at)).map(x=>'<tr><td>'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'<div class="tiny">'+e(x.status||'')+'</div></td><td>'+date(x.at)+'</td><td>'+e(x.entry_price)+'</td><td class="'+cl(x.latest_return_pct)+'">'+(x.latest_return_pct==null?'—':pct(x.latest_return_pct))+'</td>'+['1h','4h','1d','3d','7d'].map(h=>'<td class="'+cl(x.outcomes&&x.outcomes[h]&&x.outcomes[h].return_pct)+'">'+(x.outcomes&&x.outcomes[h]?pct(x.outcomes[h].return_pct):'—')+'</td>').join('')+'<td>'+e(x.score)+'/100</td></tr>').join('')||'<tr><td colspan="10" class="empty">No BUY recommendations have been recorded yet.</td></tr>';
 const byReturn=[...trackedReturns].sort((a,b)=>n(b.discovery_return_pct)-n(a.discovery_return_pct));document.getElementById('leaders').innerHTML=byReturn.slice(0,10).map((x,i)=>'<tr><td>'+(i+1)+'</td><td>'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'</td><td>'+n(x.discovery_initial_price??x.initial_price).toPrecision(7)+'</td><td>'+n(x.latest_price).toPrecision(7)+'</td><td class="'+cl(x.discovery_return_pct)+'">'+pct(x.discovery_return_pct)+'</td><td class="pos">'+pct(x.discovery_max_gain_pct??x.max_gain_pct)+'</td><td class="neg">'+pct(x.discovery_max_drawdown_pct??x.max_drawdown_pct)+'</td></tr>').join('')||'<tr><td colspan="7" class="empty">No tracked candidates yet.</td></tr>';
-function rows(){const q=document.getElementById('q').value.toUpperCase(),a=document.getElementById('assetFilter').value,g=document.getElementById('gradeFilter').value;const v=all.filter(x=>(a==='all'||x.asset_type===a)&&(g==='all'||x.last_stage===g)&&(!q||String(x.symbol).toUpperCase().includes(q)));v.sort((x,y)=>(rank[y.last_stage]||0)-(rank[x.last_stage]||0)||(y.last_seen||'').localeCompare(x.last_seen||''));document.getElementById('rows').innerHTML=v.map(x=>'<tr><td>'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'</td><td>'+date(x.first_seen)+'</td><td>'+n(x.discovery_initial_price??x.initial_price).toPrecision(7)+'</td><td><span class="pill">'+e(x.last_stage||'—')+'</span></td><td>'+e(x.price_source||'Legacy record — source not recorded')+'<div class="tiny">'+e(x.price_freshness||'Freshness unknown')+(x.price_validation_status==='unverified'?' · PRICE UNVERIFIED — excluded from returns':'')+'</div></td><td>'+date(x.price_as_of||x.last_seen)+'</td><td class="'+cl(x.session_change_pct)+'">'+(x.price_validation_status==='unverified'||x.session_change_pct==null?'—':pct(x.session_change_pct))+'</td><td class="'+cl(x.discovery_return_pct)+'">'+(hasPct(x.discovery_return_pct)?pct(x.discovery_return_pct):(x.discovery_baseline_status==='first_verified_fallback'?'FIRST VERIFIED BASELINE':(x.price_validation_status==='unverified'?'AWAITING RELIABLE PRICE':'—')))+'</td><td class="pos">'+(x.price_validation_status==='unverified'||!hasPct(x.discovery_max_gain_pct??x.max_gain_pct)?'—':pct(x.discovery_max_gain_pct??x.max_gain_pct))+'</td><td class="neg">'+(x.price_validation_status==='unverified'||!hasPct(x.discovery_max_drawdown_pct??x.max_drawdown_pct)?'—':pct(x.discovery_max_drawdown_pct??x.max_drawdown_pct))+'</td><td>'+n(x.age_days).toFixed(1)+'d</td></tr>').join('')||'<tr><td colspan="11" class="empty">No matches.</td></tr>'}
+function rows(){const q=document.getElementById('q').value.toUpperCase(),a=document.getElementById('assetFilter').value,g=document.getElementById('gradeFilter').value;const v=all.filter(x=>(a==='all'||x.asset_type===a)&&(g==='all'||x.last_stage===g)&&(!q||String(x.symbol).toUpperCase().includes(q)));v.sort((x,y)=>(rank[y.last_stage]||0)-(rank[x.last_stage]||0)||(y.last_seen||'').localeCompare(x.last_seen||''));document.getElementById('rows').innerHTML=v.map(x=>'<tr><td>'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'</td><td>'+date(x.first_seen)+'</td><td>'+n(x.discovery_initial_price??x.initial_price).toPrecision(7)+'</td><td><span class="pill">'+e(x.last_stage||'—')+'</span></td><td>'+e(x.price_source||'Legacy record — source not recorded')+'<div class="tiny">'+e(x.price_freshness||'Freshness unknown')+(x.price_validation_status==='unverified'?' · PRICE UNVERIFIED — excluded from returns':'')+'</div></td><td>'+date(x.price_as_of||x.last_seen)+'</td><td class="'+cl(x.session_change_pct)+'">'+(x.price_validation_status==='unverified'||x.session_change_pct==null?'—':pct(x.session_change_pct))+'</td><td class="'+cl(x.discovery_return_pct)+'">'+(hasPct(x.discovery_return_pct)?pct(x.discovery_return_pct):(['first_verified_fallback','first_reliable_fallback'].includes(x.discovery_baseline_status)?'DELAYED RELIABLE BASELINE':(x.price_validation_status==='unverified'?'AWAITING RELIABLE PRICE':'—')))+'</td><td class="pos">'+(x.price_validation_status==='unverified'||!hasPct(x.discovery_max_gain_pct??x.max_gain_pct)?'—':pct(x.discovery_max_gain_pct??x.max_gain_pct))+'</td><td class="neg">'+(x.price_validation_status==='unverified'||!hasPct(x.discovery_max_drawdown_pct??x.max_drawdown_pct)?'—':pct(x.discovery_max_drawdown_pct??x.max_drawdown_pct))+'</td><td>'+n(x.age_days).toFixed(1)+'d</td></tr>').join('')||'<tr><td colspan="11" class="empty">No matches.</td></tr>'}
 ['q','assetFilter','gradeFilter'].forEach(id=>document.getElementById(id).addEventListener(id==='q'?'input':'change',rows));document.querySelectorAll('.asset-jump').forEach(card=>card.addEventListener('click',()=>{document.getElementById('assetFilter').value=card.dataset.asset;document.getElementById('gradeFilter').value='all';document.getElementById('q').value='';rows();document.getElementById('candidate-ledger').scrollIntoView({behavior:'smooth',block:'start'});}));rows();
 document.getElementById('thresholds').innerHTML=thresholds.map(x=>'<div style="display:flex;justify-content:space-between;padding:7px;border-bottom:1px solid #2b3b4d"><span>'+e(x[0])+'</span><b>'+x[1]+'</b></div>').join('');
 const cps=l.checkpoints||{};document.getElementById('checks').innerHTML=Object.entries(cps).sort((a,b)=>n(a[0])-n(b[0])).map(([h,x])=>'<tr><td>'+e(h)+'</td><td>'+n(x.observations)+'</td><td>'+n(x.wins)+'</td><td>'+n(x.losses)+'</td><td>'+pct(x.observations?n(x.total_return_pct)/n(x.observations):0)+'</td></tr>').join('')||'<tr><td colspan="5">Checkpoints populate as records mature.</td></tr>';
@@ -2619,6 +2619,79 @@ def history_data():
             "paper_tracker": paper, "lifetime": lifetime, "buy_signals": buys, "history_source": "local_fallback"}
 
 
+def apply_discovery_baseline_guard(payload: dict) -> dict:
+    """Preserve discovery baselines across syncs and capture only reliable timestamped fallbacks.
+
+    The original first_seen timestamp is never rewritten. A fallback baseline is explicitly
+    marked as delayed so it is not confused with the original discovery-time quote.
+    """
+    paper = payload.get("paper_tracker")
+    if not isinstance(paper, dict):
+        return payload
+
+    previous = {}
+    try:
+        snapshot = json.loads(HISTORY_SNAPSHOT.read_text(encoding="utf-8"))
+        if isinstance(snapshot.get("paper_tracker"), dict):
+            previous = snapshot["paper_tracker"]
+    except (OSError, json.JSONDecodeError):
+        previous = {}
+
+    baseline_fields = (
+        "discovery_initial_price",
+        "discovery_price_as_of",
+        "discovery_baseline_status",
+        "discovery_baseline_captured_at",
+        "discovery_baseline_source",
+        "discovery_return_pct",
+        "discovery_max_gain_pct",
+        "discovery_max_drawdown_pct",
+    )
+    captured_at = now_iso()
+    for key, record in paper.items():
+        if not isinstance(record, dict):
+            continue
+
+        # A previously established baseline wins over a later/missing upstream value.
+        old = previous.get(key) if isinstance(previous, dict) else None
+        if isinstance(old, dict):
+            old_price = safe_float(old.get("discovery_initial_price"), 0.0)
+            current_price = safe_float(record.get("discovery_initial_price"), 0.0)
+            if old_price > 0 and current_price <= 0:
+                for field in baseline_fields:
+                    if field in old:
+                        record[field] = old[field]
+
+        baseline = safe_float(record.get("discovery_initial_price"), 0.0)
+        if baseline > 0:
+            continue
+
+        # Never establish a baseline from an unverified quote or an untimestamped value.
+        status = str(record.get("price_validation_status") or "").strip().lower()
+        if status not in ("verified", "last_known"):
+            continue
+        price = safe_float(record.get("latest_price"), 0.0)
+        as_of = record.get("price_as_of")
+        if price <= 0 or not as_of:
+            continue
+        try:
+            stamp = datetime.fromisoformat(str(as_of).replace("Z", "+00:00"))
+            if stamp.tzinfo is None:
+                continue
+            if stamp > datetime.now(timezone.utc) + timedelta(minutes=5):
+                continue
+        except (TypeError, ValueError):
+            continue
+
+        record["discovery_initial_price"] = price
+        record["discovery_price_as_of"] = str(as_of)
+        record["discovery_baseline_status"] = "first_reliable_fallback"
+        record["discovery_baseline_captured_at"] = captured_at
+        record["discovery_baseline_source"] = record.get("price_source")
+        record["discovery_return_pct"] = 0.0
+    return payload
+
+
 @app.post("/history/sync")
 def history_sync(payload: dict, x_jarvis_history_token: Optional[str] = Header(None)):
     expected=os.getenv("JARVIS_HISTORY_SYNC_TOKEN","")
@@ -2626,6 +2699,7 @@ def history_sync(payload: dict, x_jarvis_history_token: Optional[str] = Header(N
         raise HTTPException(status_code=401,detail="Unauthorized")
     if not isinstance(payload.get("paper_tracker"),dict) or not isinstance(payload.get("lifetime"),dict):
         raise HTTPException(status_code=400,detail="Invalid history payload")
+    payload = apply_discovery_baseline_guard(payload)
     HISTORY_SNAPSHOT.write_text(json.dumps(payload,separators=(",",":")),encoding="utf-8")
     with GITHUB_HISTORY_CACHE_LOCK:
         GITHUB_HISTORY_CACHE["data"]=None; GITHUB_HISTORY_CACHE["at"]=0.0
