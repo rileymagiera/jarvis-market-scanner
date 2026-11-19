@@ -4,9 +4,9 @@
       "checkpoints": {
         "1": {
           "flat": 2,
-          "losses": 22,
-          "observations": 42,
-          "total_return_pct": 3.4,
+          "losses": 24,
+          "observations": 44,
+          "total_return_pct": 3.0,
           "wins": 18
         }
       },
@@ -19,14 +19,14 @@
   "checkpoints": {
     "1": {
       "flat": 2,
-      "losses": 22,
-      "observations": 42,
-      "total_return_pct": 3.4,
+      "losses": 24,
+      "observations": 44,
+      "total_return_pct": 3.0,
       "wins": 18
     }
   },
   "integrity": {
-    "checked_at": "2026-11-19T06:34:05.403489+00:00",
+    "checked_at": "2026-11-19T07:04:28.724933+00:00",
     "retained_stock_baselines": 296,
     "retained_stock_counted_baselines": 296,
     "retained_stock_uncounted_baselines": 0,
