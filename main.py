@@ -818,81 +818,130 @@ def market_conditions() -> dict:
 
 
 def build_buy_intelligence(item: dict) -> dict:
-    """Shadow-only evidence model inspired by public breakout research.
-
-    It does not change production scores or BUY gates. Historical confidence is
-    withheld until enough comparable, completed, verified outcomes are available.
-    """
+    """Coverage-aware shadow evidence model; never changes production BUY scoring."""
     def number(key):
         try:
             value = float(item.get(key))
             return value if np.isfinite(value) else None
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, OverflowError):
             return None
 
+    def scaled_component(points, available_points, cap):
+        if available_points <= 0:
+            return None
+        return round(min(cap, max(0.0, points / available_points * cap)), 1)
+
     tech = item.get("technical_analysis") or {}
-    formation = 0
-    if tech.get("bollinger_squeeze"): formation += 8
-    if number("base_tightness_pct") is not None and number("base_tightness_pct") <= 8: formation += 7
-    if number("atr_contraction_pct") is not None and number("atr_contraction_pct") >= 10: formation += 5
-    if item.get("higher_highs_higher_lows"): formation += 5
-    if item.get("breakout_20d") or item.get("breakout_24h") or item.get("intraday_breakout"): formation += 5
+    formation_points = formation_available = 0
+    if tech.get("bollinger_squeeze") is not None:
+        formation_available += 8
+        if tech.get("bollinger_squeeze"): formation_points += 8
+    base = number("base_tightness_pct")
+    if base is not None:
+        formation_available += 7
+        if base <= 8: formation_points += 7
+    contraction = number("atr_contraction_pct")
+    if contraction is not None:
+        formation_available += 5
+        if contraction >= 10: formation_points += 5
+    if item.get("higher_highs_higher_lows") is not None:
+        formation_available += 5
+        if item.get("higher_highs_higher_lows"): formation_points += 5
+    breakout_keys = ("breakout_20d", "breakout_24h", "intraday_breakout")
+    if any(key in item and item.get(key) is not None for key in breakout_keys):
+        formation_available += 5
+        if any(item.get(key) for key in breakout_keys): formation_points += 5
+    formation = scaled_component(formation_points, formation_available, 25)
 
-    momentum = 0
-    if number("relative_strength_vs_spy") is not None and number("relative_strength_vs_spy") > 0: momentum += 8
-    if number("relative_strength_vs_iwm") is not None and number("relative_strength_vs_iwm") > 0: momentum += 5
-    if number("five_day_change_pct") is not None and number("five_day_change_pct") > 0: momentum += 4
-    if number("hourly_change_pct") is not None and number("hourly_change_pct") > 0: momentum += 3
-    if item.get("above_session_vwap") or item.get("above_24h_average"): momentum += 5
+    momentum_points = momentum_available = 0
+    for key, weight in (("relative_strength_vs_spy", 8), ("relative_strength_vs_iwm", 5),
+                        ("five_day_change_pct", 4), ("hourly_change_pct", 3)):
+        value = number(key)
+        if value is not None:
+            momentum_available += weight
+            if value > 0: momentum_points += weight
+    if item.get("above_session_vwap") is not None or item.get("above_24h_average") is not None:
+        momentum_available += 5
+        if item.get("above_session_vwap") or item.get("above_24h_average"):
+            momentum_points += 5
+    momentum = scaled_component(momentum_points, momentum_available, 25)
 
-    activity = 0
+    activity_points = activity_available = 0
     for key, threshold, points in (
         ("relative_volume", 1.5, 5), ("intraday_relative_volume", 1.5, 5),
         ("cumulative_rvol_same_time", 1.5, 5), ("volume_acceleration_3bar", 1.8, 3),
-        ("premarket_rvol_same_time", 1.5, 2),
+        ("premarket_rvol_same_time", 1.5, 2), ("float_rotation_pct", 20, 5),
     ):
         value = number(key)
-        if value is not None and value >= threshold: activity += points
-    rotation = number("float_rotation_pct")
-    if rotation is not None and rotation >= 20: activity += 5
+        if value is not None:
+            activity_available += points
+            if value >= threshold: activity_points += points
+    activity = scaled_component(activity_points, activity_available, 20)
 
-    catalysts = item.get("catalyst_labels") or []
+    catalysts = item.get("catalyst_labels")
+    dilution = item.get("dilution_flags")
+    news_available = isinstance(item.get("news"), list)
+    catalyst_available = catalysts is not None or dilution is not None or news_available
+    if catalysts is None: catalysts = []
     if not isinstance(catalysts, list): catalysts = [str(catalysts)]
-    dilution = item.get("dilution_flags") or []
+    if dilution is None: dilution = []
     if not isinstance(dilution, list): dilution = [str(dilution)]
-    catalyst_score = max(0, min(15, len(catalysts) * 5 - (10 if dilution else 0)))
+    catalyst_score = (max(0, min(15, len(catalysts) * 5 - (10 if dilution else 0)))
+                      if catalyst_available else None)
 
     historical = item.get("historical_setup_evidence") or {}
-    observations = int(historical.get("observations") or 0) if isinstance(historical, dict) else 0
+    observations = 0
     historical_score = None
-    if isinstance(historical, dict) and observations >= 30:
-        runner_rate = historical.get("runner_rate_pct")
+    if isinstance(historical, dict):
+        try:
+            observations = max(0, int(historical.get("observations") or 0))
+        except (TypeError, ValueError, OverflowError):
+            observations = 0
+        runner_rate = number_from = historical.get("runner_rate_pct")
         avg_return = historical.get("average_5d_return_pct")
-        if runner_rate is not None and avg_return is not None:
-            historical_score = max(0, min(15, round(float(runner_rate) * 0.10 + max(-5, min(10, float(avg_return))) * 0.5)))
+        try:
+            runner_rate = float(runner_rate) if runner_rate is not None else None
+            avg_return = float(avg_return) if avg_return is not None else None
+            if (observations >= 30 and runner_rate is not None and avg_return is not None
+                    and np.isfinite(runner_rate) and np.isfinite(avg_return)):
+                historical_score = max(0, min(15, round(
+                    runner_rate * 0.10 + max(-5, min(10, avg_return)) * 0.5
+                )))
+        except (TypeError, ValueError, OverflowError):
+            historical_score = None
 
     components = {
-        "early_formation": min(25, formation),
-        "momentum_confirmation": min(25, momentum),
-        "unusual_activity": min(20, activity),
+        "early_formation": formation,
+        "momentum_confirmation": momentum,
+        "unusual_activity": activity,
         "catalyst_quality": catalyst_score,
         "historical_edge": historical_score,
     }
+    weights = {"early_formation": 25, "momentum_confirmation": 25,
+               "unusual_activity": 20, "catalyst_quality": 15, "historical_edge": 15}
     available = sum(value for value in components.values() if value is not None)
-    max_available = sum({"early_formation":25,"momentum_confirmation":25,"unusual_activity":20,"catalyst_quality":15,"historical_edge":15}[key] for key,value in components.items() if value is not None)
+    max_available = sum(weights[key] for key, value in components.items() if value is not None)
+    coverage = {
+        "early_formation": {"available": formation_available, "possible": 30},
+        "momentum_confirmation": {"available": momentum_available, "possible": 25},
+        "unusual_activity": {"available": activity_available, "possible": 25},
+        "catalyst_quality": {"available": 1 if catalyst_available else 0, "possible": 1},
+        "historical_edge": {"available": 1 if historical_score is not None else 0, "possible": 1},
+    }
     return {
-        "version": "shadow_v1",
+        "version": "shadow_v2",
         "status": "SHADOW ONLY — historical validation pending" if historical_score is None else "SHADOW ONLY — historical cohort available",
         "score": round(available / max_available * 100) if max_available else None,
         "weighted_points": round(available, 1),
         "maximum_available_points": max_available,
         "components": components,
+        "component_coverage": coverage,
         "historical_observations": observations,
         "historical_confidence": "insufficient" if observations < 30 else "provisional",
         "required_historical_observations": 30,
         "affects_production_buy_score": False,
         "can_execute_trades": False,
-        "note": "Research-derived ranking aid, not a probability. Historical edge is withheld until at least 30 comparable completed verified 5-day outcomes exist.",
+        "note": "Coverage-aware research ranking aid, not a probability. Missing inputs are excluded rather than scored as failures. Historical edge requires at least 30 comparable completed verified 5-day outcomes.",
     }
 
 
