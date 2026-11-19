@@ -25,6 +25,60 @@ def _num(value: Any, default=None):
         return default
 
 
+def compute_stock_market_breadth(items):
+    """Summarize the scanned stock cohort only; never imply full-exchange breadth."""
+    stocks = [x for x in (items or []) if isinstance(x, dict) and x.get("asset_type") == "stock"]
+    above = [x.get("above_20d_average") for x in stocks if isinstance(x.get("above_20d_average"), bool)]
+    changes = [_num(x.get("five_day_change_pct")) for x in stocks]
+    changes = [x for x in changes if x is not None]
+    breakouts = [x.get("breakout_20d") for x in stocks if isinstance(x.get("breakout_20d"), bool)]
+    above_pct = round(sum(above) / len(above) * 100, 1) if above else None
+    positive_pct = round(sum(x > 0 for x in changes) / len(changes) * 100, 1) if changes else None
+    breakout_pct = round(sum(breakouts) / len(breakouts) * 100, 1) if breakouts else None
+    sample = min(len(above), len(changes))
+    if sample >= 10 and above_pct is not None and positive_pct is not None:
+        regime = "FAVORABLE" if above_pct >= 60 and positive_pct >= 55 else "CAUTION" if above_pct < 35 or positive_pct < 35 else "MIXED"
+    else:
+        regime = "INSUFFICIENT SAMPLE"
+    return {
+        "scope": "currently returned stock candidates; not full NYSE/NASDAQ breadth",
+        "sample_size": sample,
+        "above_20d_average_pct": above_pct,
+        "positive_5d_pct": positive_pct,
+        "breaking_20d_high_pct": breakout_pct,
+        "regime": regime,
+        "confidence": "moderate" if sample >= 30 else "limited" if sample >= 10 else "insufficient",
+    }
+
+
+def rank_stock_universe_strength(items):
+    """Rank stocks by five-day return within the current scanned stock cohort."""
+    stocks = [x for x in (items or []) if isinstance(x, dict) and x.get("asset_type") == "stock"]
+    valid = [(x, _num(x.get("five_day_change_pct"))) for x in stocks]
+    valid = [(item, value) for item, value in valid if value is not None]
+    valid.sort(key=lambda row: row[1], reverse=True)
+    values = [value for _, value in valid]
+    median = float(np.median(values)) if values else None
+    count = len(valid)
+    for rank, (item, value) in enumerate(valid, 1):
+        item["universe_rs_rank"] = rank
+        item["universe_rs_percentile"] = round((count - rank) / (count - 1) * 100, 1) if count > 1 else None
+        item["relative_strength_vs_universe_median_pct"] = round(value - median, 2) if median is not None else None
+        item["universe_rs_sample_size"] = count
+    for item in stocks:
+        if item not in [row[0] for row in valid]:
+            item["universe_rs_rank"] = None
+            item["universe_rs_percentile"] = None
+            item["relative_strength_vs_universe_median_pct"] = None
+            item["universe_rs_sample_size"] = count
+    return {
+        "sample_size": count,
+        "median_five_day_return_pct": round(median, 2) if median is not None else None,
+        "top_quartile_cutoff_pct": round(float(np.percentile(values, 75)), 2) if count >= 4 else None,
+        "scope": "currently returned stock candidates",
+    }
+
+
 def _local_index(frame):
     idx = frame.index
     return idx.tz_convert("America/New_York") if getattr(idx, "tz", None) is not None else idx
@@ -396,6 +450,12 @@ def compute_early_warning_metrics(daily, intraday, price):
         "multi_timeframe_alignment": None,
         "multi_timeframe_status": "Insufficient timeframe data",
         "early_warning_matches": [],
+        "weekly_confirmation": None,
+        "weekly_confirmation_status": "Insufficient weekly history",
+        "weekly_breakout_confluence": None,
+        "breakout_level_class": "Unavailable",
+        "breakout_level_reference_price": None,
+        "breakout_level_lookback_sessions": 0,
     }
     matches = []
     try:
@@ -427,6 +487,65 @@ def compute_early_warning_metrics(daily, intraday, price):
             result["volatility_compression_percentile"] = round(percentile, 1)
             if percentile <= 20:
                 matches.append("Volatility compressed versus own history")
+        # Weekly structure is derived from the already-fetched daily bars.
+        weekly_source = d.copy()
+        date_values = weekly_source.index
+        if not isinstance(date_values, pd.DatetimeIndex):
+            if "Date" in weekly_source.columns:
+                date_values = pd.to_datetime(weekly_source["Date"], errors="coerce")
+            else:
+                date_values = pd.to_datetime(date_values, errors="coerce")
+        weekly_source["_date"] = date_values
+        weekly_source = weekly_source.dropna(subset=["_date"]).set_index("_date").sort_index()
+        if len(weekly_source) >= 20:
+            weekly = weekly_source.resample("W-FRI").agg({
+                "Open": "first" if "Open" in weekly_source.columns else "last",
+                "High": "max", "Low": "min", "Close": "last", "Volume": "sum"
+            }).dropna(subset=["Close"])
+            if len(weekly) >= 10:
+                wc = weekly["Close"].astype(float)
+                ema10 = wc.ewm(span=10, adjust=False).mean()
+                ema20 = wc.ewm(span=20, adjust=False).mean()
+                weekly_bullish = bool(wc.iloc[-1] > ema10.iloc[-1] and ema10.iloc[-1] > ema20.iloc[-1])
+                result["weekly_confirmation"] = weekly_bullish
+                result["weekly_confirmation_status"] = (
+                    "Weekly trend confirmed · close above rising EMA10/EMA20 stack"
+                    if weekly_bullish else "Weekly trend not confirmed"
+                )
+                weekly_high = float(weekly["High"].tail(10).max())
+                if weekly_high > 0:
+                    weekly_distance = (weekly_high / px - 1) * 100 if px > 0 else None
+                    result["weekly_breakout_confluence"] = bool(
+                        weekly_bullish and weekly_distance is not None and -0.5 <= weekly_distance <= 3.0
+                    )
+                if weekly_bullish:
+                    matches.append("Weekly trend confirmation")
+                if result["weekly_breakout_confluence"]:
+                    matches.append("Daily setup near weekly breakout resistance")
+
+        # Classify the highest resistance only within the history actually available.
+        highs = d["High"].astype(float)
+        lookback = len(d)
+        if px > 0 and lookback >= 20:
+            if lookback >= 500:
+                reference = float(highs.max())
+                label = "2-year high (available history)"
+                window = min(504, lookback)
+            elif lookback >= 200:
+                reference = float(highs.tail(252).max())
+                label = "52-week high"
+                window = min(252, lookback)
+            else:
+                reference = float(highs.tail(20).max())
+                label = "20-session high; longer-term history unavailable"
+                window = min(20, lookback)
+            result["breakout_level_reference_price"] = round(reference, 6)
+            result["breakout_level_lookback_sessions"] = window
+            if px >= reference * 0.99:
+                result["breakout_level_class"] = label
+            else:
+                result["breakout_level_class"] = "Below " + label.lower()
+
         # Multi-timeframe daily direction; intraday confirmation added below.
         daily_bullish = bool(
             len(close) >= 20
