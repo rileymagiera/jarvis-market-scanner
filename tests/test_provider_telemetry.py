@@ -38,3 +38,31 @@ def test_http_telemetry_counts_server_errors():
 
     assert snapshot["provider_http_5xx_count"] == 1
     assert snapshot["provider_http_status_counts"] == {"kraken:503": 1}
+
+def test_kraken_requests_are_paced(monkeypatch):
+    sleeps = []
+    calls = []
+    clock = [100.0]
+
+    def fake_monotonic():
+        return clock[0]
+
+    def fake_sleep(seconds):
+        sleeps.append(seconds)
+        clock[0] += seconds
+
+    def fake_get(url, **kwargs):
+        calls.append((url, kwargs))
+        return object()
+
+    monkeypatch.setattr(main.time, "monotonic", fake_monotonic)
+    monkeypatch.setattr(main.time, "sleep", fake_sleep)
+    monkeypatch.setattr(main.HTTP, "get", fake_get)
+    monkeypatch.setattr(main, "KRAKEN_LAST_REQUEST_AT", 100.0)
+
+    result = main.kraken_get("https://api.kraken.com/0/public/Ticker", timeout=5)
+
+    assert result is not None
+    assert calls == [("https://api.kraken.com/0/public/Ticker", {"timeout": 5})]
+    assert sleeps == [main.KRAKEN_MIN_REQUEST_INTERVAL_SECONDS]
+
