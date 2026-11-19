@@ -491,17 +491,19 @@ def compute_early_warning_metrics(daily, intraday, price):
         weekly_source = d.copy()
         date_values = weekly_source.index
         if not isinstance(date_values, pd.DatetimeIndex):
-            if "Date" in weekly_source.columns:
-                date_values = pd.to_datetime(weekly_source["Date"], errors="coerce")
-            else:
-                date_values = pd.to_datetime(date_values, errors="coerce")
-        weekly_source["_date"] = date_values
-        weekly_source = weekly_source.dropna(subset=["_date"]).set_index("_date").sort_index()
+            date_values = pd.to_datetime(weekly_source["Date"], errors="coerce") if "Date" in weekly_source.columns else None
+        if date_values is not None:
+            weekly_source["_date"] = date_values
+            weekly_source = weekly_source.dropna(subset=["_date"]).set_index("_date").sort_index()
+        else:
+            weekly_source = pd.DataFrame()
         if len(weekly_source) >= 20:
-            weekly = weekly_source.resample("W-FRI").agg({
-                "Open": "first" if "Open" in weekly_source.columns else "last",
-                "High": "max", "Low": "min", "Close": "last", "Volume": "sum"
-            }).dropna(subset=["Close"])
+            aggregation = {"High": "max", "Low": "min", "Close": "last"}
+            if "Open" in weekly_source.columns:
+                aggregation["Open"] = "first"
+            if "Volume" in weekly_source.columns:
+                aggregation["Volume"] = "sum"
+            weekly = weekly_source.resample("W-FRI").agg(aggregation).dropna(subset=["Close"])
             if len(weekly) >= 10:
                 wc = weekly["Close"].astype(float)
                 ema10 = wc.ewm(span=10, adjust=False).mean()
