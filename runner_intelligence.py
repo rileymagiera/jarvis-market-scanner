@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from statistics import mean, median
+from early_opportunity_radar import build_shadow_opportunity_radar
 from typing import Any
 
 
@@ -245,4 +246,5 @@ def build_runner_intelligence_report(records, buy_signals=None):
             "candidates": radar[:MAX_RADAR_CANDIDATES],
             "notice": "Research-only candidates. Price verification and all official BUY gates remain separate and unchanged.",
         },
+        "shadow_opportunity_radar": build_shadow_opportunity_radar(values),
     }
