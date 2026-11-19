@@ -64,3 +64,27 @@ def test_unverified_candidate_can_later_freeze_features_after_verification(tmp_p
     assert "research_feature_snapshot" not in record
     assert record["early_runner_initial_feature_snapshot"]["catalyst_labels"] == ["test catalyst"]
     assert record["early_runner_snapshot_at"] == verified_at.isoformat()
+
+
+def test_existing_tracker_migrates_away_duplicate_snapshot_only(tmp_path, monkeypatch):
+    _use_temp_state(tmp_path, monkeypatch)
+    now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
+    legacy_record = {
+        "asset_type": "stock",
+        "symbol": "LEGACY",
+        "first_seen": now.isoformat(),
+        "last_seen": now.isoformat(),
+        "initial_price": 10.0,
+        "price_validation_status": "verified",
+        "research_feature_snapshot": {"catalyst_labels": ["redundant mutable copy"]},
+        "early_runner_initial_feature_snapshot": {"catalyst_labels": ["frozen baseline"]},
+    }
+    (tmp_path / "paper_tracker.json").write_text(
+        json.dumps({"stock:LEGACY": legacy_record}), encoding="utf-8"
+    )
+
+    tracker, _ = send_alerts.update_paper_tracker([], now)
+    record = tracker["stock:LEGACY"]
+
+    assert "research_feature_snapshot" not in record
+    assert record["early_runner_initial_feature_snapshot"] == {"catalyst_labels": ["frozen baseline"]}
