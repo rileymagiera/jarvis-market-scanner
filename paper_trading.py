@@ -5,7 +5,16 @@ from pathlib import Path
 
 STATE_PATH = Path("paper_trading_state.json")
 STARTING_CASH = 250.0
-FEE_RATE = 0.001
+# Default US Coinbase Advanced entry tier (marketable paper orders use taker rates).
+# These are explicit assumptions, not a claim about the user's private account tier.
+COINBASE_ADVANCED_TAKER_RATE = 0.009
+COINBASE_ADVANCED_MAKER_RATE = 0.005
+# Webull U.S.-listed stock pass-through fees from its published pricing schedule.
+WEBULL_COMMISSION_RATE = 0.0
+WEBULL_CAT_RATE = 0.000003
+WEBULL_SEC_SELL_RATE = 0.0000206
+WEBULL_FINRA_TAF_PER_SHARE = 0.0
+DEFAULT_CRYPTO_ORDER_TYPE = "taker"
 MAX_OPEN_POSITIONS = 4
 MAX_POSITION_FRACTION = 0.25
 RISK_FRACTION = 0.01
@@ -17,6 +26,35 @@ def _num(value, default=0.0):
         return number if math.isfinite(number) else default
     except (TypeError, ValueError, OverflowError):
         return default
+
+
+def calculate_trade_fee(asset_type, side, notional, quantity=0.0, order_type=None):
+    """Return a broker-specific simulated fee breakdown for one side of a fill."""
+    asset = str(asset_type or "").lower()
+    side = str(side or "").lower()
+    notional = max(0.0, _num(notional))
+    quantity = max(0.0, _num(quantity))
+    if asset in ("crypto", "cryptocurrency"):
+        kind = str(order_type or DEFAULT_CRYPTO_ORDER_TYPE).lower()
+        if kind not in ("maker", "taker"):
+            kind = DEFAULT_CRYPTO_ORDER_TYPE
+        rate = COINBASE_ADVANCED_MAKER_RATE if kind == "maker" else COINBASE_ADVANCED_TAKER_RATE
+        fee = notional * rate
+        return {"broker": "Coinbase Advanced", "order_type": kind, "commission": round(fee, 8),
+                "regulatory": 0.0, "total": round(fee, 8), "rate": rate}
+    if asset in ("stock", "stocks", "equity", "etf"):
+        commission = notional * WEBULL_COMMISSION_RATE
+        cat = notional * WEBULL_CAT_RATE
+        sec = notional * WEBULL_SEC_SELL_RATE if side == "sell" else 0.0
+        finra = quantity * WEBULL_FINRA_TAF_PER_SHARE if side == "sell" else 0.0
+        total = commission + cat + sec + finra
+        return {"broker": "Webull", "order_type": "stock", "commission": round(commission, 8),
+                "cat_fee": round(cat, 8), "sec_fee": round(sec, 8),
+                "finra_taf": round(finra, 8), "regulatory": round(cat + sec + finra, 8),
+                "total": round(total, 8), "rate": (total / notional if notional else 0.0)}
+    # Unknown instruments are not assigned an invented fee schedule.
+    return {"broker": "Unspecified", "order_type": "unknown", "commission": 0.0,
+            "regulatory": 0.0, "total": 0.0, "rate": 0.0}
 
 
 def load_account():
@@ -39,7 +77,7 @@ def load_account():
         "last_updated_at": None, "rules": {
             "entry": "Official BUY signal + verified price inside saved entry range",
             "risk_per_trade_pct": 1.0, "max_position_pct": 25.0,
-            "max_open_positions": MAX_OPEN_POSITIONS, "fee_per_side_pct": FEE_RATE * 100,
+            "max_open_positions": MAX_OPEN_POSITIONS, "crypto_fee_schedule": "Coinbase Advanced US entry tier; taker 0.90%, maker 0.50%",\n            "stock_fee_schedule": "Webull US stocks: $0 commission; CAT 0.0003% per side; SEC 0.00206% sell side; FINRA TAF currently $0",
             "exits": "50% at target 1, remainder at target 2; full exit at stop",
         },
     }
@@ -89,16 +127,22 @@ def update_account(candidates, buy_signals, now):
         if exit_fraction:
             sell_qty = qty * exit_fraction
             gross = sell_qty * price
-            fee = gross * FEE_RATE
+            fee_info = calculate_trade_fee(position["asset_type"], "sell", gross, sell_qty)
+            fee = fee_info["total"]
             net = gross - fee
             account["cash"] = round(_num(account["cash"]) + net, 8)
             entry_cost = sell_qty * _num(position.get("entry_price"))
-            realized = net - entry_cost - (entry_cost * FEE_RATE)
+            entry_fee_allocated = min(_num(position.get("entry_fee_remaining")),
+                                      _num(position.get("entry_fee")) * (sell_qty / max(_num(position.get("initial_quantity")), 1e-12)))
+            position["entry_fee_remaining"] = max(0.0, _num(position.get("entry_fee_remaining")) - entry_fee_allocated)
+            realized = net - entry_cost - entry_fee_allocated
+            position["fees_paid"] = round(_num(position.get("fees_paid")) + fee, 8)
             position["realized_pnl"] = round(_num(position.get("realized_pnl")) + realized, 8)
             position["quantity"] = round(qty - sell_qty, 10)
             _event(account, "SELL", f'{exit_reason} observed for {position["symbol"]}', symbol=position["symbol"],
                    asset_type=position["asset_type"], price=price, quantity=sell_qty,
-                   fee=round(fee, 8), realized_pnl=round(realized, 8), signal_id=position["signal_id"])
+                   fee=round(fee, 8), fee_breakdown=fee_info, entry_fee_allocated=round(entry_fee_allocated, 8),
+                   realized_pnl=round(realized, 8), signal_id=position["signal_id"])
             if exit_reason == "TARGET_1":
                 position["target_1_filled"] = True
                 position["target_1_observed_at"] = now.isoformat()
@@ -144,10 +188,18 @@ def update_account(candidates, buy_signals, now):
         risk_budget = equity * RISK_FRACTION
         qty_by_risk = risk_budget / (price - stop)
         qty_by_cap = equity * MAX_POSITION_FRACTION / price
-        qty_by_cash = _num(account["cash"]) / (price * (1 + FEE_RATE))
-        quantity = round(max(0.0, min(qty_by_risk, qty_by_cap, qty_by_cash)), 10)
+        # Solve for quantity with the broker's actual fee model included in cash sizing.
+        cash = _num(account["cash"])
+        quantity = round(max(0.0, min(qty_by_risk, qty_by_cap, cash / price)), 10)
+        for _ in range(3):
+            entry_fee_info = calculate_trade_fee(key[0], "buy", quantity * price, quantity)
+            total_cost = quantity * price + entry_fee_info["total"]
+            if total_cost <= cash or quantity <= 0:
+                break
+            quantity = round(quantity * (cash / total_cost), 10)
         notional = quantity * price
-        fee = notional * FEE_RATE
+        entry_fee_info = calculate_trade_fee(key[0], "buy", notional, quantity)
+        fee = entry_fee_info["total"]
         if quantity <= 0 or notional < 1.0:
             processed.add(signal_id)
             _event(account, "SKIP", f'{signal.get("symbol")} BUY signal skipped: insufficient available paper capital',
@@ -158,7 +210,7 @@ def update_account(candidates, buy_signals, now):
             "signal_id": signal_id, "symbol": key[1], "asset_type": key[0],
             "opened_at": now.isoformat(), "entry_price": price, "latest_price": price,
             "latest_price_as_of": item.get("price_as_of"), "quantity": quantity,
-            "initial_quantity": quantity, "notional": round(notional, 8), "entry_fee": round(fee, 8),
+            "initial_quantity": quantity, "notional": round(notional, 8), "entry_fee": round(fee, 8),\n            "entry_fee_remaining": round(fee, 8), "fees_paid": round(fee, 8),\n            "entry_fee_breakdown": entry_fee_info,
             "stop_loss": stop, "target_1": target1, "target_2": target2,
             "score": signal.get("score"), "score_model": signal.get("score_model"),
             "price_source": item.get("price_source") or item.get("data_source"),
