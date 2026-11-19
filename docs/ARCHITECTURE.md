@@ -89,7 +89,7 @@ The scanner records provider activity and price-quality diagnostics. Preserve th
 
 ### State-size observation
 
-At the 2026-11-19 audit, `paper_tracker.json` was approximately 9.88 MB and contained 414 candidate records (317 stocks, 97 crypto). Each record carries many snapshots and audit fields. The file is large because it preserves detailed research evidence, not because the tracker contains millions of candidates.
+At the 2026-11-19 audit, `paper_tracker.json` was approximately 9.88 MB and contained 414 candidate records (317 stocks, 97 crypto). Each record carries many snapshots and audit fields. The file is large because it preserves detailed research evidence, not because the tracker contains millions of candidates. This was measured before the storage cleanup merged on 2026-11-19. The current writer no longer persists the mutable `research_feature_snapshot` duplicate; it keeps the frozen `early_runner_initial_feature_snapshot` used by cohort learning and writes deterministic compact JSON. The next completed scan will rewrite the tracked ledger in the smaller format; the actual resulting size will depend on the candidate records and evidence retained.
 
 Do not simply delete fields or shorten the 365-day window to reduce size. First identify which dashboard, learning, audit, and outcome consumers depend on each field. Any compaction should preserve immutable discovery baselines, verified/unverified distinctions, checkpoint outcomes, and lifetime aggregates. A safer future design may split compact dashboard summaries from detailed archival evidence, with migration and round-trip tests.
 
