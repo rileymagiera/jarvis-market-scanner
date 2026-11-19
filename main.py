@@ -2387,9 +2387,9 @@ def history_page():
 def analytics_tab_page(active: str) -> str:
     tabs = [
         ("discovery-performance", "Discovery Performance"),
-        ("history", "Home"),
         ("intelligence", "Intelligence"),
         ("market-breadth", "Market Breadth"),
+        ("history", "Market Overview"),
         ("momentum-evidence", "Momentum Evidence"),
         ("paper-trading", "Paper Trading"),
         ("settings", "Settings"),
