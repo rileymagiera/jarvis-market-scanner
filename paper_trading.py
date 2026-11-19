@@ -582,6 +582,50 @@ def account_summary(account, now=None):
     risk_off_closed = [t for t in (account.get("closed_trades") or []) if t.get("strategy") == "risk_off_experimental"]
     risk_off_realized = sum(_num(t.get("realized_pnl")) for t in risk_off_closed)
     risk_off_realized += sum(_num(p.get("realized_pnl")) for p in risk_off_open)
+    strategy_stats = {}
+    def strategy_row(strategy):
+        return strategy_stats.setdefault(strategy or "unknown", {
+            "strategy": strategy or "unknown", "open_positions": 0, "closed_trades": 0,
+            "realized_pnl": 0.0, "unrealized_pnl": 0.0, "wins": 0, "losses": 0,
+            "experimental": False,
+        })
+    for position in positions:
+        strategy = str(position.get("strategy") or "official_buy")
+        row = strategy_row(strategy)
+        row["open_positions"] += 1
+        row["experimental"] = row["experimental"] or bool(position.get("experimental"))
+        row["realized_pnl"] += _num(position.get("realized_pnl"))
+        current = _num(position.get("latest_price") or position.get("entry_price"))
+        row["unrealized_pnl"] += (
+            _num(position.get("quantity")) * (current - _num(position.get("entry_price")))
+            - _num(position.get("entry_fee_remaining"))
+            - calculate_trade_fee(position.get("asset_type"), "sell",
+                                  _num(position.get("quantity")) * current,
+                                  _num(position.get("quantity")))["total"]
+        )
+    for trade in account.get("closed_trades") or []:
+        strategy = str(trade.get("strategy") or "official_buy")
+        row = strategy_row(strategy)
+        row["closed_trades"] += 1
+        row["experimental"] = row["experimental"] or bool(trade.get("experimental"))
+        trade_pnl = _num(trade.get("realized_pnl"))
+        row["realized_pnl"] += trade_pnl
+        row["wins"] += int(trade_pnl > 0)
+        row["losses"] += int(trade_pnl < 0)
+    strategy_performance = []
+    for row in strategy_stats.values():
+        closed_count = row["closed_trades"]
+        row["trades"] = row["open_positions"] + closed_count
+        row["win_rate_pct"] = round(row["wins"] / closed_count * 100, 2) if closed_count else None
+        row["realized_pnl"] = round(row["realized_pnl"], 4)
+        row["unrealized_pnl"] = round(row["unrealized_pnl"], 4)
+        strategy_performance.append(row)
+    strategy_performance.sort(key=lambda row: row["strategy"])
+    early_open = [p for p in positions if p.get("strategy") == "early_entry_experimental"]
+    early_closed = [t for t in (account.get("closed_trades") or [])
+                    if t.get("strategy") == "early_entry_experimental"]
+    early_realized = sum(_num(t.get("realized_pnl")) for t in early_closed)
+    early_realized += sum(_num(p.get("realized_pnl")) for p in early_open)
     return {
         "starting_cash": _num(account.get("starting_cash"), STARTING_CASH),
         "coinbase_one_monthly_volume": round(coinbase_volume, 2),
@@ -603,4 +647,10 @@ def account_summary(account, now=None):
         "risk_off_total_trades": len(risk_off_open) + len(risk_off_closed),
         "risk_off_realized_pnl": round(risk_off_realized, 2),
         "risk_off_signal_diagnostics": account.get("risk_off_signal_diagnostics") or {},
+        "early_entry_open_positions": len(early_open),
+        "early_entry_closed_trades": len(early_closed),
+        "early_entry_total_trades": len(early_open) + len(early_closed),
+        "early_entry_realized_pnl": round(early_realized, 4),
+        "early_entry_signal_diagnostics": account.get("early_entry_signal_diagnostics") or {},
+        "strategy_performance": strategy_performance,
     }
