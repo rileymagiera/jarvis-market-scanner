@@ -1,7 +1,7 @@
 """Deterministic, offline-only paper trading for verified official Jarvis BUY signals."""
 import json
 import math
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 STATE_PATH = Path("paper_trading_state.json")
@@ -273,7 +273,7 @@ def update_account(candidates, buy_signals, now):
     return account
 
 
-def account_summary(account):
+def account_summary(account, now=None):
     positions = account.get("positions") or []
     market_value = sum(_num(p.get("quantity")) * _num(p.get("latest_price") or p.get("entry_price")) for p in positions)
     unrealized = sum(
@@ -284,7 +284,10 @@ def account_summary(account):
     realized = sum(_num(t.get("realized_pnl")) for t in (account.get("closed_trades") or []))
     realized += sum(_num(p.get("realized_pnl")) for p in positions)
     equity = _num(account.get("cash")) + market_value
-    month = datetime.now().strftime("%Y-%m")
+    now = now or datetime.now(timezone.utc)
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=timezone.utc)
+    month = now.astimezone(timezone.utc).strftime("%Y-%m")
     coinbase_volume = _num((account.get("coinbase_one_monthly_volume") or {}).get(month))
     return {
         "starting_cash": _num(account.get("starting_cash"), STARTING_CASH),
