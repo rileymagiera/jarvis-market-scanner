@@ -34,6 +34,14 @@ jobs:
         run: python -m pip install --disable-pip-version-check -r requirements.txt
       - name: Install paper trading test runner
         run: python -m pip install --disable-pip-version-check pytest
+      - name: Restore Kraken hourly candle cache
+        if: ${{ inputs.send_test_email != true }}
+        uses: actions/cache@v4
+        with:
+          path: .cache/kraken_ohlc.json
+          key: jarvis-kraken-ohlc-v1-${{ github.run_id }}
+          restore-keys: |
+            jarvis-kraken-ohlc-v1-
       - name: Record scan attempt start
         if: ${{ inputs.send_test_email != true }}
         run: |
