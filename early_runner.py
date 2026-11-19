@@ -511,7 +511,7 @@ def compute_early_warning_metrics(daily, intraday, price):
                 weekly_bullish = bool(wc.iloc[-1] > ema10.iloc[-1] and ema10.iloc[-1] > ema20.iloc[-1])
                 result["weekly_confirmation"] = weekly_bullish
                 result["weekly_confirmation_status"] = (
-                    "Weekly trend confirmed · close above rising EMA10/EMA20 stack"
+                    "Weekly trend confirmed · close above EMA10/EMA20 bullish stack"
                     if weekly_bullish else "Weekly trend not confirmed"
                 )
                 weekly_high = float(weekly["High"].tail(10).max())
