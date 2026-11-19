@@ -438,6 +438,17 @@ ALPACA_QUOTE_CACHE_TTL_SECONDS = 10
 ALPACA_SNAPSHOT_CACHE = {}
 ALPACA_SNAPSHOT_CACHE_LOCK = threading.Lock()
 
+# GTN-A was confirmed by Alpaca to return HTTP 400 even as a singleton
+# snapshot request. Keep it in Jarvis discovery/research; skip only this
+# provider-specific quote lookup so it cannot poison otherwise-valid batches.
+ALPACA_SNAPSHOT_KNOWN_UNSUPPORTED_SYMBOLS = frozenset({"GTN-A"})
+
+
+def _alpaca_snapshot_request_symbols(symbols: list[str]) -> tuple[list[str], list[str]]:
+    unique = list(dict.fromkeys(str(x).upper() for x in symbols if str(x).strip()))
+    skipped = sorted(set(unique) & ALPACA_SNAPSHOT_KNOWN_UNSUPPORTED_SYMBOLS)
+    return [symbol for symbol in unique if symbol not in ALPACA_SNAPSHOT_KNOWN_UNSUPPORTED_SYMBOLS], skipped
+
 
 def prefetch_alpaca_snapshots(symbols: list[str]) -> None:
     """Fetch Alpaca snapshots in batches; isolate invalid symbols instead of losing a whole batch."""
@@ -532,7 +543,14 @@ def prefetch_alpaca_snapshots(symbols: list[str]) -> None:
                 error=f"{type(exc).__name__}: {str(exc)[:160]}",
             )
 
-    unique_symbols = list(dict.fromkeys(str(x).upper() for x in symbols if str(x).strip()))
+    unique_symbols, known_unsupported = _alpaca_snapshot_request_symbols(symbols)
+    rejected_symbols.extend(known_unsupported)
+    if known_unsupported:
+        print(
+            "Alpaca snapshot skipped provider-confirmed unsupported symbols: "
+            + ",".join(known_unsupported),
+            flush=True,
+        )
     for offset in range(0, len(unique_symbols), 50):
         fetch_batch(unique_symbols[offset:offset + 50])
 
