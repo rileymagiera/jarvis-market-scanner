@@ -56,7 +56,7 @@
     "2026-11": 152.14582614
   },
   "created_at": "2026-11-19T04:34:15.459868+00:00",
-  "last_updated_at": "2026-11-19T15:32:35.859925+00:00",
+  "last_updated_at": "2026-11-19T16:04:17.685779+00:00",
   "ledger": [
     {
       "allocation_rank": 1,
@@ -172,18 +172,18 @@
       "entry_fee_remaining": 0.26433911,
       "entry_price": 0.4471,
       "entry_price_as_of": "2026-11-19T14:02:12.060595+00:00",
-      "estimated_exit_fee": 0.26197419,
+      "estimated_exit_fee": 0.25884067,
       "experimental": true,
       "fees_paid": 0.26433911,
       "initial_quantity": 118.2460786536,
-      "latest_observed_at": "2026-11-19T15:32:35.859925+00:00",
-      "latest_price": 0.4431,
-      "latest_price_as_of": "2026-11-19T15:29:34.790836+00:00",
+      "latest_observed_at": "2026-11-19T16:04:17.685779+00:00",
+      "latest_price": 0.4378,
+      "latest_price_as_of": "2026-11-19T16:02:16.241987+00:00",
       "market_regime_at_entry": "RISK-OFF",
       "notional": 52.86782177,
       "opened_at": "2026-11-19T14:04:38.983524+00:00",
       "price_source": "Kraken Spot public API",
-      "price_update_checked_at": "2026-11-19T15:32:35.859925+00:00",
+      "price_update_checked_at": "2026-11-19T16:04:17.685779+00:00",
       "price_update_status": "live_verified",
       "quality_risk_multiplier": 0.85,
       "quantity": 118.2460786536,
@@ -201,29 +201,29 @@
     }
   ],
   "processed_signal_ids": [
-    "risk_off:crypto:GRASSUSDT:2026-11-19",
-    "risk_off:crypto:MEGAUSDT:2026-11-19"
+    "risk_off:crypto:MEGAUSDT:2026-11-19",
+    "risk_off:crypto:GRASSUSDT:2026-11-19"
   ],
   "risk_off_signal_diagnostics": {
-    "candidates_total": 241,
-    "eligible_signals": 1,
+    "candidates_total": 236,
+    "eligible_signals": 0,
     "rejections": {
-      "failed_buy_gate:24h_breakout": 90,
-      "failed_buy_gate:above_24h_average": 29,
-      "failed_buy_gate:breakout_confirmed": 135,
-      "failed_buy_gate:five_bar_intraday_trend_up": 94,
+      "failed_buy_gate:24h_breakout": 89,
+      "failed_buy_gate:above_24h_average": 64,
+      "failed_buy_gate:breakout_confirmed": 132,
+      "failed_buy_gate:five_bar_intraday_trend_up": 110,
       "failed_buy_gate:fresh_intraday_confirmation": 1,
-      "failed_buy_gate:live_data_quality": 161,
-      "failed_buy_gate:no_risk_flags": 20,
+      "failed_buy_gate:live_data_quality": 155,
+      "failed_buy_gate:no_risk_flags": 15,
       "failed_buy_gate:not_chase_risk": 4,
-      "failed_buy_gate:positive_hourly_momentum": 81,
-      "failed_buy_gate:price_verified": 26,
-      "failed_buy_gate:score_82": 240,
-      "failed_buy_gate:two_technical_confirmations": 87,
-      "failed_buy_gate:volume_1_8x": 77,
-      "failed_buy_gate:volume_confirmed": 144
+      "failed_buy_gate:positive_hourly_momentum": 80,
+      "failed_buy_gate:price_verified": 17,
+      "failed_buy_gate:score_82": 236,
+      "failed_buy_gate:two_technical_confirmations": 80,
+      "failed_buy_gate:volume_1_8x": 55,
+      "failed_buy_gate:volume_confirmed": 141
     },
-    "risk_off_candidates": 241
+    "risk_off_candidates": 236
   },
   "rules": {
     "allocation_method": "Rank active eligible official BUYs by official score, then target-2 reward/risk; scale each risk budget by official score up to the existing 1% cap; retain existing capacity limits; retry capacity-deferred signals while active",

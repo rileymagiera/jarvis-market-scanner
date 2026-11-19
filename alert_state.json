@@ -14,6 +14,11 @@
     "alerted_stage": "DEVELOPING SETUP",
     "score": 62
   },
+  "crypto:USELESSUSDT": {
+    "alerted_at": "2026-11-19T16:04:17.685779+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 60
+  },
   "premarket_alert_history": {
     "AARD": {
       "alerted_at": "2026-11-19T15:04:24.560095+00:00",
@@ -125,6 +130,11 @@
       "score": 14,
       "status": "PREMARKET VERIFIED"
     },
+    "SCOR": {
+      "alerted_at": "2026-11-19T16:04:17.685779+00:00",
+      "score": 33,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
     "SEAT": {
       "alerted_at": "2026-11-19T15:04:24.560095+00:00",
       "score": 18,
@@ -170,5 +180,15 @@
     "alerted_at": "2026-11-19T15:32:35.859925+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 62
+  },
+  "stock:SCOR": {
+    "alerted_at": "2026-11-19T16:04:17.685779+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 63
+  },
+  "stock:SVRA": {
+    "alerted_at": "2026-11-19T16:04:17.685779+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 72
   }
 }
