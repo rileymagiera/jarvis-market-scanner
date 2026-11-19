@@ -196,6 +196,8 @@ def update_paper_tracker(candidates, now):
 
     # Mark prior records absent until they are rediscovered in this scan.
     for existing in tracker.values():
+        # One-time cleanup for the former mutable snapshot; frozen cohort evidence stays intact.
+        existing.pop("research_feature_snapshot", None)
         existing["currently_surfaced"] = False
         if existing.get("asset_type") in ("stock", "crypto") and existing.get("price_validation_status") in (None, "not_required"):
             existing["price_validation_status"] = "unverified"
