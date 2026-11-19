@@ -310,6 +310,7 @@ def build_early_entry_paper_signals(candidates, now, diagnostics=None, scan_id=N
             "market_regime": item.get("market_regime") or "UNKNOWN",
             "research_classification": snapshot.get("shadow_classification"),
             "experiment_version": "early-entry-v1",
+            "experiment_registry_version": "EARLY-ENTRY-01-v1",
             "entry_rationale": snapshot.get("evidence") or [],
             "research_snapshot": snapshot,
         })
@@ -521,6 +522,7 @@ def update_account(candidates, buy_signals, now, enable_early_entry_experimental
             "strategy": row["strategy"], "experimental": bool(signal.get("experimental")),
             "research_classification": signal.get("research_classification"),
             "experiment_version": signal.get("experiment_version"),
+            "experiment_registry_version": signal.get("experiment_registry_version"),
             "entry_rationale": signal.get("entry_rationale") or [],
             "entry_research_snapshot": signal.get("research_snapshot") or {},
             "market_regime_at_entry": row["market_regime"],
