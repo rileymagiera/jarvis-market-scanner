@@ -5,6 +5,7 @@ on:
     branches:
       - jarvis/coinbase-secondary-validation
       - jarvis/binance-us-shadow-fix
+      - jarvis/historical-opportunity-audit
 
 permissions:
   contents: read
@@ -28,3 +29,11 @@ jobs:
         run: python -m py_compile main.py send_alerts.py early_runner.py paper_trading.py
       - name: Run full test suite
         run: python -m pytest -q tests
+      - name: Run read-only historical opportunity audit
+        run: python scripts/historical_opportunity_audit.py --tracker paper_tracker.json --paper-state paper_trading_state.json --buy-history buy_signal_history.json --output-dir historical_opportunity_audit
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jarvis-historical-opportunity-audit
+          path: historical_opportunity_audit/
+          if-no-files-found: error
