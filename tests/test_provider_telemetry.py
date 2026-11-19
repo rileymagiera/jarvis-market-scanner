@@ -66,3 +66,10 @@ def test_kraken_requests_are_paced(monkeypatch):
     assert calls == [("https://api.kraken.com/0/public/Ticker", {"timeout": 5})]
     assert sleeps == [main.KRAKEN_MIN_REQUEST_INTERVAL_SECONDS]
 
+
+
+def test_alpaca_snapshot_filter_skips_only_confirmed_unsupported_symbol():
+    requested, skipped = main._alpaca_snapshot_request_symbols(["GTN-A", "BRK-B", "AAPL", "GTN-A"])
+
+    assert requested == ["BRK-B", "AAPL"]
+    assert skipped == ["GTN-A"]
