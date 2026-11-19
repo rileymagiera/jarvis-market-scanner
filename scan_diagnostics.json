@@ -1,9 +1,9 @@
 {
-  "candidates_found": 184,
+  "candidates_found": 183,
   "diagnostics": {
     "alpaca_quote_status": {
       "candidate_status_counts": {
-        "no_fresh_trade_or_usable_quote": 104,
+        "no_fresh_trade_or_usable_quote": 103,
         "snapshot_unavailable": 1
       },
       "credentials_configured": true,
@@ -14,8 +14,8 @@
           "HTTPError: 400 Client Error: Bad Request for url: https://data.alpaca.markets/v2/stocks/snapshots?symbols=GTN-A&feed=iex": 1
         },
         "failures": 1,
-        "max_seconds": 0.04,
-        "total_seconds": 0.14
+        "max_seconds": 0.08,
+        "total_seconds": 0.16
       }
     },
     "crypto": {
@@ -26,8 +26,8 @@
           "coinbase_ticker_timestamp": 0,
           "kraken_latest_trade_cross_check": 79
         },
-        "unverified": 9,
-        "verified": 70
+        "unverified": 5,
+        "verified": 74
       },
       "scan_errors": 0,
       "stages": {
@@ -42,7 +42,7 @@
       "symbols_requested": 85
     },
     "market_session": {
-      "as_of": "2026-11-18T19:18:29.745283-05:00",
+      "as_of": "2026-11-18T19:26:11.882037-05:00",
       "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
       "is_extended_session": true,
       "is_regular_session": false,
@@ -56,10 +56,10 @@
     "massive_live_quote_note": "Optional last-trade cross-check is disabled by default. Enable MASSIVE_LIVE_QUOTE_ENABLED=true only if the Massive Stocks plan includes /v2/last/trade; 15-minute delayed data is accepted only when its timestamp is within 45 minutes.",
     "massive_live_quote_status": "disabled_pending_entitlement_check",
     "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history/data or score below the early-watch floor; provider-specific discovery failures are not always attributable to one symbol.",
-    "scan_duration_seconds": 19.73,
+    "scan_duration_seconds": 20.0,
     "stocks": {
-      "candidates_returned": 105,
-      "not_returned_or_below_early_watch_floor": 43,
+      "candidates_returned": 104,
+      "not_returned_or_below_early_watch_floor": 44,
       "scan_errors": 0,
       "stages": {
         "ACTIONABLE SETUP": 0,
@@ -67,17 +67,17 @@
         "DATA QUALITY \u2014 WATCH ONLY": 0,
         "DEVELOPING RUNNER": 20,
         "DEVELOPING SETUP": 0,
-        "EARLY SETUP": 25,
+        "EARLY SETUP": 27,
         "EARLY WATCH": 13,
         "LATE RUNNER \u2014 CHASE RISK": 5,
-        "LOW-CONVICTION WATCH": 42,
+        "LOW-CONVICTION WATCH": 39,
         "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
       },
       "symbols_requested": 148
     },
     "timing_breakdown": {
-      "asset_scans_wall_seconds": 18.83,
-      "market_conditions_seconds": 0.57,
+      "asset_scans_wall_seconds": 18.72,
+      "market_conditions_seconds": 0.61,
       "provider_activity": {
         "alpaca_snapshot_batch": {
           "calls": 9,
@@ -85,8 +85,8 @@
             "HTTPError: 400 Client Error: Bad Request for url: https://data.alpaca.markets/v2/stocks/snapshots?symbols=GTN-A&feed=iex": 1
           },
           "failures": 1,
-          "max_seconds": 0.04,
-          "total_seconds": 0.14
+          "max_seconds": 0.08,
+          "total_seconds": 0.16
         },
         "alpaca_snapshot_batch_split": {
           "calls": 6,
@@ -100,74 +100,74 @@
           },
           "failures": 6,
           "max_seconds": 0.03,
-          "total_seconds": 0.08
+          "total_seconds": 0.09
         },
         "market_conditions": {
           "calls": 1,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.57,
-          "total_seconds": 0.57
+          "max_seconds": 0.61,
+          "total_seconds": 0.61
         },
         "scan_crypto_parallel_wall": {
           "calls": 1,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 8.78,
-          "total_seconds": 8.78
+          "max_seconds": 9.59,
+          "total_seconds": 9.59
         },
         "scan_stock_parallel_wall": {
           "calls": 1,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 18.61,
-          "total_seconds": 18.61
+          "max_seconds": 18.47,
+          "total_seconds": 18.47
         },
         "sec_recent_filings": {
-          "calls": 105,
+          "calls": 104,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.36,
-          "total_seconds": 6.36
+          "max_seconds": 0.27,
+          "total_seconds": 7.29
         },
         "yahoo_daily_history": {
           "calls": 148,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.24,
-          "total_seconds": 20.57
+          "max_seconds": 0.4,
+          "total_seconds": 21.63
         },
         "yahoo_discovery_screen": {
           "calls": 6,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.25,
-          "total_seconds": 1.17
+          "max_seconds": 0.53,
+          "total_seconds": 1.51
         },
         "yahoo_fundamentals": {
-          "calls": 65,
+          "calls": 67,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.25,
-          "total_seconds": 11.6
+          "max_seconds": 0.35,
+          "total_seconds": 12.38
         },
         "yahoo_intraday_history": {
           "calls": 148,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.21,
-          "total_seconds": 11.54
+          "max_seconds": 0.18,
+          "total_seconds": 11.22
         },
         "yahoo_stock_news": {
-          "calls": 105,
+          "calls": 104,
           "error_counts": {},
           "failures": 0,
-          "max_seconds": 0.9,
-          "total_seconds": 26.47
+          "max_seconds": 0.78,
+          "total_seconds": 26.49
         }
       },
-      "total_seconds": 19.73,
-      "universe_discovery_seconds": 0.31
+      "total_seconds": 20.0,
+      "universe_discovery_seconds": 0.64
     },
     "webull_quote_note": "Webull quote lookups are opt-in because app authorization was observed pending; Yahoo/Stooq scanning continues independently. Enable only after Webull market-data authorization is confirmed.",
     "webull_quote_status": "disabled_pending_authorization"
@@ -177,7 +177,7 @@
     "benchmarks": {
       "BTC-USD": {
         "above_20d_average": false,
-        "five_day_change_pct": -8.24
+        "five_day_change_pct": -8.12
       },
       "IWM": {
         "above_20d_average": false,
@@ -196,5 +196,5 @@
     "regime": "RISK-OFF",
     "score_adjustment": -8
   },
-  "timestamp": "2026-11-19T00:18:29.745199+00:00"
+  "timestamp": "2026-11-19T00:26:11.881949+00:00"
 }

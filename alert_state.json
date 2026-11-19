@@ -1,485 +1,209 @@
 {
   "crypto:LUNAUSDT": {
-    "alerted_at": "2026-11-18T22:17:21.037465+00:00",
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
     "alerted_stage": "DEVELOPING SETUP",
     "score": 67
   },
-  "crypto:PEARLUSDT": {
-    "alerted_at": "2026-11-18T16:01:05.943799+00:00",
-    "alerted_stage": "DEVELOPING SETUP",
-    "score": 92
-  },
   "crypto:PEPEUSDT": {
-    "alerted_at": "2026-11-19T00:01:01.792334+00:00",
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
     "alerted_stage": "DEVELOPING SETUP",
     "score": 60
   },
-  "crypto:PIEVERSEUSDT": {
-    "alerted_at": "2026-11-18T22:17:21.037465+00:00",
-    "alerted_stage": "DEVELOPING SETUP",
-    "score": 76
-  },
   "crypto:POLUSDT": {
-    "alerted_at": "2026-11-19T00:01:01.792334+00:00",
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
     "alerted_stage": "DEVELOPING SETUP",
     "score": 60
   },
   "crypto:VVVUSDT": {
-    "alerted_at": "2026-11-19T00:01:01.792334+00:00",
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
     "alerted_stage": "DEVELOPING SETUP",
     "score": 67
   },
-  "daily_status_date": "2026-11-18",
   "premarket_alert_history": {
     "ALAB": {
-      "alerted_at": "2026-11-18T18:01:11.833239+00:00",
-      "score": 20,
-      "status": "PREMARKET VERIFIED"
-    },
-    "CAPR": {
-      "alerted_at": "2026-11-18T18:01:11.833239+00:00",
-      "score": 24,
+      "alerted_at": "2026-11-19T00:26:11.887809+00:00",
+      "score": 25,
       "status": "PREMARKET VERIFIED"
     },
     "CDXS": {
-      "alerted_at": "2026-11-18T18:09:36.530310+00:00",
-      "score": 15,
+      "alerted_at": "2026-11-19T00:26:11.887809+00:00",
+      "score": 19,
       "status": "PREMARKET VERIFIED"
     },
-    "CFND": {
-      "alerted_at": "2026-11-18T18:09:36.530310+00:00",
-      "score": 19,
-      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
-    },
     "COHR": {
-      "alerted_at": "2026-11-18T18:01:11.833239+00:00",
+      "alerted_at": "2026-11-19T00:26:11.887809+00:00",
       "score": 7,
       "status": "PREMARKET VERIFIED"
     },
-    "CRWV": {
-      "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-      "score": 29,
-      "status": "PREMARKET VERIFIED"
-    },
     "CSHR": {
-      "alerted_at": "2026-11-18T18:01:11.833239+00:00",
+      "alerted_at": "2026-11-19T00:26:11.887809+00:00",
       "score": 0,
       "status": "PREMARKET VERIFIED"
     },
-    "EMPD": {
-      "alerted_at": "2026-11-18T19:01:00.184725+00:00",
-      "score": 22,
-      "status": "PREMARKET VERIFIED"
-    },
-    "EROC": {
-      "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-      "score": 10,
-      "status": "PREMARKET VERIFIED"
-    },
     "FEAM": {
-      "alerted_at": "2026-11-18T18:01:11.833239+00:00",
-      "score": 9,
-      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
-    },
-    "HUT": {
-      "alerted_at": "2026-11-18T18:01:11.833239+00:00",
-      "score": 9,
-      "status": "PREMARKET VERIFIED"
-    },
-    "IIIV": {
-      "alerted_at": "2026-11-18T18:01:11.833239+00:00",
-      "score": 26,
-      "status": "PREMARKET VERIFIED"
-    },
-    "IONQ": {
-      "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-      "score": 16,
-      "status": "PREMARKET VERIFIED"
-    },
-    "IREN": {
-      "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-      "score": 14,
-      "status": "PREMARKET VERIFIED"
-    },
-    "ITG": {
-      "alerted_at": "2026-11-18T18:01:11.833239+00:00",
-      "score": 36,
-      "status": "PREMARKET VERIFIED"
-    },
-    "JJSF": {
-      "alerted_at": "2026-11-18T18:01:11.833239+00:00",
-      "score": 27,
-      "status": "PREMARKET VERIFIED"
-    },
-    "MARA": {
-      "alerted_at": "2026-11-18T18:01:11.833239+00:00",
-      "score": 6,
-      "status": "PREMARKET VERIFIED"
-    },
-    "MCRB": {
-      "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-      "score": 6,
-      "status": "PREMARKET VERIFIED"
-    },
-    "NBIS": {
-      "alerted_at": "2026-11-18T18:01:11.833239+00:00",
+      "alerted_at": "2026-11-19T00:26:11.887809+00:00",
       "score": 11,
       "status": "PREMARKET VERIFIED"
     },
+    "IIIV": {
+      "alerted_at": "2026-11-19T00:26:11.887809+00:00",
+      "score": 23,
+      "status": "PREMARKET VERIFIED"
+    },
+    "ITG": {
+      "alerted_at": "2026-11-19T00:26:11.887809+00:00",
+      "score": 29,
+      "status": "PREMARKET VERIFIED"
+    },
+    "JJSF": {
+      "alerted_at": "2026-11-19T00:26:11.887809+00:00",
+      "score": 19,
+      "status": "PREMARKET VERIFIED"
+    },
+    "MARA": {
+      "alerted_at": "2026-11-19T00:26:11.887809+00:00",
+      "score": 6,
+      "status": "PREMARKET VERIFIED"
+    },
     "NMRA": {
-      "alerted_at": "2026-11-18T18:01:11.833239+00:00",
+      "alerted_at": "2026-11-19T00:26:11.887809+00:00",
       "score": 33,
       "status": "PREMARKET VERIFIED"
     },
     "OPTU": {
-      "alerted_at": "2026-11-18T18:01:11.833239+00:00",
-      "score": 15,
+      "alerted_at": "2026-11-19T00:26:11.887809+00:00",
+      "score": 17,
       "status": "PREMARKET VERIFIED"
     },
     "PAL": {
-      "alerted_at": "2026-11-18T18:01:11.833239+00:00",
-      "score": 13,
-      "status": "PREMARKET VERIFIED"
-    },
-    "PCT": {
-      "alerted_at": "2026-11-18T18:09:36.530310+00:00",
-      "score": 10,
+      "alerted_at": "2026-11-19T00:26:11.887809+00:00",
+      "score": 16,
       "status": "PREMARKET VERIFIED"
     },
     "PLCE": {
-      "alerted_at": "2026-11-19T00:18:29.746028+00:00",
+      "alerted_at": "2026-11-19T00:26:11.887809+00:00",
       "score": 38,
       "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
     "PRAA": {
-      "alerted_at": "2026-11-19T00:01:01.792334+00:00",
-      "score": 10,
-      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
-    },
-    "RXRX": {
-      "alerted_at": "2026-11-18T18:01:11.833239+00:00",
-      "score": 9,
+      "alerted_at": "2026-11-19T00:26:11.887809+00:00",
+      "score": 7,
       "status": "PREMARKET VERIFIED"
     },
     "STUB": {
-      "alerted_at": "2026-11-19T00:01:01.792334+00:00",
-      "score": 10,
-      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+      "alerted_at": "2026-11-19T00:26:11.887809+00:00",
+      "score": 12,
+      "status": "PREMARKET VERIFIED"
     }
   },
-  "stock:ABX": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+  "stock:AES": {
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 62
+    "score": 60
   },
-  "stock:ACCO": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+  "stock:ANTX": {
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 87
+  },
+  "stock:ATEN": {
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
+    "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
+    "score": 69
+  },
+  "stock:BIP": {
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 85
   },
-  "stock:AES": {
-    "alerted_at": "2026-11-18T18:01:11.833239+00:00",
+  "stock:BIPC": {
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 62
+    "score": 85
   },
-  "stock:AKAM": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+  "stock:BRBR": {
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
+    "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
+    "score": 88
+  },
+  "stock:CAKE": {
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 61
+    "score": 74
   },
-  "stock:AMD": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 81
-  },
-  "stock:ANTX": {
-    "alerted_at": "2026-11-18T20:01:00.164852+00:00",
+  "stock:CALM": {
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 80
   },
-  "stock:ATEN": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
-    "score": 85
-  },
-  "stock:BIP": {
-    "alerted_at": "2026-11-18T19:01:00.184725+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 78
-  },
-  "stock:BIPC": {
-    "alerted_at": "2026-11-18T18:01:11.833239+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 78
-  },
-  "stock:BLMN": {
-    "alerted_at": "2026-11-18T20:01:00.164852+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 64
-  },
-  "stock:BOOT": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 66
-  },
-  "stock:BRBR": {
-    "alerted_at": "2026-11-18T18:01:11.833239+00:00",
-    "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
-    "score": 81
-  },
-  "stock:CAKE": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 90
-  },
-  "stock:CAL": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 63
-  },
-  "stock:CALM": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 87
-  },
-  "stock:CBRL": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 87
-  },
-  "stock:CDXS": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 61
-  },
-  "stock:COCO": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 84
-  },
-  "stock:CRI": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 87
-  },
   "stock:FIRY": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 87
+    "score": 80
   },
   "stock:FROG": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 87
-  },
-  "stock:FUN": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 82
-  },
-  "stock:GNRC": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 63
-  },
-  "stock:GTN-A": {
-    "alerted_at": "2026-11-19T00:01:01.792334+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 63
-  },
-  "stock:HUYA": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 62
-  },
-  "stock:ICMB": {
-    "alerted_at": "2026-11-18T18:01:11.833239+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 62
+    "score": 71
   },
   "stock:IIIV": {
-    "alerted_at": "2026-11-18T18:01:11.833239+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 85
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
+    "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
+    "score": 78
   },
   "stock:ITG": {
-    "alerted_at": "2026-11-19T00:01:01.792334+00:00",
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 61
   },
   "stock:JJSF": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
+    "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
     "score": 85
   },
-  "stock:KHC": {
-    "alerted_at": "2026-11-18T19:01:00.184725+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 61
-  },
-  "stock:KTB": {
-    "alerted_at": "2026-11-18T18:01:11.833239+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 64
-  },
-  "stock:M": {
-    "alerted_at": "2026-11-18T22:10:37.741298+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 63
-  },
   "stock:MFP": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 86
+    "score": 79
   },
   "stock:MOD": {
-    "alerted_at": "2026-11-19T00:01:01.792334+00:00",
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 65
-  },
-  "stock:NFE": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 62
-  },
-  "stock:NL": {
-    "alerted_at": "2026-11-19T00:01:01.792334+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 87
-  },
-  "stock:NTSK": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 61
   },
   "stock:NUAI": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 83
-  },
-  "stock:OKTA": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 78
-  },
-  "stock:PAL": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 62
-  },
-  "stock:PCG": {
-    "alerted_at": "2026-11-18T18:01:11.833239+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 65
-  },
-  "stock:PLBL": {
-    "alerted_at": "2026-11-18T16:01:05.943799+00:00",
-    "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
-    "score": 76
-  },
-  "stock:PRGO": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 86
-  },
-  "stock:PVH": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 83
-  },
-  "stock:QVCG": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 86
-  },
-  "stock:RARE": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 89
-  },
-  "stock:RDWR": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 61
-  },
-  "stock:RIOT": {
-    "alerted_at": "2026-11-18T19:01:00.184725+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 62
-  },
-  "stock:SAIL": {
-    "alerted_at": "2026-11-18T19:01:00.184725+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 62
-  },
-  "stock:SG": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 64
-  },
-  "stock:SHOE": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 61
-  },
-  "stock:SLS": {
-    "alerted_at": "2026-11-18T18:01:11.833239+00:00",
-    "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
-    "score": 78
-  },
-  "stock:SRRK": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 67
   },
-  "stock:SVRA": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+  "stock:PLBL": {
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
+    "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
+    "score": 69
+  },
+  "stock:QVCG": {
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 60
+    "score": 70
   },
   "stock:TTWO": {
-    "alerted_at": "2026-11-18T19:01:00.184725+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 60
-  },
-  "stock:UI": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 64
-  },
-  "stock:ULCC": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 64
-  },
-  "stock:UPBD": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 60
-  },
-  "stock:VIA": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 85
   },
   "stock:VIK": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 89
+    "score": 82
   },
   "stock:WSM": {
-    "alerted_at": "2026-11-19T00:01:01.792334+00:00",
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 76
   },
   "stock:WWW": {
-    "alerted_at": "2026-11-19T00:01:01.792334+00:00",
+    "alerted_at": "2026-11-19T00:26:11.887809+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 85
-  },
-  "stock:ZIP": {
-    "alerted_at": "2026-11-18T21:01:14.253122+00:00",
-    "alerted_stage": "DEVELOPING RUNNER",
-    "score": 67
   }
-}\n
+}

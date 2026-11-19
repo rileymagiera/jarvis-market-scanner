@@ -13,7 +13,7 @@
       "recommendations": 131
     },
     "stock": {
-      "recommendations": 406
+      "recommendations": 422
     }
   },
   "checkpoints": {
@@ -26,11 +26,11 @@
     }
   },
   "integrity": {
-    "checked_at": "2026-11-19T00:18:29.746028+00:00",
-    "retained_stock_baselines": 266,
-    "retained_stock_counted_baselines": 266,
+    "checked_at": "2026-11-19T00:26:11.887809+00:00",
+    "retained_stock_baselines": 282,
+    "retained_stock_counted_baselines": 282,
     "retained_stock_uncounted_baselines": 0,
-    "unverified_stock_without_baseline": 43
+    "unverified_stock_without_baseline": 27
   },
-  "recommendations": 537
+  "recommendations": 553
 }
