@@ -15,6 +15,7 @@ import requests
 from io import StringIO
 import yfinance as yf
 from early_runner import compute_early_runner_metrics, compute_early_warning_metrics, compute_stock_market_breadth, rank_stock_universe_strength, summarize_crypto_cross_section, set_crypto_relative_strength_coverage, build_data_quality_record, apply_entry_quality_gate, has_session_aware_early_runner_baseline
+from market_calendar import market_session_status as exchange_market_session_status
 from runner_intelligence import build_runner_intelligence_report
 from buy_intelligence import build_buy_intelligence, blend_buy_score
 from paper_trading import load_account as load_paper_account, account_summary as summarize_paper_account
@@ -80,27 +81,8 @@ def now_iso() -> str:
 
 
 def market_session_status(now=None) -> dict:
-    """Schedule-based US equity session label; holidays are not independently verified."""
-    eastern = (now or datetime.now(timezone.utc)).astimezone(ZoneInfo("America/New_York"))
-    minute = eastern.hour * 60 + eastern.minute
-    weekday = eastern.weekday() < 5
-    if not weekday:
-        phase = "CLOSED — WEEKEND"
-    elif 4 * 60 <= minute < 9 * 60 + 30:
-        phase = "PRE-MARKET"
-    elif 9 * 60 + 30 <= minute < 16 * 60:
-        phase = "REGULAR SESSION"
-    elif 16 * 60 <= minute < 20 * 60:
-        phase = "AFTER-HOURS"
-    else:
-        phase = "CLOSED — OVERNIGHT"
-    return {
-        "phase": phase,
-        "is_regular_session": bool(weekday and 9 * 60 + 30 <= minute < 16 * 60),
-        "is_extended_session": bool(weekday and (4 * 60 <= minute < 9 * 60 + 30 or 16 * 60 <= minute < 20 * 60)),
-        "as_of": eastern.isoformat(),
-        "calendar_note": "Schedule-based Eastern Time estimate; exchange holidays and early closes are not checked.",
-    }
+    """Return the XNYS calendar-aware equity session and extended-hours phase."""
+    return exchange_market_session_status(now)
 
 def discover_stock_symbols(limit: int = 120) -> list[str]:
     """Discover a broad stock universe while keeping the existing quality pool first.
@@ -205,6 +187,8 @@ KRAKEN_TICKER_CACHE_AT = 0.0
 KRAKEN_REQUEST_LOCK = threading.Lock()
 KRAKEN_LAST_REQUEST_AT = 0.0
 KRAKEN_MIN_REQUEST_INTERVAL_SECONDS = 1.05
+KRAKEN_OHLC_CACHE = {}
+KRAKEN_OHLC_CACHE_LOCK = threading.Lock()
 
 
 def kraken_get(url: str, **kwargs):
@@ -2037,17 +2021,31 @@ def kraken_crypto_market_data(symbol: str):
     vwap = safe_float((ticker.get("p") or [0, 0])[1])
     if price <= 0 or opening <= 0:
         raise RuntimeError(f"Kraken returned incomplete ticker for {base}")
-    bars_response = kraken_get(
-        f"{KRAKEN}/OHLC",
-        params={"pair": pair_id, "interval": 60},
-        timeout=12,
-    )
-    bars_response.raise_for_status()
-    bars_payload = bars_response.json()
-    if bars_payload.get("error"):
-        raise RuntimeError("Kraken OHLC: " + "; ".join(bars_payload["error"]))
-    bars_rows = [value for key, value in (bars_payload.get("result") or {}).items() if key != "last"]
-    raw = bars_rows[0] if bars_rows else []
+    # Kraken hourly candles only change when a new UTC hour opens. Reuse the
+    # same completed-hour context between scans, but refresh at each UTC hour
+    # boundary. The independent Trades request below remains fresh on every scan.
+    hour_bucket = int(time.time() // 3600)
+    cache_key = (pair_id, 60)
+    with KRAKEN_OHLC_CACHE_LOCK:
+        cached = KRAKEN_OHLC_CACHE.get(cache_key)
+    if cached and cached.get("hour_bucket") == hour_bucket:
+        raw = cached.get("rows") or []
+        record_scan_metric("kraken_ohlc_cache_hit", 0.0, "success")
+    else:
+        bars_response = kraken_get(
+            f"{KRAKEN}/OHLC",
+            params={"pair": pair_id, "interval": 60},
+            timeout=12,
+        )
+        bars_response.raise_for_status()
+        bars_payload = bars_response.json()
+        if bars_payload.get("error"):
+            raise RuntimeError("Kraken OHLC: " + "; ".join(bars_payload["error"]))
+        bars_rows = [value for key, value in (bars_payload.get("result") or {}).items() if key != "last"]
+        raw = bars_rows[0] if bars_rows else []
+        with KRAKEN_OHLC_CACHE_LOCK:
+            KRAKEN_OHLC_CACHE[cache_key] = {"hour_bucket": hour_bucket, "rows": raw}
+        record_scan_metric("kraken_ohlc_cache_miss", 0.0, "success")
     # Kraken returns [time, open, high, low, close, vwap, volume, count].
     bars = [[row[0], row[1], row[2], row[3], row[4], row[6]] for row in raw if len(row) >= 8]
     # Kraken's ticker payload has no quote timestamp. Cross-check its last
