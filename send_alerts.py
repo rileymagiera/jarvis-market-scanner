@@ -178,7 +178,9 @@ def update_paper_tracker(candidates, now):
         if price <= 0:
             continue
         record = tracker.get(key)
-        if asset_type in ("stock", "crypto") and not item.get("price_validation_passed", False):
+        item_price_status = str(item.get("price_validation_status") or "").lower()
+        reliable_discovery_price = bool(item.get("price_validation_passed")) or item_price_status in ("verified", "last_known")
+        if asset_type in ("stock", "crypto") and not reliable_discovery_price:
             if not record:
                 # Keep an audit row for newly discovered but unverified stocks.
                 # This is not counted as a paper recommendation until a price is accepted.
@@ -264,6 +266,15 @@ def update_paper_tracker(candidates, now):
             tracker[key] = record
             continue
         if record and record.get("price_validation_status") == "unverified":
+            # Keep the original discovery timestamp. The legacy first-verified outcome baseline
+            # below remains separate from the immutable discovery-performance baseline.
+            if record.get("discovery_initial_price") is None:
+                record["discovery_initial_price"] = price
+                record["discovery_price_as_of"] = item.get("price_as_of") or now.isoformat()
+                record["discovery_price_checked_at"] = item.get("price_checked_at") or now.isoformat()
+                record["discovery_price_source"] = item.get("data_source") or item.get("price_source")
+                record["discovery_baseline_status"] = "first_verified_fallback"
+                record["discovery_baseline_timestamp_type"] = item.get("price_timestamp_type") or "provider timestamp"
             if record.get("initial_price") is None and not record.get("lifetime_recommendation_counted", False):
                 lifetime["recommendations"] = int(lifetime.get("recommendations", 0)) + 1
                 asset_stats = lifetime.setdefault("by_asset", {}).setdefault(
@@ -291,6 +302,12 @@ def update_paper_tracker(candidates, now):
             record = {
                 "asset_type": asset_type, "symbol": symbol,
                 "first_seen": now.isoformat(), "initial_price": price,
+                "discovery_initial_price": price,
+                "discovery_price_as_of": item.get("price_as_of") or now.isoformat(),
+                "discovery_price_checked_at": item.get("price_checked_at") or now.isoformat(),
+                "discovery_price_source": item.get("data_source") or item.get("price_source"),
+                "discovery_baseline_status": "last_known_eod" if item_price_status == "last_known" else "live_verified",
+                "discovery_baseline_timestamp_type": item.get("price_timestamp_type") or "provider timestamp",
                 "peak_price": price, "trough_price": price, "milestones": {},
                 "first_grade": item.get("stage", item.get("signal", "WATCH")),
                 "grade_history": [{"from": None, "to": item.get("stage", item.get("signal", "WATCH")), "at": now.isoformat()}],
@@ -302,6 +319,14 @@ def update_paper_tracker(candidates, now):
             asset_stats["recommendations"] += 1
 
         initial = float(record.get("initial_price") or price)
+        # Backfill only when a reliable price is available. Never overwrite an established baseline.
+        if record.get("discovery_initial_price") is None:
+            record["discovery_initial_price"] = price
+            record["discovery_price_as_of"] = item.get("price_as_of") or now.isoformat()
+            record["discovery_price_checked_at"] = item.get("price_checked_at") or now.isoformat()
+            record["discovery_price_source"] = item.get("data_source") or item.get("price_source")
+            record["discovery_baseline_status"] = "first_verified_fallback" if record.get("first_seen") else ("last_known_eod" if item_price_status == "last_known" else "live_verified")
+            record["discovery_baseline_timestamp_type"] = item.get("price_timestamp_type") or "provider timestamp"
         record["latest_price"] = price
         record["price_validation_status"] = item.get("price_validation_status") or ("verified" if item.get("price_validation_passed", False) else "unverified")
         record["price_validation_note"] = item.get("price_validation_note", "Price validation evidence unavailable")
@@ -472,6 +497,9 @@ def update_paper_tracker(candidates, now):
         record["intraday_data_quality"] = item.get("intraday_data_quality") or {}
         record["hourly_data_quality"] = item.get("hourly_data_quality") or {}
         if observation_eligible:
+            discovery_initial = safe_float(record.get("discovery_initial_price"), 0)
+            if discovery_initial > 0:
+                record["discovery_return_pct"] = round((price / discovery_initial - 1) * 100, 2)
             record["price_observed_at"] = now.isoformat()
             record["peak_price"] = max(float(record.get("peak_price") or price), price)
             record["trough_price"] = min(float(record.get("trough_price") or price), price)
