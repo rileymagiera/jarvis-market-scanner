@@ -249,7 +249,7 @@ def update_paper_tracker(candidates, now):
                 "data_quality", "daily_data_quality", "intraday_data_quality", "hourly_data_quality", "entry_status", "signal_blocked_reason", "potential_stage",
                 "hourly_change_pct", "daily_change_pct", "higher_lows", "breakout_24h", "above_24h_average",
                 "trend_up", "relative_volume", "change_1h_pct", "change_24h_pct", "price_validation_passed",
-                "price_validation_method",
+                "price_validation_status", "price_validation_method",
             )
             for field in research_fields:
                 record[field] = item.get(field)
@@ -279,7 +279,7 @@ def update_paper_tracker(candidates, now):
             record["return_pct"] = 0.0
             record["max_gain_pct"] = 0.0
             record["max_drawdown_pct"] = 0.0
-            record["price_validation_status"] = "verified"
+            record["price_validation_status"] = item.get("price_validation_status") or "verified"
             record["price_validation_note"] = item.get("price_validation_note") or "Baseline reset after exchange timestamp validation"
             record["price_validation_method"] = item.get("price_validation_method")
             record["price_age_seconds"] = item.get("price_age_seconds")
@@ -300,7 +300,7 @@ def update_paper_tracker(candidates, now):
 
         initial = float(record.get("initial_price") or price)
         record["latest_price"] = price
-        record["price_validation_status"] = "verified" if item.get("price_validation_passed", False) else "unverified"
+        record["price_validation_status"] = item.get("price_validation_status") or ("verified" if item.get("price_validation_passed", False) else "unverified")
         record["price_validation_note"] = item.get("price_validation_note", "Price validation evidence unavailable")
         record["price_validation_method"] = item.get("price_validation_method")
         record["price_age_seconds"] = item.get("price_age_seconds")
