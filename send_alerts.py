@@ -192,6 +192,24 @@ def update_paper_tracker(candidates, now):
                     "risk_flags": [], "currently_surfaced": True,
                     "lifetime_recommendation_counted": False,
                 }
+            # Preserve the first quote Jarvis captured as the discovery baseline,
+            # even when it is provisional. Verification controls BUY eligibility and
+            # when returns begin updating; it must not rewrite the discovery price.
+            if record.get("discovery_initial_price") is None:
+                first_capture = record.get("first_seen") == now.isoformat()
+                record["discovery_initial_price"] = price
+                record["discovery_price_as_of"] = item.get("price_as_of") or now.isoformat()
+                record["discovery_price_checked_at"] = item.get("price_checked_at") or now.isoformat()
+                record["discovery_price_source"] = item.get("data_source") or item.get("price_source")
+                record["discovery_baseline_status"] = (
+                    "unverified_at_discovery" if first_capture else "first_observed_after_upgrade"
+                )
+                record["discovery_baseline_timestamp_type"] = item.get("price_timestamp_type") or "provider timestamp"
+                record["discovery_peak_price"] = price
+                record["discovery_trough_price"] = price
+                record["discovery_return_pct"] = None
+                record["discovery_max_gain_pct"] = None
+                record["discovery_max_drawdown_pct"] = None
             record["price_validation_status"] = "unverified"
             record["price_validation_note"] = item.get("price_validation_note", "Exchange price validation unavailable")
             record["price_validation_method"] = item.get("price_validation_method")
@@ -266,8 +284,8 @@ def update_paper_tracker(candidates, now):
             tracker[key] = record
             continue
         if record and record.get("price_validation_status") == "unverified":
-            # Keep the original discovery timestamp. The legacy first-verified outcome baseline
-            # below remains separate from the immutable discovery-performance baseline.
+            # Keep the original discovery timestamp and immutable first-captured-price
+            # baseline. Legacy records without one still receive an explicitly labelled fallback.
             if record.get("discovery_initial_price") is None:
                 record["discovery_initial_price"] = price
                 record["discovery_price_as_of"] = item.get("price_as_of") or now.isoformat()
