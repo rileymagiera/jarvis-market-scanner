@@ -2099,51 +2099,94 @@ def crypto_news(symbol: str) -> list[dict]:
         return []
 
 
-def coinbase_crypto_market_data(symbol: str):
-    """Fallback public market data from Coinbase Exchange; no API key required."""
-    base = crypto_base(symbol)
-    product = f"{base}-USD"
-    ticker_response = HTTP.get(f"https://api.exchange.coinbase.com/products/{product}/ticker", timeout=12)
-    ticker_response.raise_for_status()
-    ticker = ticker_response.json()
-    stats_response = HTTP.get(f"https://api.exchange.coinbase.com/products/{product}/stats", timeout=12)
-    stats_response.raise_for_status()
-    stats = stats_response.json()
-    candles_response = HTTP.get(
-        f"https://api.exchange.coinbase.com/products/{product}/candles",
-        params={"granularity": 3600},
-        timeout=15,
-    )
-    candles_response.raise_for_status()
-    # Coinbase returns [time, low, high, open, close, volume], newest first.
-    raw = list(reversed(candles_response.json()))
-    bars = [[row[0], row[3], row[2], row[1], row[4], row[5]] for row in raw if len(row) >= 6]
-    price = safe_float(ticker.get("price"))
-    opening = safe_float(stats.get("open"))
-    volume = safe_float(stats.get("volume"))
-    if price <= 0 or opening <= 0:
-        raise RuntimeError(f"Coinbase returned incomplete market data for {product}")
-    stamp = pd.Timestamp(ticker.get("time")) if ticker.get("time") else None
-    if stamp is not None and pd.notna(stamp):
-        if stamp.tzinfo is None: stamp = stamp.tz_localize("UTC")
+def coinbase_crypto_market_data(symbol: str, reference_price: Optional[float] = None):
+    """Fetch Coinbase USD ticker, 24h stats and hourly candles as a guarded fallback.
+
+    A fresh Coinbase timestamp is mandatory. When a Kraken reference is available,
+    Coinbase must also agree within 0.5%. Without an independent Kraken reference,
+    data remains watch-only and cannot satisfy the BUY price-verification gate.
+    """
+    started = time.monotonic()
+    outcome = "failure"
+    error_detail = None
+    try:
+        base = crypto_base(symbol)
+        product = f"{base}-USD"
+        ticker_response = HTTP.get(f"https://api.exchange.coinbase.com/products/{product}/ticker", timeout=(2, 8))
+        ticker_response.raise_for_status()
+        ticker = ticker_response.json() or {}
+        stats_response = HTTP.get(f"https://api.exchange.coinbase.com/products/{product}/stats", timeout=(2, 8))
+        stats_response.raise_for_status()
+        stats = stats_response.json() or {}
+        candles_response = HTTP.get(
+            f"https://api.exchange.coinbase.com/products/{product}/candles",
+            params={"granularity": 3600},
+            timeout=(2, 10),
+        )
+        candles_response.raise_for_status()
+        raw_payload = candles_response.json() or []
+        if not isinstance(raw_payload, list):
+            raise RuntimeError(f"Coinbase returned invalid hourly candles for {product}")
+        # Coinbase returns [time, low, high, open, close, volume], newest first.
+        raw = list(reversed(raw_payload))
+        bars = [
+            [row[0], row[3], row[2], row[1], row[4], row[5]]
+            for row in raw
+            if isinstance(row, (list, tuple)) and len(row) >= 6
+        ]
+        if len(bars) < 26:
+            raise RuntimeError(f"Coinbase returned insufficient hourly history for {product}: {len(bars)} bars")
+        price = safe_float(ticker.get("price"))
+        opening = safe_float(stats.get("open"))
+        volume = safe_float(stats.get("volume"))
+        if price <= 0 or opening <= 0 or volume < 0:
+            raise RuntimeError(f"Coinbase returned incomplete market data for {product}")
+        stamp = pd.Timestamp(ticker.get("time")) if ticker.get("time") else None
+        if stamp is None or pd.isna(stamp):
+            raise RuntimeError(f"Coinbase returned no exchange timestamp for {product}")
+        if stamp.tzinfo is None:
+            stamp = stamp.tz_localize("UTC")
         stamp = stamp.tz_convert("UTC")
-        as_of = stamp.isoformat()
         age_seconds = (datetime.now(timezone.utc) - stamp.to_pydatetime()).total_seconds()
-    else:
-        as_of, age_seconds = None, None
-    passed = bool(as_of and age_seconds is not None and -30 <= age_seconds <= 300 and price > 0)
-    normalized = {
-        "lastPrice": price,
-        "quote_currency": quote_currency,
-        "priceChangePercent": (price / opening - 1) * 100,
-        "quoteVolume": volume * price,
-        "price_as_of": as_of,
-        "price_age_seconds": round(age_seconds, 1) if age_seconds is not None else None,
-        "price_validation_passed": passed,
-        "price_validation_note": "Fresh Coinbase ticker timestamp" if passed else "Coinbase ticker timestamp missing or older than 5 minutes",
-        "price_validation_method": "coinbase_ticker_timestamp",
-    }
-    return normalized, bars, "Coinbase Exchange public API"
+        fresh = -30 <= age_seconds <= 300
+        if not fresh:
+            raise RuntimeError(f"Coinbase ticker is stale or future-dated for {product}: {age_seconds:.0f}s")
+
+        reference = safe_float(reference_price)
+        difference_pct = None
+        agreement = False
+        if reference > 0:
+            midpoint = (reference + price) / 2
+            difference_pct = abs(reference - price) / midpoint * 100 if midpoint > 0 else float("inf")
+            agreement = bool(np.isfinite(difference_pct) and difference_pct <= 0.5)
+        passed = bool(fresh and agreement)
+        if reference > 0 and not agreement:
+            note = f"Coinbase fallback rejected: Kraken/Coinbase price difference {difference_pct:.3f}% exceeds 0.5%"
+        elif not reference:
+            note = "Fresh Coinbase fallback data; no independent Kraken reference, watch-only until cross-validated"
+        else:
+            note = "Fresh Coinbase USD ticker and hourly candles agree with Kraken within 0.5%"
+        normalized = {
+            "lastPrice": price,
+            "quote_currency": "USD",
+            "priceChangePercent": (price / opening - 1) * 100,
+            "quoteVolume": volume * price,
+            "price_as_of": stamp.isoformat(),
+            "price_age_seconds": round(age_seconds, 1),
+            "price_validation_passed": passed,
+            "price_validation_note": note,
+            "price_validation_method": "coinbase_timestamp_kraken_agreement" if passed else "coinbase_fallback_unconfirmed",
+            "price_cross_check_difference_pct": round(difference_pct, 4) if difference_pct is not None and np.isfinite(difference_pct) else None,
+            "price_validation_reference_source": "Kraken Spot public API" if reference > 0 else None,
+            "price_validation_reference_price": reference if reference > 0 else None,
+        }
+        outcome = "success"
+        return normalized, bars, "Coinbase Exchange public API"
+    except Exception as exc:
+        error_detail = f"{type(exc).__name__}: {str(exc)[:160]}"
+        raise
+    finally:
+        record_scan_metric("crypto_coinbase_fallback_market_data", time.monotonic() - started, outcome, error=error_detail)
 
 
 
@@ -2451,32 +2494,39 @@ def scan_crypto(symbol: str) -> Optional[dict]:
         ticker, bars, provider = kraken_crypto_market_data(symbol)
     except Exception as primary_error:
         try:
+            # If Kraken is unavailable there is no independent reference price.
+            # Coinbase may still provide a watch-only candidate, never a BUY-eligible quote.
             ticker, bars, provider = coinbase_crypto_market_data(symbol)
+            ticker["price_validation_note"] = (
+                str(ticker.get("price_validation_note") or "")
+                + "; Kraken unavailable, so independent price agreement could not be established"
+            ).strip("; ")
         except Exception as backup_error:
             raise RuntimeError(
                 f"Kraken primary failed ({primary_error}); Coinbase backup failed ({backup_error})"
             ) from backup_error
+
     if provider == "Kraken Spot public API" and not ticker.get("price_validation_passed"):
         try:
-            secondary = coinbase_crypto_price_validation(symbol, ticker.get("lastPrice"))
-            ticker["price_validation_reference_source"] = "Coinbase Exchange public API"
-            ticker["price_validation_reference_price"] = secondary["price"]
-            ticker["price_cross_check_difference_pct"] = secondary["difference_pct"]
-            if secondary["passed"]:
-                ticker["price_validation_passed"] = True
-                ticker["price_as_of"] = secondary["as_of"]
-                ticker["price_age_seconds"] = secondary["age_seconds"]
-                ticker["price_validation_method"] = "kraken_coinbase_cross_check"
-                ticker["price_validation_note"] = secondary["note"]
+            # Use Coinbase's complete USD market-data set, not just its ticker,
+            # when Kraken's own trade/ticker freshness or agreement check fails.
+            fallback, fallback_bars, fallback_provider = coinbase_crypto_market_data(
+                symbol, reference_price=ticker.get("lastPrice")
+            )
+            if fallback.get("price_validation_passed"):
+                ticker, bars, provider = fallback, fallback_bars, fallback_provider
             else:
+                ticker["price_validation_reference_source"] = "Coinbase Exchange public API"
+                ticker["price_validation_reference_price"] = fallback.get("lastPrice")
+                ticker["price_cross_check_difference_pct"] = fallback.get("price_cross_check_difference_pct")
                 ticker["price_validation_note"] = (
                     str(ticker.get("price_validation_note") or "Kraken validation failed")
-                    + "; " + secondary["note"]
+                    + "; " + str(fallback.get("price_validation_note") or "Coinbase fallback did not validate")
                 )
-        except Exception as secondary_error:
+        except Exception as fallback_error:
             ticker["price_validation_note"] = (
                 str(ticker.get("price_validation_note") or "Kraken validation failed")
-                + f"; Coinbase secondary check unavailable: {type(secondary_error).__name__}: {str(secondary_error)[:120]}"
+                + f"; Coinbase full fallback unavailable: {type(fallback_error).__name__}: {str(fallback_error)[:120]}"
             )
 
     if len(bars) < 26:
