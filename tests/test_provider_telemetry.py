@@ -129,3 +129,55 @@ def test_coinbase_secondary_validation_rejects_stale_ticker(monkeypatch):
 
     assert result["passed"] is False
     assert result["age_seconds"] > 300
+
+
+
+def test_binance_us_shadow_quote_handles_ticker_without_bid_ask(monkeypatch):
+    from datetime import datetime, timezone
+
+    close_time_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
+
+    class Response:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"lastPrice": "100.25", "closeTime": close_time_ms}
+
+    calls = []
+    monkeypatch.setattr(
+        main.HTTP,
+        "get",
+        lambda url, **kwargs: (calls.append((url, kwargs)) or Response()),
+    )
+
+    quote = main.crypto_shadow_quote("binance_us", "BTCUSDT", "USD")
+
+    assert quote["status"] == "fresh"
+    assert quote["price"] == 100.25
+    assert quote["bid"] is None
+    assert quote["ask"] is None
+    assert quote["spread_pct"] is None
+    assert calls[0][1]["params"] == {"symbol": "BTCUSD"}
+
+
+def test_binance_us_shadow_quote_rejects_missing_price_cleanly(monkeypatch):
+    from datetime import datetime, timezone
+
+    close_time_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
+
+    class Response:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"closeTime": close_time_ms}
+
+    monkeypatch.setattr(main.HTTP, "get", lambda *args, **kwargs: Response())
+
+    try:
+        main.crypto_shadow_quote("binance_us", "BTCUSDT", "USD")
+    except RuntimeError as exc:
+        assert "no usable price or exchange timestamp" in str(exc)
+    else:
+        raise AssertionError("Missing Binance price should be rejected")
