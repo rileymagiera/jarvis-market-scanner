@@ -14,6 +14,7 @@ on:
       - "main.py"
       - "send_alerts.py"
       - "early_runner.py"
+      - "tests/test_provider_telemetry.py"
       - ".github/workflows/validate-jarvis.yml"
   workflow_dispatch:
 
