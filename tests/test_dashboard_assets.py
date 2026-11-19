@@ -22,7 +22,7 @@ def test_history_page_loads_extracted_html_template():
     html = response.body.decode("utf-8")
 
     assert response.status_code == 200
-    assert "<title>Jarvis History</title>" in html
+    assert "<title>Jarvis · Market Overview</title>" in html
     assert 'id="opportunities"' in html
     assert '/history/dashboard.js?v=' in html
 
