@@ -2444,7 +2444,7 @@ const bootStatus=document.getElementById('updated');if(bootStatus)bootStatus.tex
   await new Promise(resolve=>requestAnimationFrame(()=>resolve()));
   try{
    render(data);
-   if(status)status.textContent='Dashboard loaded · '+recordCount+' tracked records';
+   if(status)status.textContent='Dashboard loaded · '+recordCount+' tracked records · Last loaded '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
   }catch(err){
    console.error('Jarvis history render error:',err);
    if(status)status.textContent='Dashboard rendering failed: '+(err&&err.message||err);
