@@ -213,7 +213,8 @@ def summarize_experiment_registry(account):
     for definition in registry["experiments"]:
         experiment_id = definition.get("experiment_id")
         linked = [p for p in positions if p.get("experiment_version") == "{}-v{}".format(experiment_id, definition.get("version")) or p.get("stop_experiment_version") == "{}-v{}".format(experiment_id, definition.get("version"))]
-        touches = [p.get("stop_counterfactuals", {}).get(experiment_id, {}) for p in positions]
+        touches = [p.get("stop_counterfactuals", {}).get(experiment_id, {})
+                   for p in positions if experiment_id in (p.get("stop_counterfactuals") or {})]
         touched = sum(1 for x in touches if x.get("first_touch"))
         rows.append({
             **deepcopy(definition),
