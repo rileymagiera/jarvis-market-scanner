@@ -1,6 +1,6 @@
 import unittest
 
-from main import build_buy_intelligence
+from buy_intelligence import build_buy_intelligence
 
 
 class BuyIntelligenceMappingTests(unittest.TestCase):
