@@ -1,4 +1,4 @@
-"""Deterministic, offline-only paper trading for verified official Jarvis BUY signals."""
+"""Offline-only shared paper account for official BUYs and explicitly tagged experiments."""
 import json
 import math
 from datetime import datetime, timezone
@@ -107,7 +107,7 @@ def load_account():
         "cash": STARTING_CASH, "positions": [], "closed_trades": [],
         "ledger": [], "processed_signal_ids": [], "created_at": None,
         "last_updated_at": None, "rules": {
-            "entry": "Official BUY signal + verified price inside saved entry range",
+            "entry": "Official BUY or explicitly enabled experimental paper signal + verified price inside saved entry range",
             "risk_per_trade_pct": 1.0, "max_position_pct": 25.0,
             "max_open_positions": MAX_OPEN_POSITIONS, "crypto_fee_schedule": "Coinbase One Basic app: zero eligible trading commission up to $500/month; estimated spread 0.50% per side; simulated monthly gross volume tracked; standard commission after $500 cap not configured",
             "stock_fee_schedule": "Webull US stocks: $0 commission; CAT 0.0003% per side; SEC 0.00206% sell side; FINRA TAF currently $0",
@@ -309,7 +309,7 @@ def build_early_entry_paper_signals(candidates, now, diagnostics=None):
     return signals
 
 
-def update_account(candidates, buy_signals, now):
+def update_account(candidates, buy_signals, now, enable_early_entry_experimental=False):
     """Process one completed scan; sampled exits are explicitly not tick-level fills."""
     account = load_account()
     account["last_updated_at"] = now.isoformat()
@@ -401,8 +401,12 @@ def update_account(candidates, buy_signals, now):
     risk_off_diagnostics = {}
     risk_off_active = build_risk_off_paper_signals(candidates, now, risk_off_diagnostics)
     account["risk_off_signal_diagnostics"] = risk_off_diagnostics
-    early_entry_diagnostics = {}
-    early_entry_active = build_early_entry_paper_signals(candidates, now, early_entry_diagnostics)
+    early_entry_diagnostics = {"enabled": bool(enable_early_entry_experimental)}
+    early_entry_active = (
+        build_early_entry_paper_signals(candidates, now, early_entry_diagnostics)
+        if enable_early_entry_experimental else []
+    )
+    early_entry_diagnostics["enabled"] = bool(enable_early_entry_experimental)
     official_keys = {
         (str(s.get("asset_type") or ""), str(s.get("symbol") or "").upper())
         for s in official_active
@@ -647,6 +651,7 @@ def account_summary(account, now=None):
         "risk_off_total_trades": len(risk_off_open) + len(risk_off_closed),
         "risk_off_realized_pnl": round(risk_off_realized, 2),
         "risk_off_signal_diagnostics": account.get("risk_off_signal_diagnostics") or {},
+        "early_entry_experimental_enabled": bool((account.get("early_entry_signal_diagnostics") or {}).get("enabled")),
         "early_entry_open_positions": len(early_open),
         "early_entry_closed_trades": len(early_closed),
         "early_entry_total_trades": len(early_open) + len(early_closed),
