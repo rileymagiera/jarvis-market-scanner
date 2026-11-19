@@ -2461,9 +2461,13 @@ const faded=all.filter(x=>x.currently_surfaced===false).sort((a,b)=>(b.last_seen
   if(!response.ok)throw Error('History request failed: HTTP '+response.status);
   const data=await response.json();
   if(!data||typeof data.paper_tracker!=='object'||data.paper_tracker===null)throw Error('History API returned an invalid candidate ledger');
+  const recordCount=Object.keys(data.paper_tracker).length;
+  // Update and paint the connection state before the heavier DOM/table rendering work.
+  if(status)status.textContent='Saved history received · preparing '+recordCount+' tracked records…';
+  await new Promise(resolve=>requestAnimationFrame(()=>resolve()));
   try{
    render(data);
-   if(status)status.textContent='Dashboard loaded · '+Object.keys(data.paper_tracker).length+' tracked records';
+   if(status)status.textContent='Dashboard loaded · '+recordCount+' tracked records';
   }catch(err){
    console.error('Jarvis history render error:',err);
    if(status)status.textContent='Dashboard rendering failed: '+(err&&err.message||err);
