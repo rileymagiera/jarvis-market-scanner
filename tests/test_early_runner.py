@@ -138,7 +138,7 @@ class StockCrossSectionTests(unittest.TestCase):
             "Low": [x - 1 for x in closes], "Close": closes,
             "Volume": [100000] * len(closes),
         }, index=dates)
-        result = compute_early_warning_metrics(daily, pd.DataFrame(), closes[-1])
+        result = compute_early_warning_metrics(daily, pd.DataFrame(), closes[-1] + 2)
         self.assertIs(result["weekly_confirmation"], True)
         self.assertEqual(result["breakout_level_class"], "52-week high")
         self.assertEqual(result["breakout_level_lookback_sessions"], 252)
