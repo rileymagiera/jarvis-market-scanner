@@ -205,9 +205,11 @@ def update_account(candidates, buy_signals, now):
             remaining.append(position)
     account["positions"] = remaining
 
+
     processed = set(account.get("processed_signal_ids") or [])
     active = [s for s in buy_signals if isinstance(s, dict) and s.get("status") == "active"]
-    active.sort(key=lambda s: (s.get("at") or "", s.get("signal_id") or ""))
+    eligible = []
+    allocation_review = []
     for signal in active:
         signal_id = str(signal.get("signal_id") or "")
         if not signal_id or signal_id in processed:
@@ -226,13 +228,35 @@ def update_account(candidates, buy_signals, now):
             continue
         if not (0 < stop < price < target1 <= target2):
             processed.add(signal_id)
-            _event(account, "SKIP", f'{signal.get("symbol")} BUY signal skipped: invalid risk levels',
+            _event(account, "SKIP", "{} BUY signal skipped: invalid risk levels".format(signal.get("symbol")),
                    symbol=signal.get("symbol"), signal_id=signal_id)
             continue
+        score = _num(signal.get("score"))
+        reward_risk = _num(signal.get("target_2_reward_risk_ratio") or signal.get("reward_risk_ratio"))
+        if reward_risk <= 0:
+            reward_risk = (target2 - price) / (price - stop)
+        eligible.append({
+            "signal": signal, "signal_id": signal_id, "key": key, "item": item,
+            "price": price, "stop": stop, "target1": target1, "target2": target2,
+            "score": score, "reward_risk": reward_risk,
+        })
+
+    # Rank only already-active official BUY signals. The existing BUY gates remain upstream.
+    # Existing official score is primary; target-2 reward/risk breaks ties; ID makes ties stable.
+    eligible.sort(key=lambda row: (-row["score"], -row["reward_risk"], row["signal_id"]))
+    for rank, row in enumerate(eligible, start=1):
+        signal, signal_id = row["signal"], row["signal_id"]
+        key, item = row["key"], row["item"]
+        price, stop = row["price"], row["stop"]
+        target1, target2 = row["target1"], row["target2"]
+        review = {
+            "rank": rank, "signal_id": signal_id, "symbol": key[1],
+            "asset_type": key[0], "official_score": row["score"],
+            "target_2_reward_risk": round(row["reward_risk"], 4),
+        }
         if len(account["positions"]) >= MAX_OPEN_POSITIONS:
-            processed.add(signal_id)
-            _event(account, "SKIP", f'{signal.get("symbol")} BUY signal skipped: four-position limit reached',
-                   symbol=signal.get("symbol"), signal_id=signal_id)
+            review.update({"status": "deferred", "reason": "Four-position limit; will be reconsidered while BUY remains active"})
+            allocation_review.append(review)
             continue
         equity = _num(account["cash"]) + sum(_num(p.get("quantity")) * _num(p.get("latest_price") or p.get("entry_price")) for p in account["positions"])
         risk_budget = equity * RISK_FRACTION
@@ -241,7 +265,6 @@ def update_account(candidates, buy_signals, now):
         risk_per_unit = (price - stop) + entry_fee_per_unit + stop_exit_fee_per_unit
         qty_by_risk = risk_budget / risk_per_unit if risk_per_unit > 0 else 0.0
         qty_by_cap = equity * MAX_POSITION_FRACTION / price
-        # Solve for quantity with the broker's actual fee model included in cash sizing.
         cash = _num(account["cash"])
         quantity = round(max(0.0, min(qty_by_risk, qty_by_cap, cash / price)), 10)
         for _ in range(3):
@@ -254,9 +277,8 @@ def update_account(candidates, buy_signals, now):
         entry_fee_info = calculate_trade_fee(key[0], "buy", notional, quantity)
         fee = entry_fee_info["total"]
         if quantity <= 0 or notional < 1.0:
-            processed.add(signal_id)
-            _event(account, "SKIP", f'{signal.get("symbol")} BUY signal skipped: insufficient available paper capital',
-                   symbol=signal.get("symbol"), signal_id=signal_id)
+            review.update({"status": "deferred", "reason": "Insufficient available paper cash; will be reconsidered"})
+            allocation_review.append(review)
             continue
         coinbase_volume = (_record_coinbase_monthly_volume(account, notional, now)
                            if key[0] in ("crypto", "cryptocurrency") else None)
@@ -271,15 +293,20 @@ def update_account(candidates, buy_signals, now):
             "entry_fee_breakdown": entry_fee_info,
             "stop_loss": stop, "target_1": target1, "target_2": target2,
             "score": signal.get("score"), "score_model": signal.get("score_model"),
+            "allocation_rank": rank, "allocation_reward_risk": round(row["reward_risk"], 4),
             "price_source": item.get("price_source") or item.get("data_source"),
             "entry_price_as_of": item.get("price_as_of"), "target_1_filled": False,
             "realized_pnl": 0.0, "status": "open",
         }
         account["positions"].append(position)
         processed.add(signal_id)
-        _event(account, "BUY", f'Auto paper BUY: {key[1]}', symbol=key[1], asset_type=key[0],
+        review.update({"status": "allocated", "reason": "Highest-ranked eligible setup within current risk and capacity limits", "paper_notional": round(notional, 2)})
+        allocation_review.append(review)
+        _event(account, "BUY", "Auto paper BUY: {}".format(key[1]), symbol=key[1], asset_type=key[0],
                price=price, quantity=quantity, notional=round(notional, 8), fee=round(fee, 8),
+               allocation_rank=rank, official_score=row["score"], target_2_reward_risk=round(row["reward_risk"], 4),
                coinbase_one_volume=coinbase_volume, signal_id=signal_id)
+    account["allocation_review"] = allocation_review
     account["processed_signal_ids"] = list(processed)[-2000:]
     account["closed_trades"] = account["closed_trades"][-500:]
     account["ledger"] = account["ledger"][-500:]
