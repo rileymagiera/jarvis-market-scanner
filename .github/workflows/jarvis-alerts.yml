@@ -222,7 +222,7 @@ jobs:
               history_source="github_actions_scan_workspace",
           )
           Path("jarvis_historical_audit.json").write_text(
-              json.dumps(export, separators=(",", ":")) + "\\n", encoding="utf-8"
+              json.dumps(export, separators=(",", ":")) + "\n", encoding="utf-8"
           )
           print(
               "Historical audit export built: "
