@@ -4,6 +4,7 @@ import math
 from datetime import datetime, timezone
 from pathlib import Path
 from early_opportunity_radar import build_candidate_snapshot
+from experiment_registry import ensure_registry, build_stop_decision_snapshot, record_stop_observation, summarize_experiment_registry
 
 STATE_PATH = Path("paper_trading_state.json")
 STARTING_CASH = 250.0
@@ -100,10 +101,11 @@ def load_account():
                     position["estimated_exit_fee"] = calculate_trade_fee(
                         position.get("asset_type"), "sell", quantity * price, quantity
                     )["total"]
+            ensure_registry(state)
             return state
     except (OSError, json.JSONDecodeError):
         pass
-    return {
+    account = {
         "version": 1, "mode": "PAPER_ONLY", "starting_cash": STARTING_CASH,
         "cash": STARTING_CASH, "positions": [], "closed_trades": [],
         "ledger": [], "processed_signal_ids": [], "created_at": None,
@@ -116,6 +118,8 @@ def load_account():
             "allocation_method": "Official BUY and existing Risk-Off signals retain their existing shared-account ranking; explicitly enabled early-entry experiments are ranked after them; all use the existing score-scaled 1% risk budget, 25% position cap, four-position limit, fee model and shared cash",
         },
     }
+    ensure_registry(account)
+    return account
 
 
 
@@ -348,6 +352,10 @@ def update_account(candidates, buy_signals, now, enable_early_entry_experimental
         position["latest_price"] = price
         position["latest_price_as_of"] = item.get("price_as_of")
         position["latest_observed_at"] = now.isoformat()
+        record_stop_observation(
+            account, position, price, now.isoformat(), item.get("price_as_of"),
+            scan_id=scan_id or now.isoformat(),
+        )
         qty = _num(position.get("quantity"))
         position["estimated_exit_fee"] = calculate_trade_fee(
             position["asset_type"], "sell", qty * price, qty
@@ -523,6 +531,13 @@ def update_account(candidates, buy_signals, now, enable_early_entry_experimental
             "estimated_exit_fee": calculate_trade_fee(key[0], "sell", notional, quantity)["total"],
             "entry_fee_breakdown": entry_fee_info,
             "stop_loss": stop, "target_1": target1, "target_2": target2,
+            "stop_experiment_version": "STOP-CURRENT-01-v1",
+            "stop_decision_snapshot": build_stop_decision_snapshot(item, price, stop, now.isoformat()),
+            "stop_observations": [{
+                "scan_id": str(scan_id or now.isoformat()), "observed_at": now.isoformat(),
+                "price_as_of": item.get("price_as_of"), "price": price,
+            }],
+            "stop_counterfactuals": {},
             "score": signal.get("score"), "score_model": signal.get("score_model"),
             "allocation_rank": rank, "allocation_reward_risk": round(row["reward_risk"], 4),
             "quality_risk_multiplier": round(quality_risk_multiplier, 4),
@@ -670,4 +685,5 @@ def account_summary(account, now=None):
         "early_entry_realized_pnl": round(early_realized, 4),
         "early_entry_signal_diagnostics": account.get("early_entry_signal_diagnostics") or {},
         "strategy_performance": strategy_performance,
+        "experiment_registry": summarize_experiment_registry(account),
     }
