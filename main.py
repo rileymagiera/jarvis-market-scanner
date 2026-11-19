@@ -199,6 +199,22 @@ def discover_stock_symbols(limit: int = 120) -> list[str]:
 
 KRAKEN = "https://api.kraken.com/0/public"
 KRAKEN_PAIR_MAP = None
+KRAKEN_REQUEST_LOCK = threading.Lock()
+KRAKEN_LAST_REQUEST_AT = 0.0
+KRAKEN_MIN_REQUEST_INTERVAL_SECONDS = 1.05
+
+
+def kraken_get(url: str, **kwargs):
+    """Serialize public Kraken REST calls and pace starts to stay near 1 req/sec."""
+    global KRAKEN_LAST_REQUEST_AT
+    with KRAKEN_REQUEST_LOCK:
+        wait = KRAKEN_MIN_REQUEST_INTERVAL_SECONDS - (time.monotonic() - KRAKEN_LAST_REQUEST_AT)
+        if wait > 0:
+            time.sleep(wait)
+        try:
+            return HTTP.get(url, **kwargs)
+        finally:
+            KRAKEN_LAST_REQUEST_AT = time.monotonic()
 
 
 def crypto_base(symbol: str) -> str:
@@ -215,7 +231,7 @@ def kraken_pairs():
     global KRAKEN_PAIR_MAP
     if KRAKEN_PAIR_MAP is not None:
         return KRAKEN_PAIR_MAP
-    response = HTTP.get(f"{KRAKEN}/AssetPairs", timeout=15)
+    response = kraken_get(f"{KRAKEN}/AssetPairs", timeout=15)
     response.raise_for_status()
     payload = response.json()
     if payload.get("error"):
@@ -1990,7 +2006,7 @@ def kraken_crypto_market_data(symbol: str):
     vwap = safe_float((ticker.get("p") or [0, 0])[1])
     if price <= 0 or opening <= 0:
         raise RuntimeError(f"Kraken returned incomplete ticker for {base}")
-    bars_response = HTTP.get(
+    bars_response = kraken_get(
         f"{KRAKEN}/OHLC",
         params={"pair": pair_id, "interval": 60},
         timeout=12,
