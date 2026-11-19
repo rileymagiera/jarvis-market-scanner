@@ -2177,9 +2177,9 @@ def crypto_shadow_quote(provider: str, symbol: str) -> dict:
             price = safe_float(payload.get("price"))
             stamp = pd.Timestamp(payload.get("time")) if payload.get("time") else None
             bid, ask = safe_float(payload.get("bid")), safe_float(payload.get("ask"))
-        elif provider == "binance":
+        elif provider == "binance_us":
             response = HTTP.get(
-                "https://api.binance.com/api/v3/ticker/24hr",
+                "https://api.binance.us/api/v3/ticker/24hr",
                 params={"symbol": base + "USDT"},
                 timeout=(2, 5),
             )
@@ -2259,7 +2259,7 @@ def persist_crypto_shadow_history(records: list[dict], timestamp: str, run_id=No
             retained.append(item)
     retained = retained[-20000:]
     providers = {}
-    for name in ("coinbase", "binance"):
+    for name in ("coinbase", "binance_us"):
         rows = [x for x in retained if x.get("provider") == name]
         comparable = [safe_float(x.get("difference_pct"), np.nan) for x in rows if x.get("status") == "comparable"]
         comparable = [x for x in comparable if np.isfinite(x)]
@@ -2282,7 +2282,7 @@ def collect_crypto_shadow_comparisons(crypto_results: list[dict], run_number=Non
     records = []
     for symbol in selected:
         item = by_symbol.get(symbol, {})
-        for provider in ("coinbase", "binance"):
+        for provider in ("coinbase", "binance_us"):
             quote, error = None, None
             try:
                 quote = crypto_shadow_quote(provider, symbol)
