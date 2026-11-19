@@ -230,7 +230,7 @@ def update_paper_tracker(candidates, now):
                 "data_quality", "daily_data_quality", "intraday_data_quality", "hourly_data_quality", "entry_status", "signal_blocked_reason", "potential_stage",
                 "hourly_change_pct", "daily_change_pct", "higher_lows", "breakout_24h", "above_24h_average",
                 "trend_up", "relative_volume", "change_1h_pct", "change_24h_pct", "price_validation_passed",
-                "price_validation_method", "price_validation_status",
+                "price_validation_method",
             )
             for field in research_fields:
                 record[field] = item.get(field)
