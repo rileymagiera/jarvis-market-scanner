@@ -202,8 +202,31 @@ def test_unverified_followup_cannot_mark_open_position_to_market_or_trigger_stop
     assert account["positions"][0]["latest_price"] == 10.0
     assert account["cash"] == cash_after_entry
     assert not [event for event in account["ledger"] if event["type"] == "SELL"]
+    assert account["positions"][0]["price_update_status"] == "latest_scan_price_unverified"
     summary = paper_trading.account_summary(account)
     assert summary["equity"] == round(cash_after_entry + account["positions"][0]["quantity"] * 10.0, 2)
+
+
+def test_missing_position_price_is_flagged_stale_without_exiting(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    first_scan = datetime(2026, 11, 19, 0, 0, tzinfo=timezone.utc)
+    account = paper_trading.update_account([_candidate(10.0)], [_signal()], first_scan)
+    original_price = account["positions"][0]["latest_price"]
+
+    next_scan = first_scan.replace(minute=31)
+    account = paper_trading.update_account([], [], next_scan)
+
+    assert len(account["positions"]) == 1
+    position = account["positions"][0]
+    assert position["latest_price"] == original_price
+    assert position["price_update_status"] == "not_in_latest_scan"
+    assert position["price_update_checked_at"] == next_scan.isoformat()
+    assert not [event for event in account["ledger"] if event["type"] == "SELL"]
+
+    summary = paper_trading.account_summary(account, next_scan)
+    assert summary["stale_price_positions"] == 1
+    assert position["price_freshness"] == "STALE"
+    assert position["price_age_seconds"] == 31 * 60
 
 
 def test_account_summary_reads_coinbase_allowance_from_explicit_utc_month():
