@@ -344,7 +344,7 @@ jobs:
           # Force-add the machine-owned state files before checking for changes.
           # This also prevents an ignored/untracked local state file from blocking
           # a later rebase with "would be overwritten" errors.
-          git add -f alert_state.json paper_tracker.json paper_tracker_lifetime.json buy_signal_history.json paper_trading_state.json scan_diagnostics.json scan_metadata.json provider_usage_history.json
+          git add -f alert_state.json paper_tracker.json paper_tracker_lifetime.json buy_signal_history.json paper_trading_state.json scan_diagnostics.json scan_metadata.json provider_usage_history.json webull_yahoo_comparison.json
           if git diff --cached --quiet; then
             echo "No Jarvis state changes to persist."
             exit 0
