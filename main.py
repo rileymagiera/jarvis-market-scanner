@@ -2274,7 +2274,7 @@ def response_payload(asset: str, symbols: list[str], results: list, errors: list
 
 @app.get("/", dependencies=[Depends(require_site_login)])
 def home():
-    """Open the dashboard on its Home page by default."""
+    """Open the dashboard on Market Overview by default."""
     return RedirectResponse(url="/history", status_code=302)
 
 
