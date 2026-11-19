@@ -8,12 +8,24 @@ class RunnerIntelligenceTests(unittest.TestCase):
         records = [
             {"asset_type": "stock", "symbol": "AAA", "discovery_return_status": "verified",
              "discovery_max_gain_pct": 31.2, "discovery_return_pct": 12.0,
-             "discovery_max_drawdown_pct": -4.0, "price_validation_status": "verified"},
+             "discovery_max_drawdown_pct": -4.0, "price_validation_status": "verified",
+             "discovery_initial_price": 10.0, "discovery_baseline_status": "live_verified",
+             "discovery_price_as_of": "2026-01-01T00:00:00+00:00"},
             {"asset_type": "stock", "symbol": "BBB", "discovery_return_status": "verified",
-             "discovery_max_gain_pct": 40.0},
+             "discovery_max_gain_pct": 40.0, "discovery_initial_price": 10.0,
+             "discovery_baseline_status": "live_verified",
+             "discovery_price_as_of": "2026-01-01T00:00:00+00:00"},
             {"asset_type": "crypto", "symbol": "CCC", "discovery_return_status": "provisional",
-             "discovery_max_gain_pct": 55.0},
+             "discovery_max_gain_pct": 55.0, "discovery_initial_price": 10.0,
+             "discovery_baseline_status": "live_verified",
+             "discovery_price_as_of": "2026-01-01T00:00:00+00:00"},
         ]
+        records.append({
+            "asset_type": "crypto", "symbol": "LEGACY",
+            "discovery_return_status": "verified", "discovery_max_gain_pct": 60.0,
+            "discovery_initial_price": 1.0, "discovery_baseline_status": "first_verified_legacy",
+            "discovery_price_as_of": "2026-01-01T00:00:00+00:00",
+        })
         report = build_runner_intelligence_report(records, [
             {"asset_type": "stock", "symbol": "BBB", "status": "stale"}
         ])
@@ -67,8 +79,12 @@ class RunnerIntelligenceTests(unittest.TestCase):
         }]
         report = build_runner_intelligence_report(records)
         gate = report["buy_gate_failure_tracker"]
-        self.assertEqual(gate["event_count"], 1)
-        self.assertEqual({x["gate"] for x in gate["gate_summaries"]}, {"volume", "breakout"})
+        self.assertEqual(gate["event_count"], 2)
+        summaries = {x["gate"]: x for x in gate["gate_summaries"]}
+        self.assertEqual(set(summaries), {"volume", "breakout"})
+        self.assertEqual(summaries["volume"]["events"], 2)
+        self.assertEqual(summaries["volume"]["measured"], 1)
+        self.assertEqual(summaries["volume"]["unique_candidates"], 1)
         self.assertEqual(report["catalyst_lifecycle"]["tracked_candidates"], 1)
 
     def test_radar_excludes_unscored_and_unsurfaced_candidates(self):
