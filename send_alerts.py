@@ -207,9 +207,21 @@ def update_paper_tracker(candidates, now):
                 record["discovery_baseline_timestamp_type"] = item.get("price_timestamp_type") or "provider timestamp"
                 record["discovery_peak_price"] = price
                 record["discovery_trough_price"] = price
-                record["discovery_return_pct"] = None
-                record["discovery_max_gain_pct"] = None
-                record["discovery_max_drawdown_pct"] = None
+                record["discovery_return_pct"] = 0.0
+                record["discovery_max_gain_pct"] = 0.0
+                record["discovery_max_drawdown_pct"] = 0.0
+            # Provisional performance uses the immutable first-captured quote as its
+            # baseline. This is display-only: it does not make the quote BUY-eligible
+            # and does not feed verified research/outcome sampling.
+            discovery_initial = safe_float(record.get("discovery_initial_price"), 0)
+            if discovery_initial > 0:
+                record["discovery_return_pct"] = round((price / discovery_initial - 1) * 100, 2)
+                record["discovery_peak_price"] = max(safe_float(record.get("discovery_peak_price"), discovery_initial), price)
+                record["discovery_trough_price"] = min(safe_float(record.get("discovery_trough_price"), discovery_initial), price)
+                record["discovery_max_gain_pct"] = round((record["discovery_peak_price"] / discovery_initial - 1) * 100, 2)
+                record["discovery_max_drawdown_pct"] = round((record["discovery_trough_price"] / discovery_initial - 1) * 100, 2)
+                record["discovery_return_status"] = "provisional"
+                record["discovery_return_price_as_of"] = item.get("price_as_of") or now.isoformat()
             record["price_validation_status"] = "unverified"
             record["price_validation_note"] = item.get("price_validation_note", "Exchange price validation unavailable")
             record["price_validation_method"] = item.get("price_validation_method")
@@ -549,6 +561,8 @@ def update_paper_tracker(candidates, now):
                 record["discovery_trough_price"] = min(safe_float(record.get("discovery_trough_price"), discovery_initial), price)
                 record["discovery_max_gain_pct"] = round((record["discovery_peak_price"] / discovery_initial - 1) * 100, 2)
                 record["discovery_max_drawdown_pct"] = round((record["discovery_trough_price"] / discovery_initial - 1) * 100, 2)
+                record["discovery_return_status"] = "verified"
+                record["discovery_return_price_as_of"] = item.get("price_as_of") or now.isoformat()
             record["price_observed_at"] = now.isoformat()
             record["peak_price"] = max(float(record.get("peak_price") or price), price)
             record["trough_price"] = min(float(record.get("trough_price") or price), price)
