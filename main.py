@@ -15,6 +15,7 @@ import requests
 from io import StringIO
 import yfinance as yf
 from early_runner import compute_early_runner_metrics, compute_early_warning_metrics, compute_stock_market_breadth, rank_stock_universe_strength, summarize_crypto_cross_section, set_crypto_relative_strength_coverage, build_data_quality_record, apply_entry_quality_gate, has_session_aware_early_runner_baseline
+from runner_intelligence import build_runner_intelligence_report
 from buy_intelligence import build_buy_intelligence, blend_buy_score
 from paper_trading import load_account as load_paper_account, account_summary as summarize_paper_account
 from fastapi import FastAPI, Query, Header, HTTPException, Depends
@@ -3549,9 +3550,11 @@ def research_data():
             "average_5d_return_pct": round(sum(returns) / len(returns), 2) if returns else None,
             "definition": "5-day sampled return >=20%; only completed, verified observations",
         }
+    runner_intelligence = build_runner_intelligence_report(records, buys)
     massive_key=bool(os.getenv("MASSIVE_API_KEY","").strip())
     webull_keys=bool(os.getenv("WEBULL_APP_KEY","").strip() and os.getenv("WEBULL_APP_SECRET","").strip())
     return {"synced_at":synced,"last_scan_completed_at":completed,"scan_run_id":run_id,
+            "runner_intelligence":runner_intelligence,
             "history_source":source,"paper_tracker":paper,"lifetime":lifetime,"buy_signals":buys,
             "market_session":market_session_status(),
             "quote_provider_status":{
