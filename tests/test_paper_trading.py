@@ -71,15 +71,15 @@ def test_stop_observation_closes_position_without_reentry(tmp_path, monkeypatch)
     assert saved["processed_signal_ids"] == [_signal()["signal_id"]]
 
 
-def test_coinbase_advanced_crypto_fees_use_taker_default():
+def test_coinbase_one_app_fee_model_uses_zero_commission_and_estimated_spread():
     buy = paper_trading.calculate_trade_fee("crypto", "buy", 100.0)
     sell = paper_trading.calculate_trade_fee("crypto", "sell", 100.0)
-    maker = paper_trading.calculate_trade_fee("crypto", "buy", 100.0, order_type="maker")
-    assert buy["broker"] == "Coinbase Advanced"
-    assert buy["total"] == 0.90
-    assert sell["total"] == 0.90
-    assert maker["total"] == 0.50
-
+    assert buy["broker"] == "Coinbase app + Coinbase One Basic"
+    assert buy["commission"] == 0
+    assert buy["total"] == 0.5
+    assert sell["total"] == 0.5
+    assert buy["monthly_zero_fee_cap"] == 500.0
+    assert "Estimated spread" in buy["note"]
 
 def test_webull_stock_fees_apply_cat_both_sides_and_sec_only_on_sell():
     buy = paper_trading.calculate_trade_fee("stock", "buy", 1000.0, quantity=10)
@@ -103,9 +103,9 @@ def test_paper_entry_and_exit_ledger_use_asset_specific_fees(tmp_path, monkeypat
     account = paper_trading.update_account([candidate], [signal], now)
     position = account["positions"][0]
     assert position["entry_fee"] > 0
-    assert position["entry_fee_breakdown"]["broker"] == "Coinbase Advanced"
+    assert position["entry_fee_breakdown"]["broker"] == "Coinbase app + Coinbase One Basic"
     candidate["price"] = 11.0
     account = paper_trading.update_account([candidate], [signal], now)
     sell = [x for x in account["ledger"] if x["type"] == "SELL"][0]
-    assert sell["fee_breakdown"]["broker"] == "Coinbase Advanced"
+    assert sell["fee_breakdown"]["broker"] == "Coinbase app + Coinbase One Basic"
     assert sell["fee"] > 0
