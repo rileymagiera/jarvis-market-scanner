@@ -34,12 +34,6 @@ def build_historical_audit_export(
     radar = report["early_warning_radar"]
     cohorts = report["signal_quality_by_setup"]
 
-    def split_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
-        return {
-            "stocks": sum(1 for row in rows if row.get("asset_type") == "stock"),
-            "crypto": sum(1 for row in rows if row.get("asset_type") == "crypto"),
-        }
-
     missed_rows = missed.get("candidates", [])
     gate_rows = gates.get("recent_events", [])
     radar_rows = radar.get("candidates", [])
@@ -69,14 +63,17 @@ def build_historical_audit_export(
         "missed_runners": {
             "threshold_pct": missed.get("threshold_pct"),
             "total_verified_watchlist_runners": missed.get("verified_watchlist_runners", 0),
-            "by_asset": split_counts(missed_rows),
+            "included_candidates_by_asset": {
+                "stocks": sum(1 for row in missed_rows[:MAX_MISSED_RUNNERS] if row.get("asset_type") == "stock"),
+                "crypto": sum(1 for row in missed_rows[:MAX_MISSED_RUNNERS] if row.get("asset_type") == "crypto"),
+            },
             "candidates": missed_rows[:MAX_MISSED_RUNNERS],
         },
         "buy_gate_failures": {
             "total_events": gates.get("event_count", 0),
             "gate_summaries": gates.get("gate_summaries", []),
             "recent_events": gate_rows[:MAX_GATE_EVENTS],
-            "truncated": len(gate_rows) > MAX_GATE_EVENTS,
+            "truncated": gates.get("event_count", 0) > len(gate_rows[:MAX_GATE_EVENTS]),
         },
         "early_warning_cohorts": {
             "minimum_observations": cohorts.get("minimum_observations"),
@@ -84,13 +81,18 @@ def build_historical_audit_export(
         },
         "early_warning_radar": {
             "candidate_count": radar.get("candidate_count", 0),
-            "by_asset": split_counts(radar_rows),
+            "included_candidates_by_asset": {
+                "stocks": sum(1 for row in radar_rows[:MAX_RADAR_CANDIDATES] if row.get("asset_type") == "stock"),
+                "crypto": sum(1 for row in radar_rows[:MAX_RADAR_CANDIDATES] if row.get("asset_type") == "crypto"),
+            },
             "candidates": radar_rows[:MAX_RADAR_CANDIDATES],
+            "truncated": radar.get("candidate_count", 0) > len(radar_rows[:MAX_RADAR_CANDIDATES]),
         },
         "limits": [
             "A missed runner is a verified watchlist move, not proof a safe entry was available.",
             "BUY-gate follow-up returns are sampled observations, not intrabar paths or causal estimates.",
             "Only retained records and available official BUY history are included.",
+            "Asset breakdowns describe included candidate samples, not full-universe totals.",
             "This export does not change scoring, eligibility, risk, paper trades, or live trading.",
         ],
     }
