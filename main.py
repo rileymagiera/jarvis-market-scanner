@@ -844,9 +844,14 @@ def build_buy_intelligence(item: dict) -> dict:
     if contraction is not None:
         formation_available += 5
         if contraction >= 10: formation_points += 5
-    if item.get("higher_highs_higher_lows") is not None:
+    structure_value = (
+        item.get("higher_highs_higher_lows")
+        if item.get("asset_type") == "stock"
+        else (item.get("crqs_features") or {}).get("higher_lows")
+    )
+    if structure_value is not None:
         formation_available += 5
-        if item.get("higher_highs_higher_lows"): formation_points += 5
+        if structure_value: formation_points += 5
     breakout_keys = ("breakout_20d", "breakout_24h", "intraday_breakout")
     if any(key in item and item.get(key) is not None for key in breakout_keys):
         formation_available += 5
@@ -854,24 +859,60 @@ def build_buy_intelligence(item: dict) -> dict:
     formation = scaled_component(formation_points, formation_available, 25)
 
     momentum_points = momentum_available = 0
-    for key, weight in (("relative_strength_vs_spy", 8), ("relative_strength_vs_iwm", 5),
-                        ("five_day_change_pct", 4), ("hourly_change_pct", 3)):
+    features = item.get("crqs_features") or {}
+    if item.get("asset_type") == "stock":
+        momentum_inputs = (
+            ("relative_strength_vs_spy", 8),
+            ("relative_strength_vs_iwm", 5),
+            ("five_day_change_pct", 4),
+            ("intraday_change_pct", 3),
+        )
+    else:
+        # Crypto relative strength is added after the full-market BTC cross-section.
+        momentum_inputs = (
+            ("crqs_relative_strength_vs_btc_24h_pct", 8),
+            ("hourly_change_pct", 7),
+        )
+        four_hour = features.get("four_hour_change_pct")
+        if four_hour is not None:
+            try:
+                four_hour = float(four_hour)
+                if np.isfinite(four_hour):
+                    momentum_available += 5
+                    if four_hour > 0: momentum_points += 5
+            except (TypeError, ValueError, OverflowError):
+                pass
+    for key, weight in momentum_inputs:
         value = number(key)
         if value is not None:
             momentum_available += weight
             if value > 0: momentum_points += weight
-    if item.get("above_session_vwap") is not None or item.get("above_24h_average") is not None:
+    positioning_key = "above_session_vwap" if item.get("asset_type") == "stock" else "above_24h_average"
+    if item.get(positioning_key) is not None:
         momentum_available += 5
-        if item.get("above_session_vwap") or item.get("above_24h_average"):
+        if item.get(positioning_key):
             momentum_points += 5
     momentum = scaled_component(momentum_points, momentum_available, 25)
 
     activity_points = activity_available = 0
-    for key, threshold, points in (
-        ("relative_volume", 1.5, 5), ("intraday_relative_volume", 1.5, 5),
-        ("cumulative_rvol_same_time", 1.5, 5), ("volume_acceleration_3bar", 1.8, 3),
-        ("premarket_rvol_same_time", 1.5, 2), ("float_rotation_pct", 20, 5),
-    ):
+    if item.get("asset_type") == "stock":
+        activity_inputs = (
+            ("relative_volume", 1.5, 5), ("intraday_relative_volume", 1.5, 5),
+            ("cumulative_rvol_same_time", 1.5, 5), ("volume_acceleration_3bar", 1.8, 3),
+            ("premarket_rvol_same_time", 1.5, 2), ("float_rotation_pct", 20, 5),
+        )
+    else:
+        activity_inputs = (("relative_volume", 1.5, 12),)
+        consistency = features.get("volume_consistency_6h")
+        if consistency is not None:
+            try:
+                consistency = float(consistency)
+                if np.isfinite(consistency):
+                    activity_available += 8
+                    if consistency >= 0.70: activity_points += 8
+            except (TypeError, ValueError, OverflowError):
+                pass
+    for key, threshold, points in activity_inputs:
         value = number(key)
         if value is not None:
             activity_available += points
@@ -937,7 +978,7 @@ def build_buy_intelligence(item: dict) -> dict:
         "components": components,
         "component_coverage": coverage,
         "historical_observations": observations,
-        "historical_confidence": "insufficient" if observations < 30 else "provisional",
+        "historical_confidence": "provisional" if historical_score is not None else "insufficient",
         "required_historical_observations": 30,
         "affects_production_buy_score": False,
         "can_execute_trades": False,
