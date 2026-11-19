@@ -2692,7 +2692,7 @@ def scan_premarket(limit: int = Query(150, ge=20, le=200)):
             "price": item.get("intraday_price") if item.get("intraday_price") else None,
             "as_of": item.get("intraday_as_of"),
             "source": "Yahoo Finance extended-hours intraday bars",
-            "fresh": yahoo_recent,
+            "fresh": item["premarket_provider_checks"]["yahoo"]["status"].startsWith("RECENT"),
             "verification": "PROVISIONAL — Yahoo delay entitlement unverified",
         }
         item["premarket_reasons"] = [
@@ -2705,6 +2705,12 @@ def scan_premarket(limit: int = Query(150, ge=20, le=200)):
         item["premarket_reasons"] = [x for x in item["premarket_reasons"] if x]
         ranked.append(item)
     ranked.sort(key=lambda x: x.get("premarket_rank_score", 0), reverse=True)
+    provider_audit = {
+        "yahoo_recent_unverified": sum(1 for x in ranked if x["premarket_provider_checks"]["yahoo"]["status"].startswith("RECENT")),
+        "alpaca_fresh_iex_or_sip": sum(1 for x in ranked if x["premarket_provider_checks"]["alpaca"]["status"] == "FRESH IEX/SIP QUOTE"),
+        "alpaca_consolidated_sip": sum(1 for x in ranked if x["premarket_provider_checks"]["alpaca"]["counts_as_consolidated_live"]),
+        "note": "Yahoo bars are not counted as live because delay entitlement is unverified. Alpaca IEX is exchange-limited; SIP is counted as consolidated only when the configured feed is SIP.",
+    }
     return {
         "scanner": "Jarvis Premarket Early Runner",
         "version": "1.0",
@@ -2712,6 +2718,7 @@ def scan_premarket(limit: int = Query(150, ge=20, le=200)):
         "market_session": session,
         "symbols_requested": len(universe),
         "candidates_found": len(ranked),
+        "provider_audit": provider_audit,
         "candidates": ranked[:50],
         "errors": errors,
         "duration_seconds": round(time.monotonic() - scan_started, 2),
