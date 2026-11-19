@@ -139,7 +139,7 @@ def build_risk_off_paper_signals(candidates, now):
         if not isinstance(item, dict) or item.get("market_regime") != "RISK-OFF":
             continue
         checks = ((item.get("buy_readiness") or {}).get("checks") or {})
-        if not checks or "market_not_risk_off" not in checks:
+        if not checks or checks.get("market_not_risk_off") is not False:
             continue
         if any(not bool(value) for key, value in checks.items() if key != "market_not_risk_off"):
             continue
