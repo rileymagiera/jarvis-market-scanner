@@ -181,3 +181,133 @@ def test_binance_us_shadow_quote_rejects_missing_price_cleanly(monkeypatch):
         assert "no usable price or exchange timestamp" in str(exc)
     else:
         raise AssertionError("Missing Binance price should be rejected")
+
+
+def test_coinbase_full_fallback_requires_fresh_quote_and_kraken_agreement(monkeypatch):
+    from datetime import datetime, timezone
+
+    now = datetime.now(timezone.utc).isoformat()
+    candles = [[int(datetime.now(timezone.utc).timestamp()) - i * 3600, 99, 102, 98, 100, 10] for i in range(30)]
+    calls = []
+
+    class Response:
+        def __init__(self, payload):
+            self.payload = payload
+        def raise_for_status(self):
+            pass
+        def json(self):
+            return self.payload
+
+    def fake_get(url, **kwargs):
+        calls.append(url)
+        if url.endswith("/ticker"):
+            return Response({"price": "100.20", "time": now})
+        if url.endswith("/stats"):
+            return Response({"open": "98", "volume": "1200"})
+        if url.endswith("/candles"):
+            return Response(candles)
+        raise AssertionError(url)
+
+    monkeypatch.setattr(main.HTTP, "get", fake_get)
+    ticker, bars, provider = main.coinbase_crypto_market_data("BTCUSDT", reference_price=100.0)
+
+    assert provider == "Coinbase Exchange public API"
+    assert ticker["quote_currency"] == "USD"
+    assert ticker["price_validation_passed"] is True
+    assert ticker["price_validation_method"] == "coinbase_timestamp_kraken_agreement"
+    assert ticker["price_cross_check_difference_pct"] <= 0.5
+    assert len(bars) == 30
+    assert len(calls) == 3
+
+
+def test_coinbase_full_fallback_without_kraken_reference_is_watch_only(monkeypatch):
+    from datetime import datetime, timezone
+
+    now = datetime.now(timezone.utc).isoformat()
+    candles = [[int(datetime.now(timezone.utc).timestamp()) - i * 3600, 99, 102, 98, 100, 10] for i in range(30)]
+
+    class Response:
+        def __init__(self, payload):
+            self.payload = payload
+        def raise_for_status(self):
+            pass
+        def json(self):
+            return self.payload
+
+    def fake_get(url, **kwargs):
+        if url.endswith("/ticker"):
+            return Response({"price": "100.20", "time": now})
+        if url.endswith("/stats"):
+            return Response({"open": "98", "volume": "1200"})
+        if url.endswith("/candles"):
+            return Response(candles)
+        raise AssertionError(url)
+
+    monkeypatch.setattr(main.HTTP, "get", fake_get)
+    ticker, _, _ = main.coinbase_crypto_market_data("BTCUSDT")
+
+    assert ticker["price_validation_passed"] is False
+    assert ticker["price_validation_method"] == "coinbase_fallback_unconfirmed"
+    assert "watch-only" in ticker["price_validation_note"]
+
+
+def test_coinbase_full_fallback_rejects_price_divergence(monkeypatch):
+    from datetime import datetime, timezone
+
+    now = datetime.now(timezone.utc).isoformat()
+    candles = [[int(datetime.now(timezone.utc).timestamp()) - i * 3600, 99, 102, 98, 100, 10] for i in range(30)]
+
+    class Response:
+        def __init__(self, payload):
+            self.payload = payload
+        def raise_for_status(self):
+            pass
+        def json(self):
+            return self.payload
+
+    def fake_get(url, **kwargs):
+        if url.endswith("/ticker"):
+            return Response({"price": "102.00", "time": now})
+        if url.endswith("/stats"):
+            return Response({"open": "98", "volume": "1200"})
+        if url.endswith("/candles"):
+            return Response(candles)
+        raise AssertionError(url)
+
+    monkeypatch.setattr(main.HTTP, "get", fake_get)
+    ticker, _, _ = main.coinbase_crypto_market_data("BTCUSDT", reference_price=100.0)
+
+    assert ticker["price_validation_passed"] is False
+    assert ticker["price_cross_check_difference_pct"] > 0.5
+
+
+def test_coinbase_full_fallback_rejects_stale_quote(monkeypatch):
+    from datetime import datetime, timedelta, timezone
+
+    stale = (datetime.now(timezone.utc) - timedelta(minutes=10)).isoformat()
+    candles = [[int(datetime.now(timezone.utc).timestamp()) - i * 3600, 99, 102, 98, 100, 10] for i in range(30)]
+
+    class Response:
+        def __init__(self, payload):
+            self.payload = payload
+        def raise_for_status(self):
+            pass
+        def json(self):
+            return self.payload
+
+    def fake_get(url, **kwargs):
+        if url.endswith("/ticker"):
+            return Response({"price": "100.20", "time": stale})
+        if url.endswith("/stats"):
+            return Response({"open": "98", "volume": "1200"})
+        if url.endswith("/candles"):
+            return Response(candles)
+        raise AssertionError(url)
+
+    monkeypatch.setattr(main.HTTP, "get", fake_get)
+    try:
+        main.coinbase_crypto_market_data("BTCUSDT", reference_price=100.0)
+    except RuntimeError as exc:
+        assert "stale or future-dated" in str(exc)
+    else:
+        raise AssertionError("Stale Coinbase fallback quote must be rejected")
