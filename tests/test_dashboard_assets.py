@@ -61,7 +61,7 @@ def test_data_health_page_and_api_are_read_only_and_descriptive(monkeypatch):
                   "data_quality": {"data_type": "live", "verification_status": "verified",
                                    "age_seconds": 30, "buy_eligible": True}},
             "B": {"symbol": "BBB", "asset_type": "crypto", "currently_surfaced": True,
-                  "price_validation_status": "unverified", "latest_price": 0, "catalyst_headline_count": 1,
+                  "price_validation_status": "unverified", "price_validation_note": "Kraken ticker not validated: trade age=412.0s; ticker/trade difference=0.12%", "latest_price": 0, "catalyst_headline_count": 1,
                   "data_quality": {"data_type": "unknown"}},
         },
         "scan_diagnostics": {"diagnostics": {"alpaca_quote_status": {"feed": "iex"},
@@ -78,6 +78,9 @@ def test_data_health_page_and_api_are_read_only_and_descriptive(monkeypatch):
     assert data["candidate_count"] == 2
     assert data["price_status"]["all"]["verified"] == 1
     assert data["price_status"]["all"]["unverified"] == 1
+    assert data["candidates"][0]["validation_note"].startswith("Kraken ticker not validated")
+    assert data["candidates"][0]["failure_reason"] == "Kraken ticker not validated: trade age=412.0s; ticker/trade difference=0.12%"
+    assert data["failure_reasons"] == [{"reason": data["candidates"][0]["failure_reason"], "count": 1}]
     assert data["data_gaps"]["missing_source"] == 1
     assert data["providers"]["stock_price_feed"] == "iex"
     assert data["field_coverage"]["stocks"]["catalyst_headline_count"] == 1
