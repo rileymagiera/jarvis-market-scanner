@@ -4,33 +4,33 @@
       "checkpoints": {
         "1": {
           "flat": 0,
-          "losses": 0,
-          "observations": 15,
-          "total_return_pct": 41.14,
-          "wins": 15
+          "losses": 9,
+          "observations": 25,
+          "total_return_pct": 19.94,
+          "wins": 16
         }
       },
       "recommendations": 139
     },
     "stock": {
-      "recommendations": 428
+      "recommendations": 432
     }
   },
   "checkpoints": {
     "1": {
       "flat": 0,
-      "losses": 0,
-      "observations": 15,
-      "total_return_pct": 41.14,
-      "wins": 15
+      "losses": 9,
+      "observations": 25,
+      "total_return_pct": 19.94,
+      "wins": 16
     }
   },
   "integrity": {
-    "checked_at": "2026-11-19T02:15:41.569351+00:00",
-    "retained_stock_baselines": 288,
-    "retained_stock_counted_baselines": 288,
+    "checked_at": "2026-11-19T03:01:08.929134+00:00",
+    "retained_stock_baselines": 292,
+    "retained_stock_counted_baselines": 292,
     "retained_stock_uncounted_baselines": 0,
-    "unverified_stock_without_baseline": 29
+    "unverified_stock_without_baseline": 25
   },
-  "recommendations": 567
+  "recommendations": 571
 }
