@@ -329,6 +329,8 @@ def update_paper_tracker(candidates, now):
             record["discovery_price_source"] = item.get("data_source") or item.get("price_source")
             record["discovery_baseline_status"] = "first_verified_fallback" if record.get("first_seen") else ("last_known_eod" if item_price_status == "last_known" else "live_verified")
             record["discovery_baseline_timestamp_type"] = item.get("price_timestamp_type") or "provider timestamp"
+            record["discovery_peak_price"] = price
+            record["discovery_trough_price"] = price
         record["latest_price"] = price
         record["price_validation_status"] = item.get("price_validation_status") or ("verified" if item.get("price_validation_passed", False) else "unverified")
         record["price_validation_note"] = item.get("price_validation_note", "Price validation evidence unavailable")
