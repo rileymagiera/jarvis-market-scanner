@@ -56,6 +56,29 @@ class EarlyRunnerMetricsTests(unittest.TestCase):
         self.assertEqual(unknown["data_type"], "historical")
         self.assertFalse(unknown["buy_eligible"])
 
+    def test_after_hours_last_known_close_is_research_only_not_unverified(self):
+        received = "2026-11-19T00:18:00+00:00"
+        last_known = build_data_quality_record(
+            "stock", "Yahoo + Alpaca prior-session daily close cross-check",
+            "prior_session_close_cross_checked", "2026-11-18T21:00:00+00:00",
+            received, {"phase": "AFTER-HOURS"}, True, "iex"
+        )
+        self.assertEqual(last_known["data_type"], "eod")
+        self.assertEqual(last_known["verification_status"], "verified")
+        self.assertFalse(last_known["buy_eligible"])
+
+        research = apply_entry_quality_gate(
+            "DEVELOPING RUNNER", last_known, True, {}
+        )
+        self.assertEqual(research["stage"], "DEVELOPING RUNNER")
+        self.assertEqual(research["entry_status"], "RESEARCH ONLY — EOD DATA")
+
+        buy = apply_entry_quality_gate(
+            "BUY", last_known, True, {"all_gates_passed": True}
+        )
+        self.assertEqual(buy["stage"], "ACTIONABLE SETUP")
+        self.assertEqual(buy["entry_status"], "WAITING FOR LIVE ENTRY CONFIRMATION")
+
     def test_research_stages_survive_non_live_data_but_buy_is_blocked(self):
         delayed = {"data_type": "delayed", "buy_eligible": False}
         blocked = apply_entry_quality_gate("BUY", delayed, True, {"all_gates_passed": False})
