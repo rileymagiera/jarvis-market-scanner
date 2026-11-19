@@ -44,7 +44,7 @@ def calculate_trade_fee(asset_type, side, notional, quantity=0.0, order_type=Non
                 "spread_estimate_rate": COINBASE_APP_SPREAD_ESTIMATE_RATE,
                 "monthly_zero_fee_cap": COINBASE_ONE_MONTHLY_CAP,
                 "total": round(spread, 8), "rate": COINBASE_APP_SPREAD_ESTIMATE_RATE,
-                "note": "Estimated spread only; actual spread varies by asset, size and market conditions"}
+                "note": "Estimated spread only; actual spread varies by asset, size and market conditions. The $500 monthly Coinbase One cap is not tracked; standard fees may apply after it is exceeded"}
     if asset in ("stock", "stocks", "equity", "etf"):
         commission = notional * WEBULL_COMMISSION_RATE
         cat = notional * WEBULL_CAT_RATE
@@ -71,7 +71,7 @@ def load_account():
             state.setdefault("processed_signal_ids", [])
             state.setdefault("rules", {})
             state["rules"].update({
-                "crypto_fee_schedule": "Coinbase One Basic app: zero eligible trading commission up to $500/month; estimated spread 0.50% per side",
+                "crypto_fee_schedule": "Coinbase One Basic app: zero eligible trading commission up to $500/month; estimated spread 0.50% per side; $500 monthly cap exhaustion not yet tracked",
                 "stock_fee_schedule": "Webull US stocks: $0 commission; CAT 0.0003% per side; SEC 0.00206% sell side; FINRA TAF currently $0",
                 "crypto_default_order_type": DEFAULT_CRYPTO_ORDER_TYPE,
             })
