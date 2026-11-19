@@ -140,10 +140,11 @@ def append_candidate_snapshot(record, item, observed_at, scan_id=None):
     return True
 
 def build_shadow_opportunity_radar(records):
-    """Summarize shadow classifications and verified scan-to-scan outcomes."""
+    """Summarize shadow classifications, verified outcomes and provisional false-positive cohorts."""
     rows = []
     class_counts = {}
     asset_counts = {}
+    cohort_members = {}
     total_snapshots = verified_snapshots = eligible_snapshots = 0
     for record in records or []:
         if not isinstance(record, dict):
@@ -161,7 +162,8 @@ def build_shadow_opportunity_radar(records):
         class_counts[label] = class_counts.get(label, 0) + 1
         asset_counts[asset] = asset_counts.get(asset, 0) + 1
 
-        eligible = [x for x in history if x.get("outcome_eligible") and _number(x.get("price")) is not None and _number(x.get("price")) > 0]
+        eligible = [x for x in history if x.get("outcome_eligible")
+                    and _number(x.get("price")) is not None and _number(x.get("price")) > 0]
         baseline = eligible[0] if eligible else None
         returns = []
         if baseline:
@@ -170,6 +172,29 @@ def build_shadow_opportunity_radar(records):
                 price = _number(observation.get("price"))
                 if price is not None and base_price:
                     returns.append((price / base_price - 1) * 100)
+        max_favorable = max(returns) if returns else None
+        max_adverse = min(returns) if returns else None
+        latest_return = returns[-1] if returns else None
+        data_cohort = str(baseline.get("data_type") or "unknown") if baseline else "unverified"
+        baseline_label = str(baseline.get("shadow_classification") or label) if baseline else label
+        if baseline and len(returns) >= 2:
+            cohort_key = (asset, baseline_label, data_cohort)
+            cohort = cohort_members.setdefault(cohort_key, {
+                "candidate_count": 0, "latest_returns": [], "mfe": [], "mae": [],
+                "reached_5": 0, "reached_10": 0, "reached_20": 0,
+                "no_follow_through": 0, "possible_failed_signal": 0,
+            })
+            cohort["candidate_count"] += 1
+            cohort["latest_returns"].append(latest_return)
+            cohort["mfe"].append(max_favorable)
+            cohort["mae"].append(max_adverse)
+            cohort["reached_5"] += int(max_favorable >= 5)
+            cohort["reached_10"] += int(max_favorable >= 10)
+            cohort["reached_20"] += int(max_favorable >= 20)
+            no_follow = max_favorable < 5
+            cohort["no_follow_through"] += int(no_follow)
+            cohort["possible_failed_signal"] += int(no_follow and max_adverse <= -5)
+
         recent_stages = []
         for observation in history[-8:]:
             stage = str(observation.get("stage") or "WATCH")
@@ -185,15 +210,36 @@ def build_shadow_opportunity_radar(records):
             "observations": len(history),
             "verified_observations": sum(bool(x.get("price_verified")) for x in history),
             "latest_price_status": latest.get("price_validation_status") or "unknown",
+            "data_quality_cohort": data_cohort,
             "latest_evidence": latest.get("evidence") or [],
             "stage_progression": recent_stages,
             "score_change_last_3": round(scores[-1] - scores[0], 2) if len(scores) >= 2 else None,
-            "return_from_first_eligible_pct": round(returns[-1], 2) if returns else None,
-            "max_favorable_since_first_eligible_pct": round(max(returns), 2) if returns else None,
-            "max_adverse_since_first_eligible_pct": round(min(returns), 2) if returns else None,
+            "return_from_first_eligible_pct": round(latest_return, 2) if latest_return is not None else None,
+            "max_favorable_since_first_eligible_pct": round(max_favorable, 2) if max_favorable is not None else None,
+            "max_adverse_since_first_eligible_pct": round(max_adverse, 2) if max_adverse is not None else None,
             "outcome_sample_count": len(returns),
             "notice": "Shadow research only; not an official BUY signal and not used by paper-trade entry logic.",
         })
+    cohorts = []
+    for (asset, label, data_type), values in cohort_members.items():
+        count = values["candidate_count"]
+        cohorts.append({
+            "asset_type": asset,
+            "classification_at_first_eligible_observation": label,
+            "data_quality_cohort": data_type,
+            "measured_candidates": count,
+            "average_latest_return_pct": round(sum(values["latest_returns"]) / count, 2),
+            "average_max_favorable_pct": round(sum(values["mfe"]) / count, 2),
+            "average_max_adverse_pct": round(sum(values["mae"]) / count, 2),
+            "reached_5pct": values["reached_5"],
+            "reached_10pct": values["reached_10"],
+            "reached_20pct": values["reached_20"],
+            "no_follow_through_count": values["no_follow_through"],
+            "possible_failed_signal_count": values["possible_failed_signal"],
+            "sample_status": "provisional · needs more observations",
+            "definition": "Only candidates with at least two eligible observations. Possible failed signal means sampled MFE stayed below +5% while sampled MAE reached -5%; it is a review flag, not proof of an executable loss.",
+        })
+    cohorts.sort(key=lambda x: x["measured_candidates"], reverse=True)
     rows.sort(key=lambda x: (
         x["classification"] in {"BREAKOUT DEVELOPING", "PRE-BREAKOUT WATCH", "EARLY ACCUMULATION"},
         x["score_change_last_3"] if x["score_change_last_3"] is not None else -999,
@@ -209,6 +255,7 @@ def build_shadow_opportunity_radar(records):
         "classification_counts": class_counts,
         "asset_counts": asset_counts,
         "max_snapshots_per_candidate": MAX_SIGNAL_SNAPSHOTS_PER_CANDIDATE,
+        "outcome_cohorts": cohorts,
         "candidates": rows[:50],
-        "definition": "Per-scan research snapshots classified from existing indicators. Only verified prices count toward outcome measurements; stock outcomes require fresh live-session data. Labels are exploratory and never alter official BUY decisions.",
+        "definition": "Per-scan research snapshots classified from existing indicators. Only verified prices count toward outcome measurements; stock outcomes require fresh live-session data. Cohorts are provisional and shadow labels never alter official BUY decisions.",
     }
