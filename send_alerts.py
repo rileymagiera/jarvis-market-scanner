@@ -8,6 +8,7 @@ from datetime import datetime, timezone, timedelta
 from zoneinfo import ZoneInfo
 from email.message import EmailMessage
 from pathlib import Path
+from paper_trading import update_account as update_paper_trading_account, account_summary as paper_account_summary
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
 
@@ -31,7 +32,7 @@ def email(subject, body):
         smtp.send_message(msg)
 
 
-def sync_history_to_site(paper, lifetime, now, buy_signals=None, scan_metadata=None):
+def sync_history_to_site(paper, lifetime, now, buy_signals=None, scan_metadata=None, paper_account=None):
     """Sync dashboard history with one bounded retry for transient Render timeouts."""
     token = os.getenv("JARVIS_HISTORY_SYNC_TOKEN", "")
     if not token:
@@ -45,6 +46,7 @@ def sync_history_to_site(paper, lifetime, now, buy_signals=None, scan_metadata=N
         "paper_tracker": paper,
         "lifetime": lifetime,
         "buy_signals": buy_signals or [],
+        "paper_trading": paper_account or {},
     }).encode("utf-8")
     last_error = None
     for attempt in range(2):
@@ -1018,10 +1020,12 @@ def main():
     paper, paper_lifetime = update_paper_tracker(payload["candidates"], now)
     apply_history_runner_learning(payload["candidates"], paper)
     buy_signals = update_buy_signal_history(payload["candidates"], now, payload.get("errors") or [])
+    paper_account = update_paper_trading_account(payload["candidates"], buy_signals, now)
+    print("Paper trading:", json.dumps(paper_account_summary(paper_account), sort_keys=True))
     # Keep the live history page current without waiting for a Render redeploy.
     # The committed JSON files remain the recovery source if the site restarts.
     try:
-        sync_history_to_site(paper, paper_lifetime, now, buy_signals, metadata)
+        sync_history_to_site(paper, paper_lifetime, now, buy_signals, metadata, paper_account)
     except Exception as exc:
         print(f"History sync failed; committed tracker files remain available: {type(exc).__name__}: {exc}")
     market = payload.get("market_conditions") or {}
