@@ -98,6 +98,7 @@ def build_signal_lead_time_audit(records):
     })
     followed_candidates = eligible_candidates = eligible_snapshots = excluded_snapshots = 0
     examples = []
+    example_keys = set()
     for record in records or []:
         if not isinstance(record, dict):
             continue
@@ -139,7 +140,9 @@ def build_signal_lead_time_audit(records):
                 lead = round((hit_at - signal_at).total_seconds() / 60, 1)
                 stats["later_crossings"] += 1
                 stats["lead_minutes"].append(lead)
-                if len(examples) < MAX_EXAMPLES:
+                example_key = (asset, str(record.get("symbol") or ""), threshold)
+                if example_key not in example_keys and len(examples) < MAX_EXAMPLES:
+                    example_keys.add(example_key)
                     examples.append({
                         "asset_type": asset,
                         "symbol": str(record.get("symbol") or "")[:30],
