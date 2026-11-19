@@ -549,7 +549,7 @@ def test_early_entry_experiment_uses_existing_shared_account_and_one_state_file(
     state_path = tmp_path / "paper.json"
     monkeypatch.setattr(paper_trading, "STATE_PATH", state_path)
     now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
-    account = paper_trading.update_account([_early_entry_candidate()], [], now, enable_early_entry_experimental=True)
+    account = paper_trading.update_account([_early_entry_candidate()], [], now, enable_early_entry_experimental=True, scan_id="run-early-1")
 
     assert account["starting_cash"] == 250.0
     assert account["cash"] < 250.0
@@ -559,6 +559,7 @@ def test_early_entry_experiment_uses_existing_shared_account_and_one_state_file(
     assert position["experimental"] is True
     assert position["research_classification"] == "PRE-BREAKOUT WATCH"
     assert position["entry_research_snapshot"]["price_verified"] is True
+    assert position["entry_research_snapshot"]["scan_id"] == "run-early-1"
     assert account["ledger"][0]["strategy"] == "early_entry_experimental"
     assert state_path.exists()
     assert [path.name for path in tmp_path.iterdir()] == ["paper.json"]
