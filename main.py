@@ -2961,6 +2961,7 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
             if "contraction detected" in str(item.get("volatility_contraction_status", "")).lower():
                 matches.append("Volatility contraction")
             matches.extend(item.get("early_runner_signal_matches") or [])
+            matches.extend(item.get("early_warning_matches") or [])
         item["research_signal_matches"] = matches
     for item in results:
         classify_setup(item, regime["score_adjustment"], regime)
@@ -3115,6 +3116,7 @@ const featureDefs=[
 ["Volume acceleration","Recent three-bar average volume versus the preceding three bars.",["volume_acceleration_3bar"]],
 ["Intraday structure","Higher highs/higher lows, pullback from session high and premarket-high reclaim.",["higher_highs_higher_lows","pullback_from_session_high_pct","premarket_high_reclaimed"]],
 ["Early runner research score","Transparent feature score for ranking research candidates; not a probability or BUY trigger.",["early_runner_research_score","early_runner_score_components"]],
+["Early-warning engine","Research-only breakout proximity, liquidity sweep/reclaim, accumulation evidence, volatility compression and daily/intraday alignment.",["breakout_proximity_pct","liquidity_sweep_detected","accumulation_signal_score","multi_timeframe_alignment","volatility_compression_percentile"]],
 ["Crypto Runner Quality Score (CRQS)","Crypto-specific quality score, tier, component breakdown, entry penalty, and data-coverage flags.",["crqs","crqs_tier","crqs_components","crqs_data_coverage","crqs_entry_score","crqs_entry_penalty","crqs_features"]]
 ];
 const features=featureDefs.map(([name,description,keys])=>{const covered=Math.max(0,...keys.map(k=>Number(coverage[k]||0)));const total=all.length;const status=covered>0?"Collecting · "+covered+"/"+total+" records":"No measurements saved yet";return [name,description,status];});
