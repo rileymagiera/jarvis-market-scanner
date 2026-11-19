@@ -472,6 +472,23 @@ def render_markdown(report: dict) -> str:
             lines.append(f"| {stage} | {stats['n']} | {stats['runner_10pct_rate_pct']}% | {stats['runner_20pct_rate_pct']}% | {stats['median_observed_max_gain_pct']}% |")
         lines += [
             "",
+            "#### Highest observed verified candidates",
+            "",
+            "| Symbol | First stage | Max gain | Max drawdown | First 5% crossing stage | First 10% crossing stage | Latest BUY blockers |",
+            "|---|---|---:|---:|---|---|---|",
+        ]
+        for row in discovery["top_observed_runners"][:10]:
+            five = row.get("first_5pct_crossing") or {}
+            ten = row.get("first_10pct_crossing") or {}
+            blockers = "; ".join(row.get("latest_buy_readiness", {}).get("missing_conditions") or [])
+            lines.append(
+                f"| {row.get('symbol')} | {row.get('first_stage')} | "
+                f"{row.get('observed_max_gain_pct')}% | {row.get('observed_max_drawdown_pct')}% | "
+                f"{five.get('stage_at_cross', 'not retained')} | "
+                f"{ten.get('stage_at_cross', 'not retained')} | {blockers or 'not retained'} |"
+            )
+        lines += [
+            "",
             "#### Potential missed 20% runners (no BUY stage recorded)",
             "",
             "| Symbol | First seen | First stage | Max gain | Max drawdown | First 10% crossing stage |",
