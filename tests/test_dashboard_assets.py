@@ -129,6 +129,8 @@ def test_crypto_shadow_comparison_is_observational_and_persisted(tmp_path):
     row = main.compare_crypto_shadow_quote("coinbase", "BTCUSDT", 100.2, "2026-11-19T15:00:00+00:00", quote)
     assert row["status"] == "comparable"
     assert row["difference_pct"] == 0.1998
+    same_source = main.compare_crypto_shadow_quote("coinbase", "BTCUSDT", 100.2, "2026-11-19T15:00:00+00:00", quote, None, "USD", "Coinbase Exchange public API")
+    assert same_source["status"] == "same_as_primary_source"
     mismatch = main.compare_crypto_shadow_quote("binance_us", "BTCUSDT", 100.2, "2026-11-19T15:00:00+00:00", {**quote, "quote_currency": "USDT"})
     assert mismatch["status"] == "quote_currency_mismatch"
     assert mismatch["difference_pct"] is None
