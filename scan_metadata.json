@@ -1,11 +1,11 @@
 {
-  "last_scan_started_at": "2026-11-19T02:00:41.335680+00:00",
-  "last_attempt_status": "completed",
-  "run_id": "44441071472",
-  "run_number": "76",
-  "commit_sha": "dd2beb36f9bea808fa5cbc5f6c0bc0177e164f72",
+  "last_scan_started_at": "2026-11-19T02:10:06.999334+00:00",
+  "last_attempt_status": "failed",
+  "run_id": "44442268253",
+  "run_number": "77",
+  "commit_sha": "d69306ff959d8903b2b3988b8422623c6c6ed6b9",
   "last_scan_completed_at": "2026-11-19T02:01:11.977312+00:00",
-  "last_attempt_error": null,
+  "last_attempt_error": "Jarvis scan or history persistence step failed; inspect the Run Jarvis step logs.",
   "scan_duration_seconds": 29.47,
   "scan_errors": 0,
   "execution_environment": "github_actions_runner",
@@ -54,5 +54,5 @@
     },
     "history_sync_reported": true
   },
-  "last_attempt_failed_at": "2026-11-19T00:15:35.353842+00:00"
+  "last_attempt_failed_at": "2026-11-19T02:10:07.085354+00:00"
 }
