@@ -105,7 +105,7 @@
     "2026-11": 202.94434153
   },
   "created_at": "2026-11-19T04:34:15.459868+00:00",
-  "last_updated_at": "2026-11-19T20:17:38.818730+00:00",
+  "last_updated_at": "2026-11-19T20:47:40.853881+00:00",
   "ledger": [
     {
       "allocation_rank": 1,
@@ -237,30 +237,30 @@
   "mode": "PAPER_ONLY",
   "positions": [],
   "processed_signal_ids": [
-    "risk_off:crypto:GRASSUSDT:2026-11-19",
-    "risk_off:crypto:MEGAUSDT:2026-11-19"
+    "risk_off:crypto:MEGAUSDT:2026-11-19",
+    "risk_off:crypto:GRASSUSDT:2026-11-19"
   ],
   "risk_off_signal_diagnostics": {
-    "candidates_total": 237,
+    "candidates_total": 238,
     "eligible_signals": 0,
     "rejections": {
       "failed_buy_gate:24h_breakout": 91,
       "failed_buy_gate:above_24h_average": 69,
-      "failed_buy_gate:breakout_confirmed": 134,
-      "failed_buy_gate:five_bar_intraday_trend_up": 116,
-      "failed_buy_gate:fresh_intraday_confirmation": 1,
-      "failed_buy_gate:live_data_quality": 150,
-      "failed_buy_gate:no_risk_flags": 19,
+      "failed_buy_gate:breakout_confirmed": 131,
+      "failed_buy_gate:five_bar_intraday_trend_up": 69,
+      "failed_buy_gate:fresh_intraday_confirmation": 2,
+      "failed_buy_gate:live_data_quality": 153,
+      "failed_buy_gate:no_risk_flags": 15,
       "failed_buy_gate:not_chase_risk": 4,
       "failed_buy_gate:not_extended": 2,
       "failed_buy_gate:positive_hourly_momentum": 64,
       "failed_buy_gate:price_verified": 16,
-      "failed_buy_gate:score_82": 237,
-      "failed_buy_gate:two_technical_confirmations": 84,
-      "failed_buy_gate:volume_1_8x": 79,
-      "failed_buy_gate:volume_confirmed": 122
+      "failed_buy_gate:score_82": 238,
+      "failed_buy_gate:two_technical_confirmations": 77,
+      "failed_buy_gate:volume_1_8x": 78,
+      "failed_buy_gate:volume_confirmed": 124
     },
-    "risk_off_candidates": 237
+    "risk_off_candidates": 238
   },
   "rules": {
     "allocation_method": "Rank active eligible official BUYs by official score, then target-2 reward/risk; scale each risk budget by official score up to the existing 1% cap; retain existing capacity limits; retry capacity-deferred signals while active",
