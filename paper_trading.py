@@ -92,6 +92,29 @@ def load_account():
     }
 
 
+
+def _record_coinbase_monthly_volume(account, notional, now):
+    """Track gross Coinbase app buy/sell notional against the monthly One allowance."""
+    month = now.strftime("%Y-%m")
+    volumes = account.setdefault("coinbase_one_monthly_volume", {})
+    before = _num(volumes.get(month))
+    amount = max(0.0, _num(notional))
+    eligible = min(amount, max(0.0, COINBASE_ONE_MONTHLY_CAP - before))
+    over_cap = max(0.0, amount - eligible)
+    after = before + amount
+    volumes[month] = round(after, 8)
+    for old_month in sorted(volumes)[:-12]:
+        volumes.pop(old_month, None)
+    return {
+        "month": month, "volume_before": round(before, 8),
+        "trade_volume": round(amount, 8), "eligible_volume": round(eligible, 8),
+        "volume_over_cap": round(over_cap, 8),
+        "remaining_allowance": round(max(0.0, COINBASE_ONE_MONTHLY_CAP - after), 8),
+        "monthly_volume_after": round(after, 8),
+        "standard_commission_status": "rate_not_configured" if over_cap > 0 else "within_included_volume",
+    }
+
+
 def _event(account, kind, message, **fields):
     account["ledger"].append({"at": account.get("last_updated_at"), "type": kind, "message": message, **fields})
     account["ledger"] = account["ledger"][-500:]
@@ -139,6 +162,8 @@ def update_account(candidates, buy_signals, now):
             fee_info = calculate_trade_fee(position["asset_type"], "sell", gross, sell_qty)
             fee = fee_info["total"]
             net = gross - fee
+            coinbase_volume = (_record_coinbase_monthly_volume(account, gross, now)
+                               if position["asset_type"] in ("crypto", "cryptocurrency") else None)
             account["cash"] = round(_num(account["cash"]) + net, 8)
             entry_cost = sell_qty * _num(position.get("entry_price"))
             entry_fee_allocated = min(_num(position.get("entry_fee_remaining")),
@@ -151,7 +176,8 @@ def update_account(candidates, buy_signals, now):
             _event(account, "SELL", f'{exit_reason} observed for {position["symbol"]}', symbol=position["symbol"],
                    asset_type=position["asset_type"], price=price, quantity=sell_qty,
                    fee=round(fee, 8), fee_breakdown=fee_info, entry_fee_allocated=round(entry_fee_allocated, 8),
-                   realized_pnl=round(realized, 8), signal_id=position["signal_id"])
+                   realized_pnl=round(realized, 8), coinbase_one_volume=coinbase_volume,
+                   signal_id=position["signal_id"])
             if exit_reason == "TARGET_1":
                 position["target_1_filled"] = True
                 position["target_1_observed_at"] = now.isoformat()
@@ -214,6 +240,8 @@ def update_account(candidates, buy_signals, now):
             _event(account, "SKIP", f'{signal.get("symbol")} BUY signal skipped: insufficient available paper capital',
                    symbol=signal.get("symbol"), signal_id=signal_id)
             continue
+        coinbase_volume = (_record_coinbase_monthly_volume(account, notional, now)
+                           if key[0] in ("crypto", "cryptocurrency") else None)
         account["cash"] = round(_num(account["cash"]) - notional - fee, 8)
         position = {
             "signal_id": signal_id, "symbol": key[1], "asset_type": key[0],
@@ -232,7 +260,7 @@ def update_account(candidates, buy_signals, now):
         processed.add(signal_id)
         _event(account, "BUY", f'Auto paper BUY: {key[1]}', symbol=key[1], asset_type=key[0],
                price=price, quantity=quantity, notional=round(notional, 8), fee=round(fee, 8),
-               signal_id=signal_id)
+               coinbase_one_volume=coinbase_volume, signal_id=signal_id)
     account["processed_signal_ids"] = list(processed)[-2000:]
     account["closed_trades"] = account["closed_trades"][-500:]
     account["ledger"] = account["ledger"][-500:]
@@ -252,8 +280,13 @@ def account_summary(account):
     realized = sum(_num(t.get("realized_pnl")) for t in (account.get("closed_trades") or []))
     realized += sum(_num(p.get("realized_pnl")) for p in positions)
     equity = _num(account.get("cash")) + market_value
+    month = datetime.now().strftime("%Y-%m")
+    coinbase_volume = _num((account.get("coinbase_one_monthly_volume") or {}).get(month))
     return {
         "starting_cash": _num(account.get("starting_cash"), STARTING_CASH),
+        "coinbase_one_monthly_volume": round(coinbase_volume, 2),
+        "coinbase_one_remaining_allowance": round(max(0.0, COINBASE_ONE_MONTHLY_CAP - coinbase_volume), 2),
+        "coinbase_one_allowance_status": "allowance_exceeded_rate_unconfigured" if coinbase_volume > COINBASE_ONE_MONTHLY_CAP else "within_included_volume",
         "cash": round(_num(account.get("cash")), 2),
         "market_value": round(market_value, 2),
         "equity": round(equity, 2),
