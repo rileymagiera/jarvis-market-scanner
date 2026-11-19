@@ -80,6 +80,7 @@ jobs:
           WEBULL_APP_SECRET: ${{ secrets.WEBULL_APP_SECRET }}
           WEBULL_SHADOW_MODE: 'true'
           WEBULL_SHADOW_MAX_SYMBOLS_PER_SCAN: '30'
+          CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN: '20'
           SEND_TEST_EMAIL: ${{ inputs.send_test_email }}
         run: |
           test -n "$JARVIS_GMAIL_USER" || (echo "Missing JARVIS_GMAIL_USER" && exit 1)
@@ -342,13 +343,16 @@ jobs:
         if: ${{ always() && inputs.send_test_email != true }}
         run: |
           # Ensure the shadow-history state path exists even if the scan failed early.
+          if [ ! -f crypto_shadow_comparison.json ]; then
+            printf '{"schema_version":1,"summary":{"providers":{}},"recent_records":[],"records":[]}\\n' > crypto_shadow_comparison.json
+          fi
           if [ ! -f webull_yahoo_comparison.json ]; then
             printf '{"schema_version":1,"summary":{},"recent_records":[],"records":[]}\\n' > webull_yahoo_comparison.json
           fi
           # Force-add the machine-owned state files before checking for changes.
           # This also prevents an ignored/untracked local state file from blocking
           # a later rebase with "would be overwritten" errors.
-          git add -f alert_state.json paper_tracker.json paper_tracker_lifetime.json buy_signal_history.json paper_trading_state.json scan_diagnostics.json scan_metadata.json provider_usage_history.json webull_yahoo_comparison.json
+          git add -f alert_state.json paper_tracker.json paper_tracker_lifetime.json buy_signal_history.json paper_trading_state.json scan_diagnostics.json scan_metadata.json provider_usage_history.json webull_yahoo_comparison.json crypto_shadow_comparison.json
           if git diff --cached --quiet; then
             echo "No Jarvis state changes to persist."
             exit 0
@@ -382,7 +386,7 @@ jobs:
 
             while IFS= read -r path; do
               case "$path" in
-                alert_state.json|paper_tracker.json|paper_tracker_lifetime.json|buy_signal_history.json|paper_trading_state.json|scan_diagnostics.json|scan_metadata.json|provider_usage_history.json|webull_yahoo_comparison.json)
+                alert_state.json|paper_tracker.json|paper_tracker_lifetime.json|buy_signal_history.json|paper_trading_state.json|scan_diagnostics.json|scan_metadata.json|provider_usage_history.json|webull_yahoo_comparison.json|crypto_shadow_comparison.json)
                   echo "Resolving generated state conflict with this run's completed scan: $path"
                   git checkout --theirs -- "$path"
                   git add -f "$path"
