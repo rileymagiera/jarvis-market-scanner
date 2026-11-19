@@ -3143,7 +3143,7 @@ const featureDefs=[
 ["Volume acceleration","Recent three-bar average volume versus the preceding three bars.",["volume_acceleration_3bar"]],
 ["Intraday structure","Higher highs/higher lows, pullback from session high and premarket-high reclaim.",["higher_highs_higher_lows","pullback_from_session_high_pct","premarket_high_reclaimed"]],
 ["Early runner research score","Transparent feature score for ranking research candidates; not a probability or BUY trigger.",["early_runner_research_score","early_runner_score_components"]],
-["Early-warning engine","Research-only breakout proximity, liquidity sweep/reclaim, accumulation evidence, volatility compression and daily/intraday alignment.",["breakout_proximity_pct","liquidity_sweep_detected","accumulation_signal_score","multi_timeframe_alignment","volatility_compression_percentile"]],
+["Early-warning engine","Completed-candle breakout proximity, liquidity sweep/reclaim, accumulation, volatility compression and timeframe alignment; included in the offline BUY intelligence blend.",["breakout_proximity_pct","liquidity_sweep_detected","accumulation_signal_score","multi_timeframe_alignment","volatility_compression_percentile"]],
 ["Crypto Runner Quality Score (CRQS)","Crypto-specific quality score, tier, component breakdown, entry penalty, and data-coverage flags.",["crqs","crqs_tier","crqs_components","crqs_data_coverage","crqs_entry_score","crqs_entry_penalty","crqs_features"]]
 ];
 const features=featureDefs.map(([name,description,keys])=>{const covered=Math.max(0,...keys.map(k=>Number(coverage[k]||0)));const total=all.length;const status=covered>0?"Collecting · "+covered+"/"+total+" records":"No measurements saved yet";return [name,description,status];});
@@ -3198,6 +3198,11 @@ def research_data():
             "short_percent_float","higher_highs_higher_lows","pullback_from_session_high_pct","premarket_high_reclaimed",
             "catalyst_labels","catalyst_dilution_status","dilution_flags","catalyst_headline_count",
             "early_runner_research_score","early_runner_score_components",
+            "buy_intelligence","legacy_score","score_model","score_model_note",
+            "breakout_proximity_pct","breakout_reference_price","breakout_proximity_status",
+            "volatility_compression_percentile","liquidity_sweep_detected","liquidity_sweep_status",
+            "accumulation_signal_score","accumulation_signal_status","multi_timeframe_alignment",
+            "multi_timeframe_status","early_warning_matches",
             "crqs","crqs_tier","crqs_components","crqs_data_coverage","crqs_entry_score","crqs_entry_penalty","crqs_features",
              "data_quality","daily_data_quality","intraday_data_quality","hourly_data_quality")
     # Cohort outcomes use only verified candidate records with a completed 5-day observation.
