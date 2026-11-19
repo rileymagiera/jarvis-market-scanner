@@ -286,3 +286,66 @@ def test_gap_below_stop_uses_verified_sampled_price_and_stop_priority(tmp_path, 
     sell = [event for event in account["ledger"] if event["type"] == "SELL"][0]
     assert sell["price"] == 8.5
     assert "STOP observed" in sell["message"]
+
+
+def _ranked_signal(symbol, score, at):
+    signal = _signal()
+    signal["symbol"] = symbol
+    signal["signal_id"] = "stock:{}:{}".format(symbol, at)
+    signal["score"] = score
+    signal["at"] = at
+    return signal
+
+
+def _ranked_candidate(symbol, price=10.0):
+    candidate = _candidate(price)
+    candidate["symbol"] = symbol
+    return candidate
+
+
+def test_allocation_ranks_highest_official_buy_score_before_older_signals(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    signals = [
+        _ranked_signal("OLDER", 70, "2026-11-19T09:00:00+00:00"),
+        _ranked_signal("STRONG", 95, "2026-11-19T10:00:00+00:00"),
+        _ranked_signal("MIDDLE", 82, "2026-11-19T11:00:00+00:00"),
+    ]
+    candidates = [_ranked_candidate(symbol) for symbol in ("OLDER", "STRONG", "MIDDLE")]
+
+    account = paper_trading.update_account(candidates, signals, datetime.now(timezone.utc))
+
+    assert [p["symbol"] for p in account["positions"]] == ["STRONG", "MIDDLE", "OLDER"]
+    assert [p["allocation_rank"] for p in account["positions"]] == [1, 2, 3]
+    assert [row["official_score"] for row in account["allocation_review"]] == [95, 82, 70]
+    assert all(row["status"] == "allocated" for row in account["allocation_review"])
+
+
+def test_capacity_deferred_buy_is_reconsidered_after_a_position_closes(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    signals = [
+        _ranked_signal("ONE", 95, "2026-11-19T09:00:00+00:00"),
+        _ranked_signal("TWO", 90, "2026-11-19T09:01:00+00:00"),
+        _ranked_signal("THREE", 85, "2026-11-19T09:02:00+00:00"),
+        _ranked_signal("FOUR", 80, "2026-11-19T09:03:00+00:00"),
+        _ranked_signal("FIVE", 75, "2026-11-19T09:04:00+00:00"),
+    ]
+    candidates = [_ranked_candidate(symbol) for symbol in ("ONE", "TWO", "THREE", "FOUR", "FIVE")]
+    now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
+
+    first = paper_trading.update_account(candidates, signals, now)
+    assert len(first["positions"]) == paper_trading.MAX_OPEN_POSITIONS
+    deferred = next(row for row in first["allocation_review"] if row["symbol"] == "FIVE")
+    assert deferred["status"] == "deferred"
+    assert deferred["rank"] == 5
+    assert signals[4]["signal_id"] not in first["processed_signal_ids"]
+
+    next_candidates = [_ranked_candidate("ONE", 8.9)] + [
+        _ranked_candidate(symbol) for symbol in ("TWO", "THREE", "FOUR", "FIVE")
+    ]
+    second = paper_trading.update_account(next_candidates, signals, now)
+
+    assert len(second["positions"]) == paper_trading.MAX_OPEN_POSITIONS
+    assert {p["symbol"] for p in second["positions"]} == {"TWO", "THREE", "FOUR", "FIVE"}
+    assert signals[4]["signal_id"] in second["processed_signal_ids"]
+    assert second["allocation_review"][0]["symbol"] == "FIVE"
+    assert second["allocation_review"][0]["status"] == "allocated"
