@@ -69,6 +69,35 @@ class EarlyOpportunityRadarTests(unittest.TestCase):
         self.assertEqual(candidate["max_favorable_since_first_eligible_pct"], 10.0)
         self.assertEqual(candidate["outcome_sample_count"], 2)
 
+    def test_missing_optional_fields_are_safe(self):
+        snapshot = build_candidate_snapshot(
+            {"asset_type": "crypto", "symbol": "XYZ", "early_warning_matches": ["Higher lows"]},
+            "2026-11-19T15:00:00+00:00", "run-missing"
+        )
+        self.assertIsNotNone(snapshot)
+        self.assertIsNone(snapshot["price"])
+        self.assertFalse(snapshot["price_verified"])
+        self.assertFalse(snapshot["outcome_eligible"])
+
+    def test_outcome_cohorts_separate_asset_and_data_quality(self):
+        record = {"asset_type": "crypto", "symbol": "XYZ"}
+        append_candidate_snapshot(record, {
+            "asset_type": "crypto", "symbol": "XYZ", "price": 2.0,
+            "stage": "EARLY WATCH", "price_validation_status": "verified",
+            "price_validation_passed": True, "early_warning_matches": ["Higher lows"],
+            "data_quality": {"data_type": "live"},
+        }, "2026-11-19T15:00:00+00:00", "crypto-1")
+        append_candidate_snapshot(record, {
+            "asset_type": "crypto", "symbol": "XYZ", "price": 2.2,
+            "stage": "DEVELOPING SETUP", "price_validation_status": "verified",
+            "price_validation_passed": True, "early_warning_matches": ["Higher lows"],
+            "data_quality": {"data_type": "live"},
+        }, "2026-11-19T15:15:00+00:00", "crypto-2")
+        cohort = build_shadow_opportunity_radar([record])["outcome_cohorts"][0]
+        self.assertEqual(cohort["asset_type"], "crypto")
+        self.assertEqual(cohort["data_quality_cohort"], "live")
+        self.assertEqual(cohort["reached_5pct"], 1)
+
     def test_snapshot_does_not_mutate_candidate_or_buy_gate(self):
         item = self.stock()
         original = dict(item)
