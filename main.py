@@ -16,6 +16,7 @@ from io import StringIO
 import yfinance as yf
 from early_runner import compute_early_runner_metrics, compute_early_warning_metrics, compute_stock_market_breadth, rank_stock_universe_strength, summarize_crypto_cross_section, set_crypto_relative_strength_coverage, build_data_quality_record, apply_entry_quality_gate, has_session_aware_early_runner_baseline
 from market_calendar import market_session_status as exchange_market_session_status
+from market_data_cache import HourlyCandleCache
 from runner_intelligence import build_runner_intelligence_report
 from buy_intelligence import build_buy_intelligence, blend_buy_score
 from paper_trading import load_account as load_paper_account, account_summary as summarize_paper_account
@@ -187,8 +188,7 @@ KRAKEN_TICKER_CACHE_AT = 0.0
 KRAKEN_REQUEST_LOCK = threading.Lock()
 KRAKEN_LAST_REQUEST_AT = 0.0
 KRAKEN_MIN_REQUEST_INTERVAL_SECONDS = 1.05
-KRAKEN_OHLC_CACHE = {}
-KRAKEN_OHLC_CACHE_LOCK = threading.Lock()
+KRAKEN_OHLC_CACHE = HourlyCandleCache(max_entries=300)
 
 
 def kraken_get(url: str, **kwargs):
@@ -2024,12 +2024,9 @@ def kraken_crypto_market_data(symbol: str):
     # Kraken hourly candles only change when a new UTC hour opens. Reuse the
     # same completed-hour context between scans, but refresh at each UTC hour
     # boundary. The independent Trades request below remains fresh on every scan.
-    hour_bucket = int(time.time() // 3600)
     cache_key = (pair_id, 60)
-    with KRAKEN_OHLC_CACHE_LOCK:
-        cached = KRAKEN_OHLC_CACHE.get(cache_key)
-    if cached and cached.get("hour_bucket") == hour_bucket:
-        raw = cached.get("rows") or []
+    raw = KRAKEN_OHLC_CACHE.get(cache_key)
+    if raw is not None:
         record_scan_metric("kraken_ohlc_cache_hit", 0.0, "success")
     else:
         bars_response = kraken_get(
@@ -2043,8 +2040,7 @@ def kraken_crypto_market_data(symbol: str):
             raise RuntimeError("Kraken OHLC: " + "; ".join(bars_payload["error"]))
         bars_rows = [value for key, value in (bars_payload.get("result") or {}).items() if key != "last"]
         raw = bars_rows[0] if bars_rows else []
-        with KRAKEN_OHLC_CACHE_LOCK:
-            KRAKEN_OHLC_CACHE[cache_key] = {"hour_bucket": hour_bucket, "rows": raw}
+        KRAKEN_OHLC_CACHE.put(cache_key, raw)
         record_scan_metric("kraken_ohlc_cache_miss", 0.0, "success")
     # Kraken returns [time, open, high, low, close, vwap, volume, count].
     bars = [[row[0], row[1], row[2], row[3], row[4], row[6]] for row in raw if len(row) >= 8]
