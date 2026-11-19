@@ -331,7 +331,6 @@ def update_paper_tracker(candidates, now):
             for field in research_fields:
                 record[field] = item.get(field)
             update_universe_rs_rank_history(record, item, now)
-            record["research_feature_snapshot"] = {field: item.get(field) for field in research_fields}
             record["research_signal_matches"] = item.get("research_signal_matches") or []
             record["buy_readiness"] = item.get("buy_readiness") or {}
             record["early_runner_signal_matches"] = item.get("early_runner_signal_matches") or []
@@ -503,7 +502,7 @@ def update_paper_tracker(candidates, now):
         record["research_signal_matches"] = item.get("research_signal_matches") or item.get("research_signals") or []
         record["early_runner_signal_matches"] = item.get("early_runner_signal_matches") or []
         record["early_runner_research_score"] = item.get("early_runner_research_score")
-        record["research_feature_snapshot"] = {field: item.get(field) for field in research_fields}
+        research_feature_snapshot = {field: item.get(field) for field in research_fields}
         data_quality_for_outcomes = item.get("data_quality") or {}
         price_is_verified = (
             bool(item.get("price_validation_passed"))
@@ -537,7 +536,7 @@ def update_paper_tracker(candidates, now):
                     record["legacy_stock_outcomes_quarantined_flag"] = True
                 record["early_runner_snapshot_at"] = now.isoformat()
                 record["early_runner_entry_price"] = price
-                record["early_runner_initial_feature_snapshot"] = dict(record["research_feature_snapshot"])
+                record["early_runner_initial_feature_snapshot"] = dict(research_feature_snapshot)
                 record["early_runner_initial_signal_matches"] = list(item.get("early_runner_signal_matches") or [])
                 record["early_runner_outcomes"] = {}
                 record["research_tracking_started_at"] = now.isoformat()
@@ -554,7 +553,7 @@ def update_paper_tracker(candidates, now):
             if not record.get("early_runner_snapshot_at"):
                 record["early_runner_snapshot_at"] = now.isoformat()
                 record["early_runner_entry_price"] = price
-                record["early_runner_initial_feature_snapshot"] = dict(record["research_feature_snapshot"])
+                record["early_runner_initial_feature_snapshot"] = dict(research_feature_snapshot)
                 record["early_runner_initial_signal_matches"] = list(item.get("early_runner_signal_matches") or [])
                 record["early_runner_outcomes"] = {}
             early_entry = safe_float(record.get("early_runner_entry_price"))
@@ -697,7 +696,6 @@ def update_paper_tracker(candidates, now):
         for field in research_fields:
             record[field] = item.get(field)
         update_universe_rs_rank_history(record, item, now)
-        record["research_feature_snapshot"] = {field: item.get(field) for field in research_fields}
         record["research_signal_matches"] = item.get("research_signal_matches") or []
         record["buy_readiness"] = item.get("buy_readiness") or {}
         update_candidate_lifecycle(record, item, now, observation_eligible=observation_eligible)
@@ -730,8 +728,8 @@ def update_paper_tracker(candidates, now):
         key: value for key, value in tracker.items()
         if datetime.fromisoformat(value.get("last_seen", value.get("first_seen"))) >= cutoff
     }
-    PAPER_STATE.write_text(json.dumps(tracker, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    PAPER_LIFETIME_STATE.write_text(json.dumps(lifetime, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    PAPER_STATE.write_text(json.dumps(tracker, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
+    PAPER_LIFETIME_STATE.write_text(json.dumps(lifetime, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
     # The live dashboard needs the complete retained ledger, including unverified
     # watch-only candidates and candidates absent from the latest scan.
     return tracker, lifetime
