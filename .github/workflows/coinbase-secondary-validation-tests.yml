@@ -1,0 +1,29 @@
+name: Coinbase Secondary Validation Tests
+
+on:
+  push:
+    branches:
+      - jarvis/coinbase-secondary-validation
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Install dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt pytest
+      - name: Compile scanner
+        run: python -m py_compile main.py send_alerts.py early_runner.py paper_trading.py
+      - name: Run full test suite
+        run: python -m pytest -q tests
