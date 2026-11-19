@@ -3,11 +3,32 @@
   "cash": 250.0,
   "closed_trades": [],
   "created_at": "2026-11-19T04:34:15.459868+00:00",
-  "last_updated_at": "2026-11-19T11:49:49.974565+00:00",
+  "last_updated_at": "2026-11-19T12:04:20.046085+00:00",
   "ledger": [],
   "mode": "PAPER_ONLY",
   "positions": [],
   "processed_signal_ids": [],
+  "risk_off_signal_diagnostics": {
+    "candidates_total": 240,
+    "eligible_signals": 0,
+    "rejections": {
+      "failed_buy_gate:24h_breakout": 83,
+      "failed_buy_gate:above_24h_average": 16,
+      "failed_buy_gate:breakout_confirmed": 110,
+      "failed_buy_gate:five_bar_intraday_trend_up": 56,
+      "failed_buy_gate:fresh_intraday_confirmation": 148,
+      "failed_buy_gate:live_data_quality": 152,
+      "failed_buy_gate:no_risk_flags": 8,
+      "failed_buy_gate:not_chase_risk": 5,
+      "failed_buy_gate:positive_hourly_momentum": 27,
+      "failed_buy_gate:price_verified": 8,
+      "failed_buy_gate:score_82": 240,
+      "failed_buy_gate:two_technical_confirmations": 95,
+      "failed_buy_gate:volume_1_8x": 75,
+      "failed_buy_gate:volume_confirmed": 123
+    },
+    "risk_off_candidates": 240
+  },
   "rules": {
     "allocation_method": "Rank active eligible official BUYs by official score, then target-2 reward/risk; scale each risk budget by official score up to the existing 1% cap; retain existing capacity limits; retry capacity-deferred signals while active",
     "crypto_default_order_type": "simple_app",

@@ -1,17 +1,17 @@
 {
-  "last_scan_started_at": "2026-11-19T11:48:01.577706+00:00",
+  "last_scan_started_at": "2026-11-19T12:00:45.363736+00:00",
   "last_attempt_status": "completed",
-  "run_id": "44517948842",
-  "run_number": "97",
-  "commit_sha": "eb1ff964264787a4904c736f8e3b7c870155a286",
-  "last_scan_completed_at": "2026-11-19T11:49:49.972188+00:00",
+  "run_id": "44519826667",
+  "run_number": "98",
+  "commit_sha": "8ce0caaab9ed4bd9e106bcc237e8c9561b987a1a",
+  "last_scan_completed_at": "2026-11-19T12:04:20.044172+00:00",
   "last_attempt_error": null,
-  "scan_duration_seconds": 107.63,
-  "scan_errors": 20,
+  "scan_duration_seconds": 213.99,
+  "scan_errors": 0,
   "execution_environment": "github_actions_runner",
   "scan_audit": {
-    "audit_timestamp": "2026-11-19T11:49:49.971465+00:00",
-    "audit_run_id": "44517948842",
+    "audit_timestamp": "2026-11-19T12:04:20.043557+00:00",
+    "audit_run_id": "44519826667",
     "audit_status": "passed",
     "files_valid_json": [
       "diagnostics",
@@ -22,105 +22,21 @@
       "metadata"
     ],
     "file_validation_errors": [],
-    "candidates_total": 220,
+    "candidates_total": 240,
     "stocks_returned": 148,
     "stocks_price_verified": 0,
     "stocks_price_last_known": 144,
     "stocks_price_unverified": 4,
     "stocks_stage_unverified_watch_only": 0,
-    "crypto_returned": 72,
-    "crypto_price_verified": 70,
-    "crypto_price_unverified": 2,
-    "scan_errors": [
-      {
-        "error": "Kraken primary failed (keys must be str, int, float, bool or None, not tuple); Coinbase backup failed (400 Client Error: Bad Request for url: https://api.exchange.coinbase.com/products/JUP-USD/ticker)",
-        "symbol": "JUPUSDT"
-      },
-      {
-        "error": "Kraken primary failed (keys must be str, int, float, bool or None, not tuple); Coinbase backup failed (404 Client Error: Not Found for url: https://api.exchange.coinbase.com/products/GBP-USD/ticker)",
-        "symbol": "GBPUSDT"
-      },
-      {
-        "error": "Kraken primary failed (keys must be str, int, float, bool or None, not tuple); Coinbase backup failed (404 Client Error: Not Found for url: https://api.exchange.coinbase.com/products/XMR-USD/ticker)",
-        "symbol": "XMRUSDT"
-      },
-      {
-        "error": "Kraken primary failed (keys must be str, int, float, bool or None, not tuple); Coinbase backup failed (404 Client Error: Not Found for url: https://api.exchange.coinbase.com/products/USDG-USD/ticker)",
-        "symbol": "USDGUSDT"
-      },
-      {
-        "error": "Kraken primary failed (keys must be str, int, float, bool or None, not tuple); Coinbase backup failed (404 Client Error: Not Found for url: https://api.exchange.coinbase.com/products/TRX-USD/ticker)",
-        "symbol": "TRXUSDT"
-      },
-      {
-        "error": "Kraken primary failed (keys must be str, int, float, bool or None, not tuple); Coinbase backup failed (404 Client Error: Not Found for url: https://api.exchange.coinbase.com/products/AUD-USD/ticker)",
-        "symbol": "AUDUSDT"
-      },
-      {
-        "error": "Kraken primary failed (keys must be str, int, float, bool or None, not tuple); Coinbase backup failed (400 Client Error: Bad Request for url: https://api.exchange.coinbase.com/products/EURC-USD/ticker)",
-        "symbol": "EURCUSDT"
-      },
-      {
-        "error": "Kraken primary failed (keys must be str, int, float, bool or None, not tuple); Coinbase backup failed (404 Client Error: Not Found for url: https://api.exchange.coinbase.com/products/NIGHT-USD/ticker)",
-        "symbol": "NIGHTUSDT"
-      },
-      {
-        "error": "Kraken primary failed (keys must be str, int, float, bool or None, not tuple); Coinbase backup failed (404 Client Error: Not Found for url: https://api.exchange.coinbase.com/products/LUNA-USD/ticker)",
-        "symbol": "LUNAUSDT"
-      },
-      {
-        "error": "Kraken primary failed (keys must be str, int, float, bool or None, not tuple); Coinbase backup failed (404 Client Error: Not Found for url: https://api.exchange.coinbase.com/products/XDC-USD/ticker)",
-        "symbol": "XDCUSDT"
-      },
-      {
-        "error": "Kraken primary failed (keys must be str, int, float, bool or None, not tuple); Coinbase backup failed (404 Client Error: Not Found for url: https://api.exchange.coinbase.com/products/KNTQ-USD/ticker)",
-        "symbol": "KNTQUSDT"
-      },
-      {
-        "error": "Kraken primary failed (keys must be str, int, float, bool or None, not tuple); Coinbase backup failed (404 Client Error: Not Found for url: https://api.exchange.coinbase.com/products/REKT-USD/ticker)",
-        "symbol": "REKTUSDT"
-      },
-      {
-        "error": "Kraken primary failed (keys must be str, int, float, bool or None, not tuple); Coinbase backup failed (404 Client Error: Not Found for url: https://api.exchange.coinbase.com/products/PIEVERSE-USD/ticker)",
-        "symbol": "PIEVERSEUSDT"
-      },
-      {
-        "error": "Kraken primary failed (keys must be str, int, float, bool or None, not tuple); Coinbase backup failed (404 Client Error: Not Found for url: https://api.exchange.coinbase.com/products/CC-USD/ticker)",
-        "symbol": "CCUSDT"
-      },
-      {
-        "error": "Kraken primary failed (keys must be str, int, float, bool or None, not tuple); Coinbase backup failed (404 Client Error: Not Found for url: https://api.exchange.coinbase.com/products/KAS-USD/ticker)",
-        "symbol": "KASUSDT"
-      },
-      {
-        "error": "Kraken primary failed (keys must be str, int, float, bool or None, not tuple); Coinbase backup failed (400 Client Error: Bad Request for url: https://api.exchange.coinbase.com/products/VELO-USD/ticker)",
-        "symbol": "VELOUSDT"
-      },
-      {
-        "error": "Kraken primary failed (keys must be str, int, float, bool or None, not tuple); Coinbase backup failed (404 Client Error: Not Found for url: https://api.exchange.coinbase.com/products/XAUT-USD/ticker)",
-        "symbol": "XAUTUSDT"
-      },
-      {
-        "error": "Kraken primary failed (keys must be str, int, float, bool or None, not tuple); Coinbase backup failed (404 Client Error: Not Found for url: https://api.exchange.coinbase.com/products/WINGS-USD/ticker)",
-        "symbol": "WINGSUSDT"
-      },
-      {
-        "error": "Kraken primary failed (keys must be str, int, float, bool or None, not tuple); Coinbase backup failed (404 Client Error: Not Found for url: https://api.exchange.coinbase.com/products/BLESS-USD/ticker)",
-        "symbol": "BLESSUSDT"
-      },
-      {
-        "error": "Kraken primary failed (keys must be str, int, float, bool or None, not tuple); Coinbase backup failed (404 Client Error: Not Found for url: https://api.exchange.coinbase.com/products/AKE-USD/ticker)",
-        "symbol": "AKEUSDT"
-      }
-    ],
+    "crypto_returned": 92,
+    "crypto_price_verified": 88,
+    "crypto_price_unverified": 4,
+    "scan_errors": [],
     "provider_http_status_counts": {
       "alpaca:200": 3,
-      "coinbase_exchange:200": 216,
-      "coinbase_exchange:400": 3,
-      "coinbase_exchange:404": 17,
       "data_sec_gov:200": 148,
-      "kraken:200": 95,
-      "www_sec_gov:200": 4
+      "kraken:200": 187,
+      "www_sec_gov:200": 2
     },
     "provider_http_429_count": 0,
     "provider_http_5xx_count": 0,
@@ -130,19 +46,19 @@
       "DATA QUALITY \u2014 WATCH ONLY": 0,
       "DEVELOPING RUNNER": 16,
       "DEVELOPING SETUP": 0,
-      "EARLY SETUP": 21,
-      "EARLY WATCH": 13,
+      "EARLY SETUP": 20,
+      "EARLY WATCH": 10,
       "LATE RUNNER \u2014 CHASE RISK": 5,
-      "LOW-CONVICTION WATCH": 93,
+      "LOW-CONVICTION WATCH": 97,
       "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
     },
     "crypto_stage_counts": {
       "ACTIONABLE SETUP": 0,
       "BUY": 0,
       "DATA QUALITY \u2014 WATCH ONLY": 0,
-      "DEVELOPING SETUP": 3,
-      "EARLY WATCH": 8,
-      "LOW-CONVICTION WATCH": 61,
+      "DEVELOPING SETUP": 6,
+      "EARLY WATCH": 21,
+      "LOW-CONVICTION WATCH": 65,
       "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
     },
     "history_sync_reported": true
@@ -159,34 +75,34 @@
         "ACTIONABLE SETUP": 0,
         "DEVELOPING RUNNER": 16,
         "DEVELOPING SETUP": 0,
-        "EARLY SETUP": 21,
-        "EARLY WATCH": 13,
+        "EARLY SETUP": 20,
+        "EARLY WATCH": 10,
         "LATE RUNNER \u2014 CHASE RISK": 5,
-        "LOW-CONVICTION WATCH": 93,
+        "LOW-CONVICTION WATCH": 97,
         "PRICE UNVERIFIED \u2014 WATCH ONLY": 0,
         "DATA QUALITY \u2014 WATCH ONLY": 0
       }
     },
     "crypto": {
       "symbols_requested": 92,
-      "candidates_returned": 72,
-      "scan_errors": 20,
+      "candidates_returned": 92,
+      "scan_errors": 0,
       "not_returned_or_insufficient_data": 0,
       "stages": {
         "BUY": 0,
         "ACTIONABLE SETUP": 0,
-        "DEVELOPING SETUP": 3,
-        "EARLY WATCH": 8,
-        "LOW-CONVICTION WATCH": 61,
+        "DEVELOPING SETUP": 6,
+        "EARLY WATCH": 21,
+        "LOW-CONVICTION WATCH": 65,
         "PRICE UNVERIFIED \u2014 WATCH ONLY": 0,
         "DATA QUALITY \u2014 WATCH ONLY": 0
       },
       "price_validation": {
-        "verified": 70,
-        "unverified": 2,
+        "verified": 88,
+        "unverified": 4,
         "methods": {
-          "kraken_latest_trade_cross_check": 0,
-          "coinbase_ticker_timestamp": 72
+          "kraken_latest_trade_cross_check": 92,
+          "coinbase_ticker_timestamp": 0
         }
       }
     },
@@ -200,8 +116,8 @@
       "provider_activity": {
         "calls": 3,
         "failures": 0,
-        "total_seconds": 0.08,
-        "max_seconds": 0.06,
+        "total_seconds": 0.17,
+        "max_seconds": 0.14,
         "error_counts": {}
       }
     },
@@ -214,7 +130,7 @@
       "phase": "PRE-MARKET",
       "is_regular_session": false,
       "is_extended_session": true,
-      "as_of": "2026-11-19T06:49:49.971687-05:00",
+      "as_of": "2026-11-19T07:04:20.043721-05:00",
       "regular_open": "2026-11-19T09:30:00-05:00",
       "regular_close": "2026-11-19T16:00:00-05:00",
       "early_close": false,
@@ -222,21 +138,18 @@
       "calendar_verified": true,
       "calendar_note": "XNYS holidays and early closes are calendar-aware; extended-hours boundaries use the configured 04:00\u201320:00 ET window."
     },
-    "scan_duration_seconds": 107.63,
+    "scan_duration_seconds": 213.99,
     "timing_breakdown": {
-      "universe_discovery_seconds": 1.38,
-      "asset_scans_wall_seconds": 105.26,
-      "market_conditions_seconds": 0.62,
-      "total_seconds": 107.63,
+      "universe_discovery_seconds": 1.35,
+      "asset_scans_wall_seconds": 211.57,
+      "market_conditions_seconds": 0.67,
+      "total_seconds": 213.99,
       "provider_activity": {
         "provider_http_status_counts": {
-          "kraken:200": 95,
+          "kraken:200": 187,
           "alpaca:200": 3,
-          "www_sec_gov:200": 4,
-          "coinbase_exchange:200": 216,
-          "data_sec_gov:200": 148,
-          "coinbase_exchange:400": 3,
-          "coinbase_exchange:404": 17
+          "www_sec_gov:200": 2,
+          "data_sec_gov:200": 148
         },
         "provider_http_429_count": 0,
         "provider_http_5xx_count": 0,
@@ -244,36 +157,36 @@
           "yahoo_discovery_screen": {
             "calls": 6,
             "failures": 0,
-            "total_seconds": 1.1,
+            "total_seconds": 1.16,
             "max_seconds": 0.23,
             "error_counts": {}
           },
           "http_kraken_status_200": {
-            "calls": 95,
+            "calls": 187,
             "failures": 0,
-            "total_seconds": 8.4,
-            "max_seconds": 0.4,
+            "total_seconds": 17.96,
+            "max_seconds": 0.41,
             "error_counts": {}
           },
           "kraken_request_pacing": {
-            "calls": 94,
+            "calls": 186,
             "failures": 0,
-            "total_seconds": 97.75,
+            "total_seconds": 191.91,
             "max_seconds": 1.05,
             "error_counts": {}
           },
           "http_alpaca_status_200": {
             "calls": 3,
             "failures": 0,
-            "total_seconds": 0.06,
-            "max_seconds": 0.05,
+            "total_seconds": 0.16,
+            "max_seconds": 0.14,
             "error_counts": {}
           },
           "alpaca_snapshot_batch": {
             "calls": 3,
             "failures": 0,
-            "total_seconds": 0.08,
-            "max_seconds": 0.06,
+            "total_seconds": 0.17,
+            "max_seconds": 0.14,
             "error_counts": {}
           },
           "kraken_ticker_cache_hit": {
@@ -286,96 +199,78 @@
           "yahoo_daily_history": {
             "calls": 148,
             "failures": 0,
-            "total_seconds": 26.59,
-            "max_seconds": 0.38,
+            "total_seconds": 25.29,
+            "max_seconds": 0.33,
             "error_counts": {}
           },
           "yahoo_intraday_history": {
             "calls": 148,
             "failures": 0,
-            "total_seconds": 12.95,
-            "max_seconds": 0.16,
+            "total_seconds": 12.69,
+            "max_seconds": 0.19,
             "error_counts": {}
           },
           "http_www_sec_gov_status_200": {
-            "calls": 4,
+            "calls": 2,
             "failures": 0,
-            "total_seconds": 0.86,
-            "max_seconds": 0.26,
-            "error_counts": {}
-          },
-          "http_coinbase_exchange_status_200": {
-            "calls": 216,
-            "failures": 0,
-            "total_seconds": 3.7,
-            "max_seconds": 0.09,
+            "total_seconds": 0.26,
+            "max_seconds": 0.14,
             "error_counts": {}
           },
           "http_data_sec_gov_status_200": {
             "calls": 148,
             "failures": 0,
-            "total_seconds": 6.07,
-            "max_seconds": 0.22,
+            "total_seconds": 13.24,
+            "max_seconds": 2.03,
             "error_counts": {}
           },
           "sec_recent_filings": {
             "calls": 148,
             "failures": 0,
-            "total_seconds": 8.52,
-            "max_seconds": 0.41,
+            "total_seconds": 14.65,
+            "max_seconds": 2.03,
             "error_counts": {}
           },
           "yahoo_stock_news": {
             "calls": 148,
             "failures": 0,
-            "total_seconds": 36.6,
-            "max_seconds": 0.66,
+            "total_seconds": 42.38,
+            "max_seconds": 2.2,
+            "error_counts": {}
+          },
+          "kraken_ohlc_cache_miss": {
+            "calls": 92,
+            "failures": 0,
+            "total_seconds": 0.0,
+            "max_seconds": 0.0,
             "error_counts": {}
           },
           "yahoo_fundamentals": {
-            "calls": 75,
+            "calls": 67,
             "failures": 0,
-            "total_seconds": 14.0,
-            "max_seconds": 0.33,
+            "total_seconds": 13.06,
+            "max_seconds": 0.69,
             "error_counts": {}
           },
           "scan_stock_parallel_wall": {
             "calls": 1,
             "failures": 0,
-            "total_seconds": 25.16,
-            "max_seconds": 25.16,
+            "total_seconds": 26.19,
+            "max_seconds": 26.19,
             "error_counts": {}
-          },
-          "http_coinbase_exchange_status_400": {
-            "calls": 3,
-            "failures": 3,
-            "total_seconds": 0.23,
-            "max_seconds": 0.15,
-            "error_counts": {
-              "HTTP 400": 3
-            }
-          },
-          "http_coinbase_exchange_status_404": {
-            "calls": 17,
-            "failures": 17,
-            "total_seconds": 0.5,
-            "max_seconds": 0.06,
-            "error_counts": {
-              "HTTP 404": 17
-            }
           },
           "scan_crypto_parallel_wall": {
             "calls": 1,
-            "failures": 1,
-            "total_seconds": 105.18,
-            "max_seconds": 105.18,
+            "failures": 0,
+            "total_seconds": 211.4,
+            "max_seconds": 211.4,
             "error_counts": {}
           },
           "market_conditions": {
             "calls": 1,
             "failures": 0,
-            "total_seconds": 0.62,
-            "max_seconds": 0.62,
+            "total_seconds": 0.67,
+            "max_seconds": 0.67,
             "error_counts": {}
           }
         }
