@@ -62,7 +62,7 @@ These are approximate line ranges, not stable APIs. Prefer moving one cohesive r
 - `market_data_cache.py`: persistent cache serialization.
 - `market_calendar.py`: exchange calendar and session classification.
 - `static/history_dashboard.js`: standalone Home/history dashboard browser code, syntax-checked directly by CI.
-- `templates/history.html` and `templates/intelligence.html`: HTML page templates loaded by their existing FastAPI routes.
+- `templates/history.html`, `templates/intelligence.html`, `templates/analytics_tab.html`, `templates/settings.html`, and `templates/paper_trading.html`: HTML templates loaded by their existing FastAPI routes.
 
 ## Market-data providers
 
@@ -90,7 +90,7 @@ The scanner records provider activity and price-quality diagnostics. Preserve th
 
 ### State-size observation
 
-At the 2026-11-19 audit, `paper_tracker.json` was approximately 9.88 MB and contained 414 candidate records (317 stocks, 97 crypto). Each record carries many snapshots and audit fields. The file is large because it preserves detailed research evidence, not because the tracker contains millions of candidates. This was measured before the storage cleanup merged on 2026-11-19. The current writer no longer persists the mutable `research_feature_snapshot` duplicate; it keeps the frozen `early_runner_initial_feature_snapshot` used by cohort learning and writes deterministic compact JSON. The next completed scan will rewrite the tracked ledger in the smaller format; the actual resulting size will depend on the candidate records and evidence retained.
+At the 2026-11-19 audit, `paper_tracker.json` was approximately 9.88 MB and contained 414 candidate records (317 stocks, 97 crypto). Each record carries many snapshots and audit fields. The file is large because it preserves detailed research evidence, not because the tracker contains millions of candidates. This was measured before the storage cleanup merged on 2026-11-19. The current writer no longer persists the mutable `research_feature_snapshot` duplicate; a one-time migration also removes that field from existing records while preserving the frozen `early_runner_initial_feature_snapshot` used by cohort learning. The writer uses deterministic compact JSON. The next completed scan will rewrite the tracked ledger in the smaller format; the actual resulting size will depend on the candidate records and evidence retained.
 
 Do not simply delete fields or shorten the 365-day window to reduce size. First identify which dashboard, learning, audit, and outcome consumers depend on each field. Any compaction should preserve immutable discovery baselines, verified/unverified distinctions, checkpoint outcomes, and lifetime aggregates. A safer future design may split compact dashboard summaries from detailed archival evidence, with migration and round-trip tests.
 

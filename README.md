@@ -37,6 +37,9 @@ Jarvis is a research-focused stock and cryptocurrency scanner with a web dashboa
 | `static/history_dashboard.js` | Home/history dashboard browser code served by `/history/dashboard.js`. |
 | `templates/history.html` | Home/history dashboard HTML. |
 | `templates/intelligence.html` | Intelligence dashboard HTML. |
+| `templates/analytics_tab.html` | Shared Discovery Performance, Momentum Evidence, and Market Breadth page template. |
+| `templates/settings.html` | Settings page template. |
+| `templates/paper_trading.html` | Paper Trading page template. |
 | `tests/` | Regression tests for scanner components and paper trading. |
 | `.github/workflows/jarvis-alerts.yml` | Scheduled scan workflow, cache restore, scan audit, and state persistence. |
 | `.github/workflows/validate-jarvis.yml` | Consolidated code-validation workflow. |

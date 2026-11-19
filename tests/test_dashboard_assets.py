@@ -25,3 +25,28 @@ def test_history_page_loads_extracted_html_template():
     assert "<title>Jarvis History</title>" in html
     assert 'id="opportunities"' in html
     assert '/history/dashboard.js?v=' in html
+
+
+def test_shared_analytics_template_replaces_navigation_and_page_labels():
+    html = main.analytics_tab_page("market-breadth")
+
+    assert "__TITLE__" not in html
+    assert "__NAV__" not in html
+    assert "Market Breadth" in html
+    assert 'href="/market-breadth"' in html
+
+
+def test_settings_page_loads_extracted_template():
+    html = main.customize_page()
+
+    assert "<title>Jarvis · Settings</title>" in html
+    assert "Appearance" in html
+
+
+def test_paper_trading_page_loads_extracted_template():
+    response = main.paper_trading_page()
+    html = response.body.decode("utf-8")
+
+    assert response.status_code == 200
+    assert "<title>Jarvis Paper Trading</title>" in html
+    assert "PAPER ONLY · NO BROKER CONNECTION" in html
