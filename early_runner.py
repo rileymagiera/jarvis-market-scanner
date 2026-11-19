@@ -465,7 +465,11 @@ def compute_early_warning_metrics(daily, intraday, price):
     if daily is not None and not daily.empty and {"High", "Low", "Close", "Volume"}.issubset(daily.columns):
         d = daily.dropna(subset=["High", "Low", "Close"]).copy()
         if len(d) >= 21 and px > 0:
+            close_series = d["Close"].astype(float)
+            average_20 = close_series.rolling(20, min_periods=20).mean().iloc[-1]
+            result["above_20d_average"] = bool(px > average_20) if pd.notna(average_20) else None
             prior_resistance = float(d["High"].astype(float).iloc[-21:-1].max())
+            result["breakout_20d"] = bool(px >= prior_resistance) if np.isfinite(prior_resistance) else None
             distance = (prior_resistance / px - 1) * 100 if px > 0 else None
             if distance is not None and np.isfinite(distance):
                 result["breakout_reference_price"] = round(prior_resistance, 6)
@@ -504,7 +508,7 @@ def compute_early_warning_metrics(daily, intraday, price):
             if "Volume" in weekly_source.columns:
                 aggregation["Volume"] = "sum"
             weekly = weekly_source.resample("W-FRI").agg(aggregation).dropna(subset=["Close"])
-            if len(weekly) >= 10:
+            if len(weekly) >= 20:
                 wc = weekly["Close"].astype(float)
                 ema10 = wc.ewm(span=10, adjust=False).mean()
                 ema20 = wc.ewm(span=20, adjust=False).mean()
