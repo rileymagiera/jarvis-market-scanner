@@ -67,6 +67,12 @@ def load_account():
             state.setdefault("closed_trades", [])
             state.setdefault("ledger", [])
             state.setdefault("processed_signal_ids", [])
+            state.setdefault("rules", {})
+            state["rules"].update({
+                "crypto_fee_schedule": "Coinbase Advanced US entry tier; taker 0.90%, maker 0.50%",
+                "stock_fee_schedule": "Webull US stocks: $0 commission; CAT 0.0003% per side; SEC 0.00206% sell side; FINRA TAF currently $0",
+                "crypto_default_order_type": DEFAULT_CRYPTO_ORDER_TYPE,
+            })
             return state
     except (OSError, json.JSONDecodeError):
         pass
@@ -233,7 +239,11 @@ def update_account(candidates, buy_signals, now):
 def account_summary(account):
     positions = account.get("positions") or []
     market_value = sum(_num(p.get("quantity")) * _num(p.get("latest_price") or p.get("entry_price")) for p in positions)
-    unrealized = sum(_num(p.get("quantity")) * (_num(p.get("latest_price") or p.get("entry_price")) - _num(p.get("entry_price"))) for p in positions)
+    unrealized = sum(
+        _num(p.get("quantity")) * (_num(p.get("latest_price") or p.get("entry_price")) - _num(p.get("entry_price")))
+        - _num(p.get("entry_fee_remaining"))
+        for p in positions
+    )
     realized = sum(_num(t.get("realized_pnl")) for t in (account.get("closed_trades") or []))
     realized += sum(_num(p.get("realized_pnl")) for p in positions)
     equity = _num(account.get("cash")) + market_value
