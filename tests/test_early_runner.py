@@ -28,7 +28,7 @@ class EarlyRunnerMetricsTests(unittest.TestCase):
     def test_data_quality_distinguishes_live_delayed_eod_and_unknown(self):
         received = "2026-11-18T04:00:00+00:00"
         live = build_data_quality_record(
-            "stock", "Yahoo + Alpaca", "fresh_multi_provider_cross_checked",
+            "stock", "Alpaca IEX + independent real-time quote", "fresh_multi_provider_cross_checked",
             "2026-11-18T03:59:00+00:00", received,
             {"phase": "REGULAR SESSION"}, True, "iex"
         )
@@ -49,6 +49,13 @@ class EarlyRunnerMetricsTests(unittest.TestCase):
         )
         self.assertEqual(live["data_type"], "live")
         self.assertTrue(live["buy_eligible"])
+        yahoo_crosscheck = build_data_quality_record(
+            "stock", "Yahoo + Alpaca IEX independent quote cross-check",
+            "fresh_multi_provider_cross_checked", "2026-11-18T03:59:00+00:00",
+            received, {"phase": "REGULAR SESSION"}, True, "iex"
+        )
+        self.assertEqual(yahoo_crosscheck["data_type"], "delayed")
+        self.assertFalse(yahoo_crosscheck["buy_eligible"])
         self.assertEqual(delayed["data_type"], "delayed")
         self.assertFalse(delayed["buy_eligible"])
         self.assertEqual(eod["data_type"], "eod")
