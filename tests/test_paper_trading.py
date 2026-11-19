@@ -434,3 +434,13 @@ def test_official_buy_signal_path_remains_separately_labeled(tmp_path, monkeypat
     assert len(account["positions"]) == 1
     assert account["positions"][0]["strategy"] == "official_buy"
     assert account["positions"][0]["experimental"] is False
+
+
+
+def test_risk_off_candidate_requires_regime_gate_to_be_the_failed_gate(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    candidate = _risk_off_candidate()
+    candidate["buy_readiness"]["checks"]["market_not_risk_off"] = True
+    account = paper_trading.update_account([candidate], [], datetime.now(timezone.utc))
+    assert account["cash"] == 250
+    assert account["positions"] == []
