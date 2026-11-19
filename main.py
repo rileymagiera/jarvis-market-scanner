@@ -2398,6 +2398,52 @@ def kraken_crypto_market_data(symbol: str):
     return normalized, bars, "Kraken Spot public API"
 
 
+
+def coinbase_crypto_price_validation(symbol: str, primary_price: float) -> dict:
+    """Independently validate a Kraken-selected price with a fresh Coinbase ticker."""
+    started = time.monotonic()
+    outcome = "failure"
+    error_detail = None
+    try:
+        base = crypto_base(symbol)
+        response = HTTP.get(
+            f"https://api.exchange.coinbase.com/products/{base}-USD/ticker",
+            timeout=(2, 5),
+        )
+        response.raise_for_status()
+        payload = response.json() or {}
+        reference_price = safe_float(payload.get("price"))
+        stamp = pd.Timestamp(payload.get("time")) if payload.get("time") else None
+        if reference_price <= 0 or stamp is None or pd.isna(stamp):
+            raise RuntimeError("Coinbase returned no usable price or exchange timestamp")
+        if stamp.tzinfo is None:
+            stamp = stamp.tz_localize("UTC")
+        stamp = stamp.tz_convert("UTC")
+        age_seconds = (datetime.now(timezone.utc) - stamp.to_pydatetime()).total_seconds()
+        primary = safe_float(primary_price)
+        midpoint = (primary + reference_price) / 2
+        difference_pct = abs(primary - reference_price) / midpoint * 100 if midpoint > 0 else float("inf")
+        fresh = -30 <= age_seconds <= 300
+        passed = bool(fresh and difference_pct <= 0.5)
+        outcome = "success" if fresh else "failure"
+        return {
+            "passed": passed,
+            "price": reference_price,
+            "as_of": stamp.isoformat(),
+            "age_seconds": round(age_seconds, 1),
+            "difference_pct": round(difference_pct, 4) if np.isfinite(difference_pct) else None,
+            "note": (
+                "Fresh Coinbase Exchange ticker independently confirms the Kraken-selected price"
+                if passed else
+                f"Coinbase secondary check did not confirm Kraken price: fresh={fresh}; difference={difference_pct:.3f}%"
+            ),
+        }
+    except Exception as exc:
+        error_detail = f"{type(exc).__name__}: {str(exc)[:160]}"
+        raise
+    finally:
+        record_scan_metric("crypto_coinbase_secondary_validation", time.monotonic() - started, outcome, error=error_detail)
+
 def scan_crypto(symbol: str) -> Optional[dict]:
     try:
         ticker, bars, provider = kraken_crypto_market_data(symbol)
@@ -2408,6 +2454,29 @@ def scan_crypto(symbol: str) -> Optional[dict]:
             raise RuntimeError(
                 f"Kraken primary failed ({primary_error}); Coinbase backup failed ({backup_error})"
             ) from backup_error
+    if provider == "Kraken Spot public API" and not ticker.get("price_validation_passed"):
+        try:
+            secondary = coinbase_crypto_price_validation(symbol, ticker.get("lastPrice"))
+            ticker["price_validation_reference_source"] = "Coinbase Exchange public API"
+            ticker["price_validation_reference_price"] = secondary["price"]
+            ticker["price_cross_check_difference_pct"] = secondary["difference_pct"]
+            if secondary["passed"]:
+                ticker["price_validation_passed"] = True
+                ticker["price_as_of"] = secondary["as_of"]
+                ticker["price_age_seconds"] = secondary["age_seconds"]
+                ticker["price_validation_method"] = "kraken_coinbase_cross_check"
+                ticker["price_validation_note"] = secondary["note"]
+            else:
+                ticker["price_validation_note"] = (
+                    str(ticker.get("price_validation_note") or "Kraken validation failed")
+                    + "; " + secondary["note"]
+                )
+        except Exception as secondary_error:
+            ticker["price_validation_note"] = (
+                str(ticker.get("price_validation_note") or "Kraken validation failed")
+                + f"; Coinbase secondary check unavailable: {type(secondary_error).__name__}: {str(secondary_error)[:120]}"
+            )
+
     if len(bars) < 26:
         return None
 
@@ -2528,6 +2597,8 @@ def scan_crypto(symbol: str) -> Optional[dict]:
         "price_validation_method": ticker.get("price_validation_method"),
         "price_age_seconds": ticker.get("price_age_seconds"),
         "price_cross_check_difference_pct": ticker.get("price_cross_check_difference_pct"),
+        "price_validation_reference_source": ticker.get("price_validation_reference_source"),
+        "price_validation_reference_price": ticker.get("price_validation_reference_price"),
         "price_source": provider,
         "price_quote_currency": ticker.get("quote_currency") or "USD",
         "daily_change_pct": round(change_24h, 2),
@@ -3358,7 +3429,7 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
                 "price_validation": {
                     "verified": sum(1 for x in crypto_results if x.get("price_validation_passed")),
                     "unverified": sum(1 for x in crypto_results if not x.get("price_validation_passed")),
-                    "methods": {method: sum(1 for x in crypto_results if x.get("price_validation_method") == method) for method in ("kraken_latest_trade_cross_check", "coinbase_ticker_timestamp")},
+                    "methods": {method: sum(1 for x in crypto_results if x.get("price_validation_method") == method) for method in ("kraken_latest_trade_cross_check", "coinbase_ticker_timestamp", "kraken_coinbase_cross_check")},
                 },
             },
             "alpaca_quote_status": {
