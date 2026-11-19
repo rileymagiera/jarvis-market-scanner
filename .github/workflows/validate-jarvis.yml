@@ -1,0 +1,47 @@
+name: Jarvis Code Validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "main.py"
+      - "send_alerts.py"
+      - "early_runner.py"
+      - ".github/workflows/validate-jarvis.yml"
+  pull_request:
+    paths:
+      - "main.py"
+      - "send_alerts.py"
+      - "early_runner.py"
+      - ".github/workflows/validate-jarvis.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate Python syntax
+        run: python -m py_compile main.py send_alerts.py early_runner.py
+      - name: Extract dashboard JavaScript
+        run: |
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+          tree = ast.parse(Path("main.py").read_text(encoding="utf-8"))
+          value = next(
+              node.value for node in tree.body
+              if isinstance(node, ast.Assign)
+              and any(isinstance(target, ast.Name) and target.id == "HISTORY_DASHBOARD_JS"
+                      for target in node.targets)
+          )
+          Path("/tmp/jarvis-dashboard.js").write_text(ast.literal_eval(value), encoding="utf-8")
+          PY
+      - name: Validate dashboard JavaScript
+        run: node --check /tmp/jarvis-dashboard.js
