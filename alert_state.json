@@ -265,6 +265,11 @@
       "score": 33,
       "status": "PREMARKET VERIFIED"
     },
+    "NPWR": {
+      "alerted_at": "2026-11-19T13:32:30.704383+00:00",
+      "score": 28,
+      "status": "PREMARKET VERIFIED"
+    },
     "NRXP": {
       "alerted_at": "2026-11-19T12:04:20.046085+00:00",
       "score": 22,
@@ -293,6 +298,11 @@
     "OPTU": {
       "alerted_at": "2026-11-19T12:04:20.046085+00:00",
       "score": 12,
+      "status": "PREMARKET VERIFIED"
+    },
+    "OWLT": {
+      "alerted_at": "2026-11-19T13:32:30.704383+00:00",
+      "score": 22,
       "status": "PREMARKET VERIFIED"
     },
     "PAL": {
@@ -370,6 +380,11 @@
       "score": 8,
       "status": "PREMARKET VERIFIED"
     },
+    "SRRK": {
+      "alerted_at": "2026-11-19T13:32:30.704383+00:00",
+      "score": 11,
+      "status": "PREMARKET VERIFIED"
+    },
     "STUB": {
       "alerted_at": "2026-11-19T12:04:20.046085+00:00",
       "score": 10,
@@ -378,6 +393,11 @@
     "SVRA": {
       "alerted_at": "2026-11-19T12:04:20.046085+00:00",
       "score": 7,
+      "status": "PREMARKET VERIFIED"
+    },
+    "SYRE": {
+      "alerted_at": "2026-11-19T13:32:30.704383+00:00",
+      "score": 13,
       "status": "PREMARKET VERIFIED"
     },
     "TDUP": {
@@ -411,9 +431,9 @@
       "status": "PREMARKET VERIFIED"
     },
     "VIK": {
-      "alerted_at": "2026-11-19T01:01:09.462873+00:00",
-      "score": 16,
-      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+      "alerted_at": "2026-11-19T13:32:30.704383+00:00",
+      "score": 9,
+      "status": "PREMARKET VERIFIED"
     },
     "VITL": {
       "alerted_at": "2026-11-19T12:32:31.074037+00:00",
@@ -540,6 +560,11 @@
     "alerted_at": "2026-11-19T01:01:09.462873+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 86
+  },
+  "stock:SRRK": {
+    "alerted_at": "2026-11-19T13:32:30.704383+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 65
   },
   "stock:TTWO": {
     "alerted_at": "2026-11-19T00:26:11.887809+00:00",
