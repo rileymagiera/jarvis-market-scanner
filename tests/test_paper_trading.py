@@ -490,3 +490,116 @@ def test_risk_off_candidate_requires_regime_gate_to_be_the_failed_gate(tmp_path,
     account = paper_trading.update_account([candidate], [], datetime.now(timezone.utc))
     assert account["cash"] == 250
     assert account["positions"] == []
+
+
+def _early_entry_candidate(symbol="EARLY", price=10.0, verified=True, regime="NORMAL"):
+    return {
+        "asset_type": "stock",
+        "symbol": symbol,
+        "stage": "EARLY SETUP",
+        "score": 70,
+        "score_model": "hybrid_offline_v2",
+        "price": price,
+        "price_validation_passed": verified,
+        "price_validation_status": "verified" if verified else "unverified",
+        "price_as_of": "2026-11-19T15:00:00+00:00",
+        "price_source": "test live feed",
+        "market_regime": regime,
+        "breakout_proximity_pct": 1.0,
+        "data_quality": {
+            "data_type": "live", "age_seconds": 30,
+            "session": "REGULAR SESSION", "buy_eligible": True,
+        },
+        "buy_readiness": {"percent": 55, "checks": {"score_82": False}},
+        "levels": {
+            "watch_entry_low": 9.5, "watch_entry_high": 10.5,
+            "stop_loss": 9.0, "target_1": 11.0, "target_2": 12.0,
+            "target_2_reward_risk_ratio": 2.0,
+        },
+    }
+
+
+def test_early_entry_signal_requires_verified_quality_and_valid_research_stage():
+    now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
+    candidate = _early_entry_candidate()
+    diagnostics = {}
+    signals = paper_trading.build_early_entry_paper_signals([candidate], now, diagnostics)
+    assert len(signals) == 1
+    assert signals[0]["strategy"] == "early_entry_experimental"
+    assert signals[0]["experimental"] is True
+    assert signals[0]["research_classification"] == "PRE-BREAKOUT WATCH"
+    assert signals[0]["experiment_version"] == "early-entry-v1"
+    assert signals[0]["stop_loss"] == 9.0
+    assert diagnostics["eligible_signals"] == 1
+
+    unverified = _early_entry_candidate("UNVERIFIED", verified=False)
+    risk_off = _early_entry_candidate("RISKOFF", regime="RISK-OFF")
+    unknown_regime = _early_entry_candidate("UNKNOWN", regime="UNKNOWN")
+    stale_stock = _early_entry_candidate("STALE")
+    stale_stock["data_quality"]["age_seconds"] = 1200
+    official = _early_entry_candidate("OFFICIAL")
+    official["stage"] = "BUY"
+    rejected = paper_trading.build_early_entry_paper_signals(
+        [unverified, risk_off, unknown_regime, stale_stock, official], now
+    )
+    assert rejected == []
+
+
+def test_early_entry_experiment_uses_existing_shared_account_and_one_state_file(tmp_path, monkeypatch):
+    state_path = tmp_path / "paper.json"
+    monkeypatch.setattr(paper_trading, "STATE_PATH", state_path)
+    now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
+    account = paper_trading.update_account([_early_entry_candidate()], [], now, enable_early_entry_experimental=True, scan_id="run-early-1")
+
+    assert account["starting_cash"] == 250.0
+    assert account["cash"] < 250.0
+    assert len(account["positions"]) == 1
+    position = account["positions"][0]
+    assert position["strategy"] == "early_entry_experimental"
+    assert position["experimental"] is True
+    assert position["research_classification"] == "PRE-BREAKOUT WATCH"
+    assert position["entry_research_snapshot"]["price_verified"] is True
+    assert position["entry_research_snapshot"]["scan_id"] == "run-early-1"
+    assert account["ledger"][0]["strategy"] == "early_entry_experimental"
+    assert state_path.exists()
+    assert [path.name for path in tmp_path.iterdir()] == ["paper.json"]
+    summary = paper_trading.account_summary(account, now)
+    strategy = summary["strategy_performance"][0]
+    assert strategy["strategy"] == "early_entry_experimental"
+    assert strategy["open_positions"] == 1
+    assert summary["early_entry_total_trades"] == 1
+
+
+def test_early_entry_same_day_signal_is_idempotent(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
+    first = paper_trading.update_account([_early_entry_candidate()], [], now, enable_early_entry_experimental=True)
+    cash_after_entry = first["cash"]
+    second = paper_trading.update_account([_early_entry_candidate(price=10.1)], [], now, enable_early_entry_experimental=True)
+    assert len(second["positions"]) == 1
+    assert second["cash"] == cash_after_entry
+    assert len([event for event in second["ledger"] if event["type"] == "BUY"]) == 1
+
+
+def test_official_buy_is_allocated_before_new_early_entry_experiments(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
+    official_candidate = _candidate(10.0)
+    official_candidate["stage"] = "BUY"
+    early_candidate = _early_entry_candidate()
+    account = paper_trading.update_account(
+        [official_candidate, early_candidate], [_signal()], now, enable_early_entry_experimental=True
+    )
+    assert account["allocation_review"][0]["strategy"] == "official_buy"
+    assert account["positions"][0]["strategy"] == "official_buy"
+    assert any(p["strategy"] == "early_entry_experimental" for p in account["positions"])
+
+
+def test_early_entry_experiments_remain_disabled_by_default(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
+    account = paper_trading.update_account([_early_entry_candidate()], [], now)
+    assert account["cash"] == 250.0
+    assert account["positions"] == []
+    assert account["early_entry_signal_diagnostics"]["enabled"] is False
+    assert paper_trading.account_summary(account, now)["early_entry_experimental_enabled"] is False

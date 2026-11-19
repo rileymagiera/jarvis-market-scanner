@@ -10,6 +10,7 @@ from email.message import EmailMessage
 from pathlib import Path
 from paper_trading import update_account as update_paper_trading_account, account_summary as paper_account_summary
 from candidate_lifecycle import update_candidate_lifecycle
+from early_opportunity_radar import append_candidate_snapshot
 from early_runner import has_session_aware_early_runner_baseline
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
@@ -137,7 +138,7 @@ def update_universe_rs_rank_history(record, item, now):
     )
 
 
-def update_paper_tracker(candidates, now):
+def update_paper_tracker(candidates, now, scan_id=None):
     """Track recommendations with 365-day detail and cumulative lifetime checkpoint stats."""
     try:
         tracker = json.loads(PAPER_STATE.read_text(encoding="utf-8"))
@@ -337,6 +338,7 @@ def update_paper_tracker(candidates, now):
             record["buy_readiness"] = item.get("buy_readiness") or {}
             record["early_runner_signal_matches"] = item.get("early_runner_signal_matches") or []
             record["early_runner_research_score"] = item.get("early_runner_research_score")
+            append_candidate_snapshot(record, item, now.isoformat(), scan_id or now.isoformat())
             tracker[key] = record
             continue
         if record and record.get("price_validation_status") == "unverified":
@@ -504,6 +506,7 @@ def update_paper_tracker(candidates, now):
         record["research_signal_matches"] = item.get("research_signal_matches") or item.get("research_signals") or []
         record["early_runner_signal_matches"] = item.get("early_runner_signal_matches") or []
         record["early_runner_research_score"] = item.get("early_runner_research_score")
+        append_candidate_snapshot(record, item, now.isoformat(), scan_id or now.isoformat())
         research_feature_snapshot = {field: item.get(field) for field in research_fields}
         data_quality_for_outcomes = item.get("data_quality") or {}
         price_is_verified = (
@@ -703,6 +706,7 @@ def update_paper_tracker(candidates, now):
         update_candidate_lifecycle(record, item, now, observation_eligible=observation_eligible)
         record["early_runner_signal_matches"] = item.get("early_runner_signal_matches") or []
         record["early_runner_research_score"] = item.get("early_runner_research_score")
+        append_candidate_snapshot(record, item, now.isoformat(), scan_id or now.isoformat())
         record["last_seen"] = now.isoformat()
         record["last_stage"] = stage
         record["currently_surfaced"] = True
@@ -1066,10 +1070,15 @@ def main():
 
     now = datetime.now(timezone.utc)
     local_now = now.astimezone(ZoneInfo("America/Detroit"))
-    paper, paper_lifetime = update_paper_tracker(payload["candidates"], now)
+    scan_id = os.getenv("GITHUB_RUN_ID") or metadata.get("run_id") or now.isoformat()
+    paper, paper_lifetime = update_paper_tracker(payload["candidates"], now, scan_id=scan_id)
     apply_history_runner_learning(payload["candidates"], paper)
     buy_signals = update_buy_signal_history(payload["candidates"], now, payload.get("errors") or [])
-    paper_account = update_paper_trading_account(payload["candidates"], buy_signals, now)
+    paper_account = update_paper_trading_account(
+        payload["candidates"], buy_signals, now,
+        enable_early_entry_experimental=os.getenv("JARVIS_ENABLE_EARLY_ENTRY_EXPERIMENTAL", "false").lower() == "true",
+        scan_id=scan_id,
+    )
     print("Paper trading:", json.dumps(paper_account_summary(paper_account), sort_keys=True))
     # Keep the live history page current without waiting for a Render redeploy.
     # The committed JSON files remain the recovery source if the site restarts.
