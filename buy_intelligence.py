@@ -2,7 +2,7 @@ import numpy as np
 
 
 def build_buy_intelligence(item: dict) -> dict:
-    """Coverage-aware shadow evidence model; never changes production BUY scoring."""
+    """Coverage-aware evidence model; a separate gate controls its paper-only score influence."""
     def number(key):
         try:
             value = float(item.get(key))
