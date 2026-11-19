@@ -32,6 +32,8 @@ jobs:
           cache-dependency-path: requirements.txt
       - name: Install scanner dependencies
         run: python -m pip install --disable-pip-version-check -r requirements.txt
+      - name: Install paper trading test runner
+        run: python -m pip install --disable-pip-version-check pytest
       - name: Record scan attempt start
         if: ${{ inputs.send_test_email != true }}
         run: |
@@ -76,7 +78,8 @@ jobs:
           else
             echo "Alpaca credentials are missing; scan will report Alpaca as not configured."
           fi
-          python -m py_compile main.py send_alerts.py early_runner.py
+          python -m py_compile main.py send_alerts.py early_runner.py paper_trading.py
+          python -m pytest -q tests/test_paper_trading.py
           if [ "$SEND_TEST_EMAIL" = "true" ]; then
             python send_alerts.py --test
           else
@@ -93,6 +96,7 @@ jobs:
               "paper_tracker": "paper_tracker.json",
               "lifetime": "paper_tracker_lifetime.json",
               "buy_signals": "buy_signal_history.json",
+              "paper_trading": "paper_trading_state.json",
               "metadata": "scan_metadata.json",
           }
           parsed = {}
@@ -195,10 +199,10 @@ jobs:
       - name: Save alert deduplication state
         if: ${{ always() && inputs.send_test_email != true }}
         run: |
-          if [ -n "$(git status --porcelain alert_state.json paper_tracker.json paper_tracker_lifetime.json buy_signal_history.json scan_diagnostics.json scan_metadata.json)" ]; then
+          if [ -n "$(git status --porcelain alert_state.json paper_tracker.json paper_tracker_lifetime.json buy_signal_history.json paper_trading_state.json scan_diagnostics.json scan_metadata.json)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add alert_state.json paper_tracker.json paper_tracker_lifetime.json buy_signal_history.json scan_diagnostics.json scan_metadata.json
+            git add alert_state.json paper_tracker.json paper_tracker_lifetime.json buy_signal_history.json paper_trading_state.json scan_diagnostics.json scan_metadata.json
             git commit -m "Update Jarvis alert state"
             # A concurrent repository commit can make the first push non-fast-forward.
             # Retry by rebasing; if state-file conflicts occur, preserve this completed scan's
