@@ -323,14 +323,31 @@ def update_paper_tracker(candidates, now):
         initial = float(record.get("initial_price") or price)
         # Backfill only when a reliable price is available. Never overwrite an established baseline.
         if record.get("discovery_initial_price") is None:
-            record["discovery_initial_price"] = price
-            record["discovery_price_as_of"] = item.get("price_as_of") or now.isoformat()
+            legacy_initial = safe_float(record.get("initial_price"), 0)
+            has_legacy_baseline = legacy_initial > 0
+            record["discovery_initial_price"] = legacy_initial if has_legacy_baseline else price
+            record["discovery_price_as_of"] = (
+                record.get("first_seen") if has_legacy_baseline
+                else (item.get("price_as_of") or now.isoformat())
+            )
             record["discovery_price_checked_at"] = item.get("price_checked_at") or now.isoformat()
-            record["discovery_price_source"] = item.get("data_source") or item.get("price_source")
-            record["discovery_baseline_status"] = "first_verified_fallback" if record.get("first_seen") else ("last_known_eod" if item_price_status == "last_known" else "live_verified")
-            record["discovery_baseline_timestamp_type"] = item.get("price_timestamp_type") or "provider timestamp"
-            record["discovery_peak_price"] = price
-            record["discovery_trough_price"] = price
+            record["discovery_price_source"] = (
+                "Legacy first-verified baseline; original quote timestamp unavailable"
+                if has_legacy_baseline else (item.get("data_source") or item.get("price_source"))
+            )
+            record["discovery_baseline_status"] = (
+                "first_verified_legacy" if has_legacy_baseline
+                else ("first_verified_fallback" if record.get("first_seen") else ("last_known_eod" if item_price_status == "last_known" else "live_verified"))
+            )
+            record["discovery_baseline_timestamp_type"] = (
+                "legacy first-seen timestamp; exact quote time unavailable"
+                if has_legacy_baseline else (item.get("price_timestamp_type") or "provider timestamp")
+            )
+            record["discovery_peak_price"] = safe_float(record.get("peak_price"), record["discovery_initial_price"]) if has_legacy_baseline else price
+            record["discovery_trough_price"] = safe_float(record.get("trough_price"), record["discovery_initial_price"]) if has_legacy_baseline else price
+            if has_legacy_baseline:
+                record["discovery_max_gain_pct"] = record.get("max_gain_pct")
+                record["discovery_max_drawdown_pct"] = record.get("max_drawdown_pct")
         record["latest_price"] = price
         record["price_validation_status"] = item.get("price_validation_status") or ("verified" if item.get("price_validation_passed", False) else "unverified")
         record["price_validation_note"] = item.get("price_validation_note", "Price validation evidence unavailable")
