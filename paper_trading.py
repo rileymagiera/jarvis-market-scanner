@@ -221,7 +221,10 @@ def update_account(candidates, buy_signals, now):
             continue
         equity = _num(account["cash"]) + sum(_num(p.get("quantity")) * _num(p.get("latest_price") or p.get("entry_price")) for p in account["positions"])
         risk_budget = equity * RISK_FRACTION
-        qty_by_risk = risk_budget / (price - stop)
+        entry_fee_per_unit = calculate_trade_fee(key[0], "buy", price, 1.0)["total"]
+        stop_exit_fee_per_unit = calculate_trade_fee(key[0], "sell", stop, 1.0)["total"]
+        risk_per_unit = (price - stop) + entry_fee_per_unit + stop_exit_fee_per_unit
+        qty_by_risk = risk_budget / risk_per_unit if risk_per_unit > 0 else 0.0
         qty_by_cap = equity * MAX_POSITION_FRACTION / price
         # Solve for quantity with the broker's actual fee model included in cash sizing.
         cash = _num(account["cash"])
