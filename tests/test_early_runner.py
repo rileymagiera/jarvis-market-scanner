@@ -146,6 +146,19 @@ class StockCrossSectionTests(unittest.TestCase):
         self.assertTrue(result["breakout_20d"])
         self.assertIn("Weekly trend confirmation", result["early_warning_matches"])
 
+    def test_weekly_confirmation_stays_unavailable_with_short_history(self):
+        from early_runner import compute_early_warning_metrics
+        dates = pd.date_range("2026-01-01", periods=80, freq="B")
+        closes = [50 + i * 0.2 for i in range(len(dates))]
+        daily = pd.DataFrame({
+            "Open": closes, "High": [x + 0.5 for x in closes],
+            "Low": [x - 0.5 for x in closes], "Close": closes,
+            "Volume": [50000] * len(closes),
+        }, index=dates)
+        result = compute_early_warning_metrics(daily, pd.DataFrame(), closes[-1])
+        self.assertIsNone(result["weekly_confirmation"])
+        self.assertEqual(result["weekly_confirmation_status"], "Insufficient weekly history")
+
     def test_universe_relative_strength_rank_and_missing_values(self):
         from early_runner import rank_stock_universe_strength
         items = [
