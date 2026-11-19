@@ -35,6 +35,8 @@ Jarvis is a research-focused stock and cryptocurrency scanner with a web dashboa
 | `market_calendar.py` | Exchange-session calendar helpers. |
 | `market_data_cache.py` | Persistent hourly candle cache. |
 | `static/history_dashboard.js` | Home/history dashboard browser code served by `/history/dashboard.js`. |
+| `templates/history.html` | Home/history dashboard HTML. |
+| `templates/intelligence.html` | Intelligence dashboard HTML. |
 | `tests/` | Regression tests for scanner components and paper trading. |
 | `.github/workflows/jarvis-alerts.yml` | Scheduled scan workflow, cache restore, scan audit, and state persistence. |
 | `.github/workflows/validate-jarvis.yml` | Consolidated code-validation workflow. |

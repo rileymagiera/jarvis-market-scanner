@@ -62,6 +62,7 @@ These are approximate line ranges, not stable APIs. Prefer moving one cohesive r
 - `market_data_cache.py`: persistent cache serialization.
 - `market_calendar.py`: exchange calendar and session classification.
 - `static/history_dashboard.js`: standalone Home/history dashboard browser code, syntax-checked directly by CI.
+- `templates/history.html` and `templates/intelligence.html`: HTML page templates loaded by their existing FastAPI routes.
 
 ## Market-data providers
 
