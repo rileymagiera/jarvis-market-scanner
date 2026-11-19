@@ -13,6 +13,18 @@ MAX_EXPERIMENT_VERSIONS = 100
 
 DEFAULT_EXPERIMENTS = [
     {
+        "experiment_id": "EARLY-ENTRY-01",
+        "version": 1,
+        "name": "Pre-breakout early-entry research",
+        "category": "entry",
+        "hypothesis": "Verified accumulation and pre-breakout evidence may identify opportunities before official BUY confirmation.",
+        "status": "testing",
+        "activation": "default_off_user_approval_required",
+        "parameters": {"strategy": "early_entry_experimental", "score_floor": 60, "risk_off_blocked": True},
+        "success_criteria": "Compare detection timing, expectancy, drawdown, false positives and missed runners against Core.",
+        "created_at": "2026-11-19",
+    },
+    {
         "experiment_id": "STOP-CURRENT-01",
         "version": 1,
         "name": "Current production stop baseline",
@@ -200,7 +212,7 @@ def summarize_experiment_registry(account):
     rows = []
     for definition in registry["experiments"]:
         experiment_id = definition.get("experiment_id")
-        linked = [p for p in positions if p.get("experiment_version") == "{}-v{}".format(experiment_id, definition.get("version"))]
+        linked = [p for p in positions if p.get("experiment_version") == "{}-v{}".format(experiment_id, definition.get("version")) or p.get("stop_experiment_version") == "{}-v{}".format(experiment_id, definition.get("version"))]
         touches = [p.get("stop_counterfactuals", {}).get(experiment_id, {}) for p in positions]
         touched = sum(1 for x in touches if x.get("first_touch"))
         rows.append({
