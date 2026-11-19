@@ -52,3 +52,17 @@ jobs:
           PY
       - name: Validate dashboard JavaScript
         run: node --check /tmp/jarvis-dashboard.js
+      - name: Extract and validate Intelligence page scripts
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          import main
+          html = main.research_page().body.decode("utf-8")
+          scripts = re.findall(r"<script>(.*?)</script>", html, flags=re.S)
+          if not scripts:
+              raise SystemExit("No Intelligence page scripts were found")
+          for index, script in enumerate(scripts):
+              Path(f"/tmp/jarvis-intelligence-{index}.js").write_text(script, encoding="utf-8")
+          PY
+          for script in /tmp/jarvis-intelligence-*.js; do node --check "$script"; done
