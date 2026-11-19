@@ -128,6 +128,11 @@ jobs:
           stock_unverified = max(0, len(stock_records) - stock_verified - stock_last_known)
           stock_stage_unverified = stock_stages.get("PRICE UNVERIFIED — WATCH ONLY", 0)
           crypto_unverified = crypto.get("price_validation", {}).get("unverified", 0)
+          timing = (d.get("diagnostics") or {}).get("timing_breakdown") or {}
+          provider_activity = timing.get("provider_activity") or {}
+          http_status_counts = provider_activity.get("provider_http_status_counts") or {}
+          http_429_count = int(provider_activity.get("provider_http_429_count") or 0)
+          http_5xx_count = int(provider_activity.get("provider_http_5xx_count") or 0)
           audit = {
               "audit_timestamp": d.get("timestamp"),
               "audit_run_id": os.environ.get("GITHUB_RUN_ID"),
@@ -144,6 +149,9 @@ jobs:
               "crypto_price_verified": crypto.get("price_validation", {}).get("verified", 0),
               "crypto_price_unverified": crypto_unverified,
               "scan_errors": d.get("errors") or [],
+              "provider_http_status_counts": http_status_counts,
+              "provider_http_429_count": http_429_count,
+              "provider_http_5xx_count": http_5xx_count,
               "stock_stage_counts": stock_stages,
               "crypto_stage_counts": crypto_stages,
               "history_sync_reported": True,
@@ -159,6 +167,9 @@ jobs:
               f"- Stocks: {audit['stocks_returned']} returned; {audit['stocks_price_verified']} live-verified; {audit['stocks_price_last_known']} last-known EOD references; {audit['stocks_price_unverified']} genuinely unverified (stage-only watch label count: {audit['stocks_stage_unverified_watch_only']})",
               f"- Crypto: {audit['crypto_returned']} returned; {audit['crypto_price_verified']} price-verified; {audit['crypto_price_unverified']} unverified",
               f"- Scanner errors: **{len(audit['scan_errors'])}**",
+              f"- Provider HTTP rate limits (429): **{audit['provider_http_429_count']}**",
+              f"- Provider HTTP server errors (5xx): **{audit['provider_http_5xx_count']}**",
+              f"- Provider HTTP status counts: {json.dumps(audit['provider_http_status_counts'], sort_keys=True)}",
               f"- JSON persistence checks: {len(parsed)}/{len(paths)} files valid",
           ]
           if audit["scan_errors"]:
