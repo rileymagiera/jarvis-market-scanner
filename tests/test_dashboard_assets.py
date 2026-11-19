@@ -122,3 +122,32 @@ def test_webull_yahoo_history_persists_comparison_records(tmp_path):
     saved = __import__("json").loads(path.read_text())
     assert len(saved["records"]) == 2
     assert saved["records"][0]["run_id"] == "test-run"
+
+
+def test_crypto_shadow_comparison_is_observational_and_persisted(tmp_path):
+    quote = {"price": 100.0, "as_of": "2026-11-19T15:00:00+00:00", "age_seconds": 20.0, "spread_pct": 0.1, "quote_currency": "USD"}
+    row = main.compare_crypto_shadow_quote("coinbase", "BTCUSDT", 100.2, "2026-11-19T15:00:00+00:00", quote)
+    assert row["status"] == "comparable"
+    assert row["difference_pct"] == 0.1998
+    same_source = main.compare_crypto_shadow_quote("coinbase", "BTCUSDT", 100.2, "2026-11-19T15:00:00+00:00", quote, None, "USD", "Coinbase Exchange public API")
+    assert same_source["status"] == "same_as_primary_source"
+    mismatch = main.compare_crypto_shadow_quote("binance_us", "BTCUSDT", 100.2, "2026-11-19T15:00:00+00:00", {**quote, "quote_currency": "USDT"})
+    assert mismatch["status"] == "quote_currency_mismatch"
+    assert mismatch["difference_pct"] is None
+    missing = main.compare_crypto_shadow_quote("binance_us", "BTCUSDT", 100.2, None, None, "HTTPError")
+    assert missing["status"] == "unavailable"
+    assert missing["difference_pct"] is None
+    result = main.persist_crypto_shadow_history(
+        [row, missing], "2026-11-19T15:00:00+00:00", "test-run", tmp_path / "crypto.json"
+    )
+    assert result["summary"]["providers"]["coinbase"]["comparable"] == 1
+    assert result["summary"]["providers"]["binance_us"]["unavailable"] == 1
+
+
+def test_crypto_shadow_sampling_rotates_and_is_bounded():
+    symbols = [f"COIN{i}USDT" for i in range(55)]
+    first = main.select_crypto_shadow_symbols(symbols, run_number=1, sample_size=20)
+    second = main.select_crypto_shadow_symbols(symbols, run_number=2, sample_size=20)
+    assert len(first) == len(second) == 20
+    assert set(first).isdisjoint(set(second))
+    assert set(first + second).issubset(set(symbols))
