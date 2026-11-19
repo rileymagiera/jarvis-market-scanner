@@ -221,7 +221,7 @@ def build_risk_off_paper_signals(candidates, now, diagnostics=None):
     return signals
 
 
-def build_early_entry_paper_signals(candidates, now, diagnostics=None):
+def build_early_entry_paper_signals(candidates, now, diagnostics=None, scan_id=None):
     """Build conservative early-entry experiments for the existing shared paper account.
 
     These are explicitly experimental, never official BUYs. They require a radar
@@ -253,7 +253,7 @@ def build_early_entry_paper_signals(candidates, now, diagnostics=None):
             reject("risk_off_or_unknown_regime")
             continue
         snapshot = build_candidate_snapshot(
-            item, now.isoformat(), "early-entry:{}:{}:{}".format(asset, symbol, day)
+            item, now.isoformat(), scan_id or "early-entry:{}:{}:{}".format(asset, symbol, day)
         )
         if not snapshot or snapshot.get("shadow_classification") not in {
             "EARLY ACCUMULATION", "PRE-BREAKOUT WATCH"
@@ -315,7 +315,7 @@ def build_early_entry_paper_signals(candidates, now, diagnostics=None):
     return signals
 
 
-def update_account(candidates, buy_signals, now, enable_early_entry_experimental=False):
+def update_account(candidates, buy_signals, now, enable_early_entry_experimental=False, scan_id=None):
     """Process one completed scan; sampled exits are explicitly not tick-level fills."""
     account = load_account()
     account["last_updated_at"] = now.isoformat()
@@ -409,7 +409,7 @@ def update_account(candidates, buy_signals, now, enable_early_entry_experimental
     account["risk_off_signal_diagnostics"] = risk_off_diagnostics
     early_entry_diagnostics = {"enabled": bool(enable_early_entry_experimental)}
     early_entry_active = (
-        build_early_entry_paper_signals(candidates, now, early_entry_diagnostics)
+        build_early_entry_paper_signals(candidates, now, early_entry_diagnostics, scan_id=scan_id)
         if enable_early_entry_experimental else []
     )
     early_entry_diagnostics["enabled"] = bool(enable_early_entry_experimental)
