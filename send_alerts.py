@@ -275,8 +275,6 @@ def update_paper_tracker(candidates, now):
                 record["discovery_price_source"] = item.get("data_source") or item.get("price_source")
                 record["discovery_baseline_status"] = "first_verified_fallback"
                 record["discovery_baseline_timestamp_type"] = item.get("price_timestamp_type") or "provider timestamp"
-            record["discovery_peak_price"] = price
-            record["discovery_trough_price"] = price
                 record["discovery_peak_price"] = price
                 record["discovery_trough_price"] = price
             if record.get("initial_price") is None and not record.get("lifetime_recommendation_counted", False):
