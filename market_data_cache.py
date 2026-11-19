@@ -49,12 +49,20 @@ class HourlyCandleCache:
             temporary = self.cache_path.with_suffix(self.cache_path.suffix + ".tmp")
             temporary.write_text(json.dumps(payload, separators=(",", ":")), encoding="utf-8")
             temporary.replace(self.cache_path)
-        except OSError:
+        except (OSError, TypeError, ValueError):
             # Cache persistence is an optimization; provider fetches remain authoritative.
             return
 
+    @staticmethod
+    def _key(key):
+        """Return a stable JSON-safe key; Kraken uses (pair_id, interval) tuples."""
+        if isinstance(key, str):
+            return key
+        return json.dumps(key, sort_keys=True, separators=(",", ":"))
+
     def get(self, key, now_epoch=None):
         bucket = self.hour_bucket(now_epoch)
+        key = self._key(key)
         with self._lock:
             item = self._items.get(key)
             if not item or item["hour_bucket"] != bucket:
@@ -63,6 +71,7 @@ class HourlyCandleCache:
 
     def put(self, key, rows, now_epoch=None):
         bucket = self.hour_bucket(now_epoch)
+        key = self._key(key)
         with self._lock:
             self._items[key] = {"hour_bucket": bucket, "rows": list(rows)}
             if len(self._items) > self.max_entries:
