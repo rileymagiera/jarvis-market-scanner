@@ -2193,7 +2193,8 @@ def crypto_shadow_quote(provider: str, symbol: str, quote_currency: str = "USD")
             payload = response.json() or {}
             price = safe_float(payload.get("lastPrice"))
             stamp = pd.to_datetime(payload.get("closeTime"), unit="ms", utc=True) if payload.get("closeTime") is not None else None
-            bid = ask = None
+            # Binance 24h ticker has no bid/ask fields; use numeric sentinels so spread logic remains safe.
+            bid = ask = 0.0
         else:
             raise ValueError(f"Unsupported crypto shadow provider: {provider}")
         if price <= 0 or stamp is None or pd.isna(stamp):
