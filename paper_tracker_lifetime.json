@@ -3,14 +3,14 @@
     "crypto": {
       "checkpoints": {
         "1": {
-          "flat": 1,
+          "flat": 2,
           "losses": 22,
-          "observations": 41,
+          "observations": 42,
           "total_return_pct": 3.4,
           "wins": 18
         }
       },
-      "recommendations": 143
+      "recommendations": 144
     },
     "stock": {
       "recommendations": 436
@@ -18,19 +18,19 @@
   },
   "checkpoints": {
     "1": {
-      "flat": 1,
+      "flat": 2,
       "losses": 22,
-      "observations": 41,
+      "observations": 42,
       "total_return_pct": 3.4,
       "wins": 18
     }
   },
   "integrity": {
-    "checked_at": "2026-11-19T06:04:18.998873+00:00",
+    "checked_at": "2026-11-19T06:34:05.403489+00:00",
     "retained_stock_baselines": 296,
     "retained_stock_counted_baselines": 296,
     "retained_stock_uncounted_baselines": 0,
     "unverified_stock_without_baseline": 21
   },
-  "recommendations": 579
+  "recommendations": 580
 }
