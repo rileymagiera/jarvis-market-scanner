@@ -303,7 +303,14 @@ def account_summary(account, now=None):
     )
     realized = sum(_num(t.get("realized_pnl")) for t in (account.get("closed_trades") or []))
     realized += sum(_num(p.get("realized_pnl")) for p in positions)
-    equity = _num(account.get("cash")) + market_value
+    estimated_exit_fees = sum(
+        calculate_trade_fee(
+            p.get("asset_type"), "sell",
+            _num(p.get("quantity")) * _num(p.get("latest_price") or p.get("entry_price")),
+            _num(p.get("quantity"))
+        )["total"] for p in positions
+    )
+    equity = _num(account.get("cash")) + market_value - estimated_exit_fees
     now = now or datetime.now(timezone.utc)
     if now.tzinfo is None:
         now = now.replace(tzinfo=timezone.utc)
@@ -320,13 +327,7 @@ def account_summary(account, now=None):
         "total_return_pct": round((equity / STARTING_CASH - 1) * 100, 2),
         "realized_pnl": round(realized, 2),
         "unrealized_pnl": round(unrealized, 2),
-        "estimated_exit_fees": round(sum(
-            calculate_trade_fee(
-                p.get("asset_type"), "sell",
-                _num(p.get("quantity")) * _num(p.get("latest_price") or p.get("entry_price")),
-                _num(p.get("quantity"))
-            )["total"] for p in positions
-        ), 2),
+        "estimated_exit_fees": round(estimated_exit_fees, 2),
         "open_positions": len(positions),
         "closed_trades": len(account.get("closed_trades") or []),
     }
