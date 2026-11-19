@@ -146,3 +146,43 @@ def test_position_sizing_keeps_stop_loss_risk_within_one_percent_after_fees(tmp_
     )["total"]
     modeled_stop_loss = quantity * (10.0 - 9.0) + entry_fee + stop_exit_fee
     assert modeled_stop_loss <= 2.5
+
+
+def test_repeated_scan_does_not_duplicate_paper_entry(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
+    first = paper_trading.update_account([_candidate(10.0)], [_signal()], now)
+    first_cash = first["cash"]
+    second = paper_trading.update_account([_candidate(10.1)], [_signal()], now)
+
+    assert len(second["positions"]) == 1
+    assert second["cash"] == first_cash
+    assert len([event for event in second["ledger"] if event["type"] == "BUY"]) == 1
+
+
+def test_target_one_is_partial_once_then_target_two_closes_remainder(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
+    account = paper_trading.update_account([_candidate(10.0)], [_signal()], now)
+    initial_qty = account["positions"][0]["quantity"]
+
+    account = paper_trading.update_account([_candidate(11.0)], [_signal()], now)
+    assert len(account["positions"]) == 1
+    assert account["positions"][0]["quantity"] == round(initial_qty * 0.5, 10)
+    assert account["positions"][0]["target_1_filled"] is True
+
+    account = paper_trading.update_account([_candidate(11.0)], [_signal()], now)
+    assert len([event for event in account["ledger"] if event["type"] == "SELL"]) == 1
+
+    account = paper_trading.update_account([_candidate(12.0)], [_signal()], now)
+    assert account["positions"] == []
+    assert len(account["closed_trades"]) == 1
+    sells = [event for event in account["ledger"] if event["type"] == "SELL"]
+    assert [event["message"] for event in sells] == [
+        "TARGET_1 observed for TEST", "TARGET_2 observed for TEST"
+    ]
+    assert account["closed_trades"][0]["quantity"] == 0.0
+    summary = paper_trading.account_summary(account)
+    assert summary["open_positions"] == 0
+    assert summary["closed_trades"] == 1
+    assert summary["equity"] == round(account["cash"], 2)
