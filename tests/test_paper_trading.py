@@ -546,7 +546,7 @@ def test_early_entry_experiment_uses_existing_shared_account_and_one_state_file(
     state_path = tmp_path / "paper.json"
     monkeypatch.setattr(paper_trading, "STATE_PATH", state_path)
     now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
-    account = paper_trading.update_account([_early_entry_candidate()], [], now)
+    account = paper_trading.update_account([_early_entry_candidate()], [], now, enable_early_entry_experimental=True)
 
     assert account["starting_cash"] == 250.0
     assert account["cash"] < 250.0
@@ -569,9 +569,9 @@ def test_early_entry_experiment_uses_existing_shared_account_and_one_state_file(
 def test_early_entry_same_day_signal_is_idempotent(tmp_path, monkeypatch):
     monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
     now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
-    first = paper_trading.update_account([_early_entry_candidate()], [], now)
+    first = paper_trading.update_account([_early_entry_candidate()], [], now, enable_early_entry_experimental=True)
     cash_after_entry = first["cash"]
-    second = paper_trading.update_account([_early_entry_candidate(price=10.1)], [], now)
+    second = paper_trading.update_account([_early_entry_candidate(price=10.1)], [], now, enable_early_entry_experimental=True)
     assert len(second["positions"]) == 1
     assert second["cash"] == cash_after_entry
     assert len([event for event in second["ledger"] if event["type"] == "BUY"]) == 1
@@ -584,8 +584,18 @@ def test_official_buy_is_allocated_before_new_early_entry_experiments(tmp_path, 
     official_candidate["stage"] = "BUY"
     early_candidate = _early_entry_candidate()
     account = paper_trading.update_account(
-        [official_candidate, early_candidate], [_signal()], now
+        [official_candidate, early_candidate], [_signal()], now, enable_early_entry_experimental=True
     )
     assert account["allocation_review"][0]["strategy"] == "official_buy"
     assert account["positions"][0]["strategy"] == "official_buy"
     assert any(p["strategy"] == "early_entry_experimental" for p in account["positions"])
+
+
+def test_early_entry_experiments_remain_disabled_by_default(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
+    account = paper_trading.update_account([_early_entry_candidate()], [], now)
+    assert account["cash"] == 250.0
+    assert account["positions"] == []
+    assert account["early_entry_signal_diagnostics"]["enabled"] is False
+    assert paper_trading.account_summary(account, now)["early_entry_experimental_enabled"] is False
