@@ -222,6 +222,16 @@
       "status": "PREMARKET VERIFIED"
     }
   },
+  "stock:ANTX": {
+    "alerted_at": "2026-11-19T18:32:36.987561+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 60
+  },
+  "stock:BRBR": {
+    "alerted_at": "2026-11-19T18:32:36.987561+00:00",
+    "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
+    "score": 62
+  },
   "stock:GME": {
     "alerted_at": "2026-11-19T17:17:31.283681+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
