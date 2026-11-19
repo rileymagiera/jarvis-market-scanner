@@ -131,21 +131,48 @@ def _event(account, kind, message, **fields):
 
 
 
-def build_risk_off_paper_signals(candidates, now):
-    """Create experimental paper-only signals when Risk-Off is the sole failed BUY gate."""
+def build_risk_off_paper_signals(candidates, now, diagnostics=None):
+    """Create experimental paper-only signals when Risk-Off is the sole failed BUY gate.
+
+    Optional diagnostics explain why candidates were not promoted without weakening
+    any official BUY-readiness, price-validation, or risk-level requirement.
+    """
     signals = []
+    audit = {
+        "candidates_total": 0, "risk_off_candidates": 0, "eligible_signals": 0,
+        "rejections": {},
+    }
+
+    def reject(reason):
+        counts = audit["rejections"]
+        counts[reason] = counts.get(reason, 0) + 1
+
     day = now.strftime("%Y-%m-%d")
     for item in candidates:
-        if not isinstance(item, dict) or item.get("market_regime") != "RISK-OFF":
+        if not isinstance(item, dict):
             continue
+        audit["candidates_total"] += 1
+        if item.get("market_regime") != "RISK-OFF":
+            continue
+        audit["risk_off_candidates"] += 1
         checks = ((item.get("buy_readiness") or {}).get("checks") or {})
-        if not checks or checks.get("market_not_risk_off") is not False:
+        if not checks:
+            reject("missing_buy_readiness_checks")
             continue
-        if any(not bool(value) for key, value in checks.items() if key != "market_not_risk_off"):
+        if checks.get("market_not_risk_off") is not False:
+            reject("regime_gate_not_identified_as_only_blocker")
+            continue
+        failed = [key for key, value in checks.items()
+                  if key != "market_not_risk_off" and not bool(value)]
+        if failed:
+            for key in failed:
+                reject("failed_buy_gate:" + str(key))
             continue
         if item.get("price_validation_passed") is not True:
+            reject("price_not_independently_verified")
             continue
         if (item.get("data_quality") or {}).get("buy_eligible") is not True:
+            reject("price_not_live_buy_eligible")
             continue
         asset = str(item.get("asset_type") or "").lower()
         symbol = str(item.get("symbol") or "").upper()
@@ -157,8 +184,10 @@ def build_risk_off_paper_signals(candidates, now):
         target1 = _num(levels.get("target_1"))
         target2 = _num(levels.get("target_2"))
         if not asset or not symbol or price <= 0 or not (0 < low <= price <= high):
+            reject("invalid_or_out_of_range_entry")
             continue
         if not (0 < stop < price < target1 <= target2):
+            reject("invalid_stop_or_target_levels")
             continue
         signal_id = "risk_off:{}:{}:{}".format(asset, symbol, day)
         signals.append({
@@ -170,6 +199,10 @@ def build_risk_off_paper_signals(candidates, now):
             "strategy": "risk_off_experimental", "market_regime": "RISK-OFF",
             "experimental": True,
         })
+    audit["eligible_signals"] = len(signals)
+    if diagnostics is not None:
+        diagnostics.clear()
+        diagnostics.update(audit)
     return signals
 
 
@@ -253,7 +286,9 @@ def update_account(candidates, buy_signals, now):
 
     processed = set(account.get("processed_signal_ids") or [])
     official_active = [s for s in buy_signals if isinstance(s, dict) and s.get("status") == "active"]
-    risk_off_active = build_risk_off_paper_signals(candidates, now)
+    risk_off_diagnostics = {}
+    risk_off_active = build_risk_off_paper_signals(candidates, now, risk_off_diagnostics)
+    account["risk_off_signal_diagnostics"] = risk_off_diagnostics
     active = official_active + risk_off_active
     eligible = []
     allocation_review = []
@@ -427,4 +462,5 @@ def account_summary(account, now=None):
         "risk_off_closed_trades": len(risk_off_closed),
         "risk_off_total_trades": len(risk_off_open) + len(risk_off_closed),
         "risk_off_realized_pnl": round(risk_off_realized, 2),
+        "risk_off_signal_diagnostics": account.get("risk_off_signal_diagnostics") or {},
     }

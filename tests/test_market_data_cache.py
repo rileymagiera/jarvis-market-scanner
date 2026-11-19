@@ -33,6 +33,16 @@ class HourlyCandleCacheTests(unittest.TestCase):
             second = HourlyCandleCache(cache_path=path)
             self.assertEqual(second.get("XBTUSD", now_epoch=now + 1), [[1, 2]])
 
+    def test_tuple_keys_persist_without_breaking_provider_fetches(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "kraken.json"
+            first = HourlyCandleCache(cache_path=path)
+            now = time.time()
+            key = ("XBTUSD", 60)
+            first.put(key, [[1, 2, 3]], now_epoch=now)
+            second = HourlyCandleCache(cache_path=path)
+            self.assertEqual(second.get(key, now_epoch=now + 1), [[1, 2, 3]])
+
     def test_persistent_cache_discards_previous_hour(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "kraken.json"

@@ -377,6 +377,29 @@ def _risk_off_candidate(price=10.0):
     return candidate
 
 
+def test_risk_off_diagnostics_explain_failed_gates_without_relaxing_them():
+    now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
+    eligible = _risk_off_candidate()
+    blocked = _risk_off_candidate()
+    blocked["symbol"] = "BLOCKED"
+    blocked["buy_readiness"]["checks"]["volume_confirmed"] = False
+    unverified = _risk_off_candidate()
+    unverified["symbol"] = "UNVERIFIED"
+    unverified["price_validation_passed"] = False
+
+    diagnostics = {}
+    signals = paper_trading.build_risk_off_paper_signals(
+        [eligible, blocked, unverified], now, diagnostics
+    )
+
+    assert [signal["symbol"] for signal in signals] == ["TEST"]
+    assert diagnostics["candidates_total"] == 3
+    assert diagnostics["risk_off_candidates"] == 3
+    assert diagnostics["eligible_signals"] == 1
+    assert diagnostics["rejections"]["failed_buy_gate:volume_confirmed"] == 1
+    assert diagnostics["rejections"]["price_not_independently_verified"] == 1
+
+
 def test_risk_off_experimental_paper_entry_bypasses_only_regime_gate(tmp_path, monkeypatch):
     monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
     now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
