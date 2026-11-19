@@ -2167,7 +2167,7 @@ def select_crypto_shadow_symbols(symbols: list[str], run_number=None, sample_siz
 
 
 def crypto_shadow_quote(provider: str, symbol: str, quote_currency: str = "USD") -> dict:
-    """Fetch one free public spot ticker; return a timestamped normalized quote."""
+    """Fetch one free public spot ticker in the same quote currency as Jarvis.\n\n    This observation is diagnostic only and is never used to select a price.\n    """
     base = crypto_base(symbol)
     started = time.monotonic()
     outcome = "failure"
