@@ -74,7 +74,7 @@ def load_account():
             state["rules"].update({
                 "crypto_fee_schedule": "Coinbase One Basic app: zero eligible trading commission up to $500/month; estimated spread 0.50% per side; simulated monthly gross volume tracked; standard commission after $500 cap not configured",
                 "stock_fee_schedule": "Webull US stocks: $0 commission; CAT 0.0003% per side; SEC 0.00206% sell side; FINRA TAF currently $0",
-                "crypto_default_order_type": DEFAULT_CRYPTO_ORDER_TYPE,\n                "allocation_method": "Rank active eligible official BUYs by official score, then target-2 reward/risk; retain existing risk and capacity limits; retry capacity-deferred signals while active",
+                "crypto_default_order_type": DEFAULT_CRYPTO_ORDER_TYPE,\n                "allocation_method": "Rank active eligible official BUYs by official score, then target-2 reward/risk; scale each risk budget by official score up to the existing 1% cap; retain existing capacity limits; retry capacity-deferred signals while active",
             })
             for position in state.get("positions", []):
                 if isinstance(position, dict):
@@ -95,7 +95,7 @@ def load_account():
             "risk_per_trade_pct": 1.0, "max_position_pct": 25.0,
             "max_open_positions": MAX_OPEN_POSITIONS, "crypto_fee_schedule": "Coinbase One Basic app: zero eligible trading commission up to $500/month; estimated spread 0.50% per side; simulated monthly gross volume tracked; standard commission after $500 cap not configured",
             "stock_fee_schedule": "Webull US stocks: $0 commission; CAT 0.0003% per side; SEC 0.00206% sell side; FINRA TAF currently $0",
-            "exits": "50% at target 1, remainder at target 2; full exit at stop",\n            "allocation_method": "Rank active eligible official BUYs by official score, then target-2 reward/risk; retain existing risk and capacity limits; retry capacity-deferred signals while active",
+            "exits": "50% at target 1, remainder at target 2; full exit at stop",\n            "allocation_method": "Rank active eligible official BUYs by official score, then target-2 reward/risk; scale each risk budget by official score up to the existing 1% cap; retain existing capacity limits; retry capacity-deferred signals while active",
         },
     }
 
@@ -253,13 +253,15 @@ def update_account(candidates, buy_signals, now):
             "rank": rank, "signal_id": signal_id, "symbol": key[1],
             "asset_type": key[0], "official_score": row["score"],
             "target_2_reward_risk": round(row["reward_risk"], 4),
+            "effective_risk_budget_pct": round(RISK_FRACTION * max(0.0, min(1.0, row["score"] / 100.0)) * 100, 3),
         }
         if len(account["positions"]) >= MAX_OPEN_POSITIONS:
             review.update({"status": "deferred", "reason": "Four-position limit; will be reconsidered while BUY remains active"})
             allocation_review.append(review)
             continue
         equity = _num(account["cash"]) + sum(_num(p.get("quantity")) * _num(p.get("latest_price") or p.get("entry_price")) for p in account["positions"])
-        risk_budget = equity * RISK_FRACTION
+        quality_risk_multiplier = max(0.0, min(1.0, row["score"] / 100.0))
+        risk_budget = equity * RISK_FRACTION * quality_risk_multiplier
         entry_fee_per_unit = calculate_trade_fee(key[0], "buy", price, 1.0)["total"]
         stop_exit_fee_per_unit = calculate_trade_fee(key[0], "sell", stop, 1.0)["total"]
         risk_per_unit = (price - stop) + entry_fee_per_unit + stop_exit_fee_per_unit
@@ -294,17 +296,19 @@ def update_account(candidates, buy_signals, now):
             "stop_loss": stop, "target_1": target1, "target_2": target2,
             "score": signal.get("score"), "score_model": signal.get("score_model"),
             "allocation_rank": rank, "allocation_reward_risk": round(row["reward_risk"], 4),
+            "quality_risk_multiplier": round(quality_risk_multiplier, 4),
             "price_source": item.get("price_source") or item.get("data_source"),
             "entry_price_as_of": item.get("price_as_of"), "target_1_filled": False,
             "realized_pnl": 0.0, "status": "open",
         }
         account["positions"].append(position)
         processed.add(signal_id)
-        review.update({"status": "allocated", "reason": "Highest-ranked eligible setup within current risk and capacity limits", "paper_notional": round(notional, 2)})
+        review.update({"status": "allocated", "reason": "Allocated by rank; score-scaled risk stays within existing limits", "paper_notional": round(notional, 2)})
         allocation_review.append(review)
         _event(account, "BUY", "Auto paper BUY: {}".format(key[1]), symbol=key[1], asset_type=key[0],
                price=price, quantity=quantity, notional=round(notional, 8), fee=round(fee, 8),
                allocation_rank=rank, official_score=row["score"], target_2_reward_risk=round(row["reward_risk"], 4),
+               effective_risk_budget_pct=round(RISK_FRACTION * quality_risk_multiplier * 100, 3),
                coinbase_one_volume=coinbase_volume, signal_id=signal_id)
     account["allocation_review"] = allocation_review
     account["processed_signal_ids"] = list(processed)[-2000:]
