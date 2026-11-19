@@ -151,6 +151,14 @@ def test_history_learning_requires_eight_verified_five_day_stock_outcomes():
             "early_runner_initial_feature_snapshot": {"catalyst_labels": ["FDA approval"]},
             "early_runner_outcomes": {"5d": {"return_pct": 25.0}},
         }
+    for i in range(24):
+        tracker[f"stock:BASE{i}"] = {
+            "asset_type": "stock",
+            "price_validation_status": "verified",
+            "data_quality": {"data_type": "live"},
+            "early_runner_initial_feature_snapshot": {"catalyst_labels": []},
+            "early_runner_outcomes": {"5d": {"return_pct": 0.0}},
+        }
     candidate = {
         "asset_type": "stock",
         "catalyst_labels": ["FDA approval"],
@@ -166,3 +174,4 @@ def test_history_learning_requires_eight_verified_five_day_stock_outcomes():
     ]
     assert len(catalyst) == 1
     assert catalyst[0]["n"] == 8
+    assert catalyst[0]["baseline_rate_pct"] == 25.0
