@@ -73,3 +73,59 @@ def test_alpaca_snapshot_filter_skips_only_confirmed_unsupported_symbol():
 
     assert requested == ["BRK-B", "AAPL"]
     assert skipped == ["GTN-A"]
+
+
+def test_coinbase_secondary_validation_accepts_fresh_matching_quote(monkeypatch):
+    from datetime import datetime, timezone
+
+    now = datetime.now(timezone.utc).isoformat()
+    class Response:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"price": "100.20", "time": now}
+
+    calls = []
+    monkeypatch.setattr(main.HTTP, "get", lambda url, **kwargs: (calls.append((url, kwargs)) or Response()))
+    result = main.coinbase_crypto_price_validation("BTCUSDT", 100.0)
+
+    assert result["passed"] is True
+    assert result["difference_pct"] < 0.5
+    assert result["age_seconds"] <= 1
+    assert calls[0][0].endswith("/products/BTC-USD/ticker")
+    assert calls[0][1]["timeout"] == (2, 5)
+
+
+def test_coinbase_secondary_validation_rejects_price_divergence(monkeypatch):
+    from datetime import datetime, timezone
+
+    class Response:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"price": "102.00", "time": datetime.now(timezone.utc).isoformat()}
+
+    monkeypatch.setattr(main.HTTP, "get", lambda *args, **kwargs: Response())
+    result = main.coinbase_crypto_price_validation("BTCUSDT", 100.0)
+
+    assert result["passed"] is False
+    assert result["difference_pct"] > 0.5
+
+
+def test_coinbase_secondary_validation_rejects_stale_ticker(monkeypatch):
+    from datetime import datetime, timedelta, timezone
+
+    class Response:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"price": "100.10", "time": (datetime.now(timezone.utc) - timedelta(minutes=10)).isoformat()}
+
+    monkeypatch.setattr(main.HTTP, "get", lambda *args, **kwargs: Response())
+    result = main.coinbase_crypto_price_validation("BTCUSDT", 100.0)
+
+    assert result["passed"] is False
+    assert result["age_seconds"] > 300
