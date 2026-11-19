@@ -14,7 +14,7 @@ import pandas as pd
 import requests
 from io import StringIO
 import yfinance as yf
-from early_runner import compute_early_runner_metrics, summarize_crypto_cross_section, set_crypto_relative_strength_coverage, build_data_quality_record, apply_entry_quality_gate
+from early_runner import compute_early_runner_metrics, compute_early_warning_metrics, summarize_crypto_cross_section, set_crypto_relative_strength_coverage, build_data_quality_record, apply_entry_quality_gate
 from buy_intelligence import build_buy_intelligence, blend_buy_score
 from fastapi import FastAPI, Query, Header, HTTPException, Depends
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
@@ -1751,6 +1751,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
     news = stock_news(symbol)
     fundamentals = stock_fundamental_snapshot(ticker) if score >= 35 else {"status": "not_fetched_for_low_score"}
     early_runner = compute_early_runner_metrics(frame, intraday, price, fundamentals, news)
+    early_warning = compute_early_warning_metrics(frame, intraday, price)
     risk_flags = []
     if not validation_passed:
         risk_flags.append("Price not independently verified; actionable alerts blocked")
@@ -1848,6 +1849,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
         "risk_flags": risk_flags,
         "fundamentals": fundamentals,
         **early_runner,
+        **early_warning,
         "intraday_confirmation_available": bool(intraday_fresh and equity_session["is_regular_session"]),
         "intraday_quote_available": bool(intraday_fresh),
         "research_notes": [
