@@ -534,10 +534,13 @@ def test_early_entry_signal_requires_verified_quality_and_valid_research_stage()
 
     unverified = _early_entry_candidate("UNVERIFIED", verified=False)
     risk_off = _early_entry_candidate("RISKOFF", regime="RISK-OFF")
+    unknown_regime = _early_entry_candidate("UNKNOWN", regime="UNKNOWN")
+    stale_stock = _early_entry_candidate("STALE")
+    stale_stock["data_quality"]["age_seconds"] = 1200
     official = _early_entry_candidate("OFFICIAL")
     official["stage"] = "BUY"
     rejected = paper_trading.build_early_entry_paper_signals(
-        [unverified, risk_off, official], now
+        [unverified, risk_off, unknown_regime, stale_stock, official], now
     )
     assert rejected == []
 
