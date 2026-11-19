@@ -2510,8 +2510,13 @@ def scan_crypto(symbol: str) -> Optional[dict]:
         try:
             # Use Coinbase's complete USD market-data set, not just its ticker,
             # when Kraken's own trade/ticker freshness or agreement check fails.
+            kraken_age = safe_float(ticker.get("price_age_seconds"), -1)
+            kraken_reference = (
+                ticker.get("lastPrice")
+                if -30 <= kraken_age <= 300 else None
+            )
             fallback, fallback_bars, fallback_provider = coinbase_crypto_market_data(
-                symbol, reference_price=ticker.get("lastPrice")
+                symbol, reference_price=kraken_reference
             )
             if fallback.get("price_validation_passed"):
                 ticker, bars, provider = fallback, fallback_bars, fallback_provider
