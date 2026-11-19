@@ -1,6 +1,6 @@
 {
   "allocation_review": [],
-  "cash": 194.72455749,
+  "cash": 245.2690803,
   "closed_trades": [
     {
       "allocation_rank": 1,
@@ -50,13 +50,62 @@
       "target_1": 0.064346,
       "target_1_filled": false,
       "target_2": 0.066491
+    },
+    {
+      "allocation_rank": 1,
+      "allocation_reward_risk": 3.0,
+      "asset_type": "crypto",
+      "close_price": 0.4296,
+      "close_reason": "STOP",
+      "closed_at": "2026-11-19T16:32:42.129034+00:00",
+      "entry_fee": 0.26433911,
+      "entry_fee_breakdown": {
+        "broker": "Coinbase app + Coinbase One Basic",
+        "commission": 0.0,
+        "estimated_spread_cost": 0.26433911,
+        "monthly_zero_fee_cap": 500.0,
+        "note": "Estimated spread only; actual spread varies by asset, size and market conditions. Monthly gross volume is tracked at account level; standard commission after the $500 cap is not configured",
+        "order_type": "simple_app",
+        "rate": 0.005,
+        "spread_estimate_rate": 0.005,
+        "total": 0.26433911
+      },
+      "entry_fee_remaining": 0.0,
+      "entry_price": 0.4471,
+      "entry_price_as_of": "2026-11-19T14:02:12.060595+00:00",
+      "estimated_exit_fee": 0.0,
+      "experimental": true,
+      "fees_paid": 0.51833169,
+      "initial_quantity": 118.2460786536,
+      "latest_observed_at": "2026-11-19T16:32:42.129034+00:00",
+      "latest_price": 0.4296,
+      "latest_price_as_of": "2026-11-19T16:31:25.527884+00:00",
+      "market_regime_at_entry": "RISK-OFF",
+      "notional": 52.86782177,
+      "opened_at": "2026-11-19T14:04:38.983524+00:00",
+      "price_source": "Kraken Spot public API",
+      "price_update_checked_at": "2026-11-19T16:32:42.129034+00:00",
+      "price_update_status": "live_verified",
+      "quality_risk_multiplier": 0.85,
+      "quantity": 0.0,
+      "realized_pnl": -2.58763807,
+      "score": 85.0,
+      "score_model": "hybrid_offline_v2",
+      "signal_id": "risk_off:crypto:GRASSUSDT:2026-11-19",
+      "status": "closed",
+      "stop_loss": 0.433687,
+      "strategy": "risk_off_experimental",
+      "symbol": "GRASSUSDT",
+      "target_1": 0.480633,
+      "target_1_filled": false,
+      "target_2": 0.496281
     }
   ],
   "coinbase_one_monthly_volume": {
-    "2026-11": 152.14582614
+    "2026-11": 202.94434153
   },
   "created_at": "2026-11-19T04:34:15.459868+00:00",
-  "last_updated_at": "2026-11-19T16:04:17.685779+00:00",
+  "last_updated_at": "2026-11-19T16:32:42.129034+00:00",
   "ledger": [
     {
       "allocation_rank": 1,
@@ -149,81 +198,69 @@
       "symbol": "GRASSUSDT",
       "target_2_reward_risk": 3.0,
       "type": "BUY"
-    }
-  ],
-  "mode": "PAPER_ONLY",
-  "positions": [
+    },
     {
-      "allocation_rank": 1,
-      "allocation_reward_risk": 3.0,
       "asset_type": "crypto",
-      "entry_fee": 0.26433911,
-      "entry_fee_breakdown": {
+      "at": "2026-11-19T16:32:42.129034+00:00",
+      "coinbase_one_volume": {
+        "eligible_volume": 50.79851539,
+        "month": "2026-11",
+        "monthly_volume_after": 202.94434153,
+        "remaining_allowance": 297.05565847,
+        "standard_commission_status": "within_included_volume",
+        "trade_volume": 50.79851539,
+        "volume_before": 152.14582614,
+        "volume_over_cap": 0.0
+      },
+      "entry_fee_allocated": 0.26433911,
+      "fee": 0.25399258,
+      "fee_breakdown": {
         "broker": "Coinbase app + Coinbase One Basic",
         "commission": 0.0,
-        "estimated_spread_cost": 0.26433911,
+        "estimated_spread_cost": 0.25399258,
         "monthly_zero_fee_cap": 500.0,
         "note": "Estimated spread only; actual spread varies by asset, size and market conditions. Monthly gross volume is tracked at account level; standard commission after the $500 cap is not configured",
         "order_type": "simple_app",
         "rate": 0.005,
         "spread_estimate_rate": 0.005,
-        "total": 0.26433911
+        "total": 0.25399258
       },
-      "entry_fee_remaining": 0.26433911,
-      "entry_price": 0.4471,
-      "entry_price_as_of": "2026-11-19T14:02:12.060595+00:00",
-      "estimated_exit_fee": 0.25884067,
-      "experimental": true,
-      "fees_paid": 0.26433911,
-      "initial_quantity": 118.2460786536,
-      "latest_observed_at": "2026-11-19T16:04:17.685779+00:00",
-      "latest_price": 0.4378,
-      "latest_price_as_of": "2026-11-19T16:02:16.241987+00:00",
-      "market_regime_at_entry": "RISK-OFF",
-      "notional": 52.86782177,
-      "opened_at": "2026-11-19T14:04:38.983524+00:00",
-      "price_source": "Kraken Spot public API",
-      "price_update_checked_at": "2026-11-19T16:04:17.685779+00:00",
-      "price_update_status": "live_verified",
-      "quality_risk_multiplier": 0.85,
+      "message": "STOP observed for GRASSUSDT",
+      "price": 0.4296,
       "quantity": 118.2460786536,
-      "realized_pnl": 0.0,
-      "score": 85.0,
-      "score_model": "hybrid_offline_v2",
+      "realized_pnl": -2.58763807,
       "signal_id": "risk_off:crypto:GRASSUSDT:2026-11-19",
-      "status": "open",
-      "stop_loss": 0.433687,
-      "strategy": "risk_off_experimental",
       "symbol": "GRASSUSDT",
-      "target_1": 0.480633,
-      "target_1_filled": false,
-      "target_2": 0.496281
+      "type": "SELL"
     }
   ],
+  "mode": "PAPER_ONLY",
+  "positions": [],
   "processed_signal_ids": [
     "risk_off:crypto:MEGAUSDT:2026-11-19",
     "risk_off:crypto:GRASSUSDT:2026-11-19"
   ],
   "risk_off_signal_diagnostics": {
-    "candidates_total": 236,
+    "candidates_total": 238,
     "eligible_signals": 0,
     "rejections": {
-      "failed_buy_gate:24h_breakout": 89,
-      "failed_buy_gate:above_24h_average": 64,
-      "failed_buy_gate:breakout_confirmed": 132,
-      "failed_buy_gate:five_bar_intraday_trend_up": 110,
+      "failed_buy_gate:24h_breakout": 91,
+      "failed_buy_gate:above_24h_average": 65,
+      "failed_buy_gate:breakout_confirmed": 133,
+      "failed_buy_gate:five_bar_intraday_trend_up": 38,
       "failed_buy_gate:fresh_intraday_confirmation": 1,
-      "failed_buy_gate:live_data_quality": 155,
-      "failed_buy_gate:no_risk_flags": 15,
-      "failed_buy_gate:not_chase_risk": 4,
-      "failed_buy_gate:positive_hourly_momentum": 80,
-      "failed_buy_gate:price_verified": 17,
-      "failed_buy_gate:score_82": 236,
-      "failed_buy_gate:two_technical_confirmations": 80,
-      "failed_buy_gate:volume_1_8x": 55,
-      "failed_buy_gate:volume_confirmed": 141
+      "failed_buy_gate:live_data_quality": 157,
+      "failed_buy_gate:no_risk_flags": 24,
+      "failed_buy_gate:not_chase_risk": 2,
+      "failed_buy_gate:not_extended": 1,
+      "failed_buy_gate:positive_hourly_momentum": 81,
+      "failed_buy_gate:price_verified": 27,
+      "failed_buy_gate:score_82": 238,
+      "failed_buy_gate:two_technical_confirmations": 73,
+      "failed_buy_gate:volume_1_8x": 56,
+      "failed_buy_gate:volume_confirmed": 139
     },
-    "risk_off_candidates": 236
+    "risk_off_candidates": 238
   },
   "rules": {
     "allocation_method": "Rank active eligible official BUYs by official score, then target-2 reward/risk; scale each risk budget by official score up to the existing 1% cap; retain existing capacity limits; retry capacity-deferred signals while active",

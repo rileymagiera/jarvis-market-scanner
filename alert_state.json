@@ -26,8 +26,8 @@
       "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
     "ACMR": {
-      "alerted_at": "2026-11-19T15:32:35.859925+00:00",
-      "score": 7,
+      "alerted_at": "2026-11-19T16:32:42.129034+00:00",
+      "score": 18,
       "status": "PREMARKET VERIFIED"
     },
     "AEIS": {
@@ -79,6 +79,11 @@
       "alerted_at": "2026-11-19T15:04:24.560095+00:00",
       "score": 7,
       "status": "PREMARKET VERIFIED"
+    },
+    "FEDU": {
+      "alerted_at": "2026-11-19T16:32:42.129034+00:00",
+      "score": 12,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
     "FLEX": {
       "alerted_at": "2026-11-19T15:04:24.560095+00:00",
@@ -150,6 +155,11 @@
       "score": 7,
       "status": "PREMARKET VERIFIED"
     },
+    "SPCE": {
+      "alerted_at": "2026-11-19T16:32:42.129034+00:00",
+      "score": 0,
+      "status": "PREMARKET VERIFIED"
+    },
     "SRFM": {
       "alerted_at": "2026-11-19T15:04:24.560095+00:00",
       "score": 0,
@@ -171,6 +181,11 @@
       "status": "PREMARKET VERIFIED"
     }
   },
+  "stock:GNRC": {
+    "alerted_at": "2026-11-19T16:32:42.129034+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 60
+  },
   "stock:INSM": {
     "alerted_at": "2026-11-19T15:32:35.859925+00:00",
     "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
@@ -180,6 +195,11 @@
     "alerted_at": "2026-11-19T15:32:35.859925+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 62
+  },
+  "stock:PCG": {
+    "alerted_at": "2026-11-19T16:32:42.129034+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 61
   },
   "stock:SCOR": {
     "alerted_at": "2026-11-19T16:04:17.685779+00:00",

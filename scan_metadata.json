@@ -1,17 +1,17 @@
 {
-  "last_scan_started_at": "2026-11-19T16:00:49.129514+00:00",
+  "last_scan_started_at": "2026-11-19T16:30:45.586916+00:00",
   "last_attempt_status": "completed",
-  "run_id": "44561139760",
-  "run_number": "106",
-  "commit_sha": "d11ba25684b53dbfc4f9af7c848b33865ade14e4",
-  "last_scan_completed_at": "2026-11-19T16:04:17.684149+00:00",
+  "run_id": "44566805623",
+  "run_number": "107",
+  "commit_sha": "84efb775fdf3b78223edac4726d20a12b5f1d407",
+  "last_scan_completed_at": "2026-11-19T16:32:42.127220+00:00",
   "last_attempt_error": null,
-  "scan_duration_seconds": 207.92,
+  "scan_duration_seconds": 115.79,
   "scan_errors": 0,
   "execution_environment": "github_actions_runner",
   "scan_audit": {
-    "audit_timestamp": "2026-11-19T16:04:17.683548+00:00",
-    "audit_run_id": "44561139760",
+    "audit_timestamp": "2026-11-19T16:32:42.126540+00:00",
+    "audit_run_id": "44566805623",
     "audit_status": "passed",
     "files_valid_json": [
       "diagnostics",
@@ -22,21 +22,21 @@
       "metadata"
     ],
     "file_validation_errors": [],
-    "candidates_total": 236,
+    "candidates_total": 238,
     "stocks_returned": 147,
-    "stocks_price_verified": 138,
+    "stocks_price_verified": 130,
     "stocks_price_last_known": 0,
-    "stocks_price_unverified": 9,
+    "stocks_price_unverified": 17,
     "stocks_stage_unverified_watch_only": 0,
-    "crypto_returned": 89,
+    "crypto_returned": 91,
     "crypto_price_verified": 81,
-    "crypto_price_unverified": 8,
+    "crypto_price_unverified": 10,
     "scan_errors": [],
     "provider_http_status_counts": {
       "alpaca:200": 3,
       "data_sec_gov:200": 147,
-      "kraken:200": 181,
-      "www_sec_gov:200": 1
+      "kraken:200": 96,
+      "www_sec_gov:200": 4
     },
     "provider_http_429_count": 0,
     "provider_http_5xx_count": 0,
@@ -44,12 +44,12 @@
       "ACTIONABLE SETUP": 0,
       "BUY": 0,
       "DATA QUALITY \u2014 WATCH ONLY": 0,
-      "DEVELOPING RUNNER": 7,
+      "DEVELOPING RUNNER": 6,
       "DEVELOPING SETUP": 0,
-      "EARLY SETUP": 11,
+      "EARLY SETUP": 20,
       "EARLY WATCH": 5,
-      "LATE RUNNER \u2014 CHASE RISK": 4,
-      "LOW-CONVICTION WATCH": 120,
+      "LATE RUNNER \u2014 CHASE RISK": 2,
+      "LOW-CONVICTION WATCH": 114,
       "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
     },
     "crypto_stage_counts": {
@@ -57,7 +57,7 @@
       "BUY": 0,
       "DATA QUALITY \u2014 WATCH ONLY": 0,
       "DEVELOPING SETUP": 4,
-      "EARLY WATCH": 9,
+      "EARLY WATCH": 11,
       "LOW-CONVICTION WATCH": 76,
       "PRICE UNVERIFIED \u2014 WATCH ONLY": 0
     },
@@ -73,35 +73,35 @@
       "stages": {
         "BUY": 0,
         "ACTIONABLE SETUP": 0,
-        "DEVELOPING RUNNER": 7,
+        "DEVELOPING RUNNER": 6,
         "DEVELOPING SETUP": 0,
-        "EARLY SETUP": 11,
+        "EARLY SETUP": 20,
         "EARLY WATCH": 5,
-        "LATE RUNNER \u2014 CHASE RISK": 4,
-        "LOW-CONVICTION WATCH": 120,
+        "LATE RUNNER \u2014 CHASE RISK": 2,
+        "LOW-CONVICTION WATCH": 114,
         "PRICE UNVERIFIED \u2014 WATCH ONLY": 0,
         "DATA QUALITY \u2014 WATCH ONLY": 0
       }
     },
     "crypto": {
-      "symbols_requested": 89,
-      "candidates_returned": 89,
+      "symbols_requested": 91,
+      "candidates_returned": 91,
       "scan_errors": 0,
       "not_returned_or_insufficient_data": 0,
       "stages": {
         "BUY": 0,
         "ACTIONABLE SETUP": 0,
         "DEVELOPING SETUP": 4,
-        "EARLY WATCH": 9,
+        "EARLY WATCH": 11,
         "LOW-CONVICTION WATCH": 76,
         "PRICE UNVERIFIED \u2014 WATCH ONLY": 0,
         "DATA QUALITY \u2014 WATCH ONLY": 0
       },
       "price_validation": {
         "verified": 81,
-        "unverified": 8,
+        "unverified": 10,
         "methods": {
-          "kraken_latest_trade_cross_check": 89,
+          "kraken_latest_trade_cross_check": 91,
           "coinbase_ticker_timestamp": 0
         }
       }
@@ -110,15 +110,15 @@
       "credentials_configured": true,
       "feed": "iex",
       "candidate_status_counts": {
-        "fresh_trade_received": 134,
-        "no_fresh_trade_or_usable_quote": 9,
-        "fresh_quote_received": 4
+        "fresh_trade_received": 130,
+        "no_fresh_trade_or_usable_quote": 16,
+        "fresh_quote_received": 1
       },
       "provider_activity": {
         "calls": 3,
         "failures": 0,
-        "total_seconds": 0.09,
-        "max_seconds": 0.06,
+        "total_seconds": 0.33,
+        "max_seconds": 0.21,
         "error_counts": {}
       }
     },
@@ -131,7 +131,7 @@
       "phase": "REGULAR SESSION",
       "is_regular_session": true,
       "is_extended_session": false,
-      "as_of": "2026-11-19T11:04:17.683699-05:00",
+      "as_of": "2026-11-19T11:32:42.126713-05:00",
       "regular_open": "2026-11-19T09:30:00-05:00",
       "regular_close": "2026-11-19T16:00:00-05:00",
       "early_close": false,
@@ -139,17 +139,17 @@
       "calendar_verified": true,
       "calendar_note": "XNYS holidays and early closes are calendar-aware; extended-hours boundaries use the configured 04:00\u201320:00 ET window."
     },
-    "scan_duration_seconds": 207.92,
+    "scan_duration_seconds": 115.79,
     "timing_breakdown": {
-      "universe_discovery_seconds": 1.45,
-      "asset_scans_wall_seconds": 205.46,
-      "market_conditions_seconds": 0.78,
-      "total_seconds": 207.92,
+      "universe_discovery_seconds": 1.66,
+      "asset_scans_wall_seconds": 113.16,
+      "market_conditions_seconds": 0.85,
+      "total_seconds": 115.79,
       "provider_activity": {
         "provider_http_status_counts": {
-          "kraken:200": 181,
+          "kraken:200": 96,
           "alpaca:200": 3,
-          "www_sec_gov:200": 1,
+          "www_sec_gov:200": 4,
           "data_sec_gov:200": 147
         },
         "provider_http_429_count": 0,
@@ -158,39 +158,46 @@
           "yahoo_discovery_screen": {
             "calls": 6,
             "failures": 0,
-            "total_seconds": 1.35,
-            "max_seconds": 0.27,
+            "total_seconds": 1.9,
+            "max_seconds": 0.39,
             "error_counts": {}
           },
           "http_kraken_status_200": {
-            "calls": 181,
+            "calls": 96,
             "failures": 0,
-            "total_seconds": 18.27,
-            "max_seconds": 0.26,
+            "total_seconds": 15.34,
+            "max_seconds": 0.4,
             "error_counts": {}
           },
           "kraken_request_pacing": {
-            "calls": 180,
+            "calls": 95,
             "failures": 0,
-            "total_seconds": 187.43,
+            "total_seconds": 97.94,
             "max_seconds": 1.05,
             "error_counts": {}
           },
           "http_alpaca_status_200": {
             "calls": 3,
             "failures": 0,
-            "total_seconds": 0.08,
-            "max_seconds": 0.05,
+            "total_seconds": 0.28,
+            "max_seconds": 0.17,
             "error_counts": {}
           },
           "alpaca_snapshot_batch": {
             "calls": 3,
             "failures": 0,
-            "total_seconds": 0.09,
-            "max_seconds": 0.06,
+            "total_seconds": 0.33,
+            "max_seconds": 0.21,
             "error_counts": {}
           },
           "kraken_ticker_cache_hit": {
+            "calls": 91,
+            "failures": 0,
+            "total_seconds": 0.0,
+            "max_seconds": 0.0,
+            "error_counts": {}
+          },
+          "kraken_ohlc_cache_hit": {
             "calls": 89,
             "failures": 0,
             "total_seconds": 0.0,
@@ -200,78 +207,78 @@
           "yahoo_daily_history": {
             "calls": 147,
             "failures": 0,
-            "total_seconds": 30.31,
-            "max_seconds": 0.67,
+            "total_seconds": 35.04,
+            "max_seconds": 0.64,
             "error_counts": {}
           },
           "yahoo_intraday_history": {
             "calls": 147,
             "failures": 0,
-            "total_seconds": 13.91,
-            "max_seconds": 0.17,
+            "total_seconds": 16.96,
+            "max_seconds": 0.2,
             "error_counts": {}
           },
           "http_www_sec_gov_status_200": {
-            "calls": 1,
+            "calls": 4,
             "failures": 0,
-            "total_seconds": 0.05,
-            "max_seconds": 0.05,
+            "total_seconds": 3.64,
+            "max_seconds": 1.2,
             "error_counts": {}
           },
           "http_data_sec_gov_status_200": {
             "calls": 147,
             "failures": 0,
-            "total_seconds": 7.55,
-            "max_seconds": 0.28,
+            "total_seconds": 7.2,
+            "max_seconds": 0.31,
             "error_counts": {}
           },
           "sec_recent_filings": {
             "calls": 147,
             "failures": 0,
-            "total_seconds": 8.67,
-            "max_seconds": 0.29,
+            "total_seconds": 13.01,
+            "max_seconds": 1.42,
             "error_counts": {}
           },
           "yahoo_stock_news": {
             "calls": 147,
             "failures": 0,
-            "total_seconds": 30.96,
-            "max_seconds": 0.76,
-            "error_counts": {}
-          },
-          "kraken_ohlc_cache_miss": {
-            "calls": 89,
-            "failures": 0,
-            "total_seconds": 0.0,
-            "max_seconds": 0.0,
+            "total_seconds": 42.28,
+            "max_seconds": 1.59,
             "error_counts": {}
           },
           "yahoo_fundamentals": {
-            "calls": 45,
+            "calls": 53,
             "failures": 0,
-            "total_seconds": 9.98,
-            "max_seconds": 0.48,
+            "total_seconds": 14.56,
+            "max_seconds": 0.43,
             "error_counts": {}
           },
           "scan_stock_parallel_wall": {
             "calls": 1,
             "failures": 0,
-            "total_seconds": 22.84,
-            "max_seconds": 22.84,
+            "total_seconds": 29.43,
+            "max_seconds": 29.43,
+            "error_counts": {}
+          },
+          "kraken_ohlc_cache_miss": {
+            "calls": 2,
+            "failures": 0,
+            "total_seconds": 0.0,
+            "max_seconds": 0.0,
             "error_counts": {}
           },
           "scan_crypto_parallel_wall": {
             "calls": 1,
             "failures": 0,
-            "total_seconds": 205.36,
-            "max_seconds": 205.36,
+            "total_seconds": 112.83,
+            "max_seconds": 112.83,
             "error_counts": {}
           },
           "market_conditions": {
             "calls": 1,
             "failures": 0,
-            "total_seconds": 0.78,
-            "max_seconds": 0.78,
+            "total_seconds": 0.85,
+            "max_seconds": 0.85,
             "error_counts": {}
           }
         }
