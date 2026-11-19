@@ -1,11 +1,11 @@
 {
-  "last_scan_started_at": "2026-11-19T20:15:41.701547+00:00",
-  "last_attempt_status": "completed",
-  "run_id": "44606726228",
-  "run_number": "122",
-  "commit_sha": "dde028ac7748cd2f83b7712d353c2c3c52e6e68f",
+  "last_scan_started_at": "2026-11-19T20:30:44.569487+00:00",
+  "last_attempt_status": "failed",
+  "run_id": "44609317996",
+  "run_number": "123",
+  "commit_sha": "8337a69dcf01903646c83a1b648669cf840f7afa",
   "last_scan_completed_at": "2026-11-19T20:17:38.813237+00:00",
-  "last_attempt_error": null,
+  "last_attempt_error": "Jarvis scan or history persistence step failed; inspect the Run Jarvis step logs.",
   "scan_duration_seconds": 116.34,
   "scan_errors": 0,
   "execution_environment": "github_actions_runner",
@@ -68,7 +68,7 @@
     },
     "history_sync_reported": true
   },
-  "last_attempt_failed_at": "2026-11-19T02:10:07.085354+00:00",
+  "last_attempt_failed_at": "2026-11-19T20:30:48.035850+00:00",
   "scan_diagnostics": {
     "stocks": {
       "symbols_requested": 146,
