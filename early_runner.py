@@ -25,6 +25,22 @@ def _num(value: Any, default=None):
         return default
 
 
+def has_session_aware_early_runner_baseline(record):
+    """Return whether a frozen early-runner snapshot began from an eligible observation."""
+    if not isinstance(record, dict):
+        return False
+    if not record.get("early_runner_snapshot_at"):
+        return False
+    if not isinstance(record.get("early_runner_initial_feature_snapshot"), dict):
+        return False
+    # Stock cohorts are only valid after the first fresh, timestamped live quote
+    # reset legacy EOD/stale baselines and enabled session-aware tracking.
+    if record.get("asset_type") == "stock":
+        return record.get("session_aware_tracking") is True
+    # Crypto snapshots are created only after independent price verification.
+    return record.get("asset_type") == "crypto"
+
+
 def compute_stock_market_breadth(items):
     """Summarize the scanned stock cohort only; never imply full-exchange breadth."""
     stocks = [x for x in (items or []) if isinstance(x, dict) and x.get("asset_type") == "stock"]
