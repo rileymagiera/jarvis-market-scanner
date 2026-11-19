@@ -220,3 +220,25 @@ def test_account_summary_reads_coinbase_allowance_from_explicit_utc_month():
 
     assert summary["coinbase_one_monthly_volume"] == 120.0
     assert summary["coinbase_one_remaining_allowance"] == 380.0
+
+
+def test_open_position_unrealized_pnl_deducts_estimated_exit_fee(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    signal = _signal()
+    signal["asset_type"] = "crypto"
+    candidate = _candidate(10.0)
+    candidate["asset_type"] = "crypto"
+    now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
+
+    account = paper_trading.update_account([candidate], [signal], now)
+    position = account["positions"][0]
+    expected_exit_fee = paper_trading.calculate_trade_fee(
+        "crypto", "sell", position["quantity"] * 10.0, position["quantity"]
+    )["total"]
+    summary = paper_trading.account_summary(account, now)
+
+    assert position["estimated_exit_fee"] == expected_exit_fee
+    assert summary["estimated_exit_fees"] == round(expected_exit_fee, 2)
+    assert summary["unrealized_pnl"] == round(
+        -position["entry_fee_remaining"] - expected_exit_fee, 2
+    )
