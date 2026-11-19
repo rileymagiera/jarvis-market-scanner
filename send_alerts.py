@@ -1073,7 +1073,10 @@ def main():
     paper, paper_lifetime = update_paper_tracker(payload["candidates"], now, scan_id=os.getenv("GITHUB_RUN_ID") or metadata.get("run_id") or now.isoformat())
     apply_history_runner_learning(payload["candidates"], paper)
     buy_signals = update_buy_signal_history(payload["candidates"], now, payload.get("errors") or [])
-    paper_account = update_paper_trading_account(payload["candidates"], buy_signals, now)
+    paper_account = update_paper_trading_account(
+        payload["candidates"], buy_signals, now,
+        enable_early_entry_experimental=os.getenv("JARVIS_ENABLE_EARLY_ENTRY_EXPERIMENTAL", "false").lower() == "true",
+    )
     print("Paper trading:", json.dumps(paper_account_summary(paper_account), sort_keys=True))
     # Keep the live history page current without waiting for a Render redeploy.
     # The committed JSON files remain the recovery source if the site restarts.
