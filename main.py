@@ -2299,7 +2299,8 @@ def github_history_state() -> dict:
               "buy_signals":(state.get("buy_state") or {}).get("signals",[]),
               "last_scan_completed_at":meta.get("last_scan_completed_at"),
               "scan_run_id":meta.get("run_id"),"synced_at":meta.get("last_scan_completed_at"),
-              "paper_trading":state.get("paper_trading") or {}, "history_source":"github"}
+              "paper_trading":state.get("paper_trading") or {},
+              "scan_diagnostics":meta.get("scan_diagnostics") or {}, "history_source":"github"}
     with GITHUB_HISTORY_CACHE_LOCK:
         GITHUB_HISTORY_CACHE["data"] = result
         GITHUB_HISTORY_CACHE["at"] = time.monotonic()
@@ -2336,6 +2337,7 @@ def latest_history_state() -> dict:
             "scan_run_id": snapshot.get("scan_run_id"),
             "synced_at": snapshot.get("synced_at"),
             "paper_trading": snapshot.get("paper_trading") or {},
+            "scan_diagnostics": snapshot.get("scan_diagnostics") or {},
             "history_source": "render_snapshot_fast",
         }
     return github_history_state()
@@ -2698,6 +2700,7 @@ def history_data():
         return {"last_scan_completed_at": state.get("last_scan_completed_at"),
                 "scan_run_id": state.get("scan_run_id"), "paper_tracker": state.get("paper_tracker", {}),
                 "lifetime": state.get("lifetime", {}), "buy_signals": state.get("buy_signals", []),
+                "scan_diagnostics": state.get("scan_diagnostics", {}),
                 "history_source": state.get("history_source", "github")}
     def read_state(path):
         try: return json.loads(path.read_text(encoding="utf-8"))
@@ -2705,7 +2708,8 @@ def history_data():
     paper=read_state(PAPER_STATE); lifetime=read_state(PAPER_LIFETIME_STATE)
     buys=read_state(BUY_SIGNAL_STATE).get("signals", []); meta=read_state(APP_DIR/"scan_metadata.json")
     return {"last_scan_completed_at": meta.get("last_scan_completed_at"), "scan_run_id": meta.get("run_id"),
-            "paper_tracker": paper, "lifetime": lifetime, "buy_signals": buys, "history_source": "local_fallback"}
+            "paper_tracker": paper, "lifetime": lifetime, "buy_signals": buys,
+            "scan_diagnostics": meta.get("scan_diagnostics") or {}, "history_source": "local_fallback"}
 
 
 def apply_discovery_baseline_guard(payload: dict) -> dict:
