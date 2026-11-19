@@ -4,46 +4,45 @@ on:
   push:
     branches: [main]
     paths:
-      - "main.py"
-      - "send_alerts.py"
-      - "early_runner.py"
-      - "runner_intelligence.py"
-      - "market_calendar.py"
-      - "market_data_cache.py"
-      - "candidate_lifecycle.py"
+      - "**/*.py"
+      - "requirements.txt"
       - "tests/**"
-      - ".github/workflows/validate-jarvis.yml"
+      - ".github/workflows/**"
   pull_request:
+    branches: [main]
     paths:
-      - "main.py"
-      - "send_alerts.py"
-      - "early_runner.py"
-      - "runner_intelligence.py"
-      - "market_calendar.py"
-      - "market_data_cache.py"
-      - "candidate_lifecycle.py"
+      - "**/*.py"
+      - "requirements.txt"
       - "tests/**"
-      - ".github/workflows/validate-jarvis.yml"
+      - ".github/workflows/**"
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  syntax:
+  validation:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Validate Python syntax
-        run: python -m py_compile main.py send_alerts.py early_runner.py runner_intelligence.py market_calendar.py market_data_cache.py candidate_lifecycle.py
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - name: Install scanner test dependencies
         run: python -m pip install --disable-pip-version-check -r requirements.txt pytest
+      - name: Compile Python sources
+        run: python -m compileall -q .
       - name: Run full Jarvis regression suite
         run: python -m pytest -q tests
-      - name: Extract dashboard JavaScript
+      - name: Extract and validate dashboard JavaScript
         run: |
           python - <<'PY'
           import ast
@@ -57,8 +56,7 @@ jobs:
           )
           Path("/tmp/jarvis-dashboard.js").write_text(ast.literal_eval(value), encoding="utf-8")
           PY
-      - name: Validate dashboard JavaScript
-        run: node --check /tmp/jarvis-dashboard.js
+          node --check /tmp/jarvis-dashboard.js
       - name: Extract and validate Intelligence page scripts
         run: |
           python - <<'PY'
