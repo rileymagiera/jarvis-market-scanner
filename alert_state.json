@@ -24,6 +24,7 @@
     "alerted_stage": "DEVELOPING SETUP",
     "score": 60
   },
+  "daily_status_date": "2026-11-19",
   "premarket_alert_history": {
     "AARD": {
       "alerted_at": "2026-11-19T19:47:29.710708+00:00",
@@ -38,6 +39,11 @@
     "ASTS": {
       "alerted_at": "2026-11-19T19:47:29.710708+00:00",
       "score": 0,
+      "status": "PREMARKET VERIFIED"
+    },
+    "BE": {
+      "alerted_at": "2026-11-19T21:04:35.731361+00:00",
+      "score": 9,
       "status": "PREMARKET VERIFIED"
     },
     "CIEN": {
@@ -59,6 +65,11 @@
       "alerted_at": "2026-11-19T19:47:29.710708+00:00",
       "score": 11,
       "status": "PREMARKET VERIFIED"
+    },
+    "GROV": {
+      "alerted_at": "2026-11-19T21:17:46.138156+00:00",
+      "score": 21,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
     "IONQ": {
       "alerted_at": "2026-11-19T19:47:29.710708+00:00",
@@ -127,29 +138,54 @@
     "score": 75
   },
   "stock:BRBR": {
-    "alerted_at": "2026-11-19T19:47:29.710708+00:00",
+    "alerted_at": "2026-11-19T21:04:35.731361+00:00",
     "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
-    "score": 64
+    "score": 77
   },
-  "stock:GME": {
-    "alerted_at": "2026-11-19T19:47:29.710708+00:00",
+  "stock:CANG": {
+    "alerted_at": "2026-11-19T21:04:35.731361+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 74
+  },
+  "stock:CPA": {
+    "alerted_at": "2026-11-19T21:04:35.731361+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 60
+  },
+  "stock:CTKB": {
+    "alerted_at": "2026-11-19T21:04:35.731361+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 81
+  },
+  "stock:DPC": {
+    "alerted_at": "2026-11-19T21:04:35.731361+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 61
+  },
+  "stock:GME": {
+    "alerted_at": "2026-11-19T21:04:35.731361+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 79
   },
   "stock:INSM": {
     "alerted_at": "2026-11-19T19:47:29.710708+00:00",
     "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
     "score": 76
   },
-  "stock:NUAI": {
-    "alerted_at": "2026-11-19T20:04:21.408382+00:00",
+  "stock:MIRM": {
+    "alerted_at": "2026-11-19T21:04:35.731361+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 62
   },
-  "stock:PCG": {
-    "alerted_at": "2026-11-19T19:47:29.710708+00:00",
+  "stock:NUAI": {
+    "alerted_at": "2026-11-19T21:04:35.731361+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 60
+    "score": 81
+  },
+  "stock:PCG": {
+    "alerted_at": "2026-11-19T21:04:35.731361+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 79
   },
   "stock:PLBL": {
     "alerted_at": "2026-11-19T20:04:21.408382+00:00",
@@ -161,19 +197,49 @@
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 67
   },
+  "stock:PYXS": {
+    "alerted_at": "2026-11-19T21:04:35.731361+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 74
+  },
+  "stock:SRRK": {
+    "alerted_at": "2026-11-19T21:04:35.731361+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 60
+  },
+  "stock:STVN": {
+    "alerted_at": "2026-11-19T21:04:35.731361+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 61
+  },
   "stock:SVRA": {
     "alerted_at": "2026-11-19T19:47:29.710708+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 77
   },
   "stock:TU": {
-    "alerted_at": "2026-11-19T19:47:29.710708+00:00",
+    "alerted_at": "2026-11-19T21:04:35.731361+00:00",
     "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
-    "score": 71
+    "score": 78
+  },
+  "stock:VRDN": {
+    "alerted_at": "2026-11-19T21:04:35.731361+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 75
   },
   "stock:VVV": {
-    "alerted_at": "2026-11-19T19:47:29.710708+00:00",
+    "alerted_at": "2026-11-19T21:04:35.731361+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 60
+    "score": 76
+  },
+  "stock:WWD": {
+    "alerted_at": "2026-11-19T21:04:35.731361+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 62
+  },
+  "stock:YMM": {
+    "alerted_at": "2026-11-19T21:17:46.138156+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 76
   }
 }

@@ -18,6 +18,7 @@ from early_runner import compute_early_runner_metrics, compute_early_warning_met
 from market_calendar import market_session_status as exchange_market_session_status
 from market_data_cache import HourlyCandleCache
 from runner_intelligence import build_runner_intelligence_report
+from historical_audit_export import build_historical_audit_export
 from buy_intelligence import build_buy_intelligence, blend_buy_score
 from paper_trading import load_account as load_paper_account, account_summary as summarize_paper_account
 from fastapi import FastAPI, Query, Header, HTTPException, Depends
@@ -2865,6 +2866,24 @@ def data_health_data():
                 ("timestamp", item.get("price_as_of") or quality(item).get("observed_at"))) if value is None or value == ""]
         } for item in sorted(candidates, key=lambda x: (0 if x.get("price_validation_status") == "unverified" else 1 if x.get("price_validation_status") == "last_known" else 2, str(x.get("symbol") or "")))[:250]]
     }
+
+
+@app.get("/intelligence/audit-export", dependencies=[Depends(require_site_login)])
+@app.get("/research/audit-export", dependencies=[Depends(require_site_login)])
+def historical_audit_export():
+    """Bounded read-only JSON export of retained missed-runner and BUY-gate research."""
+    state = latest_history_state()
+    if not isinstance(state, dict) or not isinstance(state.get("paper_tracker"), dict):
+        raise HTTPException(status_code=503, detail="Historical candidate data is not currently available")
+    records = [row for row in state["paper_tracker"].values() if isinstance(row, dict)]
+    return build_historical_audit_export(
+        records,
+        state.get("buy_signals") if isinstance(state.get("buy_signals"), list) else [],
+        last_scan_completed_at=state.get("last_scan_completed_at"),
+        scan_run_id=state.get("scan_run_id"),
+        synced_at=state.get("synced_at"),
+        history_source=state.get("history_source", "unknown"),
+    )
 
 
 @app.get("/history", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])

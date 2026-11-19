@@ -198,6 +198,45 @@ jobs:
               raise SystemExit(1)
           print("Scan audit verified and recorded.")
           PY
+      - name: Build compact historical opportunity audit export
+        if: ${{ steps.jarvis.outcome == 'success' && inputs.send_test_email != true }}
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from historical_audit_export import build_historical_audit_export
+
+          tracker = json.loads(Path("paper_tracker.json").read_text(encoding="utf-8"))
+          buy_state = json.loads(Path("buy_signal_history.json").read_text(encoding="utf-8"))
+          metadata = json.loads(Path("scan_metadata.json").read_text(encoding="utf-8"))
+          records = [row for row in tracker.values() if isinstance(row, dict)] if isinstance(tracker, dict) else []
+          signals = buy_state.get("signals", []) if isinstance(buy_state, dict) else []
+          export = build_historical_audit_export(
+              records,
+              signals,
+              last_scan_completed_at=metadata.get("last_scan_completed_at"),
+              scan_run_id=metadata.get("run_id"),
+              synced_at=metadata.get("last_scan_completed_at"),
+              history_source="github_actions_scan_workspace",
+          )
+          Path("jarvis_historical_audit.json").write_text(
+              json.dumps(export, separators=(",", ":")) + "\\n", encoding="utf-8"
+          )
+          print(
+              "Historical audit export built: "
+              f"{export['provenance']['retained_candidate_records']} retained records, "
+              f"{export['missed_runners']['total_verified_watchlist_runners']} verified missed runners, "
+              f"{export['buy_gate_failures']['total_events']} BUY-gate events."
+          )
+          PY
+      - name: Upload compact historical opportunity audit
+        if: ${{ steps.jarvis.outcome == 'success' && inputs.send_test_email != true }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: jarvis-historical-opportunity-audit
+          path: jarvis_historical_audit.json
+          if-no-files-found: error
+          retention-days: 1
       - name: Record rolling provider usage history
         if: ${{ steps.jarvis.outcome == 'success' && inputs.send_test_email != true }}
         run: |
