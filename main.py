@@ -2227,7 +2227,8 @@ def github_history_state() -> dict:
                "X-GitHub-Api-Version": "2022-11-28"}
     base = "https://api.github.com/repos/rileymagiera/jarvis-market-scanner/contents/"
     paths = {"paper_tracker":"paper_tracker.json","lifetime":"paper_tracker_lifetime.json",
-             "buy_state":"buy_signal_history.json","metadata":"scan_metadata.json"}
+             "buy_state":"buy_signal_history.json","metadata":"scan_metadata.json",
+             "paper_trading":"paper_trading_state.json"}
     state = {}
     import base64
     for key, path in paths.items():
@@ -2260,7 +2261,7 @@ def github_history_state() -> dict:
               "buy_signals":(state.get("buy_state") or {}).get("signals",[]),
               "last_scan_completed_at":meta.get("last_scan_completed_at"),
               "scan_run_id":meta.get("run_id"),"synced_at":meta.get("last_scan_completed_at"),
-              "history_source":"github"}
+              "paper_trading":state.get("paper_trading") or {}, "history_source":"github"}
     with GITHUB_HISTORY_CACHE_LOCK:
         GITHUB_HISTORY_CACHE["data"] = result
         GITHUB_HISTORY_CACHE["at"] = time.monotonic()
@@ -2296,6 +2297,7 @@ def latest_history_state() -> dict:
             "last_scan_completed_at": snapshot.get("last_scan_completed_at"),
             "scan_run_id": snapshot.get("scan_run_id"),
             "synced_at": snapshot.get("synced_at"),
+            "paper_trading": snapshot.get("paper_trading") or {},
             "history_source": "render_snapshot_fast",
         }
     return github_history_state()
@@ -2790,15 +2792,12 @@ fetch("/paper-trading/data?refresh="+Date.now(),{cache:"no-store"}).then(r=>{if(
 
 @app.get("/paper-trading/data", dependencies=[Depends(require_site_login)])
 def paper_trading_data():
-    try:
-        snapshot = json.loads(HISTORY_SNAPSHOT.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        snapshot = {}
-    account = snapshot.get("paper_trading") if isinstance(snapshot, dict) else None
+    state = latest_history_state()
+    account = state.get("paper_trading") if isinstance(state, dict) else None
     if not isinstance(account, dict) or account.get("version") != 1:
         account = load_paper_account()
     return {"account": account, "summary": summarize_paper_account(account),
-            "source": "synced_scan_snapshot" if isinstance(snapshot.get("paper_trading"), dict) else "local_default"}
+            "source": state.get("history_source", "local_default") if isinstance(account, dict) else "local_default"}
 
 
 @app.get("/health")
