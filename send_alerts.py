@@ -697,7 +697,7 @@ def update_buy_signal_history(candidates, now, scan_errors=None):
     signals = state.setdefault("signals", [])
     active = state.setdefault("active_by_key", {})
     by_id = {x.get("signal_id"): x for x in signals if x.get("signal_id")}
-    horizons = {"1h": 3600, "4h": 14400, "1d": 86400, "3d": 259200, "7d": 604800}
+    horizons = {"1h": 3600, "4h": 14400, "1d": 86400, "3d": 259200, "5d": 432000, "7d": 604800, "10d": 864000}
     present_keys = set()
 
     for item in candidates:
