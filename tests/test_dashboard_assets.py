@@ -129,14 +129,14 @@ def test_crypto_shadow_comparison_is_observational_and_persisted(tmp_path):
     row = main.compare_crypto_shadow_quote("coinbase", "BTCUSDT", 100.2, "2026-11-19T15:00:00+00:00", quote)
     assert row["status"] == "comparable"
     assert row["difference_pct"] == 0.1998
-    missing = main.compare_crypto_shadow_quote("binance", "BTCUSDT", 100.2, None, None, "HTTPError")
+    missing = main.compare_crypto_shadow_quote("binance_us", "BTCUSDT", 100.2, None, None, "HTTPError")
     assert missing["status"] == "unavailable"
     assert missing["difference_pct"] is None
     result = main.persist_crypto_shadow_history(
         [row, missing], "2026-11-19T15:00:00+00:00", "test-run", tmp_path / "crypto.json"
     )
     assert result["summary"]["providers"]["coinbase"]["comparable"] == 1
-    assert result["summary"]["providers"]["binance"]["unavailable"] == 1
+    assert result["summary"]["providers"]["binance_us"]["unavailable"] == 1
 
 
 def test_crypto_shadow_sampling_rotates_and_is_bounded():
