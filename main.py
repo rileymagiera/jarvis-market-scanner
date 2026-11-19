@@ -2518,7 +2518,9 @@ def scan_crypto(symbol: str) -> Optional[dict]:
             fallback, fallback_bars, fallback_provider = coinbase_crypto_market_data(
                 symbol, reference_price=kraken_reference
             )
-            if fallback.get("price_validation_passed"):
+            if fallback.get("price_validation_passed") or not kraken_reference:
+                # A fresh Coinbase-only fallback may replace a stale/unavailable
+                # Kraken quote for research, but remains unverified and watch-only.
                 ticker, bars, provider = fallback, fallback_bars, fallback_provider
             else:
                 ticker["price_validation_reference_source"] = "Coinbase Exchange public API"
