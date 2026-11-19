@@ -302,7 +302,7 @@ def update_paper_tracker(candidates, now):
             record["latest_price"] = price
             record["currently_surfaced"] = True
             research_fields = (
-                "relative_strength_vs_spy", "relative_strength_vs_iwm", "rs_rank", "universe_rs_rank", "universe_rs_percentile", "relative_strength_vs_universe_median_pct", "universe_rs_sample_size", "market_breadth", "weekly_confirmation", "weekly_confirmation_status", "weekly_breakout_confluence", "breakout_level_class", "breakout_level_reference_price", "breakout_level_lookback_sessions", "universe_rs_rank_change_5d",
+                "relative_strength_vs_spy", "relative_strength_vs_iwm", "rs_rank", "universe_rs_rank", "universe_rs_percentile", "relative_strength_vs_universe_median_pct", "universe_rs_sample_size", "market_breadth", "weekly_confirmation", "weekly_confirmation_status", "weekly_breakout_confluence", "breakout_level_class", "breakout_level_reference_price", "breakout_level_lookback_sessions", "universe_rs_rank_change_5d", "above_20d_average", "breakout_20d",
                 "intraday_rvol_same_time", "same_time_relative_volume",
                 "anchored_vwap", "anchored_vwap_status", "opening_range_high", "opening_range_low",
                 "opening_range_status", "adx", "plus_di", "minus_di", "adx_dmi_status",
@@ -466,6 +466,11 @@ def update_paper_tracker(candidates, now):
         record["technical_analysis"] = item.get("technical_analysis") or {}
         research_fields = (
             "relative_strength_vs_spy", "relative_strength_vs_iwm", "rs_rank",
+            "universe_rs_rank","universe_rs_percentile","relative_strength_vs_universe_median_pct",
+            "universe_rs_sample_size","universe_rs_rank_change_5d","market_breadth",
+            "above_20d_average","breakout_20d",
+            "weekly_confirmation","weekly_confirmation_status","weekly_breakout_confluence",
+            "breakout_level_class","breakout_level_reference_price","breakout_level_lookback_sessions",
             "intraday_rvol_same_time", "same_time_relative_volume",
             "anchored_vwap", "anchored_vwap_status", "opening_range_status",
             "opening_range_high", "opening_range_low", "adx", "plus_di", "minus_di",
