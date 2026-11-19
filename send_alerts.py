@@ -277,6 +277,9 @@ def update_paper_tracker(candidates, now):
                 record["discovery_baseline_timestamp_type"] = item.get("price_timestamp_type") or "provider timestamp"
                 record["discovery_peak_price"] = price
                 record["discovery_trough_price"] = price
+                record["discovery_return_pct"] = 0.0
+                record["discovery_max_gain_pct"] = 0.0
+                record["discovery_max_drawdown_pct"] = 0.0
             if record.get("initial_price") is None and not record.get("lifetime_recommendation_counted", False):
                 lifetime["recommendations"] = int(lifetime.get("recommendations", 0)) + 1
                 asset_stats = lifetime.setdefault("by_asset", {}).setdefault(
@@ -310,6 +313,7 @@ def update_paper_tracker(candidates, now):
                 "discovery_baseline_status": "last_known_eod" if item_price_status == "last_known" else "live_verified",
                 "discovery_baseline_timestamp_type": item.get("price_timestamp_type") or "provider timestamp",
                 "discovery_peak_price": price, "discovery_trough_price": price,
+                "discovery_return_pct": 0.0, "discovery_max_gain_pct": 0.0, "discovery_max_drawdown_pct": 0.0,
                 "peak_price": price, "trough_price": price, "milestones": {},
                 "first_grade": item.get("stage", item.get("signal", "WATCH")),
                 "grade_history": [{"from": None, "to": item.get("stage", item.get("signal", "WATCH")), "at": now.isoformat()}],
@@ -348,6 +352,8 @@ def update_paper_tracker(candidates, now):
             if has_legacy_baseline:
                 record["discovery_max_gain_pct"] = record.get("max_gain_pct")
                 record["discovery_max_drawdown_pct"] = record.get("max_drawdown_pct")
+            if record.get("discovery_return_pct") is None:
+                record["discovery_return_pct"] = round((price / record["discovery_initial_price"] - 1) * 100, 2)
         record["latest_price"] = price
         record["price_validation_status"] = item.get("price_validation_status") or ("verified" if item.get("price_validation_passed", False) else "unverified")
         record["price_validation_note"] = item.get("price_validation_note", "Price validation evidence unavailable")
