@@ -50,3 +50,34 @@ def test_paper_trading_page_loads_extracted_template():
     assert response.status_code == 200
     assert "<title>Jarvis Paper Trading</title>" in html
     assert "PAPER ONLY · NO BROKER CONNECTION" in html
+
+
+def test_data_health_page_and_api_are_read_only_and_descriptive(monkeypatch):
+    monkeypatch.setattr(main, "latest_history_state", lambda: {
+        "paper_tracker": {
+            "A": {"symbol": "AAA", "asset_type": "stock", "currently_surfaced": True,
+                  "price_validation_status": "verified", "latest_price": 12.5,
+                  "price_source": "Alpaca IEX", "price_as_of": "2026-11-19T15:00:00+00:00",
+                  "data_quality": {"data_type": "live", "verification_status": "verified",
+                                   "age_seconds": 30, "buy_eligible": True}},
+            "B": {"symbol": "BBB", "asset_type": "crypto", "currently_surfaced": True,
+                  "price_validation_status": "unverified", "latest_price": 0,
+                  "data_quality": {"data_type": "unknown"}},
+        },
+        "scan_diagnostics": {"diagnostics": {"alpaca_quote_status": {"feed": "iex"},
+            "crypto": {"price_validation": {"verified": 0, "unverified": 1}},
+            "stocks": {"scan_errors": 0}, "timing_breakdown": {"provider_activity": {
+                "provider_http_429_count": 0, "provider_http_5xx_count": 0}}}},
+        "last_scan_completed_at": "2026-11-19T15:00:00+00:00",
+        "scan_run_id": "test-run", "history_source": "test",
+    })
+    html = main.data_health_page().body.decode("utf-8")
+    data = main.data_health_data()
+    assert "Data Health" in html
+    assert 'href="/data-health"' in html
+    assert data["candidate_count"] == 2
+    assert data["price_status"]["all"]["verified"] == 1
+    assert data["price_status"]["all"]["unverified"] == 1
+    assert data["data_gaps"]["missing_source"] == 1
+    assert data["providers"]["stock_price_feed"] == "iex"
+    assert data["scan_errors"] == 0
