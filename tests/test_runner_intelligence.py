@@ -49,6 +49,28 @@ class RunnerIntelligenceTests(unittest.TestCase):
         self.assertEqual(cohort["runner_count"], 1)
         self.assertEqual(cohort["sample_status"], "early sample · do not promote")
 
+    def test_gate_failure_report_only_uses_saved_failed_gate_events(self):
+        records = [{
+            "asset_type": "crypto", "symbol": "AAA",
+            "buy_gate_history": [{
+                "at": "2026-01-01T00:00:00+00:00", "stage": "EARLY SETUP",
+                "score": 70, "readiness_pct": 60, "failed_gate_keys": ["volume", "breakout"],
+                "price_verified": True, "max_favorable_since_pct": 12.0,
+                "max_adverse_since_pct": -4.0, "follow_up_observations": 3,
+            }],
+            "catalyst_lifecycle_status": "CATALYST + DILUTION RISK",
+            "catalyst_dilution_history": [{
+                "at": "2026-01-01T00:00:00+00:00", "status": "CATALYST + DILUTION RISK",
+                "catalyst_labels": ["Earnings"], "dilution_flags": ["ATM"],
+                "headline_count": 2,
+            }],
+        }]
+        report = build_runner_intelligence_report(records)
+        gate = report["buy_gate_failure_tracker"]
+        self.assertEqual(gate["event_count"], 1)
+        self.assertEqual({x["gate"] for x in gate["gate_summaries"]}, {"volume", "breakout"})
+        self.assertEqual(report["catalyst_lifecycle"]["tracked_candidates"], 1)
+
     def test_radar_excludes_unscored_and_unsurfaced_candidates(self):
         records = [
             {"asset_type": "crypto", "symbol": "BTC", "currently_surfaced": True,
