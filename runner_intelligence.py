@@ -5,6 +5,7 @@ This module never changes scanner scores, BUY eligibility, or paper-trade execut
 from __future__ import annotations
 
 from collections import defaultdict
+from datetime import datetime
 from statistics import mean, median
 from typing import Any
 
@@ -34,6 +35,24 @@ def _eligible_outcome_record(record: dict) -> bool:
     return record.get("asset_type") == "crypto"
 
 
+def _has_trustworthy_discovery_baseline(record):
+    """Require a timestamped, verified first quote before calling a runner missed."""
+    if str(record.get("discovery_baseline_status") or "").lower() not in {
+        "live_verified", "first_verified_fallback",
+    }:
+        return False
+    if _number(record.get("discovery_initial_price")) is None or _number(record.get("discovery_initial_price")) <= 0:
+        return False
+    timestamp = record.get("discovery_price_as_of")
+    if not timestamp:
+        return False
+    try:
+        parsed = datetime.fromisoformat(str(timestamp).replace("Z", "+00:00"))
+        return parsed.tzinfo is not None
+    except (TypeError, ValueError):
+        return False
+
+
 def _official_buy_keys(signals):
     keys = set()
     for signal in signals or []:
@@ -59,6 +78,8 @@ def build_runner_intelligence_report(records, buy_signals=None):
         if asset not in ("stock", "crypto") or not symbol or max_gain is None:
             continue
         if str(record.get("discovery_return_status") or "").lower() != "verified":
+            continue
+        if not _has_trustworthy_discovery_baseline(record):
             continue
         if max_gain < MISSED_RUNNER_THRESHOLD_PCT:
             continue
@@ -199,10 +220,16 @@ def build_runner_intelligence_report(records, buy_signals=None):
 
     gate_summaries = []
     for key, samples in gate_stats.items():
-        measured = [x for x in samples if x["max_favorable_since_pct"] is not None]
+        measured = [
+            x for x in samples
+            if x["follow_up_observations"] > 0
+            and x["max_favorable_since_pct"] is not None
+            and x["max_adverse_since_pct"] is not None
+        ]
         gate_summaries.append({
             "gate": key,
             "events": len(samples),
+            "unique_candidates": len({(x["asset_type"], x["symbol"]) for x in samples}),
             "followed_up": sum(1 for x in samples if x["follow_up_observations"] > 0),
             "measured": len(measured),
             "average_max_favorable_pct": round(mean([x["max_favorable_since_pct"] for x in measured]), 2) if measured else None,
