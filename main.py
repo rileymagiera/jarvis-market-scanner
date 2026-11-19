@@ -2235,29 +2235,31 @@ def github_history_state() -> dict:
 
 
 def latest_history_state() -> dict:
-    """Choose the newest complete history snapshot; GitHub remains the durable fallback."""
-    durable = github_history_state()
+    """Serve the latest complete Render snapshot immediately; use GitHub only when needed.
+
+    The history page is read frequently. Calling GitHub's Contents API for four files
+    before every cold page load made the dashboard wait on several sequential network
+    requests even when the cron job had already synced a complete snapshot to Render.
+    """
     try:
         snapshot = json.loads(HISTORY_SNAPSHOT.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         snapshot = {}
-    if not (isinstance(snapshot.get("paper_tracker"), dict) and isinstance(snapshot.get("lifetime"), dict)):
-        return durable
-    def stamp(value):
-        try:
-            parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
-            return parsed.replace(tzinfo=timezone.utc) if parsed.tzinfo is None else parsed.astimezone(timezone.utc)
-        except (TypeError, ValueError, OverflowError):
-            return None
-    snapshot_time = stamp(snapshot.get("last_scan_completed_at") or snapshot.get("synced_at"))
-    durable_time = stamp(durable.get("last_scan_completed_at") or durable.get("synced_at")) if durable else None
-    if durable and (snapshot_time is None or (durable_time is not None and durable_time >= snapshot_time)):
-        return durable
-    return {"paper_tracker": snapshot["paper_tracker"], "lifetime": snapshot["lifetime"],
+    snapshot_valid = (
+        isinstance(snapshot.get("paper_tracker"), dict)
+        and isinstance(snapshot.get("lifetime"), dict)
+    )
+    if snapshot_valid:
+        return {
+            "paper_tracker": snapshot["paper_tracker"],
+            "lifetime": snapshot["lifetime"],
             "buy_signals": snapshot.get("buy_signals", []),
             "last_scan_completed_at": snapshot.get("last_scan_completed_at"),
-            "scan_run_id": snapshot.get("scan_run_id"), "synced_at": snapshot.get("synced_at"),
-            "history_source": "newest_render_snapshot"}
+            "scan_run_id": snapshot.get("scan_run_id"),
+            "synced_at": snapshot.get("synced_at"),
+            "history_source": "render_snapshot_fast",
+        }
+    return github_history_state()
 
 
 @app.get("/history", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
@@ -2353,16 +2355,6 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 <section class="section"><h2>Discovery reasons & catalysts</h2><div class="scroll"><table><thead><tr><th>Candidate</th><th>Signals</th><th>Latest headline / filing</th><th>Risk flags</th></tr></thead><tbody id="catalysts"></tbody></table></div></section>
 <section class="section"><h2>Not in latest scan</h2><div class="tiny">Previously tracked, but absent from the latest scan. Last recorded prices may be stale; this is not a sell signal.</div><div class="scroll"><table><thead><tr><th>Candidate</th><th>Last seen</th><th>Last return</th><th>Best gain</th><th>Last grade</th></tr></thead><tbody id="faded"></tbody></table></div></section>
 <p class="tiny section">Data may be delayed or incomplete. Candidate discovery is not the same as an actionable alert.</p></div></details></main><script>
-(function(){
- const el=document.getElementById('updated');
- if(el)el.textContent='Overview independent check running…';
- fetch('/history/data?bootstrap='+Date.now(),{cache:'no-store'})
- .then(r=>{if(!r.ok)throw Error('History API HTTP '+r.status);return r.json()})
- .then(d=>{document.documentElement.dataset.historyBootstrap='ok';})
- .catch(e=>{if(el)el.textContent='Independent check failed · '+(e.message||e);});
-})();
-</script>
-<script>
 window.addEventListener('error',function(ev){const el=document.getElementById('updated');if(el)el.textContent='Overview JavaScript error: '+(ev.message||'script error');});
 window.addEventListener('unhandledrejection',function(ev){const el=document.getElementById('updated');if(el)el.textContent='Overview promise error: '+(ev.reason&&ev.reason.message||ev.reason||'unknown');});
 const status=document.getElementById('updated');if(status)status.textContent='Dashboard loading…';
@@ -2460,7 +2452,29 @@ const moves=[];all.forEach(x=>(x.grade_history||[]).forEach(m=>moves.push({...m,
 document.getElementById('catalysts').innerHTML=all.filter(x=>(x.discovery_reasons||[]).length||(x.catalysts||[]).length||(x.risk_flags||[]).length).slice(0,40).map(x=>'<tr><td>'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'</td><td>'+e((x.discovery_reasons||[]).join(' · ')||'—')+'</td><td>'+((x.catalysts||[]).slice(0,2).map(c=>c.url?'<a target="_blank" rel="noopener" href="'+e(c.url)+'">'+e(c.title)+'</a>':e(c.title)).join('<br>')||'—')+'</td><td class="neg">'+e((x.risk_flags||[]).join(' · ')||'—')+'</td></tr>').join('')||'<tr><td colspan="4">Discovery details will populate on the next scan.</td></tr>';
 const faded=all.filter(x=>x.currently_surfaced===false).sort((a,b)=>(b.last_seen||'').localeCompare(a.last_seen||''));document.getElementById('faded').innerHTML=faded.slice(0,40).map(x=>'<tr><td>'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'</td><td>'+date(x.last_seen)+'</td><td class="'+cl(x.discovery_return_pct)+'">'+pct(x.discovery_return_pct)+'</td><td class="pos">'+pct(x.discovery_max_gain_pct??x.max_gain_pct)+'</td><td>'+e(x.last_stage||'—')+'</td></tr>').join('')||'<tr><td colspan="5">No candidates currently absent from the latest scan.</td></tr>';
 }
-fetch('/history/data?refresh='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('History request failed: HTTP '+r.status);return r.json()}).then(d=>{try{render(d);const status=document.getElementById('updated');if(status)status.textContent='Dashboard loaded · '+Object.keys((d&&d.paper_tracker)||{}).length+' tracked records';}catch(err){console.error('Jarvis history render error:',err);document.getElementById('updated').textContent='Dashboard rendering failed: '+(err&&err.message||err);}}).catch(err=>{console.error('Jarvis history data load error:',err);document.getElementById('updated').textContent='History data load failed: '+(err&&err.message||err);});
+(async function loadHistoryDashboard(){
+ const status=document.getElementById('updated');
+ const controller=new AbortController();
+ const timeout=setTimeout(()=>controller.abort(),25000);
+ try{
+  const response=await fetch('/history/data?refresh='+Date.now(),{cache:'no-store',signal:controller.signal});
+  if(!response.ok)throw Error('History request failed: HTTP '+response.status);
+  const data=await response.json();
+  if(!data||typeof data.paper_tracker!=='object'||data.paper_tracker===null)throw Error('History API returned an invalid candidate ledger');
+  try{
+   render(data);
+   if(status)status.textContent='Dashboard loaded · '+Object.keys(data.paper_tracker).length+' tracked records';
+  }catch(err){
+   console.error('Jarvis history render error:',err);
+   if(status)status.textContent='Dashboard rendering failed: '+(err&&err.message||err);
+  }
+ }catch(err){
+  console.error('Jarvis history data load error:',err);
+  if(status)status.textContent=(err&&err.name==='AbortError')?'History data timed out · reload to retry':'History data load failed: '+(err&&err.message||err);
+  const pick=document.getElementById('action-top-pick');
+  if(pick)pick.innerHTML='<div><div class="action-pick-title">TOP RADAR CANDIDATE</div><div class="action-pick-symbol">Dashboard data unavailable</div><div class="action-pick-reason">The saved scan could not be loaded. Reload to retry; no trade signal is implied.</div></div><span class="action-pick-status">DATA UNAVAILABLE</span>';
+ }finally{clearTimeout(timeout);}
+})();
 </script></body></html>""",headers={"Cache-Control":"no-store, no-cache, must-revalidate, max-age=0","Pragma":"no-cache","Expires":"0"})
  
  
