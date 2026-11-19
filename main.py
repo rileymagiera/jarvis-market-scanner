@@ -1329,9 +1329,13 @@ def compare_webull_yahoo_prices(webull_quote: dict | None, yahoo_price, yahoo_as
     midpoint = (result["webull_price"] + result["yahoo_price"]) / 2
     if midpoint <= 0:
         return result
-    result["status"] = "comparable"
-    result["difference_pct"] = round(abs(result["webull_price"] - result["yahoo_price"]) / midpoint * 100, 4)
     result["timestamp_difference_seconds"] = round(abs((webull_stamp - yahoo_stamp).total_seconds()), 1)
+    result["observed_difference_pct"] = round(abs(result["webull_price"] - result["yahoo_price"]) / midpoint * 100, 4)
+    if result["timestamp_difference_seconds"] > 900:
+        result["status"] = "timestamps_misaligned"
+        return result
+    result["status"] = "comparable"
+    result["difference_pct"] = result["observed_difference_pct"]
     return result
 
 
@@ -1386,7 +1390,7 @@ def persist_webull_yahoo_history(records: list[dict], timestamp: str, run_id=Non
     return result
 
 
-def webull_latest_bar(symbol: str) -> dict:
+def webull_latest_bar(symbol: str, interval: str = "M1", max_age_minutes: int = 10) -> dict:
     """Optional read-only Webull OpenAPI 1-minute bar for independent quote checking."""
     app_key = os.getenv("WEBULL_APP_KEY", "").strip()
     app_secret = os.getenv("WEBULL_APP_SECRET", "").strip()
@@ -1405,7 +1409,7 @@ def webull_latest_bar(symbol: str) -> dict:
     api_client.add_endpoint("us", "api.webull.com")
     data_client = DataClient(api_client)
     with WEBULL_QUOTE_SEMAPHORE:
-        response = data_client.market_data.get_history_bar(symbol, "US_STOCK", "M1")
+        response = data_client.market_data.get_history_bar(symbol, "US_STOCK", interval)
     if getattr(response, "status_code", None) != 200:
         raise RuntimeError("Webull Market Data API did not return HTTP 200")
     payload = response.json()
@@ -1442,7 +1446,7 @@ def webull_latest_bar(symbol: str) -> dict:
         raise RuntimeError("Webull response contained no parseable OHLCV bars")
     stamp, price = max(candidates, key=lambda item: item[0])
     age_minutes = (datetime.now(timezone.utc) - stamp).total_seconds() / 60
-    if age_minutes < -5 or age_minutes > 10:
+    if age_minutes < -5 or age_minutes > max_age_minutes:
         raise RuntimeError("Webull latest bar is stale or future-dated")
     quote = {"price": price, "as_of": stamp.isoformat(), "age_minutes": round(age_minutes, 1)}
     with WEBULL_QUOTE_CACHE_LOCK:
@@ -1795,7 +1799,7 @@ def scan_stock(symbol: str) -> Optional[dict]:
     if webull_enabled or webull_shadow_requested:
         try:
             # Shadow-mode collection is read-only and does not enter the validation path.
-            webull_quote = webull_latest_bar(symbol)
+            webull_quote = webull_latest_bar(symbol, "M15", 45) if webull_shadow_requested else webull_latest_bar(symbol)
             webull_status = "shadow_quote_received" if webull_shadow_requested else "fresh_quote_received"
         except Exception as exc:
             webull_status = "shadow_quote_unavailable" if webull_shadow_requested else "unavailable_or_not_entitled"
@@ -3136,7 +3140,7 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
         alpaca_status_counts[status] = alpaca_status_counts.get(status, 0) + 1
     webull_comparison_records = [
         {"symbol": item.get("symbol"), **(item.get("webull_yahoo_comparison") or {})}
-        for item in stock_results if item.get("webull_yahoo_comparison")
+        for item in stock_results if item.get("webull_status") in ("shadow_quote_received", "shadow_quote_unavailable")
     ]
     webull_history = persist_webull_yahoo_history(
         webull_comparison_records, now_iso(), os.getenv("GITHUB_RUN_ID")
