@@ -188,7 +188,7 @@ KRAKEN_TICKER_CACHE_AT = 0.0
 KRAKEN_REQUEST_LOCK = threading.Lock()
 KRAKEN_LAST_REQUEST_AT = 0.0
 KRAKEN_MIN_REQUEST_INTERVAL_SECONDS = 1.05
-KRAKEN_OHLC_CACHE = HourlyCandleCache(max_entries=300)
+KRAKEN_OHLC_CACHE = HourlyCandleCache(max_entries=300, cache_path=os.getenv("JARVIS_KRAKEN_OHLC_CACHE_PATH", ".cache/kraken_ohlc.json"))
 
 
 def kraken_get(url: str, **kwargs):
