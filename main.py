@@ -2643,10 +2643,8 @@ def apply_discovery_baseline_guard(payload: dict) -> dict:
         "discovery_baseline_status",
         "discovery_baseline_captured_at",
         "discovery_baseline_source",
-        "discovery_return_pct",
-        "discovery_max_gain_pct",
-        "discovery_max_drawdown_pct",
     )
+    history_fields = ("discovery_return_pct", "discovery_max_gain_pct", "discovery_max_drawdown_pct")
     captured_at = now_iso()
     for key, record in paper.items():
         if not isinstance(record, dict):
@@ -2657,13 +2655,20 @@ def apply_discovery_baseline_guard(payload: dict) -> dict:
         if isinstance(old, dict):
             old_price = safe_float(old.get("discovery_initial_price"), 0.0)
             current_price = safe_float(record.get("discovery_initial_price"), 0.0)
-            if old_price > 0 and current_price <= 0:
+            if old_price > 0 and (current_price <= 0 or not np.isclose(current_price, old_price, rtol=1e-12, atol=1e-12)):
                 for field in baseline_fields:
                     if field in old:
                         record[field] = old[field]
+            for field in history_fields:
+                if record.get(field) is None and field in old:
+                    record[field] = old[field]
 
         baseline = safe_float(record.get("discovery_initial_price"), 0.0)
         if baseline > 0:
+            status = str(record.get("price_validation_status") or "").strip().lower()
+            latest = safe_float(record.get("latest_price"), 0.0)
+            if status in ("verified", "last_known") and latest > 0:
+                record["discovery_return_pct"] = round((latest / baseline - 1.0) * 100.0, 6)
             continue
 
         # Never establish a baseline from an unverified quote or an untimestamped value.
