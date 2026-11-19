@@ -1,4 +1,9 @@
 {
+  "crypto:ALEOUSDT": {
+    "alerted_at": "2026-11-19T17:04:43.742724+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 65
+  },
   "crypto:GRASSUSDT": {
     "alerted_at": "2026-11-19T15:04:24.560095+00:00",
     "alerted_stage": "DEVELOPING SETUP",
@@ -13,6 +18,11 @@
     "alerted_at": "2026-11-19T15:04:24.560095+00:00",
     "alerted_stage": "DEVELOPING SETUP",
     "score": 62
+  },
+  "crypto:REKTUSDT": {
+    "alerted_at": "2026-11-19T17:04:43.742724+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 63
   },
   "crypto:USELESSUSDT": {
     "alerted_at": "2026-11-19T16:04:17.685779+00:00",
@@ -215,5 +225,10 @@
     "alerted_at": "2026-11-19T16:04:17.685779+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 72
+  },
+  "stock:TU": {
+    "alerted_at": "2026-11-19T17:04:43.742724+00:00",
+    "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
+    "score": 63
   }
 }
