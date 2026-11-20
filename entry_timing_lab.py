@@ -11,6 +11,7 @@ from collections import defaultdict
 from statistics import median
 
 from signal_lead_time_audit import _valid_observations
+from early_opportunity_radar import _eligible_snapshot
 
 MODEL_VERSION = "entry-timing-next-scan-v1"
 PHASES = (
@@ -78,7 +79,10 @@ def build_entry_timing_lab(records):
         if asset not in by_asset:
             continue
         series, rejected = _valid_observations(record)
-        excluded += rejected
+        # Legacy flags can contradict explicit stale/unverified status: reject them.
+        truly_eligible = [point for point in series if _eligible_snapshot(point[3])]
+        excluded += rejected + len(series) - len(truly_eligible)
+        series = truly_eligible
         if not series:
             continue
         eligible_candidates += 1
