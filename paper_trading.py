@@ -667,6 +667,7 @@ def account_summary(account, now=None):
         )["total"]
         for p in positions
     )
+    closed_trade_fees = sum(_num(t.get("fees_paid")) for t in (account.get("closed_trades") or []))
     realized = sum(_num(t.get("realized_pnl")) for t in (account.get("closed_trades") or []))
     realized += sum(_num(p.get("realized_pnl")) for p in positions)
     estimated_exit_fees = sum(
@@ -777,6 +778,8 @@ def account_summary(account, now=None):
         "equity": round(equity, 2),
         "total_return_pct": round((equity / STARTING_CASH - 1) * 100, 2),
         "realized_pnl": round(realized, 2),
+        "closed_trade_modeled_fees": round(closed_trade_fees, 4),
+        "closed_trade_gross_pnl": round(sum(_num(t.get("realized_pnl")) for t in (account.get("closed_trades") or [])) + closed_trade_fees, 4),
         "unrealized_pnl": round(unrealized, 2),
         "estimated_exit_fees": round(estimated_exit_fees, 2),
         "open_positions": len(positions),
