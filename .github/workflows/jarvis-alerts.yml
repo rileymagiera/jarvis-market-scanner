@@ -252,6 +252,8 @@ jobs:
               scan_run_id=metadata.get("run_id"),
               synced_at=metadata.get("last_scan_completed_at"),
               history_source="github_actions_scan_workspace",
+              paper_account=paper_account,
+              paper_position_watch=(metadata.get("scan_diagnostics") or {}).get("paper_position_watch"),
           )
           export["risk_off_comparison"] = (paper_account.get("risk_off_comparison") or {}).get("summary")
           scan_id = str(metadata.get("run_id") or "")

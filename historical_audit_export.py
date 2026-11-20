@@ -32,6 +32,7 @@ def build_historical_audit_export(
     history_source: str = "unknown",
     requested_symbols: str | None = None,
     paper_account: dict[str, Any] | None = None,
+    paper_position_watch: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Return a bounded summary; never mutate inputs or expose raw account state."""
     values = [row for row in (records or []) if isinstance(row, dict)]
@@ -85,6 +86,7 @@ def build_historical_audit_export(
         },
         "signal_lead_time": build_signal_lead_time_audit(values),
         "entry_timing_lab": build_entry_timing_lab(values, paper_account=paper_account),
+        "paper_position_watch": paper_position_watch,
         "stock_execution_quotes": build_stock_execution_audit(
             values, scan_run_id, symbols=ticker_cases["symbols"] if ticker_cases else None
         ),
