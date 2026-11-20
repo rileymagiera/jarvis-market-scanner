@@ -3236,6 +3236,9 @@ def apply_discovery_baseline_guard(payload: dict) -> dict:
     baseline_fields = (
         "discovery_initial_price",
         "discovery_price_as_of",
+        "discovery_price_checked_at",
+        "discovery_price_source",
+        "discovery_baseline_timestamp_type",
         "discovery_baseline_status",
         "discovery_baseline_captured_at",
         "discovery_baseline_source",
@@ -3246,12 +3249,14 @@ def apply_discovery_baseline_guard(payload: dict) -> dict:
         if not isinstance(record, dict):
             continue
 
-        # A previously established baseline wins over a later/missing upstream value.
+        # GitHub scanner history is authoritative when it carries a baseline.
+        # Render's previous cached snapshot is only a fallback for missing fields;
+        # overwriting an incoming first-captured price can corrupt returns.
         old = previous.get(key) if isinstance(previous, dict) else None
         if isinstance(old, dict):
             old_price = safe_float(old.get("discovery_initial_price"), 0.0)
             current_price = safe_float(record.get("discovery_initial_price"), 0.0)
-            if old_price > 0 and (current_price <= 0 or not np.isclose(current_price, old_price, rtol=1e-12, atol=1e-12)):
+            if old_price > 0 and current_price <= 0:
                 for field in baseline_fields:
                     if field in old:
                         record[field] = old[field]
@@ -3265,6 +3270,13 @@ def apply_discovery_baseline_guard(payload: dict) -> dict:
             latest = safe_float(record.get("latest_price"), 0.0)
             if status in ("verified", "last_known") and latest > 0:
                 record["discovery_return_pct"] = round((latest / baseline - 1.0) * 100.0, 6)
+                # A verified quote can still be delayed. Mark such radar returns
+                # as provisional; live outcome sampling remains scanner-controlled.
+                quality = record.get("data_quality")
+                price_type = str(quality.get("data_type") or "").lower() if isinstance(quality, dict) else ""
+                if status == "last_known" or price_type in {"delayed", "historical", "unknown"}:
+                    record["discovery_return_status"] = "provisional"
+                record["discovery_return_price_as_of"] = record.get("price_as_of")
             continue
 
         # Never establish a baseline from an unverified quote or an untimestamped value.
