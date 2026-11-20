@@ -2231,6 +2231,40 @@ def coinbase_crypto_market_data(symbol: str, reference_price: Optional[float] = 
 # the price-selection, verification, scoring, BUY, or paper-trading paths.
 CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN = max(1, min(50, int(os.getenv("CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN", "50") or 50)))
 CRYPTO_SHADOW_HISTORY_PATH = os.getenv("CRYPTO_SHADOW_HISTORY_PATH", "crypto_shadow_comparison.json")
+# Shadow-only experimental price comparison. The whole Binance.US public
+# 24h ticker snapshot can replace dozens of identical per-symbol endpoints.
+# Disable via environment variable to restore the original request path.
+BINANCE_US_SHADOW_BATCH_ENABLED = os.getenv("JARVIS_BINANCE_US_SHADOW_BATCH_ENABLED", "true").strip().lower() not in ("0", "false", "no")
+
+
+def fetch_binance_us_shadow_tickers() -> dict:
+    """Get one current, complete Binance.US 24h ticker snapshot (shadow only).
+
+    Exchange documentation states the no-symbol form returns every pair.
+    Reject incomplete responses and retain the original per-symbol fallback.
+    """
+    started = time.monotonic()
+    outcome = "failure"
+    try:
+        response = HTTP.get(
+            "https://api.binance.us/api/v3/ticker/24hr",
+            timeout=(3, 8),
+        )
+        response.raise_for_status()
+        payload = response.json()
+        if not isinstance(payload, list) or len(payload) < 20:
+            raise RuntimeError("Binance.US all-market ticker snapshot unavailable or incomplete")
+        tickers = {
+            str(row.get("symbol") or "").upper(): row
+            for row in payload
+            if isinstance(row, dict) and row.get("symbol")
+        }
+        if len(tickers) < 20:
+            raise RuntimeError("Binance.US all-market ticker snapshot missing symbols")
+        outcome = "success"
+        return tickers
+    finally:
+        record_scan_metric("crypto_shadow_binance_us_bulk_fetch", time.monotonic() - started, outcome)
 
 
 def select_crypto_shadow_symbols(symbols: list[str], run_number=None, sample_size=None) -> list[str]:
@@ -2246,7 +2280,7 @@ def select_crypto_shadow_symbols(symbols: list[str], run_number=None, sample_siz
     return (unique[offset:] + unique[:offset])[:size]
 
 
-def crypto_shadow_quote(provider: str, symbol: str, quote_currency: str = "USD") -> dict:
+def crypto_shadow_quote(provider: str, symbol: str, quote_currency: str = "USD", binance_us_snapshot=None) -> dict:
     """Fetch one free public spot ticker in the same quote currency as Jarvis.\n\n    This observation is diagnostic only and is never used to select a price.\n    """
     base = crypto_base(symbol)
     started = time.monotonic()
@@ -2264,13 +2298,20 @@ def crypto_shadow_quote(provider: str, symbol: str, quote_currency: str = "USD")
             stamp = pd.Timestamp(payload.get("time")) if payload.get("time") else None
             bid, ask = safe_float(payload.get("bid")), safe_float(payload.get("ask"))
         elif provider == "binance_us":
-            response = HTTP.get(
-                "https://api.binance.us/api/v3/ticker/24hr",
-                params={"symbol": base + quote_currency},
-                timeout=(2, 5),
-            )
-            response.raise_for_status()
-            payload = response.json() or {}
+            if binance_us_snapshot is not None:
+                # The same response schema as the individual 24h ticker path.
+                # Missing pairs are explicitly unavailable; never invent prices.
+                payload = binance_us_snapshot.get(base + quote_currency)
+                if payload is None:
+                    raise RuntimeError(f"Binance.US pair is absent from current ticker snapshot: {base + quote_currency}")
+            else:
+                response = HTTP.get(
+                    "https://api.binance.us/api/v3/ticker/24hr",
+                    params={"symbol": base + quote_currency},
+                    timeout=(2, 5),
+                )
+                response.raise_for_status()
+                payload = response.json() or {}
             price = safe_float(payload.get("lastPrice"))
             stamp = pd.to_datetime(payload.get("closeTime"), unit="ms", utc=True) if payload.get("closeTime") is not None else None
             # Binance 24h ticker has no bid/ask fields; use numeric sentinels so spread logic remains safe.
@@ -2374,12 +2415,24 @@ def collect_crypto_shadow_comparisons(crypto_results: list[dict], run_number=Non
     by_symbol = {str(x.get("symbol", "")).upper(): x for x in crypto_results}
     records = []
     jobs = {}
+    binance_us_snapshot = None
+    if selected and BINANCE_US_SHADOW_BATCH_ENABLED:
+        try:
+            binance_us_snapshot = fetch_binance_us_shadow_tickers()
+        except Exception as exc:
+            # Do not drop shadow observations when the bulk endpoint is down.
+            # The individual original ticker requests below remain the fallback.
+            print(f"Binance.US shadow batch unavailable; using individual tickers: {type(exc).__name__}", flush=True)
     with ThreadPoolExecutor(max_workers=8) as pool:
         for symbol in selected:
             item = by_symbol.get(symbol, {})
             quote_currency = str(item.get("price_quote_currency") or "USD").upper()
             for provider in ("coinbase", "binance_us"):
-                jobs[pool.submit(crypto_shadow_quote, provider, symbol, quote_currency)] = (provider, symbol, item, quote_currency)
+                if provider == "binance_us" and binance_us_snapshot is not None:
+                    future = pool.submit(crypto_shadow_quote, provider, symbol, quote_currency, binance_us_snapshot)
+                else:
+                    future = pool.submit(crypto_shadow_quote, provider, symbol, quote_currency)
+                jobs[future] = (provider, symbol, item, quote_currency)
         for future in as_completed(jobs):
             provider, symbol, item, quote_currency = jobs[future]
             quote, error = None, None
