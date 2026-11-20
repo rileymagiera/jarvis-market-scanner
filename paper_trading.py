@@ -76,6 +76,54 @@ def calculate_trade_fee(asset_type, side, notional, quantity=0.0, order_type=Non
             "regulatory": 0.0, "total": 0.0, "rate": 0.0}
 
 
+def modeled_paper_trade_payoff(asset_type, entry_price, stop_loss, target_1, target_2):
+    """Compare a fixed hypothetical target ladder with the existing modeled fees.
+
+    A successful path assumes 50% exits at target 1 and the rest at target 2.
+    The loss path assumes a full stop exit. This is *not* an expected return,
+    observed fill, probability of winning, or recommendation to change exits.
+    Normalizing to $100 notional avoids fee-rounding errors for low-priced tokens.
+    All costs use the exact current paper-account fee function.
+    """
+    entry, stop, first, second = (
+        _num(entry_price), _num(stop_loss), _num(target_1), _num(target_2)
+    )
+    if not (0 < stop < entry < first <= second):
+        return {
+            "status": "invalid_levels",
+            "net_ladder_reward_risk": None,
+        }
+    quantity = 100.0 / entry
+    fee_in = calculate_trade_fee(asset_type, "buy", entry * quantity, quantity)["total"]
+    fee_stop = calculate_trade_fee(asset_type, "sell", stop * quantity, quantity)["total"]
+    fee_t1 = calculate_trade_fee(
+        asset_type, "sell", first * quantity * 0.5, quantity * 0.5
+    )["total"]
+    fee_t2 = calculate_trade_fee(
+        asset_type, "sell", second * quantity * 0.5, quantity * 0.5
+    )["total"]
+    gross_win = quantity * (0.5 * first + 0.5 * second - entry)
+    gross_loss = quantity * (entry - stop)
+    net_win = gross_win - fee_in - fee_t1 - fee_t2
+    net_loss = gross_loss + fee_in + fee_stop
+    return {
+        "status": "modeled",
+        "normalization_notional": 100.0,
+        "net_ladder_reward_risk": round(net_win / net_loss, 4),
+        "gross_ladder_reward_risk": round(gross_win / gross_loss, 4),
+        "gross_target_2_reward_risk": round((second - entry) / (entry - stop), 4),
+        "net_planned_gain_per_100": round(net_win, 4),
+        "net_stop_loss_per_100": round(net_loss, 4),
+        "modeled_fee_cost_win_per_100": round(fee_in + fee_t1 + fee_t2, 4),
+        "modeled_fee_cost_stop_per_100": round(fee_in + fee_stop, 4),
+        "note": (
+            "Simplified full-target-ladder versus full-stop payoff; sampled scans may "
+            "produce different outcomes. Not a predicted win rate. Coinbase fees "
+            "beyond the monthly zero-commission allowance are unconfigured."
+        ),
+    }
+
+
 def load_account():
     try:
         state = json.loads(STATE_PATH.read_text(encoding="utf-8"))
@@ -478,6 +526,7 @@ def update_account(candidates, buy_signals, now, enable_early_entry_experimental
             "price": price, "stop": stop, "target1": target1, "target2": target2,
             "score": score, "reward_risk": reward_risk,
             "edge_profile": paper_edge_profile(item),
+            "payoff_quality": modeled_paper_trade_payoff(key[0], price, stop, target1, target2),
             "strategy": signal.get("strategy") or "official_buy",
             "market_regime": signal.get("market_regime") or item.get("market_regime") or "UNKNOWN",
         })
@@ -490,7 +539,10 @@ def update_account(candidates, buy_signals, now, enable_early_entry_experimental
         row["strategy"] == "early_entry_experimental",
         -int(row["edge_profile"]["qualified_trend_volatility"])
         if row["strategy"] == "early_entry_experimental" else 0,
-        -row["score"], -row["reward_risk"], row["signal_id"],
+        -row["score"], -row["reward_risk"],
+        -row["payoff_quality"]["net_ladder_reward_risk"]
+        if row["strategy"] in ("risk_off_experimental", "early_entry_experimental") else 0,
+        row["signal_id"],
     ))
     for rank, row in enumerate(eligible, start=1):
         signal, signal_id = row["signal"], row["signal_id"]
@@ -501,6 +553,9 @@ def update_account(candidates, buy_signals, now, enable_early_entry_experimental
             "rank": rank, "signal_id": signal_id, "symbol": key[1],
             "asset_type": key[0], "strategy": row["strategy"], "experimental": bool(signal.get("experimental")), "official_score": row["score"],
             "edge_cohort": row["edge_profile"]["cohort"], "edge_qualified": row["edge_profile"]["qualified_trend_volatility"],
+            "net_ladder_reward_risk": row["payoff_quality"]["net_ladder_reward_risk"],
+            "net_planned_gain_per_100": row["payoff_quality"]["net_planned_gain_per_100"],
+            "net_stop_loss_per_100": row["payoff_quality"]["net_stop_loss_per_100"],
             "target_2_reward_risk": round(row["reward_risk"], 4),
             "effective_risk_budget_pct": round(RISK_FRACTION * max(0.0, min(1.0, row["score"] / 100.0)) * 100, 3),
         }
@@ -542,6 +597,7 @@ def update_account(candidates, buy_signals, now, enable_early_entry_experimental
             "entry_rationale": signal.get("entry_rationale") or [],
             "entry_research_snapshot": signal.get("research_snapshot") or {},
             "paper_edge_profile": row["edge_profile"],
+            "paper_payoff_quality": row["payoff_quality"],
             "market_regime_at_entry": row["market_regime"],
             "opened_at": now.isoformat(), "entry_price": price, "latest_price": price,
             "latest_price_as_of": item.get("price_as_of"), "quantity": quantity,
@@ -572,6 +628,7 @@ def update_account(candidates, buy_signals, now, enable_early_entry_experimental
                strategy=row["strategy"], experimental=bool(signal.get("experimental")),
                research_classification=signal.get("research_classification"),
                edge_cohort=row["edge_profile"]["cohort"], edge_qualified=row["edge_profile"]["qualified_trend_volatility"],
+               net_ladder_reward_risk=row["payoff_quality"]["net_ladder_reward_risk"],
                market_regime=row["market_regime"], price=price, quantity=quantity,
                notional=round(notional, 8), fee=round(fee, 8),
                allocation_rank=rank, official_score=row["score"], target_2_reward_risk=round(row["reward_risk"], 4),
@@ -709,6 +766,7 @@ def account_summary(account, now=None):
     edge_performance.sort(key=lambda row: row["cohort"])
     return {
         "paper_edge_diagnostics": account.get("paper_edge_diagnostics") or {},
+        "paper_payoff_model": "Net planned target ladder versus full stop; fee-aware and not a win forecast",
         "paper_edge_cohort_performance": edge_performance,
         "starting_cash": _num(account.get("starting_cash"), STARTING_CASH),
         "coinbase_one_monthly_volume": round(coinbase_volume, 2),
