@@ -9,6 +9,9 @@ import math
 from datetime import datetime
 
 MAX_SIGNAL_SNAPSHOTS_PER_CANDIDATE = 32
+REPLAY_LEVEL_FIELDS = (
+    "watch_entry_low", "watch_entry_high", "stop_loss", "target_1", "target_2",
+)
 
 FEATURE_FIELDS = (
     "early_runner_research_score", "volume_acceleration_3bar",
@@ -143,6 +146,7 @@ def build_candidate_snapshot(item, observed_at, scan_id):
     )
     readiness = item.get("buy_readiness") if isinstance(item.get("buy_readiness"), dict) else {}
     checks = readiness.get("checks") if isinstance(readiness.get("checks"), dict) else {}
+    levels = item.get("levels")
     snapshot = {
         "scan_id": str(scan_id or observed_at),
         "observed_at": str(observed_at),
@@ -160,11 +164,19 @@ def build_candidate_snapshot(item, observed_at, scan_id):
         "price_verified": verified,
         "outcome_eligible": outcome_eligible,
         "data_type": data_type,
+        "market_session": session or None,
         "data_age_seconds": age,
         "quote_age_seconds": round(quote_age, 2) if quote_age is not None else None,
         "evidence": evidence,
         "features": {key: item.get(key) for key in FEATURE_FIELDS if item.get(key) is not None},
     }
+    if isinstance(levels, dict):
+        frozen_levels = {key: levels.get(key) for key in REPLAY_LEVEL_FIELDS}
+        frozen_levels["stop_loss"] = frozen_levels["stop_loss"] or levels.get("invalidation_level")
+        snapshot["replay_levels"] = {
+            key: number for key, value in frozen_levels.items()
+            if not isinstance(value, bool) and (number := _number(value)) is not None and number > 0
+        }
     return snapshot
 
 def append_candidate_snapshot(record, item, observed_at, scan_id=None):
