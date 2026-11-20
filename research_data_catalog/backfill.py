@@ -128,6 +128,7 @@ def download(plan, output, max_files=600, max_mib=100, max_runtime=240, offset=0
     root.mkdir(parents=True, exist_ok=True)
     start = time.monotonic()
     downloaded = failed = present = size = 0
+    processed = 0
     records = []
     # Per-run offsets allow following shards without changing user credentials.
     for task in plan[offset:]:
@@ -136,6 +137,7 @@ def download(plan, output, max_files=600, max_mib=100, max_runtime=240, offset=0
         path = root / task["relative"]
         if path.is_file():
             present += 1
+            processed += 1
             continue
         try:
             data = fetch(task["url"])
@@ -157,10 +159,12 @@ def download(plan, output, max_files=600, max_mib=100, max_runtime=240, offset=0
             failed += 1
             records.append({"symbol": task["symbol"], "interval": task["interval"],
                             "period": task["period"], "status": "unavailable", "reason": type(exc).__name__})
+        processed += 1
         if pause:
             time.sleep(pause)
     report = {
         "research_only": True, "source_plan_count": len(plan), "offset": offset,
+        "next_offset": offset + processed,
         "downloaded": downloaded, "already_present": present, "unavailable": failed,
         "downloaded_bytes": size, "run_at_utc": datetime.now(timezone.utc).isoformat(),
         "notice": "No live quotes, verified execution fills or production BUY inputs. Binance Vision data licensed for personal non-production research.",
@@ -196,7 +200,7 @@ def main(argv=None):
     print(f"Planned {len(plan)} source archives; execution starts at offset {args.offset}.")
     if not args.dry_run:
         summary = download(plan, args.output, args.max_files, args.max_mib, args.max_runtime, args.offset)
-        print(json.dumps({key: summary[key] for key in ("downloaded", "already_present", "unavailable", "downloaded_bytes")}))
+        print(json.dumps({key: summary[key] for key in ("downloaded", "already_present", "unavailable", "downloaded_bytes", "next_offset")}))
     return 0
 
 

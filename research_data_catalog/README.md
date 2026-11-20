@@ -59,8 +59,9 @@ From the private Jarvis repo on a computer with internet and disk:
 ```bash
 python research_data_catalog/backfill.py --asset stock --output .local_history_research --max-files 518 --max-mib 100
 python research_data_catalog/backfill.py --asset crypto --output .local_history_research --max-files 1000 --max-mib 200
-# Next shard (does not redo existing downloaded files):
-python research_data_catalog/backfill.py --asset crypto --output .local_history_research --offset 1000 --max-files 1000 --max-mib 200
+# Next shard: use the exact next_offset shown in the last run manifest,
+# NOT a guessed 1000. A byte/time cap may stop earlier.
+python research_data_catalog/backfill.py --asset crypto --output .local_history_research --offset NEXT_OFFSET --max-files 1000 --max-mib 200
 # Intraday backtesting research, all spot pairs at 15-minute interval:
 python research_data_catalog/backfill.py --asset crypto --interval 15m --output .local_history_research --max-files 1000 --max-mib 300
 ```
@@ -87,7 +88,7 @@ Actions tab, select **Jarvis Historical Research Archive** and choose
 
 Each manual run caps collection at **550 files, 85 MiB, or 300 seconds**,
 whichever comes first, then uploads a short-lived **3-day GitHub artifact**.
-Its downloaded ZIP/Parquet prices live in that **artifact**, not the repo.
+Its downloaded ZIP/Parquet prices live in that **artifact**, not the repo.\nThe manifest's **next_offset** tells you the correct next starting index, even\nwhen a run stops before the file count limit.
 A later shard uses another offset; because separate runners have separate
 disks, download and consolidate those artifact archives on a persistent
 storage device for full coverage. **Action minutes and artifact storage count

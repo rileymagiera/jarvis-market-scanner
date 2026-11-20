@@ -64,10 +64,12 @@ def test_download_is_separate_from_live_scanner_and_resumable(tmp_path):
     out = tmp_path / "history"
     first = download(plan, out, max_files=1, pause=0, fetch=fake_fetch)
     assert first["downloaded"] == 1
+    assert first["next_offset"] == 1
     assert (out / "stocks" / "A.parquet").exists()
     next_run = download(plan, out, max_files=1, pause=0, fetch=fake_fetch)
     assert next_run["already_present"] == 1
     assert next_run["downloaded"] == 1
+    assert next_run["next_offset"] == 2
     assert (out / "stocks" / "B.parquet").exists()
     assert not (tmp_path / "paper_trading_state.json").exists()
     assert len(calls) == 2
@@ -77,3 +79,12 @@ def test_zero_plan_is_reported_without_invented_candles(tmp_path):
     summary = download([], tmp_path, pause=0)
     assert summary["downloaded"] == 0
     assert summary["source_plan_count"] == 0
+
+
+def test_next_offset_uses_actual_processed_count_when_byte_cap_interrupts(tmp_path):
+    plan = stock_plan("ticker,rows,first_date,last_date,file_size_kb\nA,2,2019-01-01,2026-11-18,3\nB,2,2019-01-01,2026-11-18,3\n")
+    def fake_fetch(url):
+        return b"PAR1" + b"x" * (700 * 1024) + b"PAR1"
+    result = download(plan, tmp_path / "sample", max_files=10, max_mib=1, pause=0, fetch=fake_fetch)
+    assert result["downloaded"] == 1
+    assert result["next_offset"] == 1
