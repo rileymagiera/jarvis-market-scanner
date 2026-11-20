@@ -1127,7 +1127,7 @@ def main():
     if not notification_window:
         # Preserve paper-event deduplication initialization and any other state
         # while respecting the existing notification quiet hours.
-        STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+        STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         print(f"Outside notification window ({local_now.isoformat()}); scan and paper tracking saved without email.")
         return
 
@@ -1139,7 +1139,7 @@ def main():
         mark_paper_events_notified(state, pending_paper_email_events)
         # Save immediately so a later optional watchlist-email error cannot
         # cause a paper transaction to be emailed again next scan.
-        STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+        STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         paper_notice_sent = True
         print(f"Paper trade notification sent: {len(pending_paper_email_events)} event(s).")
 
@@ -1148,7 +1148,7 @@ def main():
         if premarket_selected:
             subject, body = format_premarket_watch(premarket_selected, payload.get("timestamp", now.isoformat()))
             email(subject, body)
-            STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+            STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
             print(f"Premarket watch email sent: {len(premarket_selected)} research candidate(s).")
             return
 
@@ -1157,7 +1157,7 @@ def main():
             # The paper BUY/SELL message is the useful status update today.
             # Avoid a second 'nothing to report' email in the same scan.
             state["daily_status_date"] = daily_key
-            STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+            STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
             return
         if state.get("daily_status_date") == daily_key:
             print("No new qualifying setups; daily status email already sent today.")
@@ -1169,7 +1169,7 @@ def main():
         )
         email(subject, body)
         state["daily_status_date"] = daily_key
-        STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+        STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         print("Daily status email sent.")
         return
 
