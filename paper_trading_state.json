@@ -113,7 +113,7 @@
       "risk_off_or_unknown_regime": 239
     }
   },
-  "last_updated_at": "2026-11-20T07:04:27.729111+00:00",
+  "last_updated_at": "2026-11-20T07:17:34.431081+00:00",
   "ledger": [
     {
       "allocation_rank": 1,
@@ -245,30 +245,30 @@
   "mode": "PAPER_ONLY",
   "paper_edge_diagnostics": {
     "note": "Paper-only evidence profile, not a measured win probability; no official BUY gates changed",
-    "screened_verified_candidates": 84,
+    "screened_verified_candidates": 86,
     "trend_volatility_confluence_candidates": 0,
     "version": "github-confluence-v1"
   },
   "positions": [],
   "processed_signal_ids": [
-    "risk_off:crypto:MEGAUSDT:2026-11-19",
-    "risk_off:crypto:GRASSUSDT:2026-11-19"
+    "risk_off:crypto:GRASSUSDT:2026-11-19",
+    "risk_off:crypto:MEGAUSDT:2026-11-19"
   ],
   "risk_off_signal_diagnostics": {
     "candidates_total": 239,
     "eligible_signals": 0,
     "rejections": {
       "failed_buy_gate:24h_breakout": 91,
-      "failed_buy_gate:above_24h_average": 83,
+      "failed_buy_gate:above_24h_average": 82,
       "failed_buy_gate:breakout_confirmed": 133,
       "failed_buy_gate:five_bar_intraday_trend_up": 98,
       "failed_buy_gate:fresh_intraday_confirmation": 146,
-      "failed_buy_gate:live_data_quality": 155,
+      "failed_buy_gate:live_data_quality": 153,
       "failed_buy_gate:no_risk_flags": 8,
       "failed_buy_gate:not_chase_risk": 4,
       "failed_buy_gate:not_extended": 1,
       "failed_buy_gate:positive_hourly_momentum": 39,
-      "failed_buy_gate:price_verified": 11,
+      "failed_buy_gate:price_verified": 9,
       "failed_buy_gate:score_82": 239,
       "failed_buy_gate:two_technical_confirmations": 80,
       "failed_buy_gate:volume_1_8x": 89,
