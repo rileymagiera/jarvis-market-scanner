@@ -1,4 +1,9 @@
 {
+  "crypto:MONUSDT": {
+    "alerted_at": "2026-11-20T15:01:32.123953+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 74
+  },
   "crypto:RAYUSDT": {
     "alerted_at": "2026-11-20T01:04:26.466664+00:00",
     "alerted_stage": "DEVELOPING SETUP",
@@ -122,6 +127,11 @@
       "score": 10,
       "status": "PREMARKET VERIFIED"
     },
+    "ESE": {
+      "alerted_at": "2026-11-20T15:01:32.123953+00:00",
+      "score": 26,
+      "status": "PREMARKET VERIFIED"
+    },
     "EVC": {
       "alerted_at": "2026-11-20T12:04:40.180328+00:00",
       "score": 8,
@@ -165,6 +175,11 @@
     "JBI": {
       "alerted_at": "2026-11-20T12:04:40.180328+00:00",
       "score": 15,
+      "status": "PREMARKET VERIFIED"
+    },
+    "KEP": {
+      "alerted_at": "2026-11-20T15:01:32.123953+00:00",
+      "score": 13,
       "status": "PREMARKET VERIFIED"
     },
     "KRNT": {
@@ -357,6 +372,11 @@
     "alerted_at": "2026-11-20T01:04:26.466664+00:00",
     "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
     "score": 61
+  },
+  "stock:PLMR": {
+    "alerted_at": "2026-11-20T15:01:32.123953+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 70
   },
   "stock:SVRA": {
     "alerted_at": "2026-11-20T12:04:40.180328+00:00",
