@@ -1114,12 +1114,28 @@ def main():
     paper, paper_lifetime = update_paper_tracker(payload["candidates"], now, scan_id=scan_id)
     apply_history_runner_learning(payload["candidates"], paper)
     buy_signals = update_buy_signal_history(payload["candidates"], now, payload.get("errors") or [])
-    watched_positions = {row.get("signal_id"): row for row in load_account()["positions"]}
+    previous_account = load_account()
+    watched_positions = {row.get("signal_id"): row for row in previous_account["positions"]}
+    comparison_positions = ((previous_account.get("risk_off_comparison") or {}).get("shadow_account") or {}).get("positions", [])
+    scanned_crypto = {row["symbol"] for row in payload["candidates"] if row.get("asset_type") == "crypto"}
+    # A held coin can leave the Coinbase universe. Its quote is used only for
+    # existing stops, targets and marks, and never enters the candidate feed.
+    missing_holdings = sorted({
+        row["symbol"] for row in list(watched_positions.values()) + comparison_positions
+        if row.get("asset_type") == "crypto" and row.get("symbol") and row["symbol"] not in scanned_crypto
+    })
+    crypto_exit_quotes = {}
+    if missing_holdings:
+        exit_rows, exit_errors = scanner.run_parallel(missing_holdings, scanner.scan_crypto)
+        crypto_exit_quotes = {row["symbol"]: row for row in exit_rows}
+        for error in exit_errors:
+            print(f"Paper crypto exit quote unavailable for {error['symbol']}: {error['error']}", flush=True)
     paper_account = update_paper_trading_account(
         payload["candidates"], buy_signals, now,
         enable_early_entry_experimental=os.getenv("JARVIS_ENABLE_EARLY_ENTRY_EXPERIMENTAL", "false").lower() == "true",
         scan_id=scan_id,
         enable_risk_off_comparison=True,
+        crypto_exit_quotes=crypto_exit_quotes,
     )
     diagnostics = payload.get("diagnostics") or {}
     try:

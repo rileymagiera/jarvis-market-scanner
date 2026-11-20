@@ -285,8 +285,8 @@ def kraken_pairs():
     return KRAKEN_PAIR_MAP
 
 
-def discover_crypto_symbols(limit: int = 150) -> list[str]:
-    """Discover a broad, multi-tier set of Kraken USD/USDT spot assets.
+def discover_crypto_symbols(coinbase_bases: set[str], limit: int = 150) -> list[str]:
+    """Rank Coinbase-tradable assets using Kraken USD/USDT spot data.
 
     Discovery is intentionally permissive: early movers are retained before
     they become top gainers. Liquidity is tiered for ranking, not used as a
@@ -315,7 +315,7 @@ def discover_crypto_symbols(limit: int = 150) -> list[str]:
 
     ranked = []
     for base, pair_id in pairs.items():
-        if base in excluded_bases or base.endswith(leveraged_suffixes):
+        if base not in coinbase_bases or base in excluded_bases or base.endswith(leveraged_suffixes):
             continue
         ticker = tickers.get(pair_id)
         if not ticker:
@@ -356,9 +356,20 @@ def stock_universe() -> list[str]:
     return list(dict.fromkeys(defaults + dynamic))
 
 
-def crypto_universe() -> list[str]:
-    defaults = configured_symbols("SCAN_CRYPTO", DEFAULT_CRYPTO)
-    dynamic = discover_crypto_symbols()
+def crypto_universe(errors: Optional[list[dict]] = None) -> list[str]:
+    try:
+        coinbase_bases = coinbase_tradable_crypto_bases()
+    except (requests.RequestException, ValueError) as exc:
+        message = f"Coinbase spot eligibility unavailable. Crypto candidates skipped: {exc}"
+        print(message, flush=True)
+        if errors is not None:
+            errors.append({"symbol": "crypto_universe", "error": message[:240]})
+        return []
+    defaults = [
+        symbol for symbol in configured_symbols("SCAN_CRYPTO", DEFAULT_CRYPTO)
+        if crypto_base(symbol) in coinbase_bases
+    ]
+    dynamic = discover_crypto_symbols(coinbase_bases)
     return list(dict.fromkeys(defaults + dynamic))
 
 
@@ -2194,6 +2205,26 @@ def coinbase_exchange_get(path: str, **kwargs):
             record_scan_metric("coinbase_exchange_rate_limit_retry", 0.0)
 
 
+def coinbase_tradable_crypto_bases() -> set[str]:
+    """Fetch the current Coinbase spot catalog once for universe eligibility."""
+    products = coinbase_exchange_get("/products", timeout=(2, 8)).json()
+    if not isinstance(products, list) or not products:
+        raise ValueError("Coinbase returned an invalid product catalog")
+    bases = {
+        product["base_currency"]
+        for product in products
+        if isinstance(product, dict)
+        and isinstance(product.get("base_currency"), str)
+        and product["base_currency"]
+        and product.get("quote_currency") in ("USD", "USDC")
+        and product.get("status") == "online"
+        and not any(product.get(flag) for flag in ("trading_disabled", "cancel_only", "post_only", "auction_mode"))
+    }
+    if not bases:
+        raise ValueError("Coinbase returned no tradable USD or USDC spot products")
+    return bases
+
+
 def coinbase_crypto_market_data(symbol: str, reference_price: Optional[float] = None):
     """Fetch Coinbase USD ticker, 24h stats and hourly candles as a guarded fallback.
 
@@ -3589,9 +3620,10 @@ def scan_stocks(limit: int = Query(30, ge=1, le=100)):
 
 @app.get("/scan/crypto", dependencies=[Depends(require_site_login)])
 def scan_cryptocurrencies(limit: int = Query(25, ge=1, le=100)):
-    universe = crypto_universe()[:limit]
+    universe_errors = []
+    universe = crypto_universe(universe_errors)[:limit]
     results, errors = run_parallel(universe, scan_crypto)
-    return response_payload("crypto", universe, results, errors)
+    return response_payload("crypto", universe, results, universe_errors + errors)
 
 
 @app.get("/scan", dependencies=[Depends(require_site_login)])
@@ -3600,7 +3632,8 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
     reset_scan_metrics()
     discovery_started = time.monotonic()
     stock_symbols = stock_universe() if asset in ("all", "stocks") else []
-    crypto_symbols = crypto_universe() if asset in ("all", "crypto") else []
+    crypto_universe_errors = []
+    crypto_symbols = crypto_universe(crypto_universe_errors) if asset in ("all", "crypto") else []
     discovery_seconds = time.monotonic() - discovery_started
     global WEBULL_SHADOW_SYMBOLS
     webull_credentials_configured = bool(os.getenv("WEBULL_APP_KEY", "").strip() and os.getenv("WEBULL_APP_SECRET", "").strip())
@@ -3631,7 +3664,7 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
 
     asset_scans_seconds = time.monotonic() - scan_started - discovery_seconds
     results = sorted(stock_results + crypto_results, key=lambda item: item["score"], reverse=True)
-    errors = stock_errors + crypto_errors
+    errors = stock_errors + crypto_universe_errors + crypto_errors
     market_started = time.monotonic()
     regime = market_conditions()
     market_conditions_seconds = time.monotonic() - market_started
@@ -3790,6 +3823,7 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
                 "symbols_requested": len(crypto_symbols),
                 "candidates_returned": len(crypto_results),
                 "scan_errors": len(crypto_errors),
+                "universe_errors": crypto_universe_errors,
                 "not_returned_or_insufficient_data": max(0, len(crypto_symbols) - len(crypto_results) - len(crypto_errors)),
                     "stages": {stage: sum(1 for x in crypto_results if x.get("stage") == stage) for stage in ("BUY", "ACTIONABLE SETUP", "DEVELOPING SETUP", "EARLY WATCH", "LOW-CONVICTION WATCH", "PRICE UNVERIFIED — WATCH ONLY", "DATA QUALITY — WATCH ONLY")},
                 "price_validation": {
