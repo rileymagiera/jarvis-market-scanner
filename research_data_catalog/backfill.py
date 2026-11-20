@@ -10,6 +10,7 @@ import csv
 from datetime import datetime, timezone
 import hashlib
 import io
+import math
 import json
 from pathlib import Path
 import re
@@ -113,7 +114,7 @@ def valid_kline_zip(payload):
                     return False
                 previous = stamp
                 o, h, l, c, v = map(float, row[1:6])
-                if min(o, h, l, c) <= 0 or v < 0 or h < max(o, c) or l > min(o, c):
+                if not all(math.isfinite(n) for n in (o, h, l, c, v)) or min(o, h, l, c) <= 0 or v < 0 or h < max(o, c) or l > min(o, c):
                     return False
                 count += 1
             return count > 0
