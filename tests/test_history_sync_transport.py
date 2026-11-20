@@ -122,7 +122,8 @@ def test_sender_compresses_large_payload_losslessly(monkeypatch):
     assert len(req.data) < len(json.dumps(payload).encode("utf-8"))
 
 
-def test_sender_falls_back_to_original_json_for_legacy_receiver(monkeypatch):
+@pytest.mark.parametrize("legacy_status", [400, 415, 422])
+def test_sender_falls_back_to_original_json_for_legacy_receiver(monkeypatch, legacy_status):
     monkeypatch.setenv("JARVIS_HISTORY_SYNC_TOKEN", "test-token")
     monkeypatch.setenv("JARVIS_HISTORY_SYNC_GZIP_ENABLED", "true")
     seen = []
@@ -131,7 +132,7 @@ def test_sender_falls_back_to_original_json_for_legacy_receiver(monkeypatch):
         seen.append(req)
         headers = dict((k.lower(), v) for k, v in req.header_items())
         if headers.get("content-encoding") == "gzip":
-            raise HTTPError(req.full_url, 415, "Unsupported Media Type", {}, None)
+            raise HTTPError(req.full_url, legacy_status, "Legacy receiver rejected gzip", {}, None)
         return ResponseStub()
 
     monkeypatch.setattr(send_alerts, "urlopen", mock_urlopen)
