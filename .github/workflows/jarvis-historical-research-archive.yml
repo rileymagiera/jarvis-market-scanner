@@ -1,0 +1,75 @@
+name: Jarvis Historical Research Archive
+
+# MANUAL ONLY: massive historical downloads may use GitHub compute and
+# artifact storage. Never alter the 15-minute scanner cron or live quote path.
+on:
+  workflow_dispatch:
+    inputs:
+      asset:
+        description: "Historical source (research only)"
+        required: true
+        type: choice
+        default: stock
+        options:
+          - stock
+          - crypto
+      crypto_interval:
+        description: "Crypto candlestick interval"
+        required: true
+        type: choice
+        default: 1h
+        options:
+          - 1h
+          - 15m
+          - 1d
+      offset:
+        description: "Starting archive-file index for optional shards"
+        required: true
+        type: string
+        default: "0"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jarvis-historical-research-archive
+  cancel-in-progress: false
+
+jobs:
+  research-history:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check out research scripts
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Download bounded historical research archives
+        env:
+          HISTORY_ASSET: ${{ inputs.asset }}
+          HISTORY_INTERVAL: ${{ inputs.crypto_interval }}
+          HISTORY_OFFSET: ${{ inputs.offset }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! [[ "$HISTORY_OFFSET" =~ ^[0-9]{1,6}$ ]]; then
+            echo "Offset must be a non-negative integer"
+            exit 1
+          fi
+          python research_data_catalog/backfill.py \
+            --asset "$HISTORY_ASSET" \
+            --interval "$HISTORY_INTERVAL" \
+            --offset "$HISTORY_OFFSET" \
+            --max-files 550 \
+            --max-mib 85 \
+            --max-runtime 300 \
+            --output .local_history_research
+      - name: Upload collected research dataset (not Git code)
+        uses: actions/upload-artifact@v4
+        with:
+          name: jarvis-research-history-${{ inputs.asset }}-${{ inputs.crypto_interval }}-${{ inputs.offset }}
+          path: .local_history_research/
+          retention-days: 3
+          if-no-files-found: error
