@@ -32,7 +32,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: jarvis-historical-research-archive
+  # Stock and crypto can be queued independently without replacing each other.
+  # Duplicate launches of the SAME asset still respect one-at-a-time execution.
+  group: jarvis-historical-research-archive-${{ inputs.asset }}
   cancel-in-progress: false
 
 jobs:
