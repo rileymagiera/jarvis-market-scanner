@@ -42,7 +42,7 @@ def test_crypto_scan_filters_defaults_and_discovery_before_applying_limits(monke
     ))
     monkeypatch.setattr(main, "scan_crypto", lambda symbol: {"symbol": symbol, "score": 0})
 
-    assert main.coinbase_tradable_crypto_bases() == {"BTC", "ETH", "SOL"}
+    assert main.coinbase_spot_quote_currencies() == {"BTC": {"USD"}, "ETH": {"USDC"}, "SOL": {"USD"}}
     assert main.discover_crypto_symbols({"BTC", "ETH", "SOL"}, limit=1) == ["BTCUSDT"]
     catalog_requests.clear()
     result = main.scan_cryptocurrencies(limit=3)
