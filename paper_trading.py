@@ -4,6 +4,7 @@ import math
 from datetime import datetime, timezone
 from pathlib import Path
 from early_opportunity_radar import build_candidate_snapshot
+from paper_edge_research import paper_edge_profile, PAPER_EDGE_MODEL_VERSION
 
 STATE_PATH = Path("paper_trading_state.json")
 STARTING_CASH = 250.0
@@ -326,6 +327,22 @@ def update_account(candidates, buy_signals, now, enable_early_entry_experimental
         (str(x.get("asset_type") or ""), str(x.get("symbol") or "").upper()): x
         for x in candidates if isinstance(x, dict)
     }
+    # Per-scan paper-only diagnostics, using verified BUY-quality candidates only.
+    eligible_for_profile = [
+        x for x in candidates if isinstance(x, dict)
+        and x.get("price_validation_passed") is True
+        and isinstance(x.get("data_quality"), dict)
+        and x["data_quality"].get("buy_eligible") is True
+    ]
+    profiled = [paper_edge_profile(x) for x in eligible_for_profile]
+    account["paper_edge_diagnostics"] = {
+        "version": PAPER_EDGE_MODEL_VERSION,
+        "screened_verified_candidates": len(profiled),
+        "trend_volatility_confluence_candidates": sum(
+            int(p["qualified_trend_volatility"]) for p in profiled
+        ),
+        "note": "Paper-only evidence profile, not a measured win probability; no official BUY gates changed",
+    }
     # Manage existing positions first, using only current independently verified prices.
     remaining = []
     for position in account["positions"]:
@@ -460,13 +477,21 @@ def update_account(candidates, buy_signals, now, enable_early_entry_experimental
             "signal": signal, "signal_id": signal_id, "key": key, "item": item,
             "price": price, "stop": stop, "target1": target1, "target2": target2,
             "score": score, "reward_risk": reward_risk,
+            "edge_profile": paper_edge_profile(item),
             "strategy": signal.get("strategy") or "official_buy",
             "market_regime": signal.get("market_regime") or item.get("market_regime") or "UNKNOWN",
         })
 
     # Rank only already-active official BUY signals. The existing BUY gates remain upstream.
     # Existing official score is primary; target-2 reward/risk breaks ties; ID makes ties stable.
-    eligible.sort(key=lambda row: (row["strategy"] == "early_entry_experimental", -row["score"], -row["reward_risk"], row["signal_id"]))
+    # Preserve all official and Risk-Off ranking. Among early-entry experiments only,
+    # consider independently confirmed momentum+volatility evidence ahead of score.
+    eligible.sort(key=lambda row: (
+        row["strategy"] == "early_entry_experimental",
+        -int(row["edge_profile"]["qualified_trend_volatility"])
+        if row["strategy"] == "early_entry_experimental" else 0,
+        -row["score"], -row["reward_risk"], row["signal_id"],
+    ))
     for rank, row in enumerate(eligible, start=1):
         signal, signal_id = row["signal"], row["signal_id"]
         key, item = row["key"], row["item"]
@@ -475,6 +500,7 @@ def update_account(candidates, buy_signals, now, enable_early_entry_experimental
         review = {
             "rank": rank, "signal_id": signal_id, "symbol": key[1],
             "asset_type": key[0], "strategy": row["strategy"], "experimental": bool(signal.get("experimental")), "official_score": row["score"],
+            "edge_cohort": row["edge_profile"]["cohort"], "edge_qualified": row["edge_profile"]["qualified_trend_volatility"],
             "target_2_reward_risk": round(row["reward_risk"], 4),
             "effective_risk_budget_pct": round(RISK_FRACTION * max(0.0, min(1.0, row["score"] / 100.0)) * 100, 3),
         }
@@ -515,6 +541,7 @@ def update_account(candidates, buy_signals, now, enable_early_entry_experimental
             "experiment_version": signal.get("experiment_version"),
             "entry_rationale": signal.get("entry_rationale") or [],
             "entry_research_snapshot": signal.get("research_snapshot") or {},
+            "paper_edge_profile": row["edge_profile"],
             "market_regime_at_entry": row["market_regime"],
             "opened_at": now.isoformat(), "entry_price": price, "latest_price": price,
             "latest_price_as_of": item.get("price_as_of"), "quantity": quantity,
@@ -544,6 +571,7 @@ def update_account(candidates, buy_signals, now, enable_early_entry_experimental
         _event(account, "BUY", event_message, symbol=key[1], asset_type=key[0],
                strategy=row["strategy"], experimental=bool(signal.get("experimental")),
                research_classification=signal.get("research_classification"),
+               edge_cohort=row["edge_profile"]["cohort"], edge_qualified=row["edge_profile"]["qualified_trend_volatility"],
                market_regime=row["market_regime"], price=price, quantity=quantity,
                notional=round(notional, 8), fee=round(fee, 8),
                allocation_rank=rank, official_score=row["score"], target_2_reward_risk=round(row["reward_risk"], 4),
@@ -642,7 +670,46 @@ def account_summary(account, now=None):
                     if t.get("strategy") == "early_entry_experimental"]
     early_realized = sum(_num(t.get("realized_pnl")) for t in early_closed)
     early_realized += sum(_num(p.get("realized_pnl")) for p in early_open)
+    # Cohort stats only use positions recorded with this versioned profile. Older
+    # trades remain in the account totals but cannot be relabeled retrospectively.
+    edge_groups = {}
+    for trade, closed in [(p, False) for p in positions] + [
+        (t, True) for t in (account.get("closed_trades") or [])
+    ]:
+        profile = trade.get("paper_edge_profile")
+        if not isinstance(profile, dict) or profile.get("version") != PAPER_EDGE_MODEL_VERSION:
+            continue
+        cohort = profile.get("cohort") or "unconfirmed_or_incomplete"
+        row = edge_groups.setdefault(cohort, {
+            "cohort": cohort, "open_positions": 0, "closed_trades": 0,
+            "wins": 0, "losses": 0, "realized_pnl": 0.0,
+            "gross_profit": 0.0, "gross_loss": 0.0,
+        })
+        if closed:
+            pnl = _num(trade.get("realized_pnl"))
+            row["closed_trades"] += 1
+            row["wins"] += int(pnl > 0)
+            row["losses"] += int(pnl < 0)
+            row["realized_pnl"] += pnl
+            row["gross_profit"] += max(0.0, pnl)
+            row["gross_loss"] += max(0.0, -pnl)
+        else:
+            row["open_positions"] += 1
+    edge_performance = []
+    for row in edge_groups.values():
+        n = row["closed_trades"]
+        row["win_rate_pct"] = round(row["wins"] / n * 100, 2) if n else None
+        row["expectancy_per_closed_trade"] = round(row["realized_pnl"] / n, 4) if n else None
+        row["profit_factor"] = (
+            round(row["gross_profit"] / row["gross_loss"], 3) if row["gross_loss"] > 0
+            else None
+        )
+        row["realized_pnl"] = round(row["realized_pnl"], 4)
+        edge_performance.append(row)
+    edge_performance.sort(key=lambda row: row["cohort"])
     return {
+        "paper_edge_diagnostics": account.get("paper_edge_diagnostics") or {},
+        "paper_edge_cohort_performance": edge_performance,
         "starting_cash": _num(account.get("starting_cash"), STARTING_CASH),
         "coinbase_one_monthly_volume": round(coinbase_volume, 2),
         "coinbase_one_remaining_allowance": round(max(0.0, COINBASE_ONE_MONTHLY_CAP - coinbase_volume), 2),
