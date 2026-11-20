@@ -1,6 +1,7 @@
 import os
 import json
 import hmac
+import re
 import threading
 import time
 from pathlib import Path
@@ -2945,7 +2946,7 @@ def historical_audit_export():
 
 @app.get("/history", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
 def history_page():
-    html = (TEMPLATE_DIR / "history.html").read_text(encoding="utf-8")
+    html = inject_mobile_navigation((TEMPLATE_DIR / "history.html").read_text(encoding="utf-8"))
     return HTMLResponse(html, headers={"Cache-Control":"no-store, no-cache, must-revalidate, max-age=0","Pragma":"no-cache","Expires":"0"})
 def analytics_tab_page(active: str) -> str:
     tabs = [
@@ -2983,6 +2984,62 @@ def customize_page() -> str:
     return (TEMPLATE_DIR / "settings.html").read_text(encoding="utf-8")
 
 
+
+def inject_mobile_navigation(html: str) -> str:
+    """Compact mobile shortcuts without removing any of the desktop's eight pages."""
+    if 'id="jarvis-mobile-navigation"' in html:
+        return html
+    match = re.search(r"<nav\b[^>]*>[\s\S]*?</nav>", html)
+    if match is None:
+        return html
+    desktop = match.group(0)
+    active = None
+    for anchor in re.findall(r"<a\b[^>]*>[^<]*</a>", desktop):
+        href = re.search(r'href="/([^"]+)"', anchor)
+        if href and ('aria-current="page"' in anchor or re.search(r'class="[^"]*\bactive\b', anchor)):
+            active = href.group(1)
+            break
+    primary = [("history", "Market Overview"), ("intelligence", "Intelligence"),
+               ("paper-trading", "Paper Trading")]
+    secondary = [("data-health", "Data Health"),
+                 ("discovery-performance", "Discovery Performance"),
+                 ("market-breadth", "Market Breadth"),
+                 ("momentum-evidence", "Momentum Evidence"), ("settings", "Settings")]
+
+    def link(slug: str, label: str) -> str:
+        current = ' aria-current="page"' if active == slug else ""
+        return f'<a href="/{slug}"{current}>{label}</a>'
+
+    extra_label = next((label for slug, label in secondary if slug == active), None)
+    more_label = "More" if not extra_label else "More · " + extra_label
+    mobile = (
+        '<nav id="jarvis-mobile-navigation" class="jarvis-mobile-nav" aria-label="Primary mobile navigation">'
+        + "".join(link(slug, label) for slug, label in primary)
+        + '<details class="jarvis-mobile-more"><summary>'
+        + more_label + '</summary><div class="jarvis-mobile-more-links">'
+        + "".join(link(slug, label) for slug, label in secondary)
+        + '</div></details></nav>'
+    )
+    style = """<style id="jarvis-mobile-navigation-style">
+.jarvis-mobile-nav{display:none}
+@media(max-width:700px){
+  nav.top-tabs,nav.tabs{display:none!important}
+  .jarvis-mobile-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:13px 0 19px;position:relative;z-index:25}
+  .jarvis-mobile-nav>a,.jarvis-mobile-more>summary{display:flex;align-items:center;justify-content:center;min-height:48px;padding:7px 5px;border:1px solid #3b5268;border-radius:11px;background:#162839;color:#dce9f5;text-decoration:none;text-align:center;font:700 11px/1.3 system-ui,sans-serif;overflow-wrap:anywhere;cursor:pointer}
+  .jarvis-mobile-nav a[aria-current="page"],.jarvis-mobile-more[open]>summary{border-color:#73c9bd;background:#214342;color:#ecfffa}
+  .jarvis-mobile-nav a:focus-visible,.jarvis-mobile-more summary:focus-visible{outline:2px solid #92dbfa;outline-offset:2px}
+  .jarvis-mobile-more{position:relative;min-width:0}
+  .jarvis-mobile-more>summary{list-style:none;height:100%}
+  .jarvis-mobile-more>summary::-webkit-details-marker{display:none}
+  .jarvis-mobile-more-links{position:absolute;right:0;top:calc(100% + 6px);width:min(270px,calc(100vw - 28px));padding:7px;background:#0d1d2c;border:1px solid #486378;border-radius:12px;box-shadow:0 12px 26px #0009;display:grid;gap:4px;z-index:50}
+  .jarvis-mobile-more-links a{display:block;padding:12px 11px;min-height:43px;border-radius:8px;color:#e4f0fa;text-decoration:none;font:600 13px/1.4 system-ui,sans-serif}
+  .jarvis-mobile-more-links a:hover,.jarvis-mobile-more-links a[aria-current="page"]{background:#254a4b}
+}
+</style>"""
+    updated = html[:match.end()] + mobile + html[match.end():]
+    return updated.replace("</head>", style + "</head>", 1)
+
+
 def apply_workspace_preferences(response: HTMLResponse) -> HTMLResponse:
     """Apply browser-saved appearance preferences consistently across Jarvis pages."""
     if not isinstance(response, HTMLResponse):
@@ -3001,7 +3058,7 @@ document.body.classList.toggle('jarvis-compact',p.density==='compact');
 })();
 </script>"""
     try:
-        html = response.body.decode("utf-8")
+        html = inject_mobile_navigation(response.body.decode("utf-8"))
         if "</body>" in html and "jarvis-workspace-preferences" not in html:
             response.body = html.replace("</body>", injection + "</body>", 1).encode("utf-8")
             response.headers["content-length"] = str(len(response.body))
@@ -3012,7 +3069,7 @@ document.body.classList.toggle('jarvis-compact',p.density==='compact');
 @app.get("/settings", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
 @app.get("/customize", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
 def customize():
-    return HTMLResponse(customize_page(), headers={"Cache-Control":"no-store"})
+    return HTMLResponse(inject_mobile_navigation(customize_page()), headers={"Cache-Control":"no-store"})
     
 @app.get("/discovery-performance", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
 def discovery_performance_page():
