@@ -62,7 +62,7 @@ def test_frozen_first_signal_only_hourly_next_quote_and_forward_returns():
 
 def test_unknown_stale_and_duplicate_quote_cannot_create_synthetic_evidence():
     unknown = {"asset_type": "crypto", "symbol": "UNK", "signal_history": [
-        snap(0, 10), snap(60, 10, {"higher_lows": True}), snap(120, 20),
+        snap(0, 10), snap(60, 10, {"higher_lows": True}), snap(120, 20), snap(180, 22),
     ]}
     stale = {"asset_type": "crypto", "symbol": "STALE", "signal_history": [
         snap(0, 10, {"higher_lows": True}, status="stale"),
