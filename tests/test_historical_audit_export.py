@@ -61,6 +61,9 @@ class HistoricalAuditExportTests(unittest.TestCase):
         self.assertEqual(audit["mode"], "read_only_research")
         self.assertEqual(audit["eligible_snapshots"], 2)
         self.assertEqual(audit["candidates_with_followup"], 1)
+        self.assertIn("entry_timing_lab", output)
+        self.assertEqual(output["entry_timing_lab"]["mode"], "read_only_shadow_analysis")
+        self.assertEqual(output["entry_timing_lab"]["events_without_next_fresh_scan"], 1)
         self.assertNotIn("signal_history", str(output))
         self.assertEqual(len(record["signal_history"]), 2)
 
