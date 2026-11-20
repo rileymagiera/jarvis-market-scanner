@@ -311,3 +311,129 @@ def test_coinbase_full_fallback_rejects_stale_quote(monkeypatch):
         assert "stale or future-dated" in str(exc)
     else:
         raise AssertionError("Stale Coinbase fallback quote must be rejected")
+
+
+def test_kraken_different_pairs_can_make_concurrent_trade_requests(monkeypatch):
+    """Independent markets do not need to wait on a single global REST lock."""
+    import threading
+    from concurrent.futures import ThreadPoolExecutor
+
+    both_in_flight = threading.Barrier(2, timeout=3)
+    calls = []
+
+    def fake_get(url, **kwargs):
+        calls.append((url, kwargs["params"]["pair"]))
+        both_in_flight.wait()
+        return object()
+
+    monkeypatch.setattr(main, "KRAKEN_PAIR_SCOPED_PACING", True)
+    monkeypatch.setattr(main, "KRAKEN_PAIR_LAST_REQUEST_AT", {})
+    monkeypatch.setattr(main, "KRAKEN_PAIR_REQUEST_LOCKS", {})
+    monkeypatch.setattr(main.HTTP, "get", fake_get)
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        results = list(pool.map(
+            lambda pair: main.kraken_get(f"{main.KRAKEN}/Trades", params={"pair": pair}),
+            ("XBTUSD", "ETHUSD"),
+        ))
+
+    assert len(results) == 2
+    assert {pair for _, pair in calls} == {"XBTUSD", "ETHUSD"}
+
+
+def test_kraken_same_pair_trades_and_ohlc_keep_shared_spacing(monkeypatch):
+    """Even different endpoints must pace repeated requests for one pair."""
+    import time
+    from concurrent.futures import ThreadPoolExecutor
+
+    started = []
+    ended = []
+
+    def fake_get(url, **kwargs):
+        started.append(time.monotonic())
+        time.sleep(0.01)
+        ended.append(time.monotonic())
+        return object()
+
+    monkeypatch.setattr(main, "KRAKEN_PAIR_SCOPED_PACING", True)
+    monkeypatch.setattr(main, "KRAKEN_PAIR_LAST_REQUEST_AT", {})
+    monkeypatch.setattr(main, "KRAKEN_PAIR_REQUEST_LOCKS", {})
+    monkeypatch.setattr(main, "KRAKEN_MIN_REQUEST_INTERVAL_SECONDS", 0.025)
+    monkeypatch.setattr(main.HTTP, "get", fake_get)
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        futures = [
+            pool.submit(main.kraken_get, f"{main.KRAKEN}/{endpoint}", params={"pair": "XBTUSD"})
+            for endpoint in ("Trades", "OHLC")
+        ]
+        for future in futures:
+            assert future.result() is not None
+
+    assert len(started) == len(ended) == 2
+    assert started[1] >= ended[0]
+    assert started[1] - ended[0] >= 0.020
+
+
+def test_kraken_unscoped_public_endpoints_remain_serial(monkeypatch):
+    """IP-wide endpoints must retain conservative serialization."""
+    import threading
+    import time
+    from concurrent.futures import ThreadPoolExecutor
+
+    state = {"active": 0, "peak": 0}
+    guard = threading.Lock()
+
+    def fake_get(url, **kwargs):
+        with guard:
+            state["active"] += 1
+            state["peak"] = max(state["active"], state["peak"])
+        time.sleep(0.02)
+        with guard:
+            state["active"] -= 1
+        return object()
+
+    monkeypatch.setattr(main, "KRAKEN_PAIR_SCOPED_PACING", True)
+    monkeypatch.setattr(main, "KRAKEN_LAST_REQUEST_AT", 0.0)
+    monkeypatch.setattr(main, "KRAKEN_MIN_REQUEST_INTERVAL_SECONDS", 0.001)
+    monkeypatch.setattr(main.HTTP, "get", fake_get)
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        for result in pool.map(
+            lambda name: main.kraken_get(f"{main.KRAKEN}/{name}"),
+            ("Ticker", "AssetPairs"),
+        ):
+            assert result is not None
+
+    assert state["peak"] == 1
+
+
+def test_kraken_pair_scoped_pacing_can_be_disabled(monkeypatch):
+    """An emergency environment toggle restores fully serialized REST calls."""
+    import threading
+    import time
+    from concurrent.futures import ThreadPoolExecutor
+
+    state = {"active": 0, "peak": 0}
+    guard = threading.Lock()
+
+    def fake_get(url, **kwargs):
+        with guard:
+            state["active"] += 1
+            state["peak"] = max(state["active"], state["peak"])
+        time.sleep(0.01)
+        with guard:
+            state["active"] -= 1
+        return object()
+
+    monkeypatch.setattr(main, "KRAKEN_PAIR_SCOPED_PACING", False)
+    monkeypatch.setattr(main, "KRAKEN_LAST_REQUEST_AT", 0.0)
+    monkeypatch.setattr(main, "KRAKEN_MIN_REQUEST_INTERVAL_SECONDS", 0.001)
+    monkeypatch.setattr(main.HTTP, "get", fake_get)
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        list(pool.map(
+            lambda pair: main.kraken_get(f"{main.KRAKEN}/Trades", params={"pair": pair}),
+            ("XBTUSD", "ETHUSD"),
+        ))
+
+    assert state["peak"] == 1
