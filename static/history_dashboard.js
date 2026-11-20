@@ -2,6 +2,7 @@
 
 window.addEventListener('error',function(ev){const el=document.getElementById('updated');if(el)el.textContent='Overview JavaScript error: '+(ev.message||'script error');});
 window.addEventListener('unhandledrejection',function(ev){const el=document.getElementById('updated');if(el)el.textContent='Overview promise error: '+(ev.reason&&ev.reason.message||ev.reason||'unknown');});
+function setSnapshotIndicator(state){const el=document.getElementById('updated');if(el)el.dataset.snapshotState=state;}
 const bootStatus=document.getElementById('updated');if(bootStatus)bootStatus.textContent='Dashboard script started · loading saved history…';
 (async function loadHistoryDashboard(){
  const status=document.getElementById('updated');
@@ -18,14 +19,18 @@ const bootStatus=document.getElementById('updated');if(bootStatus)bootStatus.tex
   await new Promise(resolve=>requestAnimationFrame(()=>resolve()));
   try{
    render(data);
+   const snapshotMs=Date.parse(data.last_scan_completed_at||'');
+   setSnapshotIndicator(Number.isFinite(snapshotMs)&&snapshotMs<=Date.now()&&Date.now()-snapshotMs<=45*60*1000?'fresh':'old');
    const snapshotTime=data.last_scan_completed_at?new Intl.DateTimeFormat('en-US',{timeZone:'America/Detroit',year:'numeric',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit',timeZoneName:'short'}).format(new Date(data.last_scan_completed_at)):'timestamp unavailable';
    if(status)status.textContent='Dashboard loaded · '+recordCount+' tracked records · Data snapshot: '+snapshotTime;
   }catch(err){
    console.error('Jarvis history render error:',err);
+   setSnapshotIndicator('error');
    if(status)status.textContent='Dashboard rendering failed: '+(err&&err.message||err);
   }
  }catch(err){
   console.error('Jarvis history data load error:',err);
+  setSnapshotIndicator('error');
   if(status)status.textContent=(err&&err.name==='AbortError')?'History data timed out · reload to retry':'History data load failed: '+(err&&err.message||err);
   const pick=document.getElementById('action-top-pick');
   if(pick)pick.innerHTML='<div><div class="action-pick-title">TOP RADAR CANDIDATE</div><div class="action-pick-symbol">Dashboard data unavailable</div><div class="action-pick-reason">The saved scan could not be loaded. Reload to retry; no trade signal is implied.</div></div><span class="action-pick-status">DATA UNAVAILABLE</span>';
@@ -54,6 +59,26 @@ const stockVerified=surfaced.filter(x=>x.asset_type==='stock'&&x.price_validatio
 const stockUnverified=diagnosticUnverified.filter(x=>x.asset_type==='stock').length;
 const cryptoVerified=surfaced.filter(x=>x.asset_type==='crypto'&&x.price_validation_status==='verified').length;
 const cryptoUnverified=diagnosticUnverified.filter(x=>x.asset_type==='crypto').length;
+const regimeSet=new Set(surfaced.map(x=>String(x.market_regime||'').toUpperCase()).filter(v=>['RISK-OFF','RISK-ON','NEUTRAL'].includes(v)));
+const regime=regimeSet.size===1?[...regimeSet][0]:'NOT RECORDED';
+const regimeBox=document.getElementById('scan-regime-status');
+if(regimeBox)regimeBox.dataset.regime=regime==='RISK-OFF'?'off':regime==='RISK-ON'?'on':'unknown';
+const regimeNode=document.getElementById('scan-regime');
+if(regimeNode)regimeNode.textContent=regime;
+const regimeNote=document.getElementById('scan-regime-note');
+if(regimeNote)regimeNote.textContent=regime==='RISK-OFF'?'Official BUY and early-entry paper signals blocked':regime==='RISK-ON'?'Market conditions supportive; other BUY checks still apply':'No reliable common regime saved for surfaced candidates';
+const officialNode=document.getElementById('scan-official-buys');
+if(officialNode)officialNode.textContent=String(activeBuys.length);
+const verifiedNode=document.getElementById('scan-verified-prices');
+if(verifiedNode)verifiedNode.textContent=(stockVerified+cryptoVerified)+' / '+surfaced.length;
+const priceNote=document.getElementById('scan-price-note');
+if(priceNote)priceNote.textContent=stockVerified+' stocks · '+cryptoVerified+' crypto · verified ≠ BUY-eligible';
+const lastScanTime=Date.parse(d.last_scan_completed_at||'');
+const scanAgeMinutes=Number.isFinite(lastScanTime)&&lastScanTime<=Date.now()?Math.floor((Date.now()-lastScanTime)/60000):null;
+const ageNode=document.getElementById('scan-age');
+if(ageNode)ageNode.textContent=scanAgeMinutes===null?'UNKNOWN':scanAgeMinutes<60?scanAgeMinutes+' min':Math.floor(scanAgeMinutes/60)+'h '+(scanAgeMinutes%60)+'m';
+const ageNote=document.getElementById('scan-age-note');
+if(ageNote)ageNote.textContent=scanAgeMinutes===null?'Scan timestamp unavailable':(scanAgeMinutes>45?'Older saved snapshot · ':'Saved scan · ')+fmtTime;
 const radarStatsNode=document.getElementById('radar-stats');if(radarStatsNode)radarStatsNode.innerHTML=[[''+activeBuys.length,'ACTIVE BUY SIGNALS'],[''+surfaced.length,'ON RADAR'],[''+earlyCount,'EARLY / WATCH-ONLY'],[''+actionableCount,'ACTIONABLE SETUPS'],[''+stockVerified,'STOCKS PRICE VERIFIED'],[''+stockUnverified,'STOCKS UNVERIFIED · WATCH ONLY'],[''+cryptoVerified,'CRYPTO PRICE VERIFIED'],[''+cryptoUnverified,'CRYPTO UNVERIFIED · WATCH ONLY']].map(x=>'<div class="radar-stat"><strong>'+e(x[0])+'</strong><span>'+x[1]+'</span></div>').join('');
 
 
@@ -110,13 +135,15 @@ document.getElementById('opportunities').innerHTML=candidates.length?candidates.
  const evidenceHtml=evidenceItems.map(([label,score,max])=>'<div class="op-evidence-item"><div><span>'+label+'</span><b>'+score+'/'+max+'</b></div><i><em style="width:'+Math.max(0,Math.min(100,score/max*100))+'%"></em></i></div>').join('');
  const frontQuality=stock?confidence===null?'<div class="op-front-quality unavailable"><div><span>SETUP QUALITY</span><strong>Insufficient data</strong></div><small>Technical evidence not available for calculation</small></div>':'<div class="op-front-quality"><div class="op-front-quality-top"><div><span>SETUP QUALITY · '+(eodProvisional?'EOD-BASED · PROVISIONAL':evidenceProvisional?'PROVISIONAL · PRICE PENDING':'EVIDENCE SCORE')+'</span><strong>'+confidence+'<small>/100</small></strong></div><span class="op-quality-label">'+e(confidenceLabel.toUpperCase())+'</span></div><div class="op-quality-track"><i style="width:'+confidence+'%"></i></div><div class="op-evidence-grid">'+evidenceHtml+'</div>'+(eodProvisional?'<small>EOD research score only · BUY and trade-plan gates still require live verification</small>':evidenceProvisional?'<small>Provisional research score from saved technical evidence · BUY and trade-plan gates still require independent live price verification</small>':'')+'</div>' :'';
  const frontPlan=plan?'<div class="op-front-plan"><div><span>ENTRY ZONE</span><b>'+e(entry)+'</b></div><div><span>STOP / INVALIDATION</span><b>'+e(fmtLevel(lv.stop_loss||lv.invalidation_level))+'</b></div></div>':(verified?'':'<div class="op-front-plan-note">Price unverified · trade levels withheld</div>');
+ const candidatePriceStatus=x.price_validation_status==='verified'?'VERIFIED PRICE':x.price_validation_status==='last_known'?'LAST KNOWN · NOT LIVE':'UNVERIFIED · WATCH ONLY';
+ const candidateStatusClass=x.price_validation_status==='verified'?'verified':x.price_validation_status==='last_known'?'last-known':'unverified';
  const frontExplanation=stock?'<div class="op-front-explanation"><div>'+e(confidenceWhy)+'</div><div>Method: '+e(lv.method||'ATR-based stop and 2R / 3R reward-to-risk targets where saved.')+'</div></div>' :'';
 
  return '<article data-asset-type="'+e(x.asset_type||'')+'" data-symbol="'+e(x.symbol||'')+'" data-stage="'+e(stage)+'" class="op-card op-flippable '+(i===0?'featured':'')+'" tabindex="0" role="button" aria-pressed="false" aria-label="Flip '+e(x.symbol||'candidate')+' opportunity card for targets and confidence"><div class="op-flip-inner"><div class="op-face op-face-front"><div class="op-card-top"><div><div class="op-kind">'+(i===0?'TOP RADAR CANDIDATE · ':'')+e((x.asset_type||'').toUpperCase())+'</div><div class="op-symbol">'+e(x.symbol||'—')+'</div></div><span class="op-stage '+kind+'">'+e(stage)+'</span></div><div class="op-metrics"><div class="op-metric"><strong>'+e(price)+'</strong><span>LATEST PRICE</span></div><div class="op-metric"><strong class="'+cl(x.daily_change_pct)+'">'+e(day)+'</strong><span>24H MOVE</span></div><div class="op-metric"><strong class="'+cl(x.discovery_return_pct)+'">'+e(ret)+'</strong><span>RETURN SINCE DISCOVERY</span></div></div><div class="op-discovery-time" style="font-size:11px;line-height:1.5;color:var(--muted);margin-top:-7px;margin-bottom:10px">FIRST CAPTURED: <b>'+e(discoveryTime)+'</b>'+(discoveryAsOf?' · PRICE AS OF: <b>'+e(discoveryAsOf)+'</b>':'')+'</div>'+(stock?(confidence===null?'<div class="op-quick-quality"><span>SETUP QUALITY</span><strong>Pending verification</strong></div>':'<div class="op-quick-quality"><span>SETUP QUALITY</span><strong>'+confidence+'/100</strong><em>'+e(confidenceLabel.toUpperCase())+'</em></div>'):'<div class="op-quick-quality"><span>CRYPTO RUNNER QUALITY</span><strong>'+e(x.crqs==null?'—':x.crqs)+'/74</strong><em>'+e(x.crqs_tier||'Score unavailable')+'</em></div>')+frontPlan+'<div class="op-reason"><b>WHY IT\'S ON RADAR</b><br>'+e(reason)+'</div><details class="op-details"><summary>Full analysis · price history · scoring · risks</summary><div class="op-details-body">'+priceTiming(x)+frontQuality+(stock?'':'<div class="op-front-quality"><div><span>CRYPTO RUNNER QUALITY · CRQS</span><strong>'+e(x.crqs==null?'—':x.crqs)+'<small>/74</small></strong></div><span class="op-quality-label">'+e(x.crqs_tier||'Score unavailable')+'</span><small>Entry timing score: '+e(x.crqs_entry_score==null?'—':x.crqs_entry_score)+'/74 · Separate from BUY signal</small><small>74-point calibrated ceiling; relative strength, order-book depth/spread and token-unlock risk are not scored yet.</small></div>')+frontExplanation+(risks?'<div class="op-risk">RISK FLAGS: '+e(risks)+'</div>':'')+'</div></details><div class="op-flip-hint">TAP CARD FOR TARGETS + STOP LOGIC ↻</div></div><div class="op-face op-face-back"><div class="op-back-title">'+e((x.symbol||'CANDIDATE')+' · POTENTIAL TRADE PLAN')+'</div>'+calcLine+'<div class="op-flip-hint">TAP TO RETURN TO OPPORTUNITY ↻</div></div></div></article>';
 }).join(''):'<div class="op-empty">Nothing has qualified for the radar yet. Jarvis will keep monitoring and show candidates after a successful scan.</div>';
 
 const commandMetrics=document.getElementById('command-metrics');
-if(commandMetrics){const verifiedCount=surfaced.filter(x=>x.price_validation_status==='verified').length;const combinedActionable=activeBuys.length+actionableCount;commandMetrics.innerHTML=[[''+all.length,'TRACKED ASSETS'],[''+surfaced.length,'ON RADAR NOW'],[''+earlyCount,'EARLY / BUILDING'],[''+combinedActionable,'BUY + ACTIONABLE']].map(([v,label])=>'<div class="command-metric"><strong>'+e(v)+'</strong><span>'+label+'</span></div>').join('');}
+if(commandMetrics){const verifiedCount=surfaced.filter(x=>x.price_validation_status==='verified').length;const combinedActionable=activeBuys.length+actionableCount;commandMetrics.innerHTML=[[''+all.length,'TRACKED ASSETS'],[''+surfaced.length,'ON RADAR NOW'],[''+earlyCount,'EARLY / BUILDING'],[''+combinedActionable,'ACTIONABLE SETUPS']].map(([v,label])=>'<div class="command-metric"><strong>'+e(v)+'</strong><span>'+label+'</span></div>').join('');}
 const commandScan=document.getElementById('command-scan-status');if(commandScan)commandScan.textContent='Last completed scan · '+fmtTime;
 const commandData=document.getElementById('command-data-status');if(commandData){const verifiedCount=surfaced.filter(x=>x.price_validation_status==='verified').length;commandData.textContent='Verified prices '+verifiedCount+' / '+surfaced.length+' · unverified assets remain visible for research only';}
 const runnerLaneDefs=[
