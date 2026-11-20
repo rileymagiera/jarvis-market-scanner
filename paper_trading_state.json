@@ -1,6 +1,26 @@
 {
-  "allocation_review": [],
-  "cash": 245.2690803,
+  "allocation_review": [
+    {
+      "asset_type": "crypto",
+      "edge_cohort": "relative_strength_confluence",
+      "edge_qualified": false,
+      "effective_risk_budget_pct": 0.88,
+      "experimental": true,
+      "net_ladder_reward_risk": 2.9253,
+      "net_planned_gain_per_100": 32.0326,
+      "net_stop_loss_per_100": 10.95,
+      "official_score": 88.0,
+      "paper_notional": 19.71,
+      "rank": 1,
+      "reason": "Allocated by rank; score-scaled risk stays within existing limits",
+      "signal_id": "risk_off:crypto:EVAAUSDT:2026-11-20",
+      "status": "allocated",
+      "strategy": "risk_off_experimental",
+      "symbol": "EVAAUSDT",
+      "target_2_reward_risk": 3.0
+    }
+  ],
+  "cash": 225.45940225,
   "closed_trades": [
     {
       "allocation_rank": 1,
@@ -102,18 +122,18 @@
     }
   ],
   "coinbase_one_monthly_volume": {
-    "2026-11": 202.94434153
+    "2026-11": 222.65546397
   },
   "created_at": "2026-11-19T04:34:15.459868+00:00",
   "early_entry_signal_diagnostics": {
-    "candidates_total": 248,
+    "candidates_total": 254,
     "eligible_signals": 0,
     "enabled": true,
     "rejections": {
-      "risk_off_or_unknown_regime": 248
+      "risk_off_or_unknown_regime": 254
     }
   },
-  "last_updated_at": "2026-11-20T15:01:32.123953+00:00",
+  "last_updated_at": "2026-11-20T16:01:18.707303+00:00",
   "ledger": [
     {
       "allocation_rank": 1,
@@ -240,40 +260,274 @@
       "signal_id": "risk_off:crypto:GRASSUSDT:2026-11-19",
       "symbol": "GRASSUSDT",
       "type": "SELL"
+    },
+    {
+      "allocation_rank": 1,
+      "asset_type": "crypto",
+      "at": "2026-11-20T16:01:18.707303+00:00",
+      "coinbase_one_volume": {
+        "eligible_volume": 19.71112244,
+        "month": "2026-11",
+        "monthly_volume_after": 222.65546397,
+        "remaining_allowance": 277.34453603,
+        "standard_commission_status": "within_included_volume",
+        "trade_volume": 19.71112244,
+        "volume_before": 202.94434153,
+        "volume_over_cap": 0.0
+      },
+      "edge_cohort": "relative_strength_confluence",
+      "edge_qualified": false,
+      "effective_risk_budget_pct": 0.88,
+      "experimental": true,
+      "fee": 0.09855561,
+      "market_regime": "RISK-OFF",
+      "message": "Risk-Off experimental paper BUY: EVAAUSDT",
+      "net_ladder_reward_risk": 2.9253,
+      "notional": 19.71112244,
+      "official_score": 88.0,
+      "price": 6.0012,
+      "quantity": 3.2845301665,
+      "research_classification": null,
+      "signal_id": "risk_off:crypto:EVAAUSDT:2026-11-20",
+      "strategy": "risk_off_experimental",
+      "symbol": "EVAAUSDT",
+      "target_2_reward_risk": 3.0,
+      "type": "BUY"
     }
   ],
   "mode": "PAPER_ONLY",
   "paper_edge_diagnostics": {
     "note": "Paper-only evidence profile, not a measured win probability; no official BUY gates changed",
-    "screened_verified_candidates": 89,
+    "screened_verified_candidates": 95,
     "trend_volatility_confluence_candidates": 0,
     "version": "github-confluence-v1"
   },
-  "positions": [],
-  "processed_signal_ids": [
-    "risk_off:crypto:GRASSUSDT:2026-11-19",
-    "risk_off:crypto:MEGAUSDT:2026-11-19"
+  "positions": [
+    {
+      "allocation_rank": 1,
+      "allocation_reward_risk": 3.0,
+      "asset_type": "crypto",
+      "entry_fee": 0.09855561,
+      "entry_fee_breakdown": {
+        "broker": "Coinbase app + Coinbase One Basic",
+        "commission": 0.0,
+        "estimated_spread_cost": 0.09855561,
+        "monthly_zero_fee_cap": 500.0,
+        "note": "Estimated spread only; actual spread varies by asset, size and market conditions. Monthly gross volume is tracked at account level; standard commission after the $500 cap is not configured",
+        "order_type": "simple_app",
+        "rate": 0.005,
+        "spread_estimate_rate": 0.005,
+        "total": 0.09855561
+      },
+      "entry_fee_remaining": 0.09855561,
+      "entry_price": 6.0012,
+      "entry_price_as_of": "2026-11-20T15:59:56.312129+00:00",
+      "entry_rationale": [],
+      "entry_research_snapshot": {},
+      "estimated_exit_fee": 0.09855561,
+      "experiment_version": null,
+      "experimental": true,
+      "fees_paid": 0.09855561,
+      "initial_quantity": 3.2845301665,
+      "latest_price": 6.0012,
+      "latest_price_as_of": "2026-11-20T15:59:56.312129+00:00",
+      "market_regime_at_entry": "RISK-OFF",
+      "notional": 19.71112244,
+      "opened_at": "2026-11-20T16:01:18.707303+00:00",
+      "paper_edge_profile": {
+        "available_factors": 5,
+        "cohort": "relative_strength_confluence",
+        "confirmed_factors": 5,
+        "factor_count": 6,
+        "factors": {
+          "accumulation": true,
+          "positive_momentum": true,
+          "relative_strength": true,
+          "soft_volatility_expansion": null,
+          "trend_alignment": true,
+          "volume_participation": true
+        },
+        "qualified_trend_volatility": false,
+        "research_note": "Adapted paper-only classification; no historical win rate implied",
+        "version": "github-confluence-v1"
+      },
+      "paper_payoff_quality": {
+        "gross_ladder_reward_risk": 3.3199,
+        "gross_target_2_reward_risk": 3.937,
+        "modeled_fee_cost_stop_per_100": 0.95,
+        "modeled_fee_cost_win_per_100": 1.166,
+        "net_ladder_reward_risk": 2.9253,
+        "net_planned_gain_per_100": 32.0326,
+        "net_stop_loss_per_100": 10.95,
+        "normalization_notional": 100.0,
+        "note": "Simplified full-target-ladder versus full-stop payoff; sampled scans may produce different outcomes. Not a predicted win rate. Coinbase fees beyond the monthly zero-commission allowance are unconfigured.",
+        "status": "modeled"
+      },
+      "price_source": "Kraken Spot public API",
+      "quality_risk_multiplier": 0.88,
+      "quantity": 3.2845301665,
+      "realized_pnl": 0.0,
+      "research_classification": null,
+      "score": 88.0,
+      "score_model": "hybrid_offline_v2",
+      "signal_id": "risk_off:crypto:EVAAUSDT:2026-11-20",
+      "status": "open",
+      "stop_loss": 5.40108,
+      "strategy": "risk_off_experimental",
+      "symbol": "EVAAUSDT",
+      "target_1": 7.623165,
+      "target_1_filled": false,
+      "target_2": 8.36386
+    }
   ],
-  "risk_off_signal_diagnostics": {
-    "candidates_total": 248,
-    "eligible_signals": 0,
-    "rejections": {
-      "failed_buy_gate:24h_breakout": 99,
-      "failed_buy_gate:above_24h_average": 87,
-      "failed_buy_gate:breakout_confirmed": 109,
-      "failed_buy_gate:five_bar_intraday_trend_up": 11,
-      "failed_buy_gate:fresh_intraday_confirmation": 2,
-      "failed_buy_gate:live_data_quality": 159,
-      "failed_buy_gate:no_risk_flags": 15,
-      "failed_buy_gate:not_chase_risk": 1,
-      "failed_buy_gate:positive_hourly_momentum": 52,
-      "failed_buy_gate:price_verified": 24,
-      "failed_buy_gate:score_82": 248,
-      "failed_buy_gate:two_technical_confirmations": 90,
-      "failed_buy_gate:volume_1_8x": 85,
-      "failed_buy_gate:volume_confirmed": 140
+  "processed_signal_ids": [
+    "risk_off:crypto:EVAAUSDT:2026-11-20",
+    "risk_off:crypto:MEGAUSDT:2026-11-19",
+    "risk_off:crypto:GRASSUSDT:2026-11-19"
+  ],
+  "risk_off_comparison": {
+    "carried_positions": 0,
+    "last_scan_id": "44768915295",
+    "scan_count": 1,
+    "shadow_account": {
+      "allocation_review": [],
+      "cash": 245.2690803,
+      "closed_trades": [],
+      "coinbase_one_monthly_volume": {
+        "2026-11": 202.94434153
+      },
+      "created_at": "2026-11-19T04:34:15.459868+00:00",
+      "early_entry_signal_diagnostics": {
+        "candidates_total": 254,
+        "eligible_signals": 0,
+        "enabled": true,
+        "rejections": {
+          "risk_off_or_unknown_regime": 254
+        }
+      },
+      "last_updated_at": "2026-11-20T16:01:18.707303+00:00",
+      "ledger": [],
+      "paper_edge_diagnostics": {
+        "note": "Paper-only evidence profile, not a measured win probability; no official BUY gates changed",
+        "screened_verified_candidates": 95,
+        "trend_volatility_confluence_candidates": 0,
+        "version": "github-confluence-v1"
+      },
+      "positions": [],
+      "processed_signal_ids": [
+        "risk_off:crypto:MEGAUSDT:2026-11-19",
+        "risk_off:crypto:GRASSUSDT:2026-11-19"
+      ],
+      "risk_off_signal_diagnostics": {
+        "candidates_total": 254,
+        "eligible_signals": 1,
+        "rejections": {
+          "failed_buy_gate:24h_breakout": 104,
+          "failed_buy_gate:above_24h_average": 97,
+          "failed_buy_gate:breakout_confirmed": 137,
+          "failed_buy_gate:five_bar_intraday_trend_up": 102,
+          "failed_buy_gate:fresh_intraday_confirmation": 3,
+          "failed_buy_gate:live_data_quality": 159,
+          "failed_buy_gate:no_risk_flags": 17,
+          "failed_buy_gate:not_chase_risk": 1,
+          "failed_buy_gate:positive_hourly_momentum": 94,
+          "failed_buy_gate:price_verified": 24,
+          "failed_buy_gate:score_82": 253,
+          "failed_buy_gate:two_technical_confirmations": 96,
+          "failed_buy_gate:volume_1_8x": 19,
+          "failed_buy_gate:volume_confirmed": 139
+        },
+        "risk_off_candidates": 254
+      }
     },
-    "risk_off_candidates": 248
+    "started_at": "2026-11-20T16:01:18.707303+00:00",
+    "starting_equity": 245.2690803,
+    "summary": {
+      "basis": "Same starting cash, positions and scans. The comparison skips only new Risk-Off experimental entries.",
+      "carried_positions": 0,
+      "current_paper_strategy": {
+        "by_strategy_asset": [],
+        "by_strategy_regime": [],
+        "closed_trade_metrics": {
+          "average_loss_abs": null,
+          "average_win": null,
+          "breakeven": 0,
+          "closed_pnl_max_drawdown": 0.0,
+          "closed_trades": 0,
+          "expectancy_net_per_trade": null,
+          "longest_closed_losing_streak": 0,
+          "losses": 0,
+          "net_realized_pnl": 0,
+          "profit_factor": null,
+          "sample_status": "insufficient_sample",
+          "win_rate_pct": null,
+          "win_rate_wilson_95_pct": null,
+          "wins": 0
+        },
+        "equity": 245.07196908,
+        "max_sampled_drawdown": 0.19711122480021004,
+        "net_equity_change": -0.19711122,
+        "new_open_positions": 1,
+        "new_trades": 1,
+        "peak_equity": 245.2690803
+      },
+      "drawdown_basis": "Modeled net liquidation equity sampled after each completed scan.",
+      "last_scan_at": "2026-11-20T16:01:18.707303+00:00",
+      "last_scan_id": "44768915295",
+      "scan_count": 1,
+      "skip_new_risk_off": {
+        "by_strategy_asset": [],
+        "by_strategy_regime": [],
+        "closed_trade_metrics": {
+          "average_loss_abs": null,
+          "average_win": null,
+          "breakeven": 0,
+          "closed_pnl_max_drawdown": 0.0,
+          "closed_trades": 0,
+          "expectancy_net_per_trade": null,
+          "longest_closed_losing_streak": 0,
+          "losses": 0,
+          "net_realized_pnl": 0,
+          "profit_factor": null,
+          "sample_status": "insufficient_sample",
+          "win_rate_pct": null,
+          "win_rate_wilson_95_pct": null,
+          "wins": 0
+        },
+        "equity": 245.2690803,
+        "max_sampled_drawdown": 0,
+        "net_equity_change": 0.0,
+        "new_open_positions": 0,
+        "new_trades": 0,
+        "peak_equity": 245.2690803
+      },
+      "started_at": "2026-11-20T16:01:18.707303+00:00",
+      "starting_equity": 245.2690803,
+      "trade_window": "Closed-trade statistics cover retained positions opened since the comparison began. Equity includes carried positions.",
+      "version": "skip-new-risk-off-v1"
+    },
+    "version": "skip-new-risk-off-v1"
+  },
+  "risk_off_signal_diagnostics": {
+    "candidates_total": 254,
+    "eligible_signals": 1,
+    "rejections": {
+      "failed_buy_gate:24h_breakout": 104,
+      "failed_buy_gate:above_24h_average": 97,
+      "failed_buy_gate:breakout_confirmed": 137,
+      "failed_buy_gate:five_bar_intraday_trend_up": 102,
+      "failed_buy_gate:fresh_intraday_confirmation": 3,
+      "failed_buy_gate:live_data_quality": 159,
+      "failed_buy_gate:no_risk_flags": 17,
+      "failed_buy_gate:not_chase_risk": 1,
+      "failed_buy_gate:positive_hourly_momentum": 94,
+      "failed_buy_gate:price_verified": 24,
+      "failed_buy_gate:score_82": 253,
+      "failed_buy_gate:two_technical_confirmations": 96,
+      "failed_buy_gate:volume_1_8x": 19,
+      "failed_buy_gate:volume_confirmed": 139
+    },
+    "risk_off_candidates": 254
   },
   "rules": {
     "allocation_method": "Official BUY and existing Risk-Off signals retain their existing shared-account ranking; explicitly enabled early-entry experiments are ranked after them; all use the existing score-scaled 1% risk budget, 25% position cap, four-position limit, fee model and shared cash",

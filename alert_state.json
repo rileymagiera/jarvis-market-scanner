@@ -1,4 +1,9 @@
 {
+  "crypto:EVAAUSDT": {
+    "alerted_at": "2026-11-20T16:01:18.707303+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 88
+  },
   "crypto:MONUSDT": {
     "alerted_at": "2026-11-20T15:01:32.123953+00:00",
     "alerted_stage": "DEVELOPING SETUP",
@@ -19,7 +24,8 @@
     "22d11dd56f6a96e07ee3ab16",
     "20c20c7a349e6dda4599a7fd",
     "99a14218b7a0cc1fa16fe487",
-    "dc3448bb14764b29c294fa63"
+    "dc3448bb14764b29c294fa63",
+    "838fb0e3f0838c540155201d"
   ],
   "premarket_alert_history": {
     "AARD": {
@@ -202,6 +208,11 @@
       "score": 6,
       "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
+    "MERC": {
+      "alerted_at": "2026-11-20T16:01:18.707303+00:00",
+      "score": 9,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
     "NTSK": {
       "alerted_at": "2026-11-20T01:04:26.466664+00:00",
       "score": 26,
@@ -348,6 +359,11 @@
     "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
     "score": 76
   },
+  "stock:CNF": {
+    "alerted_at": "2026-11-20T16:01:18.707303+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 77
+  },
   "stock:CTKB": {
     "alerted_at": "2026-11-20T12:04:40.180328+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
@@ -369,9 +385,9 @@
     "score": 60
   },
   "stock:PLBL": {
-    "alerted_at": "2026-11-20T01:04:26.466664+00:00",
+    "alerted_at": "2026-11-20T16:01:18.707303+00:00",
     "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
-    "score": 61
+    "score": 76
   },
   "stock:PLMR": {
     "alerted_at": "2026-11-20T15:01:32.123953+00:00",
