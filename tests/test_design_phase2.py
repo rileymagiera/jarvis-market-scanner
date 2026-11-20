@@ -20,7 +20,7 @@ def test_intelligence_preserves_existing_data_tables_in_four_groups():
     assert 'class="intel-section-jump"' in html
     assert html.count('<section class="section"') == 13
     for identifier in [
-        "features", "signalOutcomes", "shadowRadar", "earlyWarningRadar",
+        "features", "outcomes", "shadowRadar", "earlyWarningRadar",
         "missedRunnerTracker", "signalQualityBySetup",
     ]:
         # Keep the existing sections and their JavaScript target IDs unchanged.
