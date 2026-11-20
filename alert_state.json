@@ -382,6 +382,11 @@
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 79
   },
+  "stock:BGS": {
+    "alerted_at": "2026-11-20T21:31:02.334302+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 60
+  },
   "stock:BIP": {
     "alerted_at": "2026-11-20T21:01:24.631939+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
