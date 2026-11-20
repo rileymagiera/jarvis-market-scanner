@@ -153,4 +153,30 @@ candidate. It never labels these research phases as actionable BUYs.
 - If the research proves a robust advantage on untouched forward windows,
   follow the explicit approval process before changing BUY thresholds or
   real-time buy alerts. Preserve every current trade, price-quality gate,
-  risk setting, and 15-minute scan cadence.
+  risk setting, and existing scan cadence.
+
+## First-frozen-signal factor quality (shadow-only extension)
+
+The existing `entry_timing_lab.py` now reports `signal_factor_quality`
+inside the historical audit export; there is no separate scanner, market-data
+subscription, workflow, production score, or paper-trade entry path.
+
+- For each distinct stock or crypto symbol, freeze supported feature values at
+  the **first retained eligible research signal**. Later-scanned indicator values
+  never determine that earlier signal's quality.
+- Observe a hypothetical entry at the next independently fresh scan **within
+  75 minutes**, accommodating the current hourly schedule. This is a research
+  observation window, **not** a permission to enter a trade.
+- Use the same forward-only +60 and +240 minute outcome checks as the existing
+  entry-timing lab; unavailable follow-up is unknown, not a loss.
+- Compare confirmed versus explicitly unconfirmed existing features: higher
+  lows, multi-timeframe alignment, intraday/24h breakouts, and the existing
+  early-radar volume acceleration / relative-volume thresholds. Unknown
+  features form a separate missing-data bucket, not an unfavorable signal.
+- Require at least **30 distinct candidates on both sides** before revealing
+  a descriptive median difference, without claiming statistical confidence or
+  a tested net profitable edge. Stocks and crypto are evaluated separately.
+- Retained 32-snapshot history, changing regimes, overlapping factors,
+  execution fees, slippage, trade-entry uncertainty, and absent untouched
+  holdout data still limit all results. Promotion requires walk-forward
+  validation and explicit approval; no official BUY or risk rule changes here.
