@@ -5,6 +5,12 @@
     "score": 63
   },
   "daily_status_date": "2026-11-19",
+  "paper_email_seen_events": [
+    "22d11dd56f6a96e07ee3ab16",
+    "20c20c7a349e6dda4599a7fd",
+    "99a14218b7a0cc1fa16fe487",
+    "dc3448bb14764b29c294fa63"
+  ],
   "premarket_alert_history": {
     "ACMR": {
       "alerted_at": "2026-11-20T01:04:26.466664+00:00",
