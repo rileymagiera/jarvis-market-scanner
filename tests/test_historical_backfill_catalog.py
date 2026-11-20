@@ -82,7 +82,7 @@ def test_zero_plan_is_reported_without_invented_candles(tmp_path):
 
 
 def test_next_offset_uses_actual_processed_count_when_byte_cap_interrupts(tmp_path):
-    plan = stock_plan("ticker,rows,first_date,last_date,file_size_kb\\nA,2,2019-01-01,2026-11-18,3\\nB,2,2019-01-01,2026-11-18,3\\n")
+    plan = stock_plan("ticker,rows,first_date,last_date,file_size_kb\nA,2,2019-01-01,2026-11-18,3\nB,2,2019-01-01,2026-11-18,3\n")
     def fake_fetch(url):
         return b"PAR1" + b"x" * (700 * 1024) + b"PAR1"
     result = download(plan, tmp_path / "sample", max_files=10, max_mib=1, pause=0, fetch=fake_fetch)
