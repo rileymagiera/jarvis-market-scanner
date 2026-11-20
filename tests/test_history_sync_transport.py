@@ -142,3 +142,98 @@ def test_sender_falls_back_to_original_json_for_legacy_receiver(monkeypatch, leg
     assert len(seen) == 2
     assert "content-encoding" not in dict((k.lower(), v) for k, v in seen[1].header_items())
     assert json.loads(seen[1].data)["paper_tracker"] == tracker
+
+
+def test_sync_prefers_scanner_baseline_over_conflicting_render_snapshot(tmp_path, monkeypatch):
+    """The display must not jump from +28% to -5% on a nearly flat quote."""
+    monkeypatch.setenv("JARVIS_HISTORY_SYNC_TOKEN", "sample-token")
+    monkeypatch.setattr(main, "HISTORY_SNAPSHOT", tmp_path / "history_snapshot.json")
+    timestamp = "2026-11-19T18:45:00+00:00"
+    previous = {
+        "paper_tracker": {
+            "stock:PYXS": {
+                "discovery_initial_price": 1.9747,
+                "discovery_price_as_of": timestamp,
+                "discovery_baseline_status": "first_reliable_fallback",
+                "discovery_return_pct": -3.53,
+            }
+        },
+        "lifetime": {},
+    }
+    main.HISTORY_SNAPSHOT.write_text(json.dumps(previous), encoding="utf-8")
+    incoming = {
+        "paper_tracker": {
+            "stock:PYXS": {
+                "asset_type": "stock",
+                "symbol": "PYXS",
+                "first_seen": timestamp,
+                "discovery_initial_price": 1.485,
+                "discovery_price_as_of": timestamp,
+                "discovery_baseline_status": "unverified_at_discovery",
+                "discovery_return_status": "provisional",
+                "latest_price": 1.875,
+                "price_validation_status": "verified",
+            },
+            "stock:OTHER": {"symbol": "OTHER", "unrelated_field": [1, 2, 3]},
+        },
+        "lifetime": {"recommendations": 2},
+    }
+    result = main.history_sync(incoming, x_jarvis_history_token="sample-token")
+    saved = json.loads(main.HISTORY_SNAPSHOT.read_text(encoding="utf-8"))
+    pyxs = saved["paper_tracker"]["stock:PYXS"]
+    assert result == {"status": "synced", "records": 2}
+    assert pyxs["discovery_initial_price"] == 1.485
+    assert pyxs["discovery_baseline_status"] == "unverified_at_discovery"
+    assert pyxs["discovery_return_pct"] == round((1.875 / 1.485 - 1) * 100, 6)
+    assert pyxs["discovery_return_status"] == "provisional"
+    assert pyxs["discovery_baseline_conflict"]["render_snapshot_price"] == 1.9747
+    assert saved["paper_tracker"]["stock:OTHER"]["unrelated_field"] == [1, 2, 3]
+
+    # Subsequent scans use the same ledger baseline, regardless of Render history.
+    incoming["paper_tracker"]["stock:PYXS"]["latest_price"] = 1.905
+    main.history_sync(incoming, x_jarvis_history_token="sample-token")
+    saved = json.loads(main.HISTORY_SNAPSHOT.read_text(encoding="utf-8"))
+    pyxs = saved["paper_tracker"]["stock:PYXS"]
+    assert pyxs["discovery_initial_price"] == 1.485
+    assert pyxs["discovery_return_pct"] == round((1.905 / 1.485 - 1) * 100, 6)
+    assert "discovery_baseline_conflict" not in pyxs
+
+
+def test_sync_only_recovers_missing_baseline_without_mixing_histories(tmp_path, monkeypatch):
+    monkeypatch.setattr(main, "HISTORY_SNAPSHOT", tmp_path / "history_snapshot.json")
+    main.HISTORY_SNAPSHOT.write_text(json.dumps({
+        "paper_tracker": {
+            "stock:PYXS": {
+                "discovery_initial_price": 1.485,
+                "discovery_price_as_of": "2026-11-19T18:45:00+00:00",
+                "discovery_price_source": "original quote",
+                "discovery_return_pct": 10,
+            },
+            "stock:DIFFERENT": {
+                "discovery_initial_price": 10,
+                "discovery_max_gain_pct": 80,
+            },
+        },
+        "lifetime": {},
+    }), encoding="utf-8")
+    payload = {"paper_tracker": {
+        "stock:PYXS": {
+            "discovery_initial_price": None,
+            "latest_price": 1.875,
+            "price_validation_status": "verified",
+        },
+        "stock:DIFFERENT": {
+            "discovery_initial_price": 12,
+            "latest_price": 13,
+            "price_validation_status": "unverified",
+        },
+    }}
+    main.apply_discovery_baseline_guard(payload)
+    recovered = payload["paper_tracker"]["stock:PYXS"]
+    assert recovered["discovery_initial_price"] == 1.485
+    assert recovered["discovery_price_source"] == "original quote"
+    assert recovered["discovery_return_pct"] == round((1.875 / 1.485 - 1) * 100, 6)
+    disagree = payload["paper_tracker"]["stock:DIFFERENT"]
+    assert disagree["discovery_initial_price"] == 12
+    assert disagree["discovery_max_gain_pct"] is None if "discovery_max_gain_pct" in disagree else True
+    assert disagree["discovery_baseline_conflict"]["render_snapshot_price"] == 10
