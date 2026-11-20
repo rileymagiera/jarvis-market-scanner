@@ -235,5 +235,5 @@ def test_sync_only_recovers_missing_baseline_without_mixing_histories(tmp_path, 
     assert recovered["discovery_return_pct"] == round((1.875 / 1.485 - 1) * 100, 6)
     disagree = payload["paper_tracker"]["stock:DIFFERENT"]
     assert disagree["discovery_initial_price"] == 12
-    assert disagree["discovery_max_gain_pct"] is None if "discovery_max_gain_pct" in disagree else True
+    assert "discovery_max_gain_pct" not in disagree
     assert disagree["discovery_baseline_conflict"]["render_snapshot_price"] == 10
