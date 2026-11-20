@@ -88,3 +88,36 @@ def test_next_offset_uses_actual_processed_count_when_byte_cap_interrupts(tmp_pa
     result = download(plan, tmp_path / "sample", max_files=10, max_mib=1, pause=0, fetch=fake_fetch)
     assert result["downloaded"] == 1
     assert result["next_offset"] == 1
+
+
+def test_corrupt_existing_stock_archive_is_replaced_not_skipped(tmp_path):
+    plan = stock_plan("ticker,rows\nA,2\n")
+    output = tmp_path / "archive"
+    old = output / "stocks" / "A.parquet"
+    old.parent.mkdir(parents=True)
+    old.write_bytes(b"partial corrupted archive")
+    fetched = []
+    def fake_fetch(url):
+        fetched.append(url)
+        return b"PAR1valid-parquet-PAR1"
+    result = download(plan, output, max_files=1, fetch=fake_fetch, pause=0)
+    assert result["already_present"] == 0
+    assert result["downloaded"] == 1
+    assert old.read_bytes() == b"PAR1valid-parquet-PAR1"
+    assert result["archives_missing_on_disk"] == 0
+    assert len(fetched) == 1
+
+
+def test_independent_shard_reports_are_kept(tmp_path):
+    plan = stock_plan("ticker,rows\nA,2\nB,2\n")
+    def fake_fetch(url):
+        return b"PAR1valid-parquet-PAR1"
+    out = tmp_path / "history"
+    first = download(plan, out, max_files=1, fetch=fake_fetch, pause=0)
+    second = download(plan, out, max_files=1, offset=first["next_offset"], fetch=fake_fetch, pause=0)
+    assert first["plan_entries_not_yet_attempted"] == 1
+    assert second["plan_entries_not_yet_attempted"] == 0
+    assert second["archives_on_disk"] == 2
+    assert (out / "stock_1d_offset_0_manifest.json").is_file()
+    assert (out / "stock_1d_offset_1_manifest.json").is_file()
+    assert (out / "stock_last_run_manifest.json").is_file()

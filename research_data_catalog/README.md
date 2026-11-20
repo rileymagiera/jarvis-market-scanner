@@ -67,8 +67,15 @@ python research_data_catalog/backfill.py --asset crypto --interval 15m --output 
 ```
 
 The collector validates Parquet/ZIP signatures and sampled crypto candle
-structure, records checksums, and resumes previously acquired files. Each
-invocation is bounded by `--max-files`, `--max-mib`, and `--max-runtime`
+structure, records checksums, and resumes previously acquired files. It
+rechecks existing archives before skipping them; damaged files are downloaded
+again and only replaced after passing validation. Each run writes both a
+last-run summary and a shard-specific manifest (asset, interval, offset) so
+independent GitHub artifacts can be consolidated without losing prior results.
+The summary distinguishes archives physically on disk, files not yet on disk,
+and plan entries not yet attempted. On-disk counts do not establish full
+Parquet schema validity or complete historical candles.
+Each invocation is bounded by `--max-files`, `--max-mib`, and `--max-runtime`
 (default 240 seconds). Invalid or unavailable historical pairs are reported
 as missing, never silently filled. The research directory must remain outside
 Git history; do **not** add downloaded archives to the scanner's Git state.
@@ -88,7 +95,9 @@ Actions tab, select **Jarvis Historical Research Archive** and choose
 
 Each manual run caps collection at **550 files, 85 MiB, or 300 seconds**,
 whichever comes first, then uploads a short-lived **3-day GitHub artifact**.
-Its downloaded ZIP/Parquet prices live in that **artifact**, not the repo.\nThe manifest's **next_offset** tells you the correct next starting index, even\nwhen a run stops before the file count limit.
+Its downloaded ZIP/Parquet prices live in that **artifact**, not the repo.
+The manifest's **next_offset** tells you the correct next starting index, even
+when a run stops before the file count limit.
 A later shard uses another offset; because separate runners have separate
 disks, download and consolidate those artifact archives on a persistent
 storage device for full coverage. **Action minutes and artifact storage count
