@@ -42,7 +42,8 @@
     "dc3448bb14764b29c294fa63",
     "838fb0e3f0838c540155201d",
     "ac735dbe46887c4255a7a2b0",
-    "d1728350ae9e045eb9214a89"
+    "d1728350ae9e045eb9214a89",
+    "922eeb754a8c51e053b6e304"
   ],
   "premarket_alert_history": {
     "AARD": {
@@ -461,6 +462,11 @@
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 62
   },
+  "stock:LFST": {
+    "alerted_at": "2026-11-20T21:16:05.707533+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 73
+  },
   "stock:MSGR": {
     "alerted_at": "2026-11-20T21:01:24.631939+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
@@ -485,6 +491,11 @@
     "alerted_at": "2026-11-20T21:01:24.631939+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 79
+  },
+  "stock:RKT": {
+    "alerted_at": "2026-11-20T21:16:05.707533+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 61
   },
   "stock:SVRA": {
     "alerted_at": "2026-11-20T12:04:40.180328+00:00",
