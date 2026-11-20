@@ -1,9 +1,55 @@
 import unittest
 
+from early_opportunity_radar import build_candidate_snapshot
 from historical_audit_export import build_historical_audit_export
 
 
 class HistoricalAuditExportTests(unittest.TestCase):
+    def test_stock_execution_audit_uses_quote_timestamp_even_for_delayed_signal_price(self):
+        observed = "2026-11-19T15:00:00+00:00"
+        levels = {"watch_entry_low": 9.9, "watch_entry_high": 10.4,
+                  "stop_loss": 9.8, "target_1": 10.5, "target_2": 10.9}
+        item = {"asset_type": "stock", "stage": "EARLY SETUP", "price": 10,
+                "price_as_of": "2026-11-19T14:50:00+00:00", "price_validation_status": "verified",
+                "data_quality": {"data_type": "delayed"}, "levels": levels}
+        quote = {"feed": "iex", "as_of": "2026-11-19T14:59:45+00:00",
+                 "bid": 9.98, "ask": 10, "ask_size": 300}
+        rows = []
+        for symbol, changes in (
+            ("WITHIN", {}),
+            ("ABOVE", {"ask": 10.2}),
+            ("STALE", {"as_of": "2026-11-19T14:58:59+00:00"}),
+            ("DELAY", {"feed": "delayed_sip"}),
+            ("CROSSED", {"bid": 10.1}),
+        ):
+            snapshot = build_candidate_snapshot(
+                {**item, "stock_execution_quote": {**quote, **changes}}, observed, "current"
+            )
+            self.assertFalse(snapshot["outcome_eligible"])
+            rows.append({"asset_type": "stock", "symbol": symbol, "signal_history": [snapshot]})
+        rows.append({"asset_type": "stock", "symbol": "LEGACY", "signal_history": [
+            build_candidate_snapshot(item, observed, "current"),
+        ]})
+        rows.append({"asset_type": "stock", "symbol": "PREVIOUS", "signal_history": [
+            build_candidate_snapshot(item, observed, "previous"),
+        ]})
+        audit = build_historical_audit_export(rows, scan_run_id="current")["stock_execution_quotes"]
+        self.assertEqual(audit["stock_research_snapshots"], 6)
+        self.assertEqual(audit["counts"], {
+            "ask_within_modeled_range": 1, "ask_above_maximum": 1, "quote_too_old_or_untimed": 1,
+            "unsupported_feed": 1, "unusable_bid_ask": 1, "no_saved_quote": 1,
+        })
+        self.assertEqual(audit["examples"][0]["quote_as_of"], quote["as_of"])
+        self.assertEqual(audit["examples"][0]["quote_age_seconds"], 15)
+        self.assertEqual(audit["examples"][0]["ask_size"], 300)
+        self.assertEqual(audit["examples"][0]["binding_upper_limit"], "net_reward_to_risk")
+        selected = build_historical_audit_export(
+            rows, scan_run_id="current", requested_symbols="STALE"
+        )["stock_execution_quotes"]
+        self.assertEqual(selected["counts"], audit["counts"])
+        self.assertEqual([example["symbol"] for example in selected["examples"]], ["STALE"])
+        self.assertEqual(selected["examples"][0]["status"], "quote_too_old_or_untimed")
+
     def test_export_is_compact_read_only_and_splits_assets(self):
         records = [
             {"asset_type": "stock", "symbol": "AAA", "discovery_return_status": "verified",

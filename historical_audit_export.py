@@ -13,6 +13,7 @@ from signal_lead_time_audit import build_signal_lead_time_audit
 from entry_timing_lab import build_entry_timing_lab
 from gate_combination_shadow import build_gate_combination_shadow
 from runner_case_studies import build_runner_case_studies
+from stock_execution_audit import build_stock_execution_audit
 
 
 EXPORT_VERSION = "1.3"
@@ -43,6 +44,7 @@ def build_historical_audit_export(
     gate_rows = gates.get("recent_events", [])
     radar_rows = radar.get("candidates", [])
     cohort_rows = cohorts.get("cohorts", [])
+    ticker_cases = build_runner_case_studies(values, requested_symbols) if requested_symbols else None
 
     return {
         "export_type": "jarvis_historical_opportunity_audit",
@@ -82,9 +84,11 @@ def build_historical_audit_export(
         },
         "signal_lead_time": build_signal_lead_time_audit(values),
         "entry_timing_lab": build_entry_timing_lab(values),
+        "stock_execution_quotes": build_stock_execution_audit(
+            values, scan_run_id, symbols=ticker_cases["symbols"] if ticker_cases else None
+        ),
         "gate_combination_shadow": build_gate_combination_shadow(values),
-        "ticker_case_studies": (build_runner_case_studies(values, requested_symbols)
-                                if requested_symbols else None),
+        "ticker_case_studies": ticker_cases,
         "early_warning_cohorts": {
             "minimum_observations": cohorts.get("minimum_observations"),
             "cohorts": cohort_rows,
