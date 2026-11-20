@@ -145,3 +145,5 @@ def test_historical_workflow_includes_hidden_archive_upload_directory():
     assert "path: .local_history_research/" in workflow
     assert "include-hidden-files: true" in workflow
     assert "retention-days: 3" in workflow
+    assert "group: jarvis-historical-research-archive-${{ inputs.asset }}" in workflow
+    assert "cancel-in-progress: false" in workflow
