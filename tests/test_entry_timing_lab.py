@@ -2,6 +2,7 @@
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 
+from early_opportunity_radar import build_candidate_snapshot
 from entry_timing_lab import build_entry_timing_lab
 
 
@@ -57,6 +58,90 @@ def test_repeated_quote_cannot_be_used_as_next_scan_entry():
     assert result["eligible_phase_events"] == 1
     assert result["events_without_next_fresh_scan"] == 1
     assert result["cohorts"] == []
+
+
+def test_next_entry_skips_repeated_and_predating_quotes_in_both_labs():
+    record = {"asset_type": "stock", "symbol": "AAA", "signal_history": [
+        {**snap(0, 10, quote_offset=-2), "market_session": "REGULAR SESSION"},
+        snap(10, 20, quote_offset=-12),
+        snap(14, 30, quote_offset=-15),
+        snap(25, 11),
+        snap(85, 12.1),
+    ]}
+    result = build_entry_timing_lab([record])
+    assert result["examples"][0]["next_scan_price"] == 11
+    assert result["cohorts"][0]["median_gross_return_pct"] == 10
+    assert result["signal_factor_quality"]["followed_candidates_by_horizon"][60] == 1
+    assert result["entry_coverage_by_asset_and_session"] == [{
+        "asset_type": "stock", "market_session": "REGULAR SESSION",
+        "eligible_phase_events": 1, "with_next_fresh_scan": 1,
+        "without_next_fresh_scan": 0,
+    }]
+
+
+def test_fee_replay_uses_frozen_levels_and_charges_both_sides_on_partial_then_stop():
+    levels = {
+        "watch_entry_low": 9.9, "watch_entry_high": 10.1,
+        "invalidation_level": 9.5, "target_1": 10.5, "target_2": 11,
+    }
+    signal = build_candidate_snapshot({
+        "asset_type": "crypto", "stage": "EARLY WATCH", "price": 10,
+        "price_validation_status": "verified", "price_as_of": BASE.isoformat(),
+        "levels": levels,
+    }, BASE.isoformat(), "scan-0")
+    levels["target_1"] = 14
+    record = {"asset_type": "crypto", "symbol": "REPLAY", "levels": levels, "signal_history": [
+        signal, snap(15, 10), snap(30, 10.6),
+        snap(40, 9, quote_offset=-10),  # repeated quote cannot trigger a stop
+        snap(50, 9.4), snap(75, 10.2),
+    ]}
+    replay = build_entry_timing_lab([record])["fee_aware_replay"]
+    assert replay["plan_coverage"][0]["eligible_plan"] == 1
+    first, second = replay["cohorts"]
+    assert first["horizon_minutes"] == 60
+    assert first["exit_reasons"] == {"STOP": 1}
+    assert first["mean_gross_horizon_return_pct"] == 2
+    assert first["observed_quote"]["mean_net_return_pct"] == -1
+    assert first["adverse_exit"]["mean_net_return_pct"] == -1.4975
+    assert second["sample_count"] == 0
+    assert second["missing_horizon_followup"] == 1
+
+
+def test_fee_replay_excludes_legacy_plans_and_never_waits_for_a_better_entry():
+    frozen = {
+        "watch_entry_low": 9.9, "watch_entry_high": 10.1,
+        "stop_loss": 9.5, "target_1": 10.5, "target_2": 11,
+    }
+    records = [
+        {"asset_type": "crypto", "symbol": "LEGACY", "levels": frozen, "signal_history": [
+            snap(0, 10), snap(15, 10), snap(75, 11),
+        ]},
+        {"asset_type": "crypto", "symbol": "LATE", "signal_history": [
+            {**snap(0, 10), "replay_levels": frozen}, snap(10, 10.2),
+            snap(20, 10), snap(75, 12),
+        ]},
+    ]
+    result = build_entry_timing_lab(records)
+    replay = result["fee_aware_replay"]
+    assert result["cohorts"][0]["sampled_candidates"] == 2
+    assert replay["cohorts"] == []
+    assert replay["plan_coverage"][0]["missing_plan"] == 1
+    assert replay["plan_coverage"][0]["quote_outside_plan"] == 1
+
+
+def test_fee_replay_can_turn_a_small_gross_rise_into_a_net_loss():
+    frozen = {
+        "watch_entry_low": 9.9, "watch_entry_high": 10.1,
+        "stop_loss": 9.5, "target_1": 10.5, "target_2": 11,
+    }
+    record = {"asset_type": "crypto", "symbol": "FEES", "signal_history": [
+        {**snap(0, 10), "replay_levels": frozen}, snap(15, 10), snap(75, 10.05),
+    ]}
+    row = build_entry_timing_lab([record])["fee_aware_replay"]["cohorts"][0]
+    assert row["exit_reasons"] == {"HORIZON": 1}
+    assert row["mean_gross_horizon_return_pct"] == 0.5
+    assert row["observed_quote"]["net_wins"] == 0
+    assert row["observed_quote"]["mean_net_return_pct"] == -0.5025
 
 
 def test_explicit_stale_or_unverified_snapshots_never_count():

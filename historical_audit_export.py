@@ -15,7 +15,7 @@ from gate_combination_shadow import build_gate_combination_shadow
 from runner_case_studies import build_runner_case_studies
 
 
-EXPORT_VERSION = "1.3"
+EXPORT_VERSION = "1.4"
 MAX_MISSED_RUNNERS = 50
 MAX_GATE_EVENTS = 100
 MAX_RADAR_CANDIDATES = 30
@@ -104,7 +104,7 @@ def build_historical_audit_export(
             "Only retained records and available official BUY history are included.",
             "Asset breakdowns describe included candidate samples, not full-universe totals.",
             "Lead-time measurements use only retained, verified per-scan observations and cannot establish intrabar timing or trade profitability.",
-            "Entry timing is a next-fresh-scan gross-return shadow comparison, not an executable entry signal or win rate.",
+            "Entry timing reports gross sampled returns and a separate fee-aware replay of frozen trade plans. Both are hypothetical.",
             "Stop-before-rally research orders sampled verified quotes only; gaps, intrabar stops and real fills are unknown.",
             "Gate-combination results reuse existing saved gate failures and observed outcomes, not hypothetical fills or fee-adjusted returns.",
             "This export does not change scoring, eligibility, risk, paper trades, or live trading.",
