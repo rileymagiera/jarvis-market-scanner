@@ -146,7 +146,7 @@ candidate. It never labels these research phases as actionable BUYs.
   Stock and crypto cohorts are separated.
 - Reuses Jarvis's existing bounded 32-snapshot history rather than adding
   another historical data feed or modifying the BUY indicator calculation.
-- The report is exposed in `/history/audit/export` / the existing historical
+- The report is exposed in `/intelligence/audit-export (alias /research/audit-export)` / the existing historical
   audit export JSON as `entry_timing_lab`; no UI or alert changes.
 - This is **not** actual execution, after-fee expectancy, target/stop ordering,
   or evidence that any particular research phase is the best entry.
