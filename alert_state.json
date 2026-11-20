@@ -14,6 +14,11 @@
     "alerted_stage": "DEVELOPING SETUP",
     "score": 74
   },
+  "crypto:QCADUSDT": {
+    "alerted_at": "2026-11-20T21:01:24.631939+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 76
+  },
   "crypto:RAREUSDT": {
     "alerted_at": "2026-11-20T20:01:17.334155+00:00",
     "alerted_stage": "DEVELOPING SETUP",
@@ -376,6 +381,16 @@
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 79
   },
+  "stock:BIP": {
+    "alerted_at": "2026-11-20T21:01:24.631939+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 77
+  },
+  "stock:BIPC": {
+    "alerted_at": "2026-11-20T21:01:24.631939+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 79
+  },
   "stock:BRBR": {
     "alerted_at": "2026-11-20T01:04:26.466664+00:00",
     "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
@@ -385,6 +400,16 @@
     "alerted_at": "2026-11-20T17:01:26.062406+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 63
+  },
+  "stock:CALM": {
+    "alerted_at": "2026-11-20T21:01:24.631939+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 77
+  },
+  "stock:CBLL": {
+    "alerted_at": "2026-11-20T21:01:24.631939+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 71
   },
   "stock:CNF": {
     "alerted_at": "2026-11-20T16:01:18.707303+00:00",
@@ -401,15 +426,45 @@
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 62
   },
+  "stock:GIS": {
+    "alerted_at": "2026-11-20T21:01:24.631939+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 60
+  },
   "stock:GME": {
     "alerted_at": "2026-11-20T12:04:40.180328+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 78
   },
+  "stock:INO": {
+    "alerted_at": "2026-11-20T21:01:24.631939+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 62
+  },
   "stock:INSM": {
     "alerted_at": "2026-11-20T12:04:40.180328+00:00",
     "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
     "score": 74
+  },
+  "stock:IPAR": {
+    "alerted_at": "2026-11-20T21:01:24.631939+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 78
+  },
+  "stock:JBGS": {
+    "alerted_at": "2026-11-20T21:01:24.631939+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 60
+  },
+  "stock:KVYO": {
+    "alerted_at": "2026-11-20T21:01:24.631939+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 62
+  },
+  "stock:MSGR": {
+    "alerted_at": "2026-11-20T21:01:24.631939+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 72
   },
   "stock:NUAI": {
     "alerted_at": "2026-11-20T01:04:26.466664+00:00",
@@ -422,14 +477,24 @@
     "score": 76
   },
   "stock:PLMR": {
-    "alerted_at": "2026-11-20T15:01:32.123953+00:00",
+    "alerted_at": "2026-11-20T21:01:24.631939+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
-    "score": 70
+    "score": 75
+  },
+  "stock:RCI": {
+    "alerted_at": "2026-11-20T21:01:24.631939+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 79
   },
   "stock:SVRA": {
     "alerted_at": "2026-11-20T12:04:40.180328+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 77
+  },
+  "stock:TGLS": {
+    "alerted_at": "2026-11-20T21:01:24.631939+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 79
   },
   "stock:TU": {
     "alerted_at": "2026-11-20T12:04:40.180328+00:00",
