@@ -403,7 +403,7 @@ def _comparison_metrics(account, comparison, previous):
 
 
 def update_account(candidates, buy_signals, now, enable_early_entry_experimental=False, scan_id=None,
-                   *, enable_risk_off_comparison=False):
+                   *, enable_risk_off_comparison=False, crypto_exit_quotes=None):
     """Process one scan and optionally advance a separate paper-only comparison."""
     account = load_account()
     comparison = account.get("risk_off_comparison")
@@ -425,11 +425,11 @@ def update_account(candidates, buy_signals, now, enable_early_entry_experimental
             },
         }
     _apply_scan(account, candidates, buy_signals, now, enable_early_entry_experimental, scan_id,
-                allow_new_risk_off=True)
+                allow_new_risk_off=True, crypto_exit_quotes=crypto_exit_quotes or {})
     if enable_risk_off_comparison:
         shadow = comparison["shadow_account"]
         _apply_scan(shadow, candidates, buy_signals, now, enable_early_entry_experimental, scan_id,
-                    allow_new_risk_off=False)
+                    allow_new_risk_off=False, crypto_exit_quotes=crypto_exit_quotes or {})
         shadow["ledger"].clear()
         scan_key = str(scan_id or now.isoformat())
         comparison["scan_count"] += int(scan_key != comparison.get("last_scan_id"))
@@ -455,7 +455,7 @@ def update_account(candidates, buy_signals, now, enable_early_entry_experimental
 
 
 def _apply_scan(account, candidates, buy_signals, now, enable_early_entry_experimental, scan_id,
-                *, allow_new_risk_off):
+                *, allow_new_risk_off, crypto_exit_quotes):
     """Apply the same sampled execution model to either paper account."""
     account["last_updated_at"] = now.isoformat()
     if not account.get("created_at"):
@@ -484,6 +484,8 @@ def _apply_scan(account, candidates, buy_signals, now, enable_early_entry_experi
     remaining = []
     for position in account["positions"]:
         item = candidate_by_key.get((position["asset_type"], position["symbol"]))
+        if item is None and position["asset_type"] == "crypto":
+            item = crypto_exit_quotes.get(position["symbol"])
         position["price_update_checked_at"] = now.isoformat()
         if not item:
             position["price_update_status"] = "not_in_latest_scan"

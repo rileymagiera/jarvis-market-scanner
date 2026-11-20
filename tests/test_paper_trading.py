@@ -71,6 +71,24 @@ def test_stop_observation_closes_position_without_reentry(tmp_path, monkeypatch)
     assert saved["processed_signal_ids"] == [_signal()["signal_id"]]
 
 
+def test_crypto_exit_quote_manages_existing_study_without_allowing_new_entries(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    now = datetime.now(timezone.utc)
+    signal = {**_signal(), "asset_type": "crypto", "symbol": "QCADUSDT"}
+    candidate = {**_candidate(10.0), "asset_type": "crypto", "symbol": "QCADUSDT"}
+    paper_trading.update_account([candidate], [signal], now, enable_risk_off_comparison=True)
+    new_signal = {**signal, "signal_id": "new-signal", "entry_low": 8.5, "entry_high": 8.9, "stop_loss": 8}
+    account = paper_trading.update_account(
+        [], [new_signal], now + timedelta(minutes=10), enable_risk_off_comparison=True,
+        crypto_exit_quotes={"QCADUSDT": {**candidate, "price": 8.9}},
+    )
+
+    for simulation in (account, account["risk_off_comparison"]["shadow_account"]):
+        assert simulation["positions"] == []
+        assert simulation["closed_trades"][0]["close_reason"] == "STOP"
+        assert "new-signal" not in simulation["processed_signal_ids"]
+
+
 def test_coinbase_one_app_fee_model_uses_zero_commission_and_estimated_spread():
     buy = paper_trading.calculate_trade_fee("crypto", "buy", 100.0)
     sell = paper_trading.calculate_trade_fee("crypto", "sell", 100.0)
