@@ -3236,7 +3236,10 @@ def apply_discovery_baseline_guard(payload: dict) -> dict:
     baseline_fields = (
         "discovery_initial_price",
         "discovery_price_as_of",
+        "discovery_price_checked_at",
+        "discovery_price_source",
         "discovery_baseline_status",
+        "discovery_baseline_timestamp_type",
         "discovery_baseline_captured_at",
         "discovery_baseline_source",
     )
@@ -3246,18 +3249,43 @@ def apply_discovery_baseline_guard(payload: dict) -> dict:
         if not isinstance(record, dict):
             continue
 
-        # A previously established baseline wins over a later/missing upstream value.
+        # The scanner's durable ledger is the source of truth for a captured
+        # discovery baseline. Render's local snapshot may recover a MISSING
+        # baseline, but must never replace a different scanner-supplied price.
+        # Otherwise a restart or sync can flip historical returns with no
+        # corresponding market move.
         old = previous.get(key) if isinstance(previous, dict) else None
         if isinstance(old, dict):
             old_price = safe_float(old.get("discovery_initial_price"), 0.0)
             current_price = safe_float(record.get("discovery_initial_price"), 0.0)
-            if old_price > 0 and (current_price <= 0 or not np.isclose(current_price, old_price, rtol=1e-12, atol=1e-12)):
+            same_baseline = (
+                old_price > 0 and current_price > 0
+                and np.isclose(current_price, old_price, rtol=1e-12, atol=1e-12)
+            )
+            recovered_baseline = old_price > 0 and current_price <= 0
+            if recovered_baseline:
                 for field in baseline_fields:
                     if field in old:
                         record[field] = old[field]
-            for field in history_fields:
-                if record.get(field) is None and field in old:
-                    record[field] = old[field]
+            elif old_price > 0 and current_price > 0 and not same_baseline:
+                # Keep the conflicting historical value for investigation;
+                # do not silently overwrite the incoming scanner baseline.
+                record["discovery_baseline_conflict"] = {
+                    "scanner_price": current_price,
+                    "render_snapshot_price": old_price,
+                    "detected_at": captured_at,
+                }
+                print(
+                    f"JARVIS_DISCOVERY_BASELINE_CONFLICT key={key} "
+                    f"scanner={current_price} render_snapshot={old_price}",
+                    flush=True,
+                )
+            # Historic performance metrics are meaningful only relative to
+            # the matching baseline, never a different previous snapshot.
+            if same_baseline or recovered_baseline:
+                for field in history_fields:
+                    if record.get(field) is None and field in old:
+                        record[field] = old[field]
 
         baseline = safe_float(record.get("discovery_initial_price"), 0.0)
         if baseline > 0:
