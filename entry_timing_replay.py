@@ -1,7 +1,7 @@
 """Fee-aware research replay of trade levels frozen in a timing-lab snapshot."""
 from collections import Counter
 from math import isfinite
-from statistics import mean
+from statistics import mean, median
 
 from early_opportunity_radar import REPLAY_LEVEL_FIELDS
 from paper_trading import calculate_trade_fee
@@ -10,8 +10,8 @@ NOTIONAL = 100.0
 ADVERSE_EXIT_BPS = 50
 
 
-def saved_plan(snapshot, entry_price):
-    """Validate the original plan against the next eligible quote."""
+def frozen_plan(snapshot):
+    """Validate saved levels using the signal snapshot alone."""
     levels = snapshot.get("replay_levels")
     if not isinstance(levels, dict):
         return "missing_plan", None
@@ -22,9 +22,7 @@ def saved_plan(snapshot, entry_price):
     low, high, stop, first_target, second_target = values
     if high < low or not stop < first_target <= second_target:
         return "invalid_or_incomplete_plan", None
-    if not (low <= entry_price <= high and stop < entry_price < first_target):
-        return "quote_outside_plan", None
-    return "eligible_plan", (stop, first_target, second_target)
+    return "complete_plan", (low, high, stop, first_target, second_target)
 
 
 def replay_outcome(asset, entry_price, plan, observed_prices):
@@ -69,6 +67,7 @@ def summarize_replay(outcomes):
         "sample_count": count,
         "exit_reasons": dict(Counter(outcome["exit_reason"] for outcome in outcomes)),
         "mean_gross_horizon_return_pct": round(mean(gross_returns), 4) if count else None,
+        "median_followup_minutes": median(outcome["observed_minutes"] for outcome in outcomes) if count else None,
         "positive_gross_horizon_pct": (
             round(100 * sum(value > 0 for value in gross_returns) / count, 2) if count else None
         ),

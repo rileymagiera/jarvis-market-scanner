@@ -12,7 +12,7 @@ from statistics import median
 
 from signal_lead_time_audit import _valid_observations
 from early_opportunity_radar import _eligible_snapshot
-from entry_timing_replay import ADVERSE_EXIT_BPS, replay_outcome, saved_plan, summarize_replay
+from entry_timing_replay import ADVERSE_EXIT_BPS, frozen_plan, replay_outcome, summarize_replay
 
 MODEL_VERSION = "entry-timing-next-scan-v2"
 PHASES = (
@@ -22,6 +22,8 @@ PHASES = (
 HORIZONS_MIN = (60, 240)
 MAX_NEXT_SCAN_MIN = 30
 MAX_OUTCOME_DELAY_MIN = 30
+REPLAY_NEXT_SCAN_MAX_MIN = 75
+REPLAY_HORIZON_EARLY_TOLERANCE_MIN = 5
 MIN_DIRECTIONAL_SAMPLE = 30
 MAX_EXAMPLES = 24
 # Research-only thresholds. Not paper-trade stop/target or BUY parameters.
@@ -77,8 +79,8 @@ def _next_entry_index(series, signal_index, max_minutes):
     return None
 
 
-def _followup(series, entry_index, minutes):
-    """First verified observation at/after the horizon inside a bounded window."""
+def _followup(series, entry_index, minutes, *, early_tolerance_min=0):
+    """First newer verified observation in the requested horizon window."""
     entry_at, _, entry_price, _ = series[entry_index]
     path = [series[entry_index]]
     latest_quote = entry_at
@@ -91,7 +93,7 @@ def _followup(series, entry_index, minutes):
             continue
         latest_quote = quoted_at
         path.append(point)
-        if age_min < minutes:
+        if age_min < minutes - early_tolerance_min:
             continue
         prices = [point[2] for point in path]
         return {
@@ -246,6 +248,45 @@ def build_signal_factor_quality(records):
     }
 
 
+def _record_fee_replay(asset, series, coverage, cohorts):
+    """Replay the first complete frozen plan per phase using forward quotes."""
+    seen = set()
+    unplanned = {}
+    for index, (_, _, _, snapshot) in enumerate(series):
+        phase = str(snapshot.get("shadow_classification") or "").upper()
+        if phase not in PHASES or phase in seen:
+            continue
+        status, plan = frozen_plan(snapshot)
+        if plan is None:
+            if phase not in unplanned or status != "missing_plan":
+                unplanned[phase] = status
+            continue
+        seen.add(phase)
+        counts = coverage[(asset, phase)]
+        entry_index = _next_entry_index(series, index, REPLAY_NEXT_SCAN_MAX_MIN)
+        if entry_index is None:
+            counts["without_next_fresh_scan"] += 1
+            continue
+        entry_price = series[entry_index][2]
+        low, high, stop, first_target, second_target = plan
+        if not (low <= entry_price <= high and stop < entry_price < first_target):
+            counts["quote_outside_plan"] += 1
+            continue
+        counts["eligible_plan"] += 1
+        for horizon in HORIZONS_MIN:
+            outcomes = cohorts[(asset, phase, horizon)]
+            result = _followup(series, entry_index, horizon, early_tolerance_min=REPLAY_HORIZON_EARLY_TOLERANCE_MIN)
+            if result is not None:
+                outcomes.append({
+                    **replay_outcome(asset, entry_price, (stop, first_target, second_target), result["sampled_exit_prices"]),
+                    "gross_horizon_return_pct": result["return_pct"],
+                    "observed_minutes": result["observed_minutes"],
+                })
+    for phase, status in unplanned.items():
+        if phase not in seen:
+            coverage[(asset, phase)][status] += 1
+
+
 def build_entry_timing_lab(records):
     """Compare early-research phase timing; never claim those phases are official BUYs.
 
@@ -280,6 +321,7 @@ def build_entry_timing_lab(records):
         if not series:
             continue
         eligible_candidates += 1
+        _record_fee_replay(asset, series, replay_coverage, replay_cohorts)
         symbol = str(record.get("symbol") or "").upper()[:24]
         seen_phases = set()
         for idx, (signal_at, _, signal_price, snapshot) in enumerate(series):
@@ -300,18 +342,9 @@ def build_entry_timing_lab(records):
             minutes_to_entry = (entry_at - signal_at).total_seconds() / 60
             by_asset[asset] += 1
             coverage["with_next_fresh_scan"] += 1
-            plan_status, plan = saved_plan(snapshot, entry_price)
-            replay_coverage[(asset, phase)][plan_status] += 1
             for horizon in HORIZONS_MIN:
                 cohort_key = (asset, phase, horizon)
                 result = _followup(series, entry_index, horizon)
-                if plan is not None:
-                    outcomes = replay_cohorts[cohort_key]
-                    if result is not None:
-                        outcomes.append({
-                            **replay_outcome(asset, entry_price, plan, result["sampled_exit_prices"]),
-                            "gross_horizon_return_pct": result["return_pct"],
-                        })
                 if result is None:
                     continue
                 del result["sampled_exit_prices"]
@@ -392,8 +425,11 @@ def build_entry_timing_lab(records):
         ],
         "cohorts": rows,
         "fee_aware_replay": {
-            "version": "frozen-plan-sampled-exits-v1",
+            "version": "frozen-plan-sampled-exits-v2",
             "adverse_exit_bps": ADVERSE_EXIT_BPS,
+            "max_next_scan_minutes": REPLAY_NEXT_SCAN_MAX_MIN,
+            "horizon_early_tolerance_minutes": REPLAY_HORIZON_EARLY_TOLERANCE_MIN,
+            "horizon_late_tolerance_minutes": MAX_OUTCOME_DELAY_MIN,
             "plan_coverage": [
                 {"asset_type": asset, "research_phase": phase, **counts}
                 for (asset, phase), counts in sorted(replay_coverage.items())
@@ -405,10 +441,10 @@ def build_entry_timing_lab(records):
                 for (asset, phase, horizon), outcomes in sorted(replay_cohorts.items())
             ],
             "assumptions": [
-                "Trade levels come from the original signal snapshot. Older snapshots without saved levels are excluded.",
-                "Entry uses the first newer verified quote after the signal, subject to the saved entry range.",
+                "For each candidate and phase, use the first retained verified signal snapshot with a complete saved plan. Earlier unplanned signals supply no levels.",
+                "Entry uses the first newer verified quote within 75 minutes after that signal, subject to the saved entry range.",
                 "Stops and targets trigger at sampled quotes. A first target sells half, and a second target or stop sells the remainder.",
-                "Each cohort requires a fresh horizon observation. Any remainder is hypothetically sold at that quote.",
+                "Horizon follow-up uses the first newer verified quote observed from 5 minutes before to 30 minutes after the nominal horizon. Any remainder is hypothetically sold there.",
                 "Both scenarios use the paper fee model and $100 position notional. The adverse case reduces all exit prices by the stated basis points.",
                 "Crypto spread assumes the included-commission allowance applies. Post-allowance commission is unconfigured.",
                 "Results use retained research snapshots and omit intrabar prices, skipped scans, shared capital and order fills.",
@@ -421,7 +457,7 @@ def build_entry_timing_lab(records):
         "limitations": [
             "Research phases are not official BUYs. Gross sampled returns are not actual filled trades, net profits, or a win-rate prediction.",
             "The gross timing cohorts exclude fees and exits. The fee-aware replay reports separate hypothetical outcomes.",
-            "A 60/240-minute horizon requires a later fresh observation within 30 minutes; missing outcomes are excluded, not called losses.",
+            "The gross timing cohorts require a later fresh observation within 30 minutes after the 60/240-minute horizon. Missing outcomes are excluded.",
             "The first retained phase event per candidate is measured once. Only the most recent 32 scans may be retained.",
             "Observed sampled highs and lows are not intrabar prices and cannot prove favorable order of stops versus targets.",
             "Stop-before-rally counts order only separate, strictly newer verified quote samples; they cannot prove an executable stop, fill, or intrabar path. A threshold can be crossed unseen between scans.",

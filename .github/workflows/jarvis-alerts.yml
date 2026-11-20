@@ -234,6 +234,7 @@ jobs:
         run: |
           python - <<'PY'
           import json
+          from collections import Counter
           from pathlib import Path
           from early_opportunity_radar import REPLAY_LEVEL_FIELDS
           from historical_audit_export import build_historical_audit_export
@@ -267,6 +268,10 @@ jobs:
                   "snapshots_with_all_trade_levels": sum(
                       set(REPLAY_LEVEL_FIELDS).issubset(s.get("replay_levels") or {}) for s in snapshots
                   ),
+                  "verified_but_outcome_ineligible_by_data_type": dict(Counter(
+                      s.get("data_type") or "unknown" for s in snapshots
+                      if s.get("price_verified") is True and s.get("outcome_eligible") is not True
+                  )),
               }
           export["entry_timing_lab"]["current_scan_snapshot_coverage"] = snapshot_coverage
           Path("jarvis_historical_audit.json").write_text(

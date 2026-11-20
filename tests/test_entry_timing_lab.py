@@ -144,6 +144,40 @@ def test_fee_replay_can_turn_a_small_gross_rise_into_a_net_loss():
     assert row["observed_quote"]["mean_net_return_pct"] == -0.5025
 
 
+def test_fee_replay_uses_first_complete_plan_and_matches_hourly_scans():
+    levels = {
+        "watch_entry_low": 9.9, "watch_entry_high": 10.1,
+        "stop_loss": 9.5, "target_1": 10.5, "target_2": 11,
+    }
+    record = {"asset_type": "crypto", "symbol": "HOURLY", "signal_history": [
+        snap(0, 6),  # pre-collection signal cannot borrow a plan from a later scan
+        {**snap(60, 8), "replay_levels": {"stop_loss": 7}},  # partial plan
+        {**snap(120, 10), "replay_levels": levels},
+        snap(180, 10), snap(239, 10.05),
+    ]}
+    report = build_entry_timing_lab([record])
+    assert report["cohorts"] == []
+    replay = report["fee_aware_replay"]
+    assert replay["plan_coverage"] == [{"asset_type": "crypto", "research_phase": "EARLY WATCH", "eligible_plan": 1}]
+    row = replay["cohorts"][0]
+    assert row["sample_count"] == 1
+    assert row["median_followup_minutes"] == 59
+    assert row["observed_quote"]["mean_net_return_pct"] == -0.5025
+
+
+def test_fee_replay_reports_missing_entry_beyond_seventy_five_minutes():
+    levels = {
+        "watch_entry_low": 9.9, "watch_entry_high": 10.1,
+        "stop_loss": 9.5, "target_1": 10.5, "target_2": 11,
+    }
+    record = {"asset_type": "crypto", "symbol": "GAP", "signal_history": [
+        {**snap(0, 10), "replay_levels": levels}, snap(76, 10), snap(136, 11),
+    ]}
+    replay = build_entry_timing_lab([record])["fee_aware_replay"]
+    assert replay["plan_coverage"][0]["without_next_fresh_scan"] == 1
+    assert replay["cohorts"] == []
+
+
 def test_explicit_stale_or_unverified_snapshots_never_count():
     record = {"asset_type": "stock", "symbol": "BBB", "signal_history": [
         snap(0, 10, status="stale"),
