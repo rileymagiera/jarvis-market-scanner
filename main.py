@@ -3045,6 +3045,7 @@ def historical_audit_export(symbols: str | None = None):
             history_source=state.get("history_source", "unknown"),
             requested_symbols=symbols,
             paper_account=state.get("paper_trading") if isinstance(state.get("paper_trading"), dict) else None,
+            paper_position_watch=(state.get("scan_diagnostics") or {}).get("paper_position_watch"),
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc

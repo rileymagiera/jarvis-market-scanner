@@ -9,7 +9,8 @@ from datetime import datetime, timezone, timedelta
 from zoneinfo import ZoneInfo
 from email.message import EmailMessage
 from pathlib import Path
-from paper_trading import update_account as update_paper_trading_account, account_summary as paper_account_summary
+from paper_trading import load_account, update_account as update_paper_trading_account, account_summary as paper_account_summary
+from paper_position_watch import collect_paper_position_watch
 from notification_format import (
     current_paper_events, mark_paper_events_notified, format_paper_trades,
     format_premarket_watch, format_daily_status, format_market_digest,
@@ -1044,6 +1045,18 @@ def select_premarket_alerts(candidates, state, now):
     return selected[:10]
 
 
+def save_scan_diagnostics(payload, metadata, metadata_path):
+    metadata["scan_diagnostics"] = payload.get("diagnostics") or {}
+    metadata_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
+    DIAGNOSTICS_STATE.write_text(json.dumps({
+        "timestamp": payload.get("timestamp"),
+        "candidates_found": payload.get("candidates_found", 0),
+        "diagnostics": payload.get("diagnostics") or {},
+        "errors": payload.get("errors") or [],
+        "market_conditions": payload.get("market_conditions") or {},
+    }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
 def main():
     if "--test" in sys.argv:
         email("Jarvis email test", "Jarvis successfully sent a test email. Email delivery is connected. This test does not confirm market scanning. Real trades remain user-approved; the separate $250 paper account may simulate BUY signals.")
@@ -1074,12 +1087,13 @@ def main():
         and os.getenv("ALPACA_API_SECRET", "").strip()
     )
     print(f"Alpaca credentials available to scanner: {'yes' if alpaca_configured else 'no'}")
-    from main import scan as run_market_scan
-    payload = run_market_scan(asset="all")
+    import main as scanner
+    payload = scanner.scan(asset="all")
 
     if not isinstance(payload, dict) or not isinstance(payload.get("candidates"), list):
         raise RuntimeError("Scanner response did not contain candidates.")
     completed_at = datetime.now(timezone.utc).isoformat()
+    previous_scan_at = metadata.get("last_scan_completed_at")
     metadata.update({
         "last_scan_completed_at": completed_at,
         "last_attempt_status": "completed",
@@ -1087,17 +1101,7 @@ def main():
         "scan_duration_seconds": payload.get("diagnostics", {}).get("scan_duration_seconds"),
         "scan_errors": len(payload.get("errors") or []),
     })
-    metadata_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
-
-    metadata["scan_diagnostics"] = payload.get("diagnostics") or {}
-    metadata_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
-    DIAGNOSTICS_STATE.write_text(json.dumps({
-        "timestamp": payload.get("timestamp"),
-        "candidates_found": payload.get("candidates_found", 0),
-        "diagnostics": payload.get("diagnostics") or {},
-        "errors": payload.get("errors") or [],
-        "market_conditions": payload.get("market_conditions") or {},
-    }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    save_scan_diagnostics(payload, metadata, metadata_path)
 
     try:
         state = json.loads(STATE.read_text(encoding="utf-8"))
@@ -1110,12 +1114,23 @@ def main():
     paper, paper_lifetime = update_paper_tracker(payload["candidates"], now, scan_id=scan_id)
     apply_history_runner_learning(payload["candidates"], paper)
     buy_signals = update_buy_signal_history(payload["candidates"], now, payload.get("errors") or [])
+    watched_positions = {row.get("signal_id"): row for row in load_account()["positions"]}
     paper_account = update_paper_trading_account(
         payload["candidates"], buy_signals, now,
         enable_early_entry_experimental=os.getenv("JARVIS_ENABLE_EARLY_ENTRY_EXPERIMENTAL", "false").lower() == "true",
         scan_id=scan_id,
         enable_risk_off_comparison=True,
     )
+    diagnostics = payload.get("diagnostics") or {}
+    try:
+        watched_positions.update({row.get("signal_id"): row for row in paper_account["positions"]})
+        diagnostics["paper_position_watch"] = collect_paper_position_watch(
+            scanner, watched_positions.values(), payload["candidates"], now, previous_scan_at,
+        )
+    except Exception as exc:
+        diagnostics["paper_position_watch"] = {"status": "collection_failed", "error_type": type(exc).__name__}
+    payload["diagnostics"] = diagnostics
+    save_scan_diagnostics(payload, metadata, metadata_path)
     print("Paper trading:", json.dumps(paper_account_summary(paper_account), sort_keys=True))
     pending_paper_email_events = current_paper_events(paper_account, state, now)
     # Keep the live history page current without waiting for a Render redeploy.
