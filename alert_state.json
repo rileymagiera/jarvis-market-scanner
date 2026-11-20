@@ -417,6 +417,11 @@
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 77
   },
+  "stock:CANG": {
+    "alerted_at": "2026-11-20T23:01:27.163241+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 60
+  },
   "stock:CBLL": {
     "alerted_at": "2026-11-20T21:01:24.631939+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
