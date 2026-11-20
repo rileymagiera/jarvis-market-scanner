@@ -1,3 +1,4 @@
+import gzip
 import json
 import math
 import os
@@ -40,7 +41,7 @@ def email(subject, body):
 
 
 def sync_history_to_site(paper, lifetime, now, buy_signals=None, scan_metadata=None, paper_account=None):
-    """Sync dashboard history with one bounded retry for transient Render timeouts."""
+    """Losslessly compress large dashboard sync payloads; retain legacy JSON fallback."""
     token = os.getenv("JARVIS_HISTORY_SYNC_TOKEN", "")
     if not token:
         print("History sync skipped: JARVIS_HISTORY_SYNC_TOKEN is not configured.")
@@ -56,31 +57,52 @@ def sync_history_to_site(paper, lifetime, now, buy_signals=None, scan_metadata=N
         "paper_trading": paper_account or {},
         "scan_diagnostics": scan_metadata.get("scan_diagnostics") or {},
     }).encode("utf-8")
-    last_error = None
+
+    # No field removal, sampling, or history truncation. Use the original
+    # JSON for small messages and when the receiver does not support gzip.
+    use_gzip = (
+        len(body) >= 128 * 1024
+        and os.getenv("JARVIS_HISTORY_SYNC_GZIP_ENABLED", "true").strip().lower()
+        not in ("0", "false", "no")
+    )
+    compressed = gzip.compress(body, compresslevel=5) if use_gzip else None
+
+    def transmit(gzipped):
+        data = compressed if gzipped else body
+        headers = {"Content-Type": "application/json", "X-Jarvis-History-Token": token}
+        if gzipped:
+            headers["Content-Encoding"] = "gzip"
+        req = Request(BASE_URL + "/history/sync", data=data, headers=headers, method="POST")
+        with urlopen(req, timeout=45) as response:
+            result = json.loads(response.read().decode("utf-8"))
+        return result, len(data)
+
     for attempt in range(2):
-        req = Request(
-            BASE_URL + "/history/sync",
-            data=body,
-            headers={"Content-Type": "application/json", "X-Jarvis-History-Token": token},
-            method="POST",
-        )
         try:
-            with urlopen(req, timeout=45) as response:
-                result = json.loads(response.read().decode("utf-8"))
+            try:
+                result, transport_size = transmit(use_gzip)
+            except HTTPError as exc:
+                # A prior Render deployment may still only accept plain JSON.
+                # Never change the original payload: immediately retry it intact.
+                if use_gzip and exc.code in (400, 415):
+                    print("History sync receiver rejected gzip; retrying original JSON payload.")
+                    use_gzip = False
+                    result, transport_size = transmit(False)
+                else:
+                    raise
             print(
                 f"History synced to website: {result.get('records', 0)} records "
-                f"(payload={len(body)} bytes, attempt={attempt + 1})."
+                f"(payload={len(body)} bytes, transferred={transport_size} bytes, "
+                f"encoding={'gzip' if use_gzip else 'plain'}, attempt={attempt + 1})."
             )
             return
         except Exception as exc:
-            last_error = exc
             if attempt == 0 and not isinstance(exc, HTTPError):
                 print(f"History sync transient failure; retrying once: {type(exc).__name__}: {str(exc)[:160]}")
                 time.sleep(2)
                 continue
             raise
-    if last_error:
-        raise last_error
+
 
 
 def safe_float(value, default=0.0):
