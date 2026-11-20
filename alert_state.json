@@ -127,9 +127,24 @@
       "score": 8,
       "status": "PREMARKET VERIFIED"
     },
+    "EVH": {
+      "alerted_at": "2026-11-20T14:30:59.465815+00:00",
+      "score": 6,
+      "status": "PREMARKET VERIFIED"
+    },
+    "FDMT": {
+      "alerted_at": "2026-11-20T14:30:59.465815+00:00",
+      "score": 11,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
     "FLWS": {
       "alerted_at": "2026-11-20T14:01:13.334727+00:00",
       "score": 12,
+      "status": "PREMARKET VERIFIED"
+    },
+    "GAP": {
+      "alerted_at": "2026-11-20T14:30:59.465815+00:00",
+      "score": 9,
       "status": "PREMARKET VERIFIED"
     },
     "GME": {
