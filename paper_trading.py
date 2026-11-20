@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from early_opportunity_radar import build_candidate_snapshot
 from paper_edge_research import paper_edge_profile, PAPER_EDGE_MODEL_VERSION
+from paper_trade_validation import build_paper_trade_validation
 
 STATE_PATH = Path("paper_trading_state.json")
 STARTING_CASH = 250.0
@@ -769,6 +770,7 @@ def account_summary(account, now=None):
         "paper_edge_diagnostics": account.get("paper_edge_diagnostics") or {},
         "paper_payoff_model": "Net planned target ladder versus full stop; fee-aware and not a win forecast",
         "paper_edge_cohort_performance": edge_performance,
+        "paper_trade_validation": build_paper_trade_validation(account),
         "starting_cash": _num(account.get("starting_cash"), STARTING_CASH),
         "coinbase_one_monthly_volume": round(coinbase_volume, 2),
         "coinbase_one_remaining_allowance": round(max(0.0, COINBASE_ONE_MONTHLY_CAP - coinbase_volume), 2),
