@@ -66,7 +66,7 @@ def test_explicit_stale_or_unverified_snapshots_never_count():
         snap(30, 12, fresh=False),
         snap(45, 13),
         snap(60, 14),
-        snap(120, 15),
+        snap(105, 15),
     ]}
     report = build_entry_timing_lab([record])
     assert report["excluded_invalid_snapshots"] == 3
