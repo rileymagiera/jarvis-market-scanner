@@ -1,4 +1,5 @@
 import os
+import gzip
 import json
 import hmac
 import re
@@ -13,7 +14,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 import requests
-from io import StringIO
+from io import BytesIO, StringIO
 import yfinance as yf
 from early_runner import compute_early_runner_metrics, compute_early_warning_metrics, compute_stock_market_breadth, rank_stock_universe_strength, summarize_crypto_cross_section, set_crypto_relative_strength_coverage, build_data_quality_record, apply_entry_quality_gate, has_session_aware_early_runner_baseline
 from market_calendar import market_session_status as exchange_market_session_status
@@ -22,7 +23,7 @@ from runner_intelligence import build_runner_intelligence_report
 from historical_audit_export import build_historical_audit_export
 from buy_intelligence import build_buy_intelligence, blend_buy_score
 from paper_trading import load_account as load_paper_account, account_summary as summarize_paper_account
-from fastapi import FastAPI, Query, Header, HTTPException, Depends
+from fastapi import FastAPI, Query, Header, HTTPException, Depends, Request
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.responses import HTMLResponse, Response, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -3229,7 +3230,34 @@ def apply_discovery_baseline_guard(payload: dict) -> dict:
     return payload
 
 
-@app.post("/history/sync")
+# The history-sync route accepts both the original JSON and a losslessly
+# compressed representation. All existing callers and state semantics remain.
+MAX_HISTORY_SYNC_BYTES = 128 * 1024 * 1024
+
+
+def decode_history_sync_payload(raw: bytes, encoding: str = "") -> dict:
+    if len(raw) > MAX_HISTORY_SYNC_BYTES:
+        raise HTTPException(status_code=413, detail="History payload too large")
+    if encoding.strip().lower() == "gzip":
+        try:
+            # Read a bounded amount to reject oversized decompression safely.
+            with gzip.GzipFile(fileobj=BytesIO(raw)) as stream:
+                raw = stream.read(MAX_HISTORY_SYNC_BYTES + 1)
+        except (OSError, EOFError, ValueError) as exc:
+            raise HTTPException(status_code=400, detail="Invalid gzip history payload") from exc
+    elif encoding.strip().lower() not in ("", "identity"):
+        raise HTTPException(status_code=415, detail="Unsupported history content encoding")
+    if len(raw) > MAX_HISTORY_SYNC_BYTES:
+        raise HTTPException(status_code=413, detail="History payload too large")
+    try:
+        payload = json.loads(raw)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=400, detail="Invalid history JSON") from exc
+    if not isinstance(payload, dict):
+        raise HTTPException(status_code=400, detail="Invalid history payload")
+    return payload
+
+
 def history_sync(payload: dict, x_jarvis_history_token: Optional[str] = Header(None)):
     expected=os.getenv("JARVIS_HISTORY_SYNC_TOKEN","")
     if not expected or not x_jarvis_history_token or not hmac.compare_digest(expected,x_jarvis_history_token):
@@ -3241,6 +3269,17 @@ def history_sync(payload: dict, x_jarvis_history_token: Optional[str] = Header(N
     with GITHUB_HISTORY_CACHE_LOCK:
         GITHUB_HISTORY_CACHE["data"]=None; GITHUB_HISTORY_CACHE["at"]=0.0
     return {"status":"synced","records":len(payload["paper_tracker"])}
+
+
+@app.post("/history/sync")
+async def history_sync_endpoint(request: Request, x_jarvis_history_token: Optional[str] = Header(None)):
+    expected = os.getenv("JARVIS_HISTORY_SYNC_TOKEN", "")
+    if not expected or not x_jarvis_history_token or not hmac.compare_digest(expected, x_jarvis_history_token):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    payload = decode_history_sync_payload(
+        await request.body(), request.headers.get("content-encoding", "")
+    )
+    return history_sync(payload, x_jarvis_history_token=x_jarvis_history_token)
 
 
 @app.get("/paper-trading", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
