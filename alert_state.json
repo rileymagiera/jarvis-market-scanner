@@ -32,6 +32,11 @@
       "score": 15,
       "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
+    "AESI": {
+      "alerted_at": "2026-11-20T13:01:29.896971+00:00",
+      "score": 16,
+      "status": "PREMARKET VERIFIED"
+    },
     "ALAB": {
       "alerted_at": "2026-11-20T01:04:26.466664+00:00",
       "score": 9,
@@ -102,6 +107,11 @@
       "score": 8,
       "status": "PREMARKET VERIFIED"
     },
+    "CTMX": {
+      "alerted_at": "2026-11-20T13:01:29.896971+00:00",
+      "score": 10,
+      "status": "PREMARKET VERIFIED"
+    },
     "DDD": {
       "alerted_at": "2026-11-20T12:04:40.180328+00:00",
       "score": 9,
@@ -143,8 +153,8 @@
       "status": "PREMARKET VERIFIED"
     },
     "LAB": {
-      "alerted_at": "2026-11-20T01:04:26.466664+00:00",
-      "score": 19,
+      "alerted_at": "2026-11-20T13:01:29.896971+00:00",
+      "score": 26,
       "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
     "LVWR": {
@@ -180,6 +190,11 @@
     "OPEN": {
       "alerted_at": "2026-11-20T12:04:40.180328+00:00",
       "score": 24,
+      "status": "PREMARKET VERIFIED"
+    },
+    "OXSQ": {
+      "alerted_at": "2026-11-20T13:01:29.896971+00:00",
+      "score": 0,
       "status": "PREMARKET VERIFIED"
     },
     "PLBL": {
