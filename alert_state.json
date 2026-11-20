@@ -1,4 +1,9 @@
 {
+  "crypto:BLURUSDT": {
+    "alerted_at": "2026-11-20T19:01:16.458823+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 87
+  },
   "crypto:EVAAUSDT": {
     "alerted_at": "2026-11-20T16:01:18.707303+00:00",
     "alerted_stage": "DEVELOPING SETUP",
@@ -25,7 +30,8 @@
     "20c20c7a349e6dda4599a7fd",
     "99a14218b7a0cc1fa16fe487",
     "dc3448bb14764b29c294fa63",
-    "838fb0e3f0838c540155201d"
+    "838fb0e3f0838c540155201d",
+    "ac735dbe46887c4255a7a2b0"
   ],
   "premarket_alert_history": {
     "AARD": {
