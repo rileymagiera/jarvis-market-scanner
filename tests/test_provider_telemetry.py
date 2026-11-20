@@ -1,6 +1,9 @@
 from datetime import timedelta
 from types import SimpleNamespace
 
+import pytest
+import requests
+
 import main
 
 
@@ -73,6 +76,50 @@ def test_alpaca_snapshot_filter_skips_only_confirmed_unsupported_symbol():
 
     assert requested == ["BRK-B", "AAPL"]
     assert skipped == ["GTN-A"]
+
+
+@pytest.mark.parametrize(
+    ("statuses", "retry_after", "expected_times", "expected_status"),
+    [
+        ([200, 200], None, [100.0, 100.2], 200),
+        ([429, 200], "2", [100.0, 102.0], 200),
+        ([429, 429], None, [100.0, 101.0], 429),
+        ([429], "60", [100.0], 429),
+        ([404], None, [100.0], 404),
+    ],
+)
+def test_coinbase_exchange_request_pacing_and_retries(
+    monkeypatch, statuses, retry_after, expected_times, expected_status
+):
+    clock = 100.0
+    request_times = []
+    responses = iter(statuses)
+
+    def sleep(seconds):
+        nonlocal clock
+        clock += seconds
+
+    def get(url, **kwargs):
+        request_times.append(clock)
+        response = requests.Response()
+        response.url = url
+        response.status_code = next(responses)
+        if retry_after is not None:
+            response.headers["Retry-After"] = retry_after
+        return response
+
+    monkeypatch.setattr(main, "time", SimpleNamespace(monotonic=lambda: clock, sleep=sleep))
+    monkeypatch.setattr(main, "COINBASE_NEXT_REQUEST_AT", 0.0)
+    monkeypatch.setattr(main.HTTP, "get", get)
+    if expected_status == 200:
+        assert main.coinbase_exchange_get("/products/BTC-USD/ticker").status_code == 200
+        if statuses[0] == 200:
+            assert main.coinbase_exchange_get("/products/ETH-USD/stats").status_code == 200
+    else:
+        with pytest.raises(requests.HTTPError) as exc:
+            main.coinbase_exchange_get("/products/QCAD-USD/ticker")
+        assert exc.value.response.status_code == expected_status
+    assert request_times == pytest.approx(expected_times)
 
 
 def test_coinbase_secondary_validation_accepts_fresh_matching_quote(monkeypatch):
