@@ -191,12 +191,46 @@ KRAKEN_TICKER_CACHE_AT = 0.0
 KRAKEN_REQUEST_LOCK = threading.Lock()
 KRAKEN_LAST_REQUEST_AT = 0.0
 KRAKEN_MIN_REQUEST_INTERVAL_SECONDS = 1.05
+# Kraken public Trades/OHLC limits are IP + trading-pair scoped. Only those
+# endpoints use independent pair locks; Ticker/AssetPairs stay IP-wide serial.
+# A four-request cap prevents large simultaneous REST bursts across pairs.
+KRAKEN_PAIR_SCOPED_PACING = os.getenv("JARVIS_KRAKEN_PAIR_SCOPED_PACING", "true").strip().lower() not in ("0", "false", "no")
+KRAKEN_PAIR_REQUEST_LOCKS_GUARD = threading.Lock()
+KRAKEN_PAIR_REQUEST_LOCKS = {}
+KRAKEN_PAIR_LAST_REQUEST_AT = {}
+KRAKEN_PAIR_INFLIGHT = threading.BoundedSemaphore(4)
 KRAKEN_OHLC_CACHE = HourlyCandleCache(max_entries=300, cache_path=os.getenv("JARVIS_KRAKEN_OHLC_CACHE_PATH", ".cache/kraken_ohlc.json"))
 
 
 def kraken_get(url: str, **kwargs):
-    """Serialize public Kraken REST calls and pace starts to stay near 1 req/sec."""
+    """Respect Kraken's different pair-scoped vs IP-wide public REST limits.
+
+    Same-pair Trades/OHLC requests remain serialized and paced at >=1.05s
+    after completion. Different pairs may be requested concurrently (max 4).
+    Disable with JARVIS_KRAKEN_PAIR_SCOPED_PACING=false if needed.
+    """
     global KRAKEN_LAST_REQUEST_AT
+    endpoint = url.rsplit("/", 1)[-1].split("?", 1)[0]
+    params = kwargs.get("params")
+    pair = params.get("pair") if isinstance(params, dict) else None
+    if KRAKEN_PAIR_SCOPED_PACING and endpoint in ("Trades", "OHLC") and isinstance(pair, str) and pair and "," not in pair:
+        pair_key = pair.upper()
+        with KRAKEN_PAIR_REQUEST_LOCKS_GUARD:
+            pair_lock = KRAKEN_PAIR_REQUEST_LOCKS.setdefault(pair_key, threading.Lock())
+        with KRAKEN_PAIR_INFLIGHT:
+            with pair_lock:
+                last = KRAKEN_PAIR_LAST_REQUEST_AT.get(pair_key, 0.0)
+                wait = KRAKEN_MIN_REQUEST_INTERVAL_SECONDS - (time.monotonic() - last)
+                if wait > 0:
+                    time.sleep(wait)
+                    record_scan_metric("kraken_pair_request_pacing", wait, "success")
+                try:
+                    return HTTP.get(url, **kwargs)
+                finally:
+                    KRAKEN_PAIR_LAST_REQUEST_AT[pair_key] = time.monotonic()
+
+    # Shared-IP endpoints and malformed/non-pair requests retain the original
+    # conservative global pace, including the fail-safe mode above.
     with KRAKEN_REQUEST_LOCK:
         wait = KRAKEN_MIN_REQUEST_INTERVAL_SECONDS - (time.monotonic() - KRAKEN_LAST_REQUEST_AT)
         if wait > 0:
