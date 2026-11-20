@@ -126,3 +126,31 @@ win-rate improvements until enough versioned trade outcomes exist.
 The objective is profitable, repeatable decisions **after actual trading costs**, not maximizing the ratio of tiny winners to occasional large losses. Compare official BUY, Risk-Off experimental, early-entry experimental, and future shadow variants separately. Do not promote a strategy based on the source author's headline win rate, two closed Jarvis trades, lookahead-contaminated candles, unrepresentative markets, or cherry-picked winners. A 30-trade diagnostic label is *not* a statistically validated promotion threshold. Deployment and risk/strategy changes require the project's test and approval safeguards.
 
 This is a selective source review, **not an exhaustive crawl of all GitHub trading repositories**.
+
+
+## Next-scan entry-timing lab (shadow research only)
+
+`entry_timing_lab.py` compares the **first retained, verified** EARLY WATCH,
+EARLY ACCUMULATION, PRE-BREAKOUT WATCH and BREAKOUT DEVELOPING phase for each
+candidate. It never labels these research phases as actionable BUYs.
+
+- Signal is recorded at the scan that **actually observed** the phase.
+- Hypothetical entry uses the **first subsequent independently verified** quote
+  within 30 minutes; same-quote reuse, non-fresh quotes and unverified prices
+  are excluded rather than treated as fills.
+- At +60 and +240 elapsed minutes after that hypothetical entry, the lab uses
+  the first qualifying verified observation no more than 30 minutes late.
+  Missing follow-up is **unknown**, never counted as a loss or success.
+- Reports gross sampled positive-return frequency, mean/median return,
+  sampled favorable/adverse excursion, cohort size, and quote/scan delay.
+  Stock and crypto cohorts are separated.
+- Reuses Jarvis's existing bounded 32-snapshot history rather than adding
+  another historical data feed or modifying the BUY indicator calculation.
+- The report is exposed in `/history/audit/export` / the existing historical
+  audit export JSON as `entry_timing_lab`; no UI or alert changes.
+- This is **not** actual execution, after-fee expectancy, target/stop ordering,
+  or evidence that any particular research phase is the best entry.
+- If the research proves a robust advantage on untouched forward windows,
+  follow the explicit approval process before changing BUY thresholds or
+  real-time buy alerts. Preserve every current trade, price-quality gate,
+  risk setting, and 15-minute scan cadence.
