@@ -8,6 +8,7 @@ import time
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError as FutureTimeoutError
 from datetime import datetime, timezone, timedelta
+from email.utils import parsedate_to_datetime
 from zoneinfo import ZoneInfo
 from typing import Optional
 
@@ -2148,6 +2149,51 @@ def crypto_news(symbol: str) -> list[dict]:
         return []
 
 
+COINBASE_EXCHANGE = "https://api.exchange.coinbase.com"
+COINBASE_REQUEST_LOCK = threading.Lock()
+COINBASE_NEXT_REQUEST_AT = 0.0
+# Coinbase allows 10 public REST requests per second per IP.
+COINBASE_MIN_REQUEST_INTERVAL_SECONDS = 0.2
+COINBASE_MAX_RETRY_DELAY_SECONDS = 2.0
+
+
+def coinbase_exchange_get(path: str, **kwargs):
+    """Pace public Exchange requests across scanner workers and retry short 429s once."""
+    global COINBASE_NEXT_REQUEST_AT
+    for attempt in range(2):
+        with COINBASE_REQUEST_LOCK:
+            wait = COINBASE_NEXT_REQUEST_AT - time.monotonic()
+            if wait > 0:
+                time.sleep(wait)
+                record_scan_metric("coinbase_exchange_request_pacing", wait)
+            COINBASE_NEXT_REQUEST_AT = time.monotonic() + COINBASE_MIN_REQUEST_INTERVAL_SECONDS
+        response = HTTP.get(f"{COINBASE_EXCHANGE}{path}", **kwargs)
+        try:
+            response.raise_for_status()
+            return response
+        except requests.HTTPError as exc:
+            if exc.response is None or exc.response.status_code != 429:
+                raise
+            retry_after = exc.response.headers.get("Retry-After")
+            if retry_after is None:
+                delay = 1.0
+            elif retry_after.isascii() and retry_after.isdecimal() and len(retry_after) <= 10:
+                delay = int(retry_after)
+            else:
+                try:
+                    retry_at = parsedate_to_datetime(retry_after)
+                    delay = (retry_at - datetime.now(timezone.utc)).total_seconds()
+                except (TypeError, ValueError, OverflowError):
+                    raise exc
+            if delay > COINBASE_MAX_RETRY_DELAY_SECONDS:
+                raise
+            with COINBASE_REQUEST_LOCK:
+                COINBASE_NEXT_REQUEST_AT = max(COINBASE_NEXT_REQUEST_AT, time.monotonic() + delay)
+            if attempt:
+                raise
+            record_scan_metric("coinbase_exchange_rate_limit_retry", 0.0)
+
+
 def coinbase_crypto_market_data(symbol: str, reference_price: Optional[float] = None):
     """Fetch Coinbase USD ticker, 24h stats and hourly candles as a guarded fallback.
 
@@ -2161,18 +2207,15 @@ def coinbase_crypto_market_data(symbol: str, reference_price: Optional[float] = 
     try:
         base = crypto_base(symbol)
         product = f"{base}-USD"
-        ticker_response = HTTP.get(f"https://api.exchange.coinbase.com/products/{product}/ticker", timeout=(2, 8))
-        ticker_response.raise_for_status()
+        ticker_response = coinbase_exchange_get(f"/products/{product}/ticker", timeout=(2, 8))
         ticker = ticker_response.json() or {}
-        stats_response = HTTP.get(f"https://api.exchange.coinbase.com/products/{product}/stats", timeout=(2, 8))
-        stats_response.raise_for_status()
+        stats_response = coinbase_exchange_get(f"/products/{product}/stats", timeout=(2, 8))
         stats = stats_response.json() or {}
-        candles_response = HTTP.get(
-            f"https://api.exchange.coinbase.com/products/{product}/candles",
+        candles_response = coinbase_exchange_get(
+            f"/products/{product}/candles",
             params={"granularity": 3600},
             timeout=(2, 10),
         )
-        candles_response.raise_for_status()
         raw_payload = candles_response.json() or []
         if not isinstance(raw_payload, list):
             raise RuntimeError(f"Coinbase returned invalid hourly candles for {product}")
@@ -2301,11 +2344,7 @@ def crypto_shadow_quote(provider: str, symbol: str, quote_currency: str = "USD",
     error_detail = None
     try:
         if provider == "coinbase":
-            response = HTTP.get(
-                f"https://api.exchange.coinbase.com/products/{base}-{quote_currency}/ticker",
-                timeout=(2, 5),
-            )
-            response.raise_for_status()
+            response = coinbase_exchange_get(f"/products/{base}-{quote_currency}/ticker", timeout=(2, 5))
             payload = response.json() or {}
             price = safe_float(payload.get("price"))
             stamp = pd.Timestamp(payload.get("time")) if payload.get("time") else None
@@ -2553,11 +2592,7 @@ def coinbase_crypto_price_validation(symbol: str, primary_price: float) -> dict:
     error_detail = None
     try:
         base = crypto_base(symbol)
-        response = HTTP.get(
-            f"https://api.exchange.coinbase.com/products/{base}-USD/ticker",
-            timeout=(2, 5),
-        )
-        response.raise_for_status()
+        response = coinbase_exchange_get(f"/products/{base}-USD/ticker", timeout=(2, 5))
         payload = response.json() or {}
         reference_price = safe_float(payload.get("price"))
         stamp = pd.Timestamp(payload.get("time")) if payload.get("time") else None
