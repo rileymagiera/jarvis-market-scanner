@@ -10,10 +10,11 @@ from typing import Any
 
 from runner_intelligence import build_runner_intelligence_report
 from signal_lead_time_audit import build_signal_lead_time_audit
+from entry_timing_lab import build_entry_timing_lab
 from runner_case_studies import build_runner_case_studies
 
 
-EXPORT_VERSION = "1.1"
+EXPORT_VERSION = "1.2"
 MAX_MISSED_RUNNERS = 50
 MAX_GATE_EVENTS = 100
 MAX_RADAR_CANDIDATES = 30
@@ -79,6 +80,7 @@ def build_historical_audit_export(
             "truncated": gates.get("event_count", 0) > len(gate_rows[:MAX_GATE_EVENTS]),
         },
         "signal_lead_time": build_signal_lead_time_audit(values),
+        "entry_timing_lab": build_entry_timing_lab(values),
         "ticker_case_studies": (build_runner_case_studies(values, requested_symbols)
                                 if requested_symbols else None),
         "early_warning_cohorts": {
@@ -100,6 +102,7 @@ def build_historical_audit_export(
             "Only retained records and available official BUY history are included.",
             "Asset breakdowns describe included candidate samples, not full-universe totals.",
             "Lead-time measurements use only retained, verified per-scan observations and cannot establish intrabar timing or trade profitability.",
+            "Entry timing is a next-fresh-scan gross-return shadow comparison, not an executable entry signal or win rate.",
             "This export does not change scoring, eligibility, risk, paper trades, or live trading.",
         ],
     }
