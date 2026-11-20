@@ -2934,15 +2934,18 @@ def historical_audit_export(symbols: str | None = None):
     if not isinstance(state, dict) or not isinstance(state.get("paper_tracker"), dict):
         raise HTTPException(status_code=503, detail="Historical candidate data is not currently available")
     records = [row for row in state["paper_tracker"].values() if isinstance(row, dict)]
-    return build_historical_audit_export(
-        records,
-        state.get("buy_signals") if isinstance(state.get("buy_signals"), list) else [],
-        last_scan_completed_at=state.get("last_scan_completed_at"),
-        scan_run_id=state.get("scan_run_id"),
-        synced_at=state.get("synced_at"),
-        history_source=state.get("history_source", "unknown"),
-        requested_symbols=symbols,
-    )
+    try:
+        return build_historical_audit_export(
+            records,
+            state.get("buy_signals") if isinstance(state.get("buy_signals"), list) else [],
+            last_scan_completed_at=state.get("last_scan_completed_at"),
+            scan_run_id=state.get("scan_run_id"),
+            synced_at=state.get("synced_at"),
+            history_source=state.get("history_source", "unknown"),
+            requested_symbols=symbols,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @app.get("/history", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
