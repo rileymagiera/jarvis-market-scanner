@@ -84,7 +84,7 @@ def sync_history_to_site(paper, lifetime, now, buy_signals=None, scan_metadata=N
             except HTTPError as exc:
                 # A prior Render deployment may still only accept plain JSON.
                 # Never change the original payload: immediately retry it intact.
-                if use_gzip and exc.code in (400, 415):
+                if use_gzip and exc.code in (400, 415, 422):
                     print("History sync receiver rejected gzip; retrying original JSON payload.")
                     use_gzip = False
                     result, transport_size = transmit(False)
