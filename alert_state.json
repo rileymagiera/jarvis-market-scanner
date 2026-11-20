@@ -237,9 +237,9 @@
       "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
     "MERC": {
-      "alerted_at": "2026-11-20T16:01:18.707303+00:00",
-      "score": 9,
-      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+      "alerted_at": "2026-11-20T23:21:07.002490+00:00",
+      "score": 35,
+      "status": "PREMARKET VERIFIED"
     },
     "NTSK": {
       "alerted_at": "2026-11-20T01:04:26.466664+00:00",
