@@ -356,15 +356,19 @@ def stock_universe() -> list[str]:
     return list(dict.fromkeys(defaults + dynamic))
 
 
-def crypto_universe(errors: Optional[list[dict]] = None) -> list[str]:
+def crypto_universe(errors: Optional[list[dict]] = None,
+                    *, coinbase_quotes: Optional[dict[str, set[str]]] = None) -> list[str]:
     try:
-        coinbase_bases = coinbase_tradable_crypto_bases()
+        products = coinbase_spot_quote_currencies()
     except (requests.RequestException, ValueError) as exc:
         message = f"Coinbase spot eligibility unavailable. Crypto candidates skipped: {exc}"
         print(message, flush=True)
         if errors is not None:
             errors.append({"symbol": "crypto_universe", "error": message[:240]})
         return []
+    if coinbase_quotes is not None:
+        coinbase_quotes.update(products)
+    coinbase_bases = set(products)
     defaults = [
         symbol for symbol in configured_symbols("SCAN_CRYPTO", DEFAULT_CRYPTO)
         if crypto_base(symbol) in coinbase_bases
@@ -2205,24 +2209,24 @@ def coinbase_exchange_get(path: str, **kwargs):
             record_scan_metric("coinbase_exchange_rate_limit_retry", 0.0)
 
 
-def coinbase_tradable_crypto_bases() -> set[str]:
+def coinbase_spot_quote_currencies() -> dict[str, set[str]]:
     """Fetch the current Coinbase spot catalog once for universe eligibility."""
     products = coinbase_exchange_get("/products", timeout=(2, 8)).json()
     if not isinstance(products, list) or not products:
         raise ValueError("Coinbase returned an invalid product catalog")
-    bases = {
-        product["base_currency"]
-        for product in products
-        if isinstance(product, dict)
-        and isinstance(product.get("base_currency"), str)
-        and product["base_currency"]
-        and product.get("quote_currency") in ("USD", "USDC")
-        and product.get("status") == "online"
-        and not any(product.get(flag) for flag in ("trading_disabled", "cancel_only", "post_only", "auction_mode"))
-    }
-    if not bases:
+    quotes = {}
+    for product in products:
+        if not isinstance(product, dict):
+            continue
+        base = product.get("base_currency")
+        quote = product.get("quote_currency")
+        if (isinstance(base, str) and base and quote in ("USD", "USDC")
+                and product.get("status") == "online"
+                and not any(product.get(flag) for flag in ("trading_disabled", "cancel_only", "post_only", "auction_mode"))):
+            quotes.setdefault(base, set()).add(quote)
+    if not quotes:
         raise ValueError("Coinbase returned no tradable USD or USDC spot products")
-    return bases
+    return quotes
 
 
 def coinbase_crypto_market_data(symbol: str, reference_price: Optional[float] = None):
@@ -2318,6 +2322,7 @@ def coinbase_crypto_market_data(symbol: str, reference_price: Optional[float] = 
 # the price-selection, verification, scoring, BUY, or paper-trading paths.
 CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN = max(1, min(50, int(os.getenv("CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN", "50") or 50)))
 CRYPTO_SHADOW_HISTORY_PATH = os.getenv("CRYPTO_SHADOW_HISTORY_PATH", "crypto_shadow_comparison.json")
+COINBASE_SHADOW_PRIORITY_STAGES = ("BUY", "ACTIONABLE SETUP", "DEVELOPING SETUP", "EARLY WATCH")
 # Shadow-only experimental price comparison. The whole Binance.US public
 # 24h ticker snapshot can replace dozens of identical per-symbol endpoints.
 # Disable via environment variable to restore the original request path.
@@ -2436,15 +2441,18 @@ def compare_crypto_shadow_quote(provider: str, symbol: str, primary_price, prima
         "shadow_as_of": quote.get("as_of") if quote else None,
         "shadow_age_seconds": quote.get("age_seconds") if quote else None,
         "quote_currency": primary_quote_currency,
+        "shadow_quote_currency": quote.get("quote_currency") if quote else None,
+        "shadow_bid": quote.get("bid") if quote else None,
+        "shadow_ask": quote.get("ask") if quote else None,
         "spread_pct": quote.get("spread_pct") if quote else None,
         "difference_pct": None,
         "status": "unavailable" if error or not quote else "primary_unavailable",
         "error": str(error)[:180] if error else None,
     }
-    if quote and provider == "coinbase" and str(primary_source or "").lower().startswith("coinbase"):
-        result["status"] = "same_as_primary_source"
-    elif quote and quote.get("quote_currency") != primary_quote_currency:
+    if quote and quote.get("quote_currency") != primary_quote_currency:
         result["status"] = "quote_currency_mismatch"
+    elif quote and provider == "coinbase" and str(primary_source or "").lower().startswith("coinbase"):
+        result["status"] = "same_as_primary_source"
     elif quote and primary > 0:
         midpoint = (primary + quote["price"]) / 2
         if midpoint > 0:
@@ -2493,9 +2501,26 @@ def persist_crypto_shadow_history(records: list[dict], timestamp: str, run_id=No
     return result
 
 
-def collect_crypto_shadow_comparisons(crypto_results: list[dict], run_number=None, run_id=None) -> dict:
-    selected = select_crypto_shadow_symbols([x.get("symbol") for x in crypto_results], run_number)
+def collect_crypto_shadow_comparisons(crypto_results: list[dict], run_number=None, run_id=None,
+                                      *, coinbase_quotes: dict[str, set[str]]) -> dict:
+    started = time.monotonic()
     by_symbol = {str(x.get("symbol", "")).upper(): x for x in crypto_results}
+    selected = select_crypto_shadow_symbols(list(by_symbol), run_number)
+    eligible = [symbol for symbol in by_symbol if crypto_base(symbol) in coinbase_quotes]
+    priority = sorted(
+        (symbol for symbol in eligible if by_symbol[symbol].get("stage") in COINBASE_SHADOW_PRIORITY_STAGES),
+        key=lambda symbol: (
+            COINBASE_SHADOW_PRIORITY_STAGES.index(by_symbol[symbol]["stage"]),
+            -safe_float(by_symbol[symbol].get("crqs_entry_score")),
+        ),
+    )
+    priority_set = set(priority)
+    coinbase_selected = priority[:CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN]
+    remaining = CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN - len(coinbase_selected)
+    if remaining:
+        coinbase_selected += select_crypto_shadow_symbols(
+            [symbol for symbol in eligible if symbol not in priority_set], run_number, sample_size=remaining,
+        )
     records = []
     jobs = {}
     binance_us_snapshot = None
@@ -2507,28 +2532,47 @@ def collect_crypto_shadow_comparisons(crypto_results: list[dict], run_number=Non
             # The individual original ticker requests below remain the fallback.
             print(f"Binance.US shadow batch unavailable; using individual tickers: {type(exc).__name__}", flush=True)
     with ThreadPoolExecutor(max_workers=8) as pool:
+        for symbol in coinbase_selected:
+            item = by_symbol[symbol]
+            primary_currency = str(item.get("price_quote_currency") or "USD").upper()
+            available = coinbase_quotes[crypto_base(symbol)]
+            quote_currency = next(currency for currency in (primary_currency, "USD", "USDC") if currency in available)
+            future = pool.submit(crypto_shadow_quote, "coinbase", symbol, quote_currency)
+            jobs[future] = ("coinbase", symbol, item, primary_currency, quote_currency)
         for symbol in selected:
             item = by_symbol.get(symbol, {})
             quote_currency = str(item.get("price_quote_currency") or "USD").upper()
-            for provider in ("coinbase", "binance_us"):
-                if provider == "binance_us" and binance_us_snapshot is not None:
-                    future = pool.submit(crypto_shadow_quote, provider, symbol, quote_currency, binance_us_snapshot)
-                else:
-                    future = pool.submit(crypto_shadow_quote, provider, symbol, quote_currency)
-                jobs[future] = (provider, symbol, item, quote_currency)
+            future = pool.submit(crypto_shadow_quote, "binance_us", symbol, quote_currency, binance_us_snapshot)
+            jobs[future] = ("binance_us", symbol, item, quote_currency, quote_currency)
         for future in as_completed(jobs):
-            provider, symbol, item, quote_currency = jobs[future]
+            provider, symbol, item, primary_currency, quote_currency = jobs[future]
             quote, error = None, None
             try:
                 quote = future.result()
             except Exception as exc:
                 error = f"{type(exc).__name__}: {str(exc)[:160]}"
-            records.append(compare_crypto_shadow_quote(
-                provider, symbol, item.get("price"), item.get("price_as_of"), quote, error, quote_currency, item.get("price_source")
-            ))
+            record = compare_crypto_shadow_quote(
+                provider, symbol, item.get("price"), item.get("price_as_of"), quote, error, primary_currency, item.get("price_source")
+            )
+            record["shadow_quote_currency"] = quote_currency
+            record["stage"] = item.get("stage")
+            record["primary_price_verified"] = item.get("price_validation_passed") is True
+            records.append(record)
+    execution_rows = [row for row in records if row["provider"] == "coinbase" and row["symbol"] in priority_set]
+    spreads = [row["spread_pct"] for row in execution_rows if row["spread_pct"] is not None]
+    ages = [row["shadow_age_seconds"] for row in execution_rows if row["shadow_age_seconds"] is not None]
     history = persist_crypto_shadow_history(records, now_iso(), run_id)
+    duration = time.monotonic() - started
+    record_scan_metric("crypto_shadow_comparison_wall", duration)
     return {"mode": "shadow_only", "sample_limit": CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN,
-            "symbols_sampled": len(selected), "records_this_scan": len(records),
+            "symbols_sampled": len(set(selected) | set(coinbase_selected)), "records_this_scan": len(records),
+            "duration_seconds": round(duration, 2),
+            "coinbase_execution": {
+                "priority_candidates": len(priority), "sampled": len(execution_rows),
+                "fresh": len(ages), "with_bid_ask": len(spreads),
+                "median_last_trade_age_seconds": round(float(np.median(ages)), 1) if ages else None,
+                "median_spread_pct": round(float(np.median(spreads)), 4) if spreads else None,
+            },
             "summary": history["summary"], "recent_records": history["recent_records"]}
 
 
@@ -3633,7 +3677,8 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
     discovery_started = time.monotonic()
     stock_symbols = stock_universe() if asset in ("all", "stocks") else []
     crypto_universe_errors = []
-    crypto_symbols = crypto_universe(crypto_universe_errors) if asset in ("all", "crypto") else []
+    coinbase_quotes = {}
+    crypto_symbols = crypto_universe(crypto_universe_errors, coinbase_quotes=coinbase_quotes) if asset in ("all", "crypto") else []
     discovery_seconds = time.monotonic() - discovery_started
     global WEBULL_SHADOW_SYMBOLS
     webull_credentials_configured = bool(os.getenv("WEBULL_APP_KEY", "").strip() and os.getenv("WEBULL_APP_SECRET", "").strip())
@@ -3789,7 +3834,7 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
         classify_setup(item, regime["score_adjustment"], regime)
     results.sort(key=lambda item: item["score"], reverse=True)
     crypto_shadow_comparison = collect_crypto_shadow_comparisons(
-        crypto_results, os.getenv("GITHUB_RUN_NUMBER"), os.getenv("GITHUB_RUN_ID")
+        crypto_results, os.getenv("GITHUB_RUN_NUMBER"), os.getenv("GITHUB_RUN_ID"), coinbase_quotes=coinbase_quotes
     ) if crypto_results else {"mode": "shadow_only", "sample_limit": CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN,
                                "symbols_sampled": 0, "records_this_scan": 0, "summary": {}, "recent_records": []}
     provider_activity = scan_metrics_snapshot()

@@ -45,16 +45,20 @@ function renderDataHealth(){
  document.getElementById("failure-reasons").innerHTML=reasons.length
   ? '<table><thead><tr><th>VALIDATION REASON</th><th>CANDIDATES</th></tr></thead><tbody>'+reasons.map(function(x){return '<tr><td>'+esc(x.reason)+'</td><td>'+esc(x.count)+'</td></tr>'}).join("")+'</tbody></table>'
   : '<div class="muted">No unverified candidate validation failures were recorded in this snapshot.</div>';
- var cs=d.crypto_shadow_comparison||{},css=cs.summary||{},csp=css.providers||{},csr=cs.recent_records||[];
+ var cs=d.crypto_shadow_comparison||{},css=cs.summary||{},csp=css.providers||{},csr=cs.recent_records||[],ce=cs.coinbase_execution;
  document.getElementById("crypto-shadow").innerHTML=
-  '<div class="grid">'+card("SYMBOLS SAMPLED",cs.symbols_sampled||0,"Rotating sample · maximum "+(cs.sample_limit||0))+
+  (ce?'<div class="grid">'+card("COINBASE PRIORITY QUOTES",ce.fresh+" / "+ce.sampled+" fresh","Setups and early watches · "+ce.priority_candidates+" eligible")+
+   card("COINBASE MEDIAN SPREAD",ce.median_spread_pct==null?"—":ce.median_spread_pct+"%",ce.with_bid_ask+" priority quotes with bid and ask")+
+   card("COINBASE MEDIAN TRADE AGE",ce.median_last_trade_age_seconds==null?"—":ce.median_last_trade_age_seconds+" sec","Most recent trade on the Coinbase ticker")+
+   card("COMPARISON TIME",cs.duration_seconds==null?"—":cs.duration_seconds+" sec","Latest scan across both providers")+'</div>':"")+
+  '<div class="grid">'+card("SYMBOLS SAMPLED",cs.symbols_sampled||0,"Maximum "+(cs.sample_limit||0)+" per provider")+
   card("COINBASE COMPARABLE",(csp.coinbase||{}).comparable||0,"Of "+((csp.coinbase||{}).samples||0)+" saved observations")+
   card("BINANCE US COMPARABLE",(csp.binance_us||{}).comparable||0,"Of "+((csp.binance_us||{}).samples||0)+" saved observations")+
   card("COINBASE AVG GAP",(csp.coinbase||{}).mean_difference_pct==null?"—":(csp.coinbase||{}).mean_difference_pct+"%","Against Jarvis selected price")+
   card("BINANCE US AVG GAP",(csp.binance_us||{}).mean_difference_pct==null?"—":(csp.binance_us||{}).mean_difference_pct+"%","Against Kraken selected price")+
   card("SAVED OBSERVATIONS",css.record_count||0,"Rolling 14-day shadow history")+'</div>'+
-  (csr.length?'<div class="scroll"><table><thead><tr><th>SYMBOL</th><th>SOURCE</th><th>JARVIS PRICE</th><th>REFERENCE PRICE</th><th>GAP</th><th>AGE</th><th>STATUS</th><th>SCAN TIME</th></tr></thead><tbody>'+
-   csr.slice().reverse().map(function(x){return '<tr><td><b>'+esc(x.symbol)+'</b></td><td>'+esc(x.provider==="binance_us"?"Binance.US":x.provider)+'</td><td>'+esc(x.primary_price)+'</td><td>'+esc(x.shadow_price)+'</td><td>'+esc(x.difference_pct==null?"—":x.difference_pct+"%")+'</td><td>'+esc(x.shadow_age_seconds==null?"—":x.shadow_age_seconds+" sec")+'</td><td>'+esc(x.status)+(x.error?" · "+esc(x.error):"")+'</td><td>'+esc(dateText(x.scan_timestamp))+'</td></tr>'}).join("")+'</tbody></table></div>'
+  (csr.length?'<div class="scroll"><table><thead><tr><th>SYMBOL</th><th>SOURCE</th><th>JARVIS PRICE</th><th>REFERENCE PRICE</th><th>BID / ASK</th><th>SPREAD</th><th>GAP</th><th>AGE</th><th>STATUS</th><th>SCAN TIME</th></tr></thead><tbody>'+
+   csr.slice().reverse().map(function(x){return '<tr><td><b>'+esc(x.symbol)+'</b></td><td>'+esc(x.provider==="binance_us"?"Binance.US":x.provider)+'</td><td>'+esc(x.primary_price==null?"—":x.primary_price+" "+(x.quote_currency||""))+'</td><td>'+esc(x.shadow_price==null?"—":x.shadow_price+" "+(x.shadow_quote_currency||x.quote_currency||""))+'</td><td>'+esc(x.shadow_bid==null||x.shadow_ask==null?"—":x.shadow_bid+" / "+x.shadow_ask)+'</td><td>'+esc(x.spread_pct==null?"—":x.spread_pct+"%")+'</td><td>'+esc(x.difference_pct==null?"—":x.difference_pct+"%")+'</td><td>'+esc(x.shadow_age_seconds==null?"—":x.shadow_age_seconds+" sec")+'</td><td>'+esc(x.status)+(x.error?" · "+esc(x.error):"")+'</td><td>'+esc(dateText(x.scan_timestamp))+'</td></tr>'}).join("")+'</tbody></table></div>'
    :'<div class="muted">No crypto shadow samples saved yet. A successful scan with returned crypto candidates is required.</div>');
  var wy=d.webull_yahoo_comparison||{},ws=wy.summary||{},wr=wy.recent_records||[];
  document.getElementById("webull-yahoo").innerHTML=

@@ -97,12 +97,14 @@ def test_shadow_batch_preserves_missing_symbol_as_unavailable_without_fake_price
         {"symbol": "NOTLISTEDUSDT", "price_quote_currency": "USD", "price": 100, "price_as_of": stamp.isoformat()},
     ]
 
-    report = main.collect_crypto_shadow_comparisons(results, run_number=1, run_id="sample")
+    report = main.collect_crypto_shadow_comparisons(
+        results, run_number=1, run_id="sample", coinbase_quotes={"BTC": {"USD"}},
+    )
     rows = report["recent_records"]
     assert report["symbols_sampled"] == 2
-    assert report["records_this_scan"] == 4
-    assert len(calls) == 2
-    assert len(rows) == 4
+    assert report["records_this_scan"] == 3
+    assert len(calls) == 1
+    assert len(rows) == 3
 
     by_key = {(row["provider"], row["symbol"]): row for row in rows}
     assert by_key[("binance_us", "BTCUSDT")]["status"] == "comparable"
@@ -144,7 +146,9 @@ def test_shadow_bulk_failure_falls_back_to_each_original_market_request(tmp_path
         {"symbol": "BTCUSDT", "price_quote_currency": "USD", "price": 100, "price_as_of": stamp.isoformat()},
         {"symbol": "ETHUSDT", "price_quote_currency": "USD", "price": 100, "price_as_of": stamp.isoformat()},
     ]
-    report = main.collect_crypto_shadow_comparisons(results, run_number=1, run_id="fallback")
+    report = main.collect_crypto_shadow_comparisons(
+        results, run_number=1, run_id="fallback", coinbase_quotes={"BTC": {"USD"}, "ETH": {"USD"}},
+    )
 
     assert report["records_this_scan"] == 4
     binance_requests = [x for x in calls if "api.binance.us" in x[0]]
@@ -167,3 +171,38 @@ def test_incomplete_binance_us_bulk_snapshot_rejected(monkeypatch):
         assert "incomplete" in str(exc)
     else:
         raise AssertionError("Truncated bulk data should force per-symbol fallback")
+
+
+def test_coinbase_shadow_prioritizes_setups_and_preserves_mismatched_quote_currency(tmp_path, monkeypatch):
+    from datetime import datetime, timezone
+    from types import SimpleNamespace
+
+    stamp = datetime.now(timezone.utc).isoformat()
+    monkeypatch.setattr(main, "CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN", 1)
+    monkeypatch.setattr(main, "CRYPTO_SHADOW_HISTORY_PATH", str(tmp_path / "shadow.json"))
+    monkeypatch.setattr(main, "fetch_binance_us_shadow_tickers", lambda: {})
+    calls = []
+
+    def fetch_ticker(path, **kwargs):
+        calls.append(path)
+        return SimpleNamespace(json=lambda: {"price": "100", "time": stamp, "bid": "99.9", "ask": "100.1"})
+
+    monkeypatch.setattr(main, "coinbase_exchange_get", fetch_ticker)
+    results = [
+        {"symbol": "BTCUSDT", "stage": "LOW-CONVICTION WATCH", "price": 100},
+        {"symbol": "ETHUSDT", "stage": "EARLY WATCH", "price": 100},
+        {"symbol": "SOLUSDT", "stage": "ACTIONABLE SETUP", "price": 100, "price_quote_currency": "USDT"},
+    ]
+    report = main.collect_crypto_shadow_comparisons(
+        results, run_number=1, coinbase_quotes={"BTC": {"USD"}, "ETH": {"USD"}, "SOL": {"USDC"}},
+    )
+
+    assert calls == ["/products/SOL-USDC/ticker"]
+    row = next(x for x in report["recent_records"] if x["provider"] == "coinbase")
+    assert row["status"] == "quote_currency_mismatch"
+    assert row["difference_pct"] is None
+    assert row["shadow_quote_currency"] == "USDC"
+    assert (row["shadow_bid"], row["shadow_ask"], row["spread_pct"]) == (99.9, 100.1, 0.2)
+    assert report["coinbase_execution"]["priority_candidates"] == 2
+    assert report["coinbase_execution"]["fresh"] == 1
+    assert report["coinbase_execution"]["with_bid_ask"] == 1
