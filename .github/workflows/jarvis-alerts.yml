@@ -81,6 +81,8 @@ jobs:
           WEBULL_SHADOW_MODE: 'true'
           WEBULL_SHADOW_MAX_SYMBOLS_PER_SCAN: '30'
           CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN: '50'
+          # Restore original per-symbol Binance.US shadow requests with repository variable 'false'.
+          JARVIS_BINANCE_US_SHADOW_BATCH_ENABLED: ${{ vars.JARVIS_BINANCE_US_SHADOW_BATCH_ENABLED || 'true' }}
           # Experimental entries remain paper-only in the existing shared paper account.
           JARVIS_ENABLE_EARLY_ENTRY_EXPERIMENTAL: 'true'
           SEND_TEST_EMAIL: ${{ inputs.send_test_email }}
