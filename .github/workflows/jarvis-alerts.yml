@@ -240,6 +240,7 @@ jobs:
           tracker = json.loads(Path("paper_tracker.json").read_text(encoding="utf-8"))
           buy_state = json.loads(Path("buy_signal_history.json").read_text(encoding="utf-8"))
           metadata = json.loads(Path("scan_metadata.json").read_text(encoding="utf-8"))
+          paper_account = json.loads(Path("paper_trading_state.json").read_text(encoding="utf-8"))
           records = [row for row in tracker.values() if isinstance(row, dict)] if isinstance(tracker, dict) else []
           signals = buy_state.get("signals", []) if isinstance(buy_state, dict) else []
           export = build_historical_audit_export(
@@ -250,6 +251,7 @@ jobs:
               synced_at=metadata.get("last_scan_completed_at"),
               history_source="github_actions_scan_workspace",
           )
+          export["risk_off_comparison"] = (paper_account.get("risk_off_comparison") or {}).get("summary")
           Path("jarvis_historical_audit.json").write_text(
               json.dumps(export, separators=(",", ":")) + "\n", encoding="utf-8"
           )

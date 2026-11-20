@@ -1104,6 +1104,7 @@ def main():
         payload["candidates"], buy_signals, now,
         enable_early_entry_experimental=os.getenv("JARVIS_ENABLE_EARLY_ENTRY_EXPERIMENTAL", "false").lower() == "true",
         scan_id=scan_id,
+        enable_risk_off_comparison=True,
     )
     print("Paper trading:", json.dumps(paper_account_summary(paper_account), sort_keys=True))
     pending_paper_email_events = current_paper_events(paper_account, state, now)
