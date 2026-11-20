@@ -373,3 +373,18 @@ def test_paired_replay_cannot_use_future_plans_or_failed_safety_gates():
     result = build_entry_timing_lab([record], paper_account={"closed_trades": [trade]})["paired_paper_entries"]
     assert result["cohorts"] == []
     assert result["coverage"][0]["without_earlier_trigger"] == 1
+
+
+def test_paired_window_survives_rolling_history_and_preserves_first_observation():
+    from entry_timing_lab import retain_paired_entry_observations
+
+    stamp = "2026-11-20T15:00:00+00:00"
+    point = {"scan_id": "one", "price": 5, "observed_at": stamp, "price_as_of": stamp,
+             "price_verified": True, "outcome_eligible": True, "price_source": "verified source"}
+    record = {"signal_history": [point]}
+    account = {"positions": [{"asset_type": "crypto", "symbol": "X", "opened_at": stamp}]}
+    tracker = {"crypto:X": record}
+    retain_paired_entry_observations(tracker, account)
+    record["signal_history"] = [{**point, "price": 99}, {**point, "scan_id": "bad", "price_verified": False}]
+    retain_paired_entry_observations(tracker, account)
+    assert record["paired_entry_history"] == [point]

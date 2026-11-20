@@ -484,3 +484,19 @@ def test_kraken_pair_scoped_pacing_can_be_disabled(monkeypatch):
         ))
 
     assert state["peak"] == 1
+
+
+def test_class_share_snapshots_keep_scanner_identity(monkeypatch):
+    monkeypatch.setenv("ALPACA_API_KEY", "test")
+    monkeypatch.setenv("ALPACA_API_SECRET", "test")
+    monkeypatch.setattr(main, "ALPACA_SNAPSHOT_CACHE", {})
+
+    def get(url, params, **kwargs):
+        assert params["symbols"] == "LEN.B,MOG.A"
+        return SimpleNamespace(raise_for_status=lambda: None,
+                               json=lambda: {"LEN.B": {"latestTrade": {"p": 10}}})
+
+    monkeypatch.setattr(main.HTTP, "get", get)
+    main.prefetch_alpaca_snapshots(["LEN-B", "MOG-A"])
+    assert main.ALPACA_SNAPSHOT_CACHE["LEN-B"]["trade_price"] == 10
+    assert "MOG-A" not in main.ALPACA_SNAPSHOT_CACHE

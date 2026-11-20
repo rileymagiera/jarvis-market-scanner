@@ -160,6 +160,7 @@ def build_candidate_snapshot(item, observed_at, scan_id):
         "failed_gate_keys": sorted(str(k) for k, passed in checks.items() if not passed)[:16],
         "price": price,
         "price_as_of": item.get("price_as_of"),
+        "price_source": data_quality.get("data_source") or item.get("data_source") or item.get("price_source"),
         "price_validation_status": status,
         "price_verified": verified,
         "outcome_eligible": outcome_eligible,

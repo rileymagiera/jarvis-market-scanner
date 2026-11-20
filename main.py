@@ -503,6 +503,8 @@ def prefetch_alpaca_snapshots(symbols: list[str]) -> None:
     headers = {"APCA-API-KEY-ID": api_key, "APCA-API-SECRET-KEY": api_secret}
     fetched = {}
     rejected_symbols = []
+    # Class-share symbols use dotted spellings in the provider request.
+    provider_symbols = {"LEN-B": "LEN.B", "MOG-A": "MOG.A"}
 
     def store_snapshot(symbol: str, snapshot: dict) -> None:
         if not isinstance(snapshot, dict):
@@ -559,13 +561,13 @@ def prefetch_alpaca_snapshots(symbols: list[str]) -> None:
         try:
             response = HTTP.get(
                 "https://data.alpaca.markets/v2/stocks/snapshots",
-                params={"symbols": ",".join(batch_symbols), "feed": feed},
+                params={"symbols": ",".join(provider_symbols.get(symbol, symbol) for symbol in batch_symbols), "feed": feed},
                 headers=headers, timeout=(3, 8),
             )
             response.raise_for_status()
             payload = response.json() or {}
-            for symbol, snapshot in payload.items():
-                store_snapshot(symbol, snapshot)
+            for symbol in batch_symbols:
+                store_snapshot(symbol, payload.get(provider_symbols.get(symbol, symbol)))
             record_scan_metric("alpaca_snapshot_batch", time.monotonic() - started)
         except Exception as exc:
             status_code = getattr(getattr(exc, "response", None), "status_code", None)
@@ -3881,6 +3883,15 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
                 "credentials_configured": bool(os.getenv("ALPACA_API_KEY", "").strip() and os.getenv("ALPACA_API_SECRET", "").strip()),
                 "feed": os.getenv("ALPACA_STOCK_DATA_FEED", "iex").strip().lower() or "iex",
                 "candidate_status_counts": alpaca_status_counts,
+                "fresh_without_final_verification": [
+                    {"symbol": item["symbol"], "provider_status": item["alpaca_quote_status"],
+                     "provider_as_of": item.get("alpaca_price_as_of"),
+                     "final_status": item.get("price_validation_status"),
+                     "reason": item.get("price_validation_note")}
+                    for item in stock_results
+                    if item.get("alpaca_quote_status") in {"fresh_trade_received", "fresh_quote_received"}
+                    and item.get("price_validation_status") != "verified"
+                ],
                 "provider_activity": provider_activity.get("providers", {}).get("alpaca_snapshot_batch", {"calls": 0, "failures": 0, "total_seconds": 0.0, "max_seconds": 0.0, "error_counts": {}}),
             },
             "provider_note": "Counts show requested symbols and scan outcomes. A symbol not returned may have insufficient history, invalid market data, or a provider error; low scores alone no longer remove otherwise valid discoveries.",
