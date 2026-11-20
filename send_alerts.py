@@ -548,6 +548,16 @@ def update_paper_tracker(candidates, now, scan_id=None):
                 }
             )
         )
+        # A delayed/cross-checked quote can update the radar's DISPLAY-ONLY return,
+        # but must never be counted as a verified live research observation.
+        # Otherwise the displayed latest_price advances while discovery_return_pct
+        # remains stuck on an unrelated earlier provisional quote (e.g. PYXS).
+        if not observation_eligible:
+            discovery_initial = safe_float(record.get("discovery_initial_price"), 0)
+            if discovery_initial > 0:
+                record["discovery_return_pct"] = round((price / discovery_initial - 1) * 100, 2)
+                record["discovery_return_status"] = "provisional"
+                record["discovery_return_price_as_of"] = item.get("price_as_of") or now.isoformat()
         # Stock outcome clocks start only from fresh, timestamped live observations.
         # EOD/historical bars and stale prior-session closes are not forward-return samples.
         if observation_eligible:

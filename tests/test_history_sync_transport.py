@@ -142,3 +142,67 @@ def test_sender_falls_back_to_original_json_for_legacy_receiver(monkeypatch, leg
     assert len(seen) == 2
     assert "content-encoding" not in dict((k.lower(), v) for k, v in seen[1].header_items())
     assert json.loads(seen[1].data)["paper_tracker"] == tracker
+
+
+def test_render_sync_keeps_incoming_discovery_baseline_and_repairs_return(tmp_path, monkeypatch):
+    """An older Render snapshot must not replace the scanner's first-captured price."""
+    monkeypatch.setattr(main, "HISTORY_SNAPSHOT", tmp_path / "snapshot.json")
+    main.HISTORY_SNAPSHOT.write_text(json.dumps({
+        "paper_tracker": {"stock:PYXS": {
+            "discovery_initial_price": 1.975,
+            "discovery_price_as_of": "2026-11-20T05:00:00+00:00",
+            "discovery_baseline_status": "first_reliable_fallback",
+        }},
+        "lifetime": {},
+    }), encoding="utf-8")
+    incoming = {
+        "paper_tracker": {"stock:PYXS": {
+            "first_seen": "2026-11-19T18:47:37+00:00",
+            "discovery_initial_price": 1.485,
+            "discovery_price_as_of": "2026-11-19T18:45:00+00:00",
+            "discovery_price_checked_at": "2026-11-19T18:45:57+00:00",
+            "discovery_baseline_status": "live_verified",
+            "discovery_return_pct": -5.05,
+            "discovery_return_status": "provisional",
+            "discovery_return_price_as_of": "2026-11-18T05:00:00+00:00",
+            "latest_price": 1.875,
+            "price_validation_status": "verified",
+            "price_as_of": "2026-11-20T17:00:00+00:00",
+            "data_quality": {"data_type": "delayed", "session": "REGULAR SESSION"},
+        }},
+        "lifetime": {},
+    }
+    result = main.apply_discovery_baseline_guard(incoming)
+    record = result["paper_tracker"]["stock:PYXS"]
+    assert record["discovery_initial_price"] == 1.485
+    assert record["discovery_baseline_status"] == "live_verified"
+    assert record["discovery_price_as_of"] == "2026-11-19T18:45:00+00:00"
+    assert record["discovery_return_pct"] == pytest.approx(26.262626, abs=1e-6)
+    assert record["discovery_return_status"] == "provisional"
+    assert record["discovery_return_price_as_of"] == "2026-11-20T17:00:00+00:00"
+
+
+def test_render_sync_fills_missing_baseline_with_complete_old_provenance(tmp_path, monkeypatch):
+    monkeypatch.setattr(main, "HISTORY_SNAPSHOT", tmp_path / "snapshot.json")
+    stored = {
+        "discovery_initial_price": 1.485,
+        "discovery_price_as_of": "2026-11-19T18:45:00+00:00",
+        "discovery_price_checked_at": "2026-11-19T18:45:57+00:00",
+        "discovery_price_source": "first cross-checked quote",
+        "discovery_baseline_timestamp_type": "exchange_quote",
+        "discovery_baseline_status": "live_verified",
+    }
+    main.HISTORY_SNAPSHOT.write_text(json.dumps({
+        "paper_tracker": {"stock:PYXS": stored}, "lifetime": {}
+    }), encoding="utf-8")
+    incoming = {"paper_tracker": {"stock:PYXS": {
+        "discovery_initial_price": None,
+        "price_validation_status": "verified",
+        "data_quality": {"data_type": "delayed"},
+        "latest_price": 1.875,
+        "price_as_of": "2026-11-20T17:00:00+00:00",
+    }}, "lifetime": {}}
+    record = main.apply_discovery_baseline_guard(incoming)["paper_tracker"]["stock:PYXS"]
+    assert all(record[key] == value for key, value in stored.items())
+    assert record["discovery_return_pct"] == pytest.approx(26.262626, abs=1e-6)
+    assert record["discovery_return_status"] == "provisional"
