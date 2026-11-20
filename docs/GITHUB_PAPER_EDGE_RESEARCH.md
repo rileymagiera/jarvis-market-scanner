@@ -54,3 +54,37 @@ confluence coverage and cohort results.
 - Do not infer stop vs target order from an aggregated candle.
 - Treat sampled exits as estimates, not guaranteed market executions.
 - Keep this experiment paper-only, with no change to official BUY eligibility.
+
+
+## Fee-adjusted paper trade-quality enhancement
+
+The first two closed Risk-Off crypto paper positions were MEGAUSDT and
+GRASSUSDT. Their saved trade ledgers show approximately 23.2% and 20.0%
+of the respective net losses were estimated transaction costs. This
+two-trade sample cannot estimate future win rate, but clearly
+illustrates the importance of comparing projected payoffs net of fees.
+
+The paper simulator now computes a **net target-ladder reward/risk** using:
+- exactly the existing broker fee/spread assumptions;
+- the actual verified candidate entry and saved stop and targets;
+- 50% sale at target 1 and 50% at target 2 (idealized winning path);
+- a full stop exit (idealized losing path);
+- a normalized hypothetical $100 notional to avoid rounding bias for
+  small-price tokens (not a simulated position allocation).
+
+For *experimental* paper signals only, this net reward/risk is an additional
+tie-breaker after all existing score and target-2 gross R/R priorities.
+Official BUY eligibility, thresholds, and main score order are untouched.
+The existing $250 balance, fee estimates, risk sizing, stop/target levels,
+and timing remain exactly the same.
+
+The new dashboard fields show estimated **net target ladder R/R** and
+actual **modeled fees on closed trades**. The latter are observational
+and already included in the paper account's realized P/L.
+
+**Important:** Net ladder reward/risk is *not* a win probability or
+expected return. A simulated position may reach target 1 then stop out,
+or hit a stop between scans, so realized outcomes can differ. Current
+Coinbase commission beyond the included monthly allowance remains
+unconfigured; actual future results may be worse. Do not extrapolate
+win-rate improvements until enough versioned trade outcomes exist.
