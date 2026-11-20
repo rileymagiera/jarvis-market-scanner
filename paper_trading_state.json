@@ -113,7 +113,7 @@
       "risk_off_or_unknown_regime": 237
     }
   },
-  "last_updated_at": "2026-11-20T05:47:29.322597+00:00",
+  "last_updated_at": "2026-11-20T06:04:22.096586+00:00",
   "ledger": [
     {
       "allocation_rank": 1,
@@ -251,8 +251,8 @@
   },
   "positions": [],
   "processed_signal_ids": [
-    "risk_off:crypto:GRASSUSDT:2026-11-19",
-    "risk_off:crypto:MEGAUSDT:2026-11-19"
+    "risk_off:crypto:MEGAUSDT:2026-11-19",
+    "risk_off:crypto:GRASSUSDT:2026-11-19"
   ],
   "risk_off_signal_diagnostics": {
     "candidates_total": 237,
@@ -266,11 +266,11 @@
       "failed_buy_gate:live_data_quality": 159,
       "failed_buy_gate:no_risk_flags": 84,
       "failed_buy_gate:not_chase_risk": 4,
-      "failed_buy_gate:positive_hourly_momentum": 76,
+      "failed_buy_gate:positive_hourly_momentum": 16,
       "failed_buy_gate:price_verified": 95,
       "failed_buy_gate:score_82": 237,
       "failed_buy_gate:two_technical_confirmations": 101,
-      "failed_buy_gate:volume_1_8x": 85,
+      "failed_buy_gate:volume_1_8x": 84,
       "failed_buy_gate:volume_confirmed": 123
     },
     "risk_off_candidates": 237
