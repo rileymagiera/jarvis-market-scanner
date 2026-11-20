@@ -603,3 +603,89 @@ def test_early_entry_experiments_remain_disabled_by_default(tmp_path, monkeypatc
     assert account["positions"] == []
     assert account["early_entry_signal_diagnostics"]["enabled"] is False
     assert paper_trading.account_summary(account, now)["early_entry_experimental_enabled"] is False
+
+
+def test_paper_payoff_uses_actual_fee_model_and_two_target_ladder():
+    crypto = paper_trading.modeled_paper_trade_payoff("crypto", 10.0, 9.0, 11.0, 12.0)
+    stock = paper_trading.modeled_paper_trade_payoff("stock", 10.0, 9.0, 11.0, 12.0)
+    assert crypto["status"] == "modeled"
+    assert crypto["normalization_notional"] == 100.0
+    assert crypto["gross_ladder_reward_risk"] == 1.5
+    assert crypto["net_ladder_reward_risk"] < crypto["gross_ladder_reward_risk"]
+    assert crypto["net_ladder_reward_risk"] < stock["net_ladder_reward_risk"]
+    assert round(crypto["net_planned_gain_per_100"], 3) == 13.925
+    assert round(crypto["net_stop_loss_per_100"], 3) == 10.95
+    assert paper_trading.modeled_paper_trade_payoff("stock", 10, 11, 12, 13)["status"] == "invalid_levels"
+
+
+def test_risk_off_equal_scores_prefer_higher_fee_adjusted_payoff_without_new_gate(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
+    tight = _risk_off_candidate()
+    tight["asset_type"] = "crypto"
+    tight["symbol"] = "AAA"
+    tight["levels"]["stop_loss"] = 9.9
+    tight["levels"]["target_1"] = 10.1
+    tight["levels"]["target_2"] = 10.3
+    wide = _risk_off_candidate()
+    wide["asset_type"] = "crypto"
+    wide["symbol"] = "ZZZ"
+    wide["levels"]["stop_loss"] = 9.0
+    wide["levels"]["target_1"] = 12.0
+    wide["levels"]["target_2"] = 13.0
+    # Both retain identical official scores and saved gross R/R tie-breaker.
+    assert tight["score"] == wide["score"]
+    assert tight["levels"]["target_2_reward_risk_ratio"] == wide["levels"]["target_2_reward_risk_ratio"]
+    account = paper_trading.update_account([tight, wide], [], now)
+    reviews = account["allocation_review"]
+    assert [row["symbol"] for row in reviews] == ["ZZZ", "AAA"]
+    assert reviews[0]["net_ladder_reward_risk"] > reviews[1]["net_ladder_reward_risk"]
+    assert all(row["status"] == "allocated" for row in reviews)
+    assert account["starting_cash"] == 250.0
+    assert all(p["strategy"] == "risk_off_experimental" for p in account["positions"])
+    assert all(p["paper_payoff_quality"]["status"] == "modeled" for p in account["positions"])
+    assert all(p["market_regime_at_entry"] == "RISK-OFF" for p in account["positions"])
+    assert all(p["notional"] <= 62.5 for p in account["positions"])
+
+
+def test_score_still_dominates_fee_adjusted_tiebreaker(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
+    lower_score = _risk_off_candidate()
+    lower_score["asset_type"] = "crypto"
+    lower_score["symbol"] = "GOOD"
+    lower_score["score"] = 89
+    lower_score["levels"].update({"target_1": 12.0, "target_2": 13.0})
+    higher_score = _risk_off_candidate()
+    higher_score["asset_type"] = "crypto"
+    higher_score["symbol"] = "BAD"
+    higher_score["score"] = 90
+    higher_score["levels"].update({"stop_loss": 9.9, "target_1": 10.1, "target_2": 10.3})
+    account = paper_trading.update_account([lower_score, higher_score], [], now)
+    assert [row["symbol"] for row in account["allocation_review"]] == ["BAD", "GOOD"]
+
+
+def test_closed_trade_fee_decomposition_is_observational():
+    now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
+    account = {
+        "starting_cash": 250, "cash": 245, "positions": [], "closed_trades": [
+            {"symbol": "SAMPLE", "realized_pnl": -2.0, "fees_paid": 0.4}
+        ],
+    }
+    summary = paper_trading.account_summary(account, now)
+    assert summary["closed_trade_modeled_fees"] == 0.4
+    assert summary["closed_trade_gross_pnl"] == -1.6
+    assert summary["realized_pnl"] == -2.0
+
+
+def test_official_rank_remains_score_then_saved_reward_risk(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    now = datetime(2026, 11, 19, 15, 0, tzinfo=timezone.utc)
+    signals = [
+        _ranked_signal("OFFICIAL_Z", 90, "2026-11-19T10:00:00+00:00"),
+        _ranked_signal("OFFICIAL_A", 90, "2026-11-19T10:00:00+00:00"),
+    ]
+    candidates = [_ranked_candidate("OFFICIAL_Z"), _ranked_candidate("OFFICIAL_A")]
+    account = paper_trading.update_account(candidates, signals, now)
+    assert account["allocation_review"][0]["symbol"] == "OFFICIAL_A"
+    assert account["allocation_review"][1]["symbol"] == "OFFICIAL_Z"
