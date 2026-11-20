@@ -235,6 +235,7 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
+          from early_opportunity_radar import REPLAY_LEVEL_FIELDS
           from historical_audit_export import build_historical_audit_export
 
           tracker = json.loads(Path("paper_tracker.json").read_text(encoding="utf-8"))
@@ -252,6 +253,22 @@ jobs:
               history_source="github_actions_scan_workspace",
           )
           export["risk_off_comparison"] = (paper_account.get("risk_off_comparison") or {}).get("summary")
+          scan_id = str(metadata.get("run_id") or "")
+          snapshot_coverage = {}
+          for asset in ("stock", "crypto"):
+              snapshots = [
+                  snap for row in records if row.get("asset_type") == asset
+                  for snap in (row.get("signal_history") or [])
+                  if isinstance(snap, dict) and scan_id and str(snap.get("scan_id")) == scan_id
+              ]
+              snapshot_coverage[asset] = {
+                  "saved_snapshots": len(snapshots),
+                  "outcome_eligible_snapshots": sum(s.get("outcome_eligible") is True for s in snapshots),
+                  "snapshots_with_all_trade_levels": sum(
+                      set(REPLAY_LEVEL_FIELDS).issubset(s.get("replay_levels") or {}) for s in snapshots
+                  ),
+              }
+          export["entry_timing_lab"]["current_scan_snapshot_coverage"] = snapshot_coverage
           Path("jarvis_historical_audit.json").write_text(
               json.dumps(export, separators=(",", ":")) + "\n", encoding="utf-8"
           )
