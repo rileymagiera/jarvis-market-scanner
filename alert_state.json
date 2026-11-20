@@ -67,8 +67,8 @@
       "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
     "DDD": {
-      "alerted_at": "2026-11-19T19:47:29.710708+00:00",
-      "score": 0,
+      "alerted_at": "2026-11-20T00:17:36.102042+00:00",
+      "score": 13,
       "status": "PREMARKET VERIFIED"
     },
     "EMPD": {
@@ -252,4 +252,4 @@
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 76
   }
-}
+}\n
