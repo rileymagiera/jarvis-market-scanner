@@ -8,9 +8,11 @@ returns, not backtested fills or forward win-probability predictions.
 from __future__ import annotations
 
 from collections import Counter, defaultdict
+from datetime import timedelta
 from statistics import median
 
-from signal_lead_time_audit import _valid_observations
+from signal_lead_time_audit import _positive, _time, _valid_observations
+from gate_combination_shadow import SAFETY_GATES
 from early_opportunity_radar import _eligible_snapshot
 from entry_timing_replay import ADVERSE_EXIT_BPS, frozen_plan, replay_outcome, summarize_replay
 
@@ -287,7 +289,167 @@ def _record_fee_replay(asset, series, coverage, cohorts):
             coverage[(asset, phase)][status] += 1
 
 
-def build_entry_timing_lab(records):
+def _safe_research_quote(point, asset):
+    snapshot = point[3]
+    failed = snapshot.get("failed_gate_keys")
+    return (isinstance(failed, list) and all(isinstance(gate, str) for gate in failed)
+            and not SAFETY_GATES.intersection(failed)
+            and (asset != "stock" or snapshot.get("data_type") == "live"))
+
+
+def _earlier_entries(pre_entry, asset):
+    """Freeze the first usable early plan, then evaluate only subsequent quotes."""
+    early_phases = {"EARLY ACCUMULATION", "PRE-BREAKOUT WATCH"}
+    confirmation_phases = early_phases | {"BREAKOUT DEVELOPING"}
+    signal = None
+    for index, point in enumerate(pre_entry):
+        phase = str(point[3].get("shadow_classification") or "").upper()
+        if phase not in early_phases or not _safe_research_quote(point, asset):
+            continue
+        _, plan = frozen_plan(point[3])
+        if plan is not None and _in_plan(point[2], plan):
+            signal = (index, point, plan)
+            break
+    if signal is None:
+        return None, {}
+
+    index, point, plan = signal
+    signal_at = point[0]
+    expiry = signal_at + timedelta(minutes=REPLAY_NEXT_SCAN_MAX_MIN)
+    prior_quote = signal_at
+    crossed_above = False
+    entries = {}
+    for observation in pre_entry[index + 1:]:
+        observed_at, quoted_at, price, snapshot = observation
+        if observed_at > expiry:
+            break
+        if quoted_at <= prior_quote:
+            continue
+        prior_quote = quoted_at
+        if price <= plan[2]:
+            break
+        if price > plan[1]:
+            crossed_above = True
+            continue
+        if not _in_plan(price, plan) or not _safe_research_quote(observation, asset):
+            continue
+        if crossed_above:
+            entries.setdefault("first_retest", observation)
+        elif str(snapshot.get("shadow_classification") or "").upper() in confirmation_phases:
+            entries.setdefault("first_verified_confirmation", observation)
+    return plan, entries
+
+
+def _in_plan(price, plan):
+    low, high, stop, target_1, _ = plan
+    return low <= price <= high and stop < price < target_1
+
+
+def _paired_paper_entries(records, paper_account):
+    """Compare earlier entries with recorded paper entries on a shared price path."""
+    histories = {(str(row.get("asset_type") or "").lower(), str(row.get("symbol") or "").upper()): row
+                 for row in (records or []) if isinstance(row, dict)}
+    counts = defaultdict(Counter)
+    pairs = defaultdict(list)
+    trades = [row for key in ("positions", "closed_trades")
+              for row in ((paper_account or {}).get(key) or []) if isinstance(row, dict)]
+    seen = set()
+    for trade in sorted(trades, key=lambda row: str(row.get("opened_at") or "")):
+        asset = str(trade.get("asset_type") or "").lower()
+        symbol = str(trade.get("symbol") or "").upper()
+        if asset not in {"stock", "crypto"} or not symbol or (asset, symbol) in seen:
+            continue
+        seen.add((asset, symbol))
+        strategy = str(trade.get("strategy") or "official_buy")
+        regime = str(trade.get("market_regime_at_entry") or "UNKNOWN")
+        group = (asset, strategy, regime)
+        coverage = counts[group]
+        coverage["recorded_paper_entries"] += 1
+        opened = _time(trade.get("opened_at"))
+        quoted = _time(trade.get("entry_price_as_of"))
+        price = _positive(trade.get("entry_price"))
+        exits = tuple(_positive(trade.get(key)) for key in ("stop_loss", "target_1", "target_2"))
+        if not (opened and quoted and price and all(exits)
+                and 0 <= (opened - quoted).total_seconds() <= 900
+                and exits[0] < price < exits[1] <= exits[2]):
+            coverage["unusable_paper_entry"] += 1
+            continue
+        history, _ = _valid_observations(histories.get((asset, symbol), {}))
+        history = [point for point in history if _eligible_snapshot(point[3])]
+        lookback_start = opened - timedelta(minutes=max(HORIZONS_MIN))
+        pre_entry = [point for point in history if lookback_start <= point[0] < opened]
+        if not pre_entry:
+            coverage["without_earlier_verified_observation"] += 1
+            continue
+        plan, entries = _earlier_entries(pre_entry, asset)
+        if plan is None:
+            coverage["without_earlier_frozen_plan"] += 1
+            continue
+        if not entries:
+            coverage["without_earlier_trigger"] += 1
+            continue
+
+        baseline = [(opened, quoted, price, {}), *(point for point in history if point[0] > opened)]
+        for trigger, entry in entries.items():
+            coverage[trigger + "_entries"] += 1
+            lead = (opened - entry[0]).total_seconds() / 60
+            earlier_prices = []
+            quote_cutoff = entry[0]
+            for observed_at, quote_at, observed_price, _ in [*pre_entry, baseline[0]]:
+                if observed_at > entry[0] and quote_cutoff < quote_at <= opened:
+                    earlier_prices.append(observed_price)
+                    quote_cutoff = quote_at
+            for horizon in HORIZONS_MIN:
+                followup = _followup(baseline, 0, horizon,
+                                     early_tolerance_min=REPLAY_HORIZON_EARLY_TOLERANCE_MIN)
+                if followup is None:
+                    coverage[trigger + "_missing_followup_" + str(horizon)] += 1
+                    continue
+                prices = followup["sampled_exit_prices"]
+                current = replay_outcome(asset, price, exits, prices)
+                earlier = replay_outcome(asset, entry[2], plan[2:], earlier_prices + prices)
+                pairs[(*group, trigger, horizon)].append({
+                    "lead": lead, "price_savings": (1 - entry[2] / price) * 100,
+                    "current": current, "earlier": earlier,
+                })
+    return {
+        "mode": "read_only_paired_replay",
+        "coverage": [
+            {"asset_type": asset, "paper_strategy": strategy, "paper_entry_regime": regime, **coverage}
+            for (asset, strategy, regime), coverage in sorted(counts.items())
+        ],
+        "cohorts": [
+            {
+                "asset_type": asset, "paper_strategy": strategy, "paper_entry_regime": regime,
+                "earlier_trigger": trigger, "horizon_minutes_after_paper_entry": horizon,
+                "paired_candidates": len(rows),
+                "median_minutes_earlier": _median([row["lead"] for row in rows]),
+                "median_entry_price_savings_pct": _median([row["price_savings"] for row in rows]),
+                "review_status": ("directional_only" if len(rows) >= MIN_DIRECTIONAL_SAMPLE
+                                  else "insufficient_sample_do_not_rank"),
+                **{
+                    label: {
+                        "sampled_stops": sum(row[label]["exit_reason"] == "STOP" for row in rows),
+                        "mean_net_return_pct": _mean([row[label]["observed_quote"] for row in rows]),
+                        "mean_net_return_adverse_exit_pct": _mean([row[label]["adverse_exit"] for row in rows]),
+                    }
+                    for label in ("current", "earlier")
+                },
+            }
+            for (asset, strategy, regime, trigger, horizon), rows in sorted(pairs.items())
+        ],
+        "assumptions": [
+            "Compare the first recorded paper entry per symbol with each earlier trigger separately on the same candidate.",
+            "Use the first complete plan frozen at a safe early accumulation or pre-breakout observation in the four hours before the recorded entry.",
+            "Confirmation requires a newer quote still in range with an early or developing-breakout label. A retest requires a sampled move above the range and then a return into it.",
+            "The research plan expires after 75 minutes or an observed stop breach. Each alternative must occur before the recorded entry.",
+            "Both sides use the same follow-up endpoint, with their own frozen stops and targets and the existing fee, spread and adverse exit models. Missing follow-up is excluded.",
+            "Cohorts are conditioned on eventual paper entries and grouped by the recorded entry regime. They do not measure false positives across the full watchlist or qualify trades under current rules.",
+        ],
+    }
+
+
+def build_entry_timing_lab(records, *, paper_account=None):
     """Compare early-research phase timing; never claim those phases are official BUYs.
 
     A phase contributes only its first retained verified observation per
@@ -450,6 +612,7 @@ def build_entry_timing_lab(records):
                 "Results use retained research snapshots and omit intrabar prices, skipped scans, shared capital and order fills.",
             ],
         },
+        "paired_paper_entries": _paired_paper_entries(records, paper_account),
         "signal_factor_quality": build_signal_factor_quality(records),
         "examples": examples,
         "sampled_path_review_thresholds_pct": {"stop": SAMPLED_STOP_PCT, "rally": SAMPLED_RALLY_PCT},

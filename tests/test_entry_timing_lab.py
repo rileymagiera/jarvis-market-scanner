@@ -307,3 +307,69 @@ def test_path_outcome_count_is_exhaustive_for_sampled_cohort():
         "neither_threshold_observed_count")]
     assert counts == [0, 0, 1, 0, 1]
     assert sum(counts) == cohort["sampled_candidates"]
+
+
+def _paired_fixture():
+    early = {
+        "watch_entry_low": 9.9, "watch_entry_high": 10.3,
+        "stop_loss": 9.6, "target_1": 12, "target_2": 13,
+    }
+    timeline = [
+        {**snap(0, 10, "EARLY ACCUMULATION"), "replay_levels": early},
+        snap(10, 10.1, "EARLY ACCUMULATION"),
+        snap(20, 10.6, "BREAKOUT DEVELOPING"),
+        snap(30, 10.2, "BREAKOUT DEVELOPING"),
+        snap(60, 9.5),
+        snap(105, 10.8),
+    ]
+    record = {"asset_type": "crypto", "symbol": "ABC",
+              "signal_history": [{**point, "failed_gate_keys": []} for point in timeline]}
+    entry_at = (BASE + timedelta(minutes=45)).isoformat()
+    trade = {
+        "asset_type": "crypto", "symbol": "ABC", "opened_at": entry_at, "entry_price_as_of": entry_at,
+        "entry_price": 10.8, "stop_loss": 9, "target_1": 12, "target_2": 13,
+        "strategy": "risk_off_experimental", "market_regime_at_entry": "RISK-OFF",
+    }
+    return record, trade
+
+
+def test_paired_replay_uses_two_distinct_triggers_and_the_same_endpoint():
+    record, trade = _paired_fixture()
+    account = {"positions": [trade]}
+    before = deepcopy((record, account))
+    report = build_entry_timing_lab([record], paper_account=account)["paired_paper_entries"]
+
+    assert (record, account) == before
+    coverage, = report["coverage"]
+    assert coverage["first_verified_confirmation_entries"] == 1
+    assert coverage["first_retest_entries"] == 1
+    confirmation, retest = sorted(report["cohorts"], key=lambda row: -row["median_minutes_earlier"])
+    assert confirmation["earlier_trigger"] == "first_verified_confirmation"
+    assert retest["earlier_trigger"] == "first_retest"
+    assert (confirmation["median_minutes_earlier"], retest["median_minutes_earlier"]) == (35, 15)
+    assert (confirmation["median_entry_price_savings_pct"], retest["median_entry_price_savings_pct"]) == (6.481, 5.556)
+    for row in (confirmation, retest):
+        assert row["paper_entry_regime"] == "RISK-OFF"
+        assert row["horizon_minutes_after_paper_entry"] == 60
+        assert row["earlier"]["sampled_stops"] == 1
+        assert row["current"]["sampled_stops"] == 0
+        assert row["earlier"]["mean_net_return_pct"] < row["current"]["mean_net_return_pct"]
+    assert coverage["first_retest_missing_followup_240"] == 1
+
+
+def test_paired_replay_cannot_use_future_plans_or_failed_safety_gates():
+    record, trade = _paired_fixture()
+    timeline = record["signal_history"]
+    plan = timeline[0].pop("replay_levels")
+    timeline[-1]["replay_levels"] = plan
+    timeline[-1]["shadow_classification"] = "PRE-BREAKOUT WATCH"
+    result = build_entry_timing_lab([record], paper_account={"closed_trades": [trade]})["paired_paper_entries"]
+    assert result["cohorts"] == []
+    assert result["coverage"][0]["without_earlier_frozen_plan"] == 1
+
+    timeline[0]["replay_levels"] = plan
+    timeline[1]["failed_gate_keys"] = ["live_data_quality"]
+    timeline[3]["price_as_of"] = timeline[2]["price_as_of"]  # repeated quote cannot fill the retest
+    result = build_entry_timing_lab([record], paper_account={"closed_trades": [trade]})["paired_paper_entries"]
+    assert result["cohorts"] == []
+    assert result["coverage"][0]["without_earlier_trigger"] == 1
