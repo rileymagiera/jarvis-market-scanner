@@ -9,6 +9,10 @@ from zoneinfo import ZoneInfo
 from email.message import EmailMessage
 from pathlib import Path
 from paper_trading import update_account as update_paper_trading_account, account_summary as paper_account_summary
+from notification_format import (
+    current_paper_events, mark_paper_events_notified, format_paper_trades,
+    format_premarket_watch, format_daily_status, format_market_digest,
+)
 from candidate_lifecycle import update_candidate_lifecycle
 from early_opportunity_radar import append_candidate_snapshot
 from early_runner import has_session_aware_early_runner_baseline
@@ -1080,6 +1084,7 @@ def main():
         scan_id=scan_id,
     )
     print("Paper trading:", json.dumps(paper_account_summary(paper_account), sort_keys=True))
+    pending_paper_email_events = current_paper_events(paper_account, state, now)
     # Keep the live history page current without waiting for a Render redeploy.
     # The committed JSON files remain the recovery source if the site restarts.
     try:
@@ -1120,134 +1125,60 @@ def main():
     local_hour = local_now.hour
     notification_window = ((weekday <= 4 and 7 <= local_hour < 21) or (weekday == 6 and 9 <= local_hour < 20))
     if not notification_window:
+        # Preserve paper-event deduplication initialization and any other state
+        # while respecting the existing notification quiet hours.
+        STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         print(f"Outside notification window ({local_now.isoformat()}); scan and paper tracking saved without email.")
         return
 
     premarket_selected = select_premarket_alerts(payload["candidates"], state, now)
+    paper_notice_sent = False
+    notice = format_paper_trades(pending_paper_email_events, paper_account)
+    if notice:
+        email(*notice)
+        mark_paper_events_notified(state, pending_paper_email_events)
+        # Save immediately so a later optional watchlist-email error cannot
+        # cause a paper transaction to be emailed again next scan.
+        STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        paper_notice_sent = True
+        print(f"Paper trade notification sent: {len(pending_paper_email_events)} event(s).")
+
 
     if not selected:
         if premarket_selected:
-            lines = [
-                "JARVIS PREMARKET EARLY RUNNER WATCH",
-                "Generated: " + str(payload.get("timestamp", now.isoformat())),
-                "Hourly scan only — no schedule changes. Research alerts and paper-only simulated execution; no live orders are placed.",
-                "",
-            ]
-            for item in premarket_selected:
-                lines += [
-                    f"{item.get('symbol')} | Premarket score {item.get('premarket_alert_score')}/100 | {item.get('premarket_alert_status')}",
-                    f"Gap: {item.get('premarket_gap_pct', 'n/a')}% | Premarket volume: {item.get('premarket_volume', 'n/a')} | RVOL: {item.get('premarket_rvol_same_time', 'n/a')}x",
-                    f"Price: {item.get('price', 'n/a')} | Timestamp: {item.get('price_as_of', 'n/a')} | Source: {item.get('data_source', 'n/a')}",
-                    f"Runner research score: {item.get('early_runner_research_score', 'n/a')} | Catalyst: {item.get('catalyst_labels') or 'none classified'} | Dilution flags: {item.get('dilution_flags') or 'none flagged'}",
-                    f"History-learning bonus: +{item.get('history_runner_learning_score', 0)}/10 | Matched cohorts: {[m.get('feature') for m in (item.get('history_runner_learning') or {}).get('matched_features', [])] or 'no qualified historical matches'}",
-                    "",
-                ]
-            email("Jarvis premarket early runners", "\\n".join(lines))
-            STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
-            print(f"Premarket alerts sent: {len(premarket_selected)}")
+            subject, body = format_premarket_watch(premarket_selected, payload.get("timestamp", now.isoformat()))
+            email(subject, body)
+            STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            print(f"Premarket watch email sent: {len(premarket_selected)} research candidate(s).")
             return
-        # Send one heartbeat per local Eastern calendar day.
+
         daily_key = local_now.date().isoformat()
+        if paper_notice_sent:
+            # The paper BUY/SELL message is the useful status update today.
+            # Avoid a second 'nothing to report' email in the same scan.
+            state["daily_status_date"] = daily_key
+            STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            return
         if state.get("daily_status_date") == daily_key:
             print("No new qualifying setups; daily status email already sent today.")
             return
-        generated = str(payload.get("timestamp", now.isoformat()))
-        candidates = payload.get("candidates_found", len(payload["candidates"]))
-        errors = payload.get("errors") or []
-        body = "\n".join([
-            "JARVIS DAILY MARKET STATUS",
-            "Generated: " + generated,
-            "",
-            "Jarvis completed its scheduled stock and crypto scan.",
-            "No new setups met the current alert criteria today.",
-            "Market regime: " + str(market.get("regime", "unavailable")),
-            f"Candidates returned: {candidates}",
-            f"Paper-tracked candidates: {len(paper)}",
-            f"Lifetime tracked candidates: {paper_lifetime.get('tracked_candidates', paper_lifetime.get('recommendations', 0))}",
-            "Lifetime checkpoint wins/observations: " + str({h: (v.get('wins', 0), v.get('observations', 0)) for h, v in paper_lifetime.get('checkpoints', {}).items()}),
-            "Scan coverage: " + json.dumps(payload.get("diagnostics") or {}, sort_keys=True),
-            f"Scanner errors reported: {len(errors)}",
-            "",
-            "This is a monitoring update, not a real-money buy or sell instruction. Paper positions may be simulated separately.",
-            "Jarvis never places live orders. Eligible BUY signals may be simulated in the isolated paper account.",
-        ])
-        email("Jarvis daily status: no new setups", body)
+        subject = "Jarvis DAILY STATUS: no new BUY signals"
+        body = format_daily_status(
+            market, payload.get("candidates_found", len(payload["candidates"])),
+            len(payload.get("errors") or []), payload.get("timestamp", now.isoformat()),
+        )
+        email(subject, body)
         state["daily_status_date"] = daily_key
         STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        print("Daily no-new-setups status email sent.")
+        print("Daily status email sent.")
         return
 
-    has_buy_signal = any(item.get("stage") == "BUY" for item in selected)
-    lines = [
-        "JARVIS MARKET SCANNER — BUY SIGNALS" if has_buy_signal else "JARVIS MARKET SCANNER — NEW SETUPS",
-        "Generated: " + str(payload.get("timestamp", now.isoformat())),
-        "",
-        "Research watchlist only. Not personalized financial advice. The separate $250 paper account simulates eligible BUY signals; no live orders are placed.",
-        "Detailed paper history: rolling 365 days; lifetime checkpoint totals are retained.",
-        f"Lifetime tracked candidates: {paper_lifetime.get('tracked_candidates', paper_lifetime.get('recommendations', 0))}",
-        "Lifetime checkpoint wins/observations: " + str({h: (v.get('wins', 0), v.get('observations', 0)) for h, v in paper_lifetime.get('checkpoints', {}).items()}),
-        "Verify current price, liquidity, news and risk before making any decision.",
-        "",
-    ]
-    if premarket_selected:
-        lines += [
-            "",
-            "=== PREMARKET EARLY RUNNERS (RESEARCH ONLY) ===",
-            "Hourly scan; no schedule changes. Premarket prices may be provisional.",
-        ]
-        for runner in premarket_selected:
-            lines += [
-                f'{runner.get("symbol")} | Premarket score {runner.get("premarket_alert_score")}/100 | {runner.get("premarket_alert_status")}',
-                f'Gap: {runner.get("premarket_gap_pct", "n/a")}% | Premarket volume: {runner.get("premarket_volume", "n/a")} | RVOL: {runner.get("premarket_rvol_same_time", "n/a")}x',
-                f'Quote: {runner.get("price", "n/a")} at {runner.get("price_as_of", "n/a")} | Source: {runner.get("data_source", "n/a")}',
-                f'Research score: {runner.get("early_runner_research_score", "n/a")} | Catalyst: {runner.get("catalyst_labels") or "none classified"} | Dilution: {runner.get("dilution_flags") or "none flagged"}',
-                f'History-learning bonus: +{runner.get("history_runner_learning_score", 0)}/10 | Matches: {[m.get("feature") for m in (runner.get("history_runner_learning") or {}).get("matched_features", [])] or "no qualified historical matches"}',
-                "",
-            ]
-    for item in sorted(selected, key=lambda x: int(x.get("score") or 0), reverse=True):
-        lines += [
-            f'{item.get("asset_type", "asset").upper()} {item.get("symbol", "")} | Score {item.get("score", "n/a")}/100 | {item.get("stage", item.get("signal", "WATCH"))}',
-            f'Market regime: {item.get("market_regime", market.get("regime", "unavailable"))} | Raw score: {item.get("raw_score", item.get("score", "n/a"))} | Regime adjustment: {item.get("market_score_adjustment", 0)}',
-            f'Price: {item.get("price", "n/a")} | Daily/24h change: {item.get("daily_change_pct", "n/a")}% | Relative volume: {item.get("relative_volume", "n/a")}x',
-            f'Price time: {item.get("price_session_date") or item.get("price_as_of", "n/a")} | Jarvis checked: {item.get("price_checked_at", "n/a")} | Timestamp type: {item.get("price_timestamp_type", "provider timestamp")}',
-            f'Intraday 15m change: {item.get("intraday_change_pct", "n/a")}% | Intraday relative volume: {item.get("intraday_relative_volume", "n/a")}x | Intraday breakout: {item.get("intraday_breakout", False)}',
-            f'Breakout: {item.get("breakout_20d", item.get("breakout_24h", False))} | Source: {item.get("data_source", "n/a")}',
-            f'History-learning bonus: +{item.get("history_runner_learning_score", 0)}/10 | Matched features: {[m.get("feature") for m in (item.get("history_runner_learning") or {}).get("matched_features", [])] or "no qualified historical matches"}',
-            f'PRICE QUALITY: {(item.get("data_quality") or {}).get("data_type", "unknown").upper()} | Validation: {item.get("price_validation_status", "unknown")} | Entry: {item.get("entry_status", "RESEARCH ONLY")}',
-        ]
-        levels = item.get("levels") or {}
-        if levels and item.get("stage") == "BUY":
-            lines.append(f'ENTRY RANGE: {levels.get("watch_entry_low", "n/a")}–{levels.get("watch_entry_high", "n/a")}')
-            lines.append(f'STOP-LOSS: {levels.get("stop_loss", levels.get("invalidation_level", "n/a"))} | Estimated risk from upper entry reference: {levels.get("risk_pct", "n/a")}%')
-            lines.append(f'POTENTIAL SELL: {levels.get("target_1", "n/a")} (+{levels.get("target_1_pct", "n/a")}%) | Stretch target: {levels.get("target_2", "n/a")} (+{levels.get("target_2_pct", "n/a")}%)')
-            lines.append(f'REWARD/RISK: {levels.get("reward_risk_ratio", "n/a")}:1 to first target | {levels.get("target_2_reward_risk_ratio", "n/a")}:1 to stretch target')
-            lines.append("Levels are illustrative; risk and targets use the upper entry reference. Stop/target events are recorded only when a scan observes a crossing, not as confirmed fills.")
-        elif levels:
-            lines.append(f'Entry reference: {levels.get("watch_entry_low", "n/a")}–{levels.get("watch_entry_high", "n/a")} | Illustrative invalidation: {levels.get("invalidation_level", "n/a")}')
-        if item.get("stage") == "BUY":
-            lines.append("BUY SIGNAL: strict Jarvis paper recommendation. This is not an executed trade; user approval is required for any real order.")
-        tracked = paper.get(f'{item.get("asset_type", "asset")}:{item.get("symbol", "unknown")}')
-        if tracked:
-            lines.append(
-                f'PAPER TRACKER: first seen {tracked.get("first_seen")} | return {tracked.get("return_pct")}% | '
-                f'best move {tracked.get("max_gain_pct")}% | worst move {tracked.get("max_drawdown_pct")}% | '
-                f'age {tracked.get("age_days")} days | 1/3/5/20d checkpoints {tracked.get("milestones", {})}'
-            )
-        for news in (item.get("news") or [])[:4]:
-            if news.get("title"):
-                source = (" [" + news["publisher"] + "]") if news.get("publisher") else ""
-                lines.append("Catalyst: " + news["title"] + source + ((" — " + news["url"]) if news.get("url") else ""))
-        for flag in (item.get("risk_flags") or []):
-            lines.append("RISK REVIEW: " + flag)
-        lines.append("")
-    lines += [f'Scan candidates: {payload.get("candidates_found", "n/a")}', 'Scan diagnostics: ' + json.dumps(payload.get('diagnostics') or {}, sort_keys=True), f'Scan errors: {len(payload.get("errors") or [])}']
-    buy_count = sum(1 for item in selected if item.get("stage") == "BUY")
-    subject = (
-        f"Jarvis BUY signal: {selected[0].get('symbol')}" if buy_count == 1 and len(selected) == 1
-        else f"Jarvis: {buy_count} BUY signal(s), {len(selected)} new setup(s)" if buy_count
-        else f"Jarvis: {len(selected)} new market setup(s)"
+    subject, body = format_market_digest(
+        selected, premarket_selected, market,
+        payload.get("candidates_found", len(payload["candidates"])),
+        len(payload.get("errors") or []), payload.get("timestamp", now.isoformat()),
     )
-    email(subject, "\n".join(lines))
+    email(subject, body)
     for runner in premarket_selected:
         state.setdefault("premarket_alert_history", {})[runner.get("symbol", "").upper()] = {"score": runner.get("premarket_alert_score", 0), "alerted_at": now.isoformat(), "status": runner.get("premarket_alert_status")}
     state.update(updates)
