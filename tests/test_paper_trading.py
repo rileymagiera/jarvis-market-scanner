@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import paper_trading
 
@@ -438,6 +438,57 @@ def test_risk_off_experimental_paper_entry_bypasses_only_regime_gate(tmp_path, m
     summary = paper_trading.account_summary(account, now)
     assert summary["risk_off_open_positions"] == 1
     assert summary["risk_off_total_trades"] == 1
+
+
+def test_forward_comparison_skips_only_new_risk_off_positions(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    now = datetime(2026, 11, 20, 16, tzinfo=timezone.utc)
+    risk_off = _risk_off_candidate()
+    risk_off["symbol"] = "RISK"
+    account = paper_trading.update_account(
+        [risk_off, _candidate(10)], [_signal()], now, scan_id="one",
+        enable_risk_off_comparison=True,
+    )
+    shadow = account["risk_off_comparison"]["shadow_account"]
+    assert sorted(p["symbol"] for p in account["positions"]) == ["RISK", "TEST"]
+    assert [p["symbol"] for p in shadow["positions"]] == ["TEST"]
+    assert sorted(event["symbol"] for event in account["ledger"] if event["type"] == "BUY") == ["RISK", "TEST"]
+    assert shadow["ledger"] == []
+
+    later = now + timedelta(hours=1)
+    exit_quotes = [{**risk_off, "price": 8.5}, _candidate(12)]
+    for _ in range(2):
+        account = paper_trading.update_account(
+            exit_quotes, [], later, scan_id="two", enable_risk_off_comparison=True,
+        )
+    result = paper_trading.account_summary(account, later)["risk_off_comparison"]
+    assert result["scan_count"] == 2
+    assert result["starting_equity"] == 250
+    current, skip = result["current_paper_strategy"], result["skip_new_risk_off"]
+    assert current["closed_trade_metrics"]["closed_trades"] == 2
+    assert current["closed_trade_metrics"]["win_rate_pct"] == 50
+    assert skip["closed_trade_metrics"]["closed_trades"] == 1
+    assert skip["closed_trade_metrics"]["win_rate_pct"] == 100
+    assert current["net_equity_change"] < skip["net_equity_change"]
+    assert {r["entry_regime"] for r in current["by_strategy_regime"]} == {"RISK-OFF", "UNKNOWN"}
+
+
+def test_forward_comparison_carries_open_positions_but_excludes_their_closures_from_win_rate(tmp_path, monkeypatch):
+    monkeypatch.setattr(paper_trading, "STATE_PATH", tmp_path / "paper.json")
+    now = datetime(2026, 11, 20, 16, tzinfo=timezone.utc)
+    risk_off = _risk_off_candidate()
+    paper_trading.update_account([risk_off], [], now - timedelta(hours=1))
+    account = paper_trading.update_account(
+        [{**risk_off, "price": 8.5}], [], now, enable_risk_off_comparison=True,
+    )
+    comparison = account["risk_off_comparison"]["summary"]
+    current, skip = comparison["current_paper_strategy"], comparison["skip_new_risk_off"]
+    assert comparison["carried_positions"] == 1
+    assert current == skip
+    assert current["net_equity_change"] < 0
+    assert current["max_sampled_drawdown"] > 0
+    assert current["closed_trade_metrics"]["closed_trades"] == 0
+    assert current["closed_trade_metrics"]["win_rate_pct"] is None
 
 
 def test_risk_off_experimental_paper_entry_rejects_any_other_failed_gate(tmp_path, monkeypatch):

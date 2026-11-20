@@ -1,6 +1,7 @@
 """Offline-only shared paper account for official BUYs and explicitly tagged experiments."""
 import json
 import math
+from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
 from early_opportunity_radar import build_candidate_snapshot
@@ -366,9 +367,96 @@ def build_early_entry_paper_signals(candidates, now, diagnostics=None, scan_id=N
     return signals
 
 
-def update_account(candidates, buy_signals, now, enable_early_entry_experimental=False, scan_id=None):
-    """Process one completed scan; sampled exits are explicitly not tick-level fills."""
+def _marked_equity(account):
+    equity = _num(account["cash"])
+    for position in account["positions"]:
+        quantity = _num(position.get("quantity"))
+        value = quantity * _num(position.get("latest_price") or position.get("entry_price"))
+        equity += value - calculate_trade_fee(position["asset_type"], "sell", value, quantity)["total"]
+    return equity
+
+
+def _comparison_metrics(account, comparison, previous):
+    start = datetime.fromisoformat(comparison["started_at"])
+
+    def opened_since_start(trade):
+        opened = trade.get("opened_at")
+        return bool(opened) and _timestamp_age_seconds(opened, start) == 0
+
+    closed = [trade for trade in account["closed_trades"] if opened_since_start(trade)]
+    open_count = sum(opened_since_start(trade) for trade in account["positions"])
+    validation = build_paper_trade_validation({"closed_trades": closed})
+    equity = _marked_equity(account)
+    peak = max(previous.get("peak_equity", comparison["starting_equity"]), equity)
+    drawdown = max(previous.get("max_sampled_drawdown", 0), peak - equity)
+    return {
+        "equity": round(equity, 8),
+        "net_equity_change": round(equity - comparison["starting_equity"], 8),
+        "peak_equity": peak,
+        "max_sampled_drawdown": drawdown,
+        "new_open_positions": open_count,
+        "new_trades": open_count + len(closed),
+        "closed_trade_metrics": validation["overall"],
+        "by_strategy_asset": validation["by_strategy_asset"],
+        "by_strategy_regime": validation["by_strategy_regime"],
+    }
+
+
+def update_account(candidates, buy_signals, now, enable_early_entry_experimental=False, scan_id=None,
+                   *, enable_risk_off_comparison=False):
+    """Process one scan and optionally advance a separate paper-only comparison."""
     account = load_account()
+    comparison = account.get("risk_off_comparison")
+    if enable_risk_off_comparison and comparison is None:
+        comparison = {
+            "version": "skip-new-risk-off-v1",
+            "started_at": now.isoformat(),
+            "starting_equity": _marked_equity(account),
+            "carried_positions": len(account["positions"]),
+            "scan_count": 0,
+            "shadow_account": {
+                "cash": account["cash"],
+                "positions": deepcopy(account["positions"]),
+                "closed_trades": [],
+                "ledger": [],
+                "processed_signal_ids": list(account["processed_signal_ids"]),
+                "coinbase_one_monthly_volume": dict(account.get("coinbase_one_monthly_volume") or {}),
+                "created_at": account.get("created_at"),
+            },
+        }
+    _apply_scan(account, candidates, buy_signals, now, enable_early_entry_experimental, scan_id,
+                allow_new_risk_off=True)
+    if enable_risk_off_comparison:
+        shadow = comparison["shadow_account"]
+        _apply_scan(shadow, candidates, buy_signals, now, enable_early_entry_experimental, scan_id,
+                    allow_new_risk_off=False)
+        shadow["ledger"].clear()
+        scan_key = str(scan_id or now.isoformat())
+        comparison["scan_count"] += int(scan_key != comparison.get("last_scan_id"))
+        comparison["last_scan_id"] = scan_key
+        previous = comparison.get("summary") or {}
+        comparison["summary"] = {
+            "version": comparison["version"],
+            "started_at": comparison["started_at"],
+            "last_scan_id": scan_key,
+            "last_scan_at": now.isoformat(),
+            "scan_count": comparison["scan_count"],
+            "starting_equity": comparison["starting_equity"],
+            "carried_positions": comparison["carried_positions"],
+            "current_paper_strategy": _comparison_metrics(account, comparison, previous.get("current_paper_strategy", {})),
+            "skip_new_risk_off": _comparison_metrics(shadow, comparison, previous.get("skip_new_risk_off", {})),
+            "basis": "Same starting cash, positions and scans. The comparison skips only new Risk-Off experimental entries.",
+            "trade_window": "Closed-trade statistics cover retained positions opened since the comparison began. Equity includes carried positions.",
+            "drawdown_basis": "Modeled net liquidation equity sampled after each completed scan.",
+        }
+        account["risk_off_comparison"] = comparison
+    STATE_PATH.write_text(json.dumps(account, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return account
+
+
+def _apply_scan(account, candidates, buy_signals, now, enable_early_entry_experimental, scan_id,
+                *, allow_new_risk_off):
+    """Apply the same sampled execution model to either paper account."""
     account["last_updated_at"] = now.isoformat()
     if not account.get("created_at"):
         account["created_at"] = now.isoformat()
@@ -494,7 +582,7 @@ def update_account(candidates, buy_signals, now, enable_early_entry_experimental
         and (str(s.get("asset_type") or ""), str(s.get("symbol") or "").upper()) not in held_keys
     ]
     account["early_entry_signal_diagnostics"] = early_entry_diagnostics
-    active = official_active + risk_off_active + early_entry_active
+    active = official_active + (risk_off_active if allow_new_risk_off else []) + early_entry_active
     eligible = []
     allocation_review = []
     for signal in active:
@@ -640,8 +728,6 @@ def update_account(candidates, buy_signals, now, enable_early_entry_experimental
     account["closed_trades"] = account["closed_trades"][-500:]
     account["ledger"] = account["ledger"][-500:]
     account["cash"] = round(_num(account["cash"]), 8)
-    STATE_PATH.write_text(json.dumps(account, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return account
 
 
 def account_summary(account, now=None):
@@ -768,6 +854,7 @@ def account_summary(account, now=None):
     edge_performance.sort(key=lambda row: row["cohort"])
     return {
         "paper_edge_diagnostics": account.get("paper_edge_diagnostics") or {},
+        "risk_off_comparison": (account.get("risk_off_comparison") or {}).get("summary"),
         "paper_payoff_model": "Net planned target ladder versus full stop; fee-aware and not a win forecast",
         "paper_edge_cohort_performance": edge_performance,
         "paper_trade_validation": build_paper_trade_validation(account),
