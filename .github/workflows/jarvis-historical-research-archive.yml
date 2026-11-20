@@ -39,6 +39,10 @@ concurrency:
 
 jobs:
   research-history:
+    # Quota protection: opt in via repository variable after the monthly reset.
+    # Until JARVIS_ENABLE_RESEARCH_BACKFILL is 'true', dispatches are skipped
+    # without starting a paid runner. The live market scanner is unaffected.
+    if: ${{ vars.JARVIS_ENABLE_RESEARCH_BACKFILL == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
