@@ -15,7 +15,7 @@ from gate_combination_shadow import build_gate_combination_shadow
 from runner_case_studies import build_runner_case_studies
 
 
-EXPORT_VERSION = "1.4"
+EXPORT_VERSION = "1.3"
 MAX_MISSED_RUNNERS = 50
 MAX_GATE_EVENTS = 100
 MAX_RADAR_CANDIDATES = 30
