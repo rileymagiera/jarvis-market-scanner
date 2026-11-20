@@ -77,6 +77,23 @@ price archives: `python research_data_catalog/backfill.py --asset stock --dry-ru
 Using a second computer/run requires copying the archived dataset and its
 manifest; run-local manifests alone do not prove the archive is complete.
 
+### Optional GitHub Actions collection (manual launch only)
+
+The GitHub Actions workflow `.github/workflows/jarvis-historical-research-archive.yml`
+is **workflow_dispatch only** — it does **not** start automatically, is not
+part of the 15-minute market scanner, and never trades. From the repository's
+Actions tab, select **Jarvis Historical Research Archive** and choose
+`stock` or `crypto`, `crypto_interval`, and optional `offset`.
+
+Each manual run caps collection at **550 files, 85 MiB, or 300 seconds**,
+whichever comes first, then uploads a short-lived **3-day GitHub artifact**.
+Its downloaded ZIP/Parquet prices live in that **artifact**, not the repo.
+A later shard uses another offset; because separate runners have separate
+disks, download and consolidate those artifact archives on a persistent
+storage device for full coverage. **Action minutes and artifact storage count
+against the user's GitHub allowance**; use only if the user has budget.
+This manual workflow was added but **not dispatched** in this change.
+
 ### Critical constraints before retrospective signal testing
 
 - **No training on future data**: reconstruct per-timeframe indicators using
