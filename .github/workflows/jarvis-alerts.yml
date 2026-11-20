@@ -23,9 +23,9 @@ jobs:
     timeout-minutes: 25
     steps:
       - name: Check out scanner
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Set up uv
@@ -40,7 +40,7 @@ jobs:
           uv pip install --system -r requirements.txt || python -m pip install --disable-pip-version-check -r requirements.txt
       - name: Restore Kraken hourly candle cache
         if: ${{ inputs.send_test_email != true }}
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .cache/kraken_ohlc.json
           key: jarvis-kraken-ohlc-v1-${{ github.run_id }}
@@ -69,6 +69,19 @@ jobs:
               json.dump(metadata, f, indent=2)
               f.write("\n")
           PY
+      - name: Start Render dashboard warmup while scanner runs
+        if: ${{ inputs.send_test_email != true }}
+        run: |
+          # Non-blocking public health check. This can wake a sleeping dashboard
+          # before the scanner sends its full lossless history sync.
+          # It never changes provider coverage, state files, history, or paper trades.
+          (
+            curl --fail --silent --show-error --connect-timeout 5 --max-time 55 \
+              --output /dev/null \
+              --write-out 'HTTP %{http_code} in %{time_total}s\n' \
+              https://jarvis-market-scanner.onrender.com/health \
+              > "$RUNNER_TEMP/jarvis-render-warmup.txt" 2>&1 || true
+          ) </dev/null >/dev/null 2>&1 &
       - name: Run Jarvis
         id: jarvis
         env:
@@ -112,6 +125,14 @@ jobs:
             python send_alerts.py --test
           else
             python send_alerts.py
+          fi
+      - name: Report Render dashboard warmup
+        if: ${{ always() && inputs.send_test_email != true }}
+        run: |
+          if [ -s "$RUNNER_TEMP/jarvis-render-warmup.txt" ]; then
+            cat "$RUNNER_TEMP/jarvis-render-warmup.txt"
+          else
+            echo "Warmup still running or unavailable; scanner and history sync unchanged."
           fi
       - name: Persist and summarize scan audit
         if: ${{ steps.jarvis.outcome == 'success' && inputs.send_test_email != true }}
@@ -241,7 +262,7 @@ jobs:
           PY
       - name: Upload compact historical opportunity audit
         if: ${{ steps.jarvis.outcome == 'success' && inputs.send_test_email != true }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: jarvis-historical-opportunity-audit
           path: jarvis_historical_audit.json
