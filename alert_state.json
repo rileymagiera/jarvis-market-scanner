@@ -24,6 +24,11 @@
     "alerted_stage": "DEVELOPING SETUP",
     "score": 65
   },
+  "crypto:REKTUSDT": {
+    "alerted_at": "2026-11-20T00:04:17.400548+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 66
+  },
   "crypto:SKYUSDT": {
     "alerted_at": "2026-11-19T20:04:21.408382+00:00",
     "alerted_stage": "DEVELOPING SETUP",
