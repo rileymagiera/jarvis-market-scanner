@@ -88,3 +88,41 @@ or hit a stop between scans, so realized outcomes can differ. Current
 Coinbase commission beyond the included monthly allowance remains
 unconfigured; actual future results may be worse. Do not extrapolate
 win-rate improvements until enough versioned trade outcomes exist.
+
+## Additional open-source review — November 19, 2026
+
+### Source comparison and *new* ideas versus existing Jarvis functionality
+
+| Project | Source evidence | Already in Jarvis | Remaining experiment |
+| --- | --- | --- | --- |
+| [erhungn/volatility-regime-momentum](https://github.com/erhungn/volatility-regime-momentum) | Self-reports 60.3% of 378 backtest trades and PF 1.74, with OOS analysis; primary assets were gold, FX, oil, and indices, not Jarvis's stock/crypto universe. | Paper confluence v1 already blends trend, soft volatility expansion, momentum and volume. | Separately test **ATR-normalized momentum** and hold-time sensitivity on Jarvis's own closed and future trades; do not alter stops or exit strategy automatically. |
+| [jesse-ai/jesse](https://github.com/jesse-ai/jesse) | Research tooling includes rule-significance tests, Monte Carlo and parameter robustness checks. | Versioned frozen signal snapshots and basic grouped closed-trade expectancy. | Add confidence-aware, regime-separated actual paper-trade diagnostics, then forward-only walk-forward testing. |
+| [freqtrade/freqtrade](https://github.com/freqtrade/freqtrade) | Dedicated lookahead and indicator recursion diagnostics. | Frozen entry snapshots and source freshness guards reduce some hindsight errors. | Add automated test to ensure each feature was available at the signal timestamp and no later candle contaminated it. |
+| [crollila/strategy-survival-funnel](https://github.com/crollila/strategy-survival-funnel) | Author reports 67/9,222 configuration survivals under OOS filters, trade-count and bootstrap checks. The result applies only to that study. | Jarvis has signal-lead-time audit and requires fresh independent quote timestamps. | Require untouched chronological validation and net-of-cost expectancy before promoting an experimental rule. |
+| [nautechsystems/nautilus_trader](https://github.com/nautechsystems/nautilus_trader) | Models market order fills, order-book data, latency, slippage and fill uncertainty. | Jarvis models some exchange costs and independently verifies current prices; exits are sampled at scan time. | Compare baseline exits against worse-price, delayed-exit and missed-fill **shadow scenarios**, especially on fast-moving small-cap stocks and volatile crypto. |
+| [polakowo/vectorbt](https://github.com/polakowo/vectorbt) | Research portfolios expose transaction fees, slippage and fill handling as explicit assumptions. | Jarvis already has fee-aware paper accounting. | Stress test costs and execution assumptions with unchanged original ledger. |
+| [ranaroussi/quantstats](https://github.com/ranaroussi/quantstats) | Calculates win rate, profit factor, drawdown and risk-adjusted return. | Jarvis already reports win rate, P/L, expectancy and profit factor for entry cohorts. | Report uncertainty and stratification rather than duplicate basic scorecards. |
+| [Hritish-Narayanan/Trading-with-a-ml](https://github.com/Hritish-Narayanan/Trading-with-a-ml) | Advertises >80% simulated success, but high-frequency simulation checks same-day profit targets before same-day stops while relying on completed daily high/low values. | Jarvis exits use verified scan observations rather than optimistic same-bar highs. | Reject target-first optimistic fill rules; use a conservative ambiguous-bar policy in any future bar-level backtester. |
+
+### Verified Jarvis situation at this review
+
+- Read from GitHub `paper_trading_state.json` with `last_updated_at=2026-11-20T01:04:26.466664+00:00` (8:04 p.m. Eastern November 19).
+- Shared experimental paper account remained at **$245.2690803** of $250 starting cash, with **zero open positions**.
+- The only two closed trades were Risk-Off experimental crypto entries: MEGAUSDT **-$2.14328163** and GRASSUSDT **-$2.58763807** after modeled costs. These are **two observations, not evidence of a stable 0% win rate**.
+- The recorded 238 Risk-Off candidates had zero eligible fresh signals; the separately enabled early-entry experiment also had zero eligible candidates because all 238 had Risk-Off/unknown regime.
+- **Do not** reset ledger, change risk limits, disallow/allow a regime, or reduce official BUY thresholds based on these two outcomes.
+
+### Priority roadmap (new versus existing)
+
+1. **Research verification, additive and safe:** `paper_trade_validation.py` provides Wilson intervals, entry-regime × strategy/asset breakdown, closed-P/L drawdown and explicit insufficient-sample notices. Exposed read-only by `account_summary()`. This does not change trade selection.
+2. **Forward-only evidence gate, not implemented yet:** freeze challenge strategy definitions before a later chronological holdout. Apply market-regime splits, asset cohorts, costs, confidence bounds, and sample-size warnings. Keep candidates with missing features unknown, not automatically rejected as failures.
+3. **Shadow execution-stress scenarios, not implemented yet:** apply hypothetical adverse fill/slippage and scan-delay scenarios off the recorded baseline. Do not rewrite historical fills or adjust Coinbase/Webull cost assumptions in the official paper engine without approval.
+4. **Counterfactual missed-runner evaluation, not implemented yet:** compare verified early signals, actual eligible entry ranges, later maximum favorable/adverse paths, and BUY-gate reasons. Candidate +20% future movement alone does not establish a profitable executable trade.
+5. **ATR-normalized momentum challenger, not implemented yet:** build a named shadow-only variant of the current confluence pilot using a correctly time-aligned ATR signal. Never confuse source-study parameters with proven universal settings.
+6. **Risk-Off comparison, not implemented yet:** evaluate whether avoiding new experimental entries in Risk-Off helps on future out-of-sample observations. Preserve the existing experimental configuration until a separately approved strategy change.
+
+### Honest interpretation and promotion criteria
+
+The objective is profitable, repeatable decisions **after actual trading costs**, not maximizing the ratio of tiny winners to occasional large losses. Compare official BUY, Risk-Off experimental, early-entry experimental, and future shadow variants separately. Do not promote a strategy based on the source author's headline win rate, two closed Jarvis trades, lookahead-contaminated candles, unrepresentative markets, or cherry-picked winners. A 30-trade diagnostic label is *not* a statistically validated promotion threshold. Deployment and risk/strategy changes require the project's test and approval safeguards.
+
+This is a selective source review, **not an exhaustive crawl of all GitHub trading repositories**.
