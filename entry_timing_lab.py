@@ -101,6 +101,149 @@ def _followup(series, entry_index, minutes):
     return None
 
 
+
+# The factor comparison extends the existing forward-only lab; it never sets a
+# production eligibility or BUY threshold. The 75-minute observation window
+# accommodates the scanner's current hourly schedule without claiming a fill.
+FACTOR_QUALITY_VERSION = "first-frozen-signal-next-scan-v1"
+FACTOR_NEXT_SCAN_MAX_MIN = 75
+FACTOR_MIN_PER_SIDE = 30
+# Numeric cutoffs reuse already-established early-radar research definitions.
+QUALITY_FACTORS = (
+    ("higher_lows", "higher_lows", None),
+    ("multi_timeframe_alignment", "multi_timeframe_alignment", None),
+    ("intraday_breakout", "intraday_breakout", None),
+    ("breakout_24h", "breakout_24h", None),
+    ("volume_acceleration_3bar_ge_1_5", "volume_acceleration_3bar", 1.5),
+    ("cumulative_rvol_same_time_ge_1_3", "cumulative_rvol_same_time", 1.3),
+    ("relative_volume_ge_1_5", "relative_volume", 1.5),
+)
+
+
+def _frozen_factor(snapshot, field, cutoff):
+    """Unknown is neither positive nor negative; use signal-time features only."""
+    features = snapshot.get("features")
+    if not isinstance(features, dict):
+        return None
+    value = features.get(field)
+    if cutoff is None:
+        return value if isinstance(value, bool) else None
+    if isinstance(value, bool) or value is None:
+        return None
+    try:
+        from math import isfinite
+        numeric = float(value)
+        return numeric >= cutoff if isfinite(numeric) else None
+    except (TypeError, ValueError, OverflowError):
+        return None
+
+
+def build_signal_factor_quality(records):
+    """Compare frozen factors at the first retained signal, with future quotes only.
+
+    Each asset/symbol contributes at most once to each horizon and factor.
+    No-follow-up and unknown feature values are never counted as losses or
+    negative features. These are gross sampled outcomes, not executable wins.
+    """
+    grouped = defaultdict(lambda: {"present": [], "absent": [], "unknown": 0})
+    seen_candidates = set()
+    first_signals = next_scans = invalid_snapshots = 0
+    without_next_scan = 0
+    followed_by_horizon = {minutes: 0 for minutes in HORIZONS_MIN}
+    for record in records or []:
+        if not isinstance(record, dict):
+            continue
+        asset = str(record.get("asset_type") or "").lower()
+        symbol = str(record.get("symbol") or "").upper()
+        if asset not in {"stock", "crypto"} or not symbol:
+            continue
+        key = (asset, symbol)
+        if key in seen_candidates:
+            continue
+        raw_series, rejected = _valid_observations(record)
+        series = [point for point in raw_series if _eligible_snapshot(point[3])]
+        invalid_snapshots += rejected + len(raw_series) - len(series)
+        first = next(
+            ((idx, point) for idx, point in enumerate(series)
+             if str(point[3].get("shadow_classification") or "").upper() in PHASES),
+            None,
+        )
+        if first is None:
+            continue
+        seen_candidates.add(key)
+        first_signals += 1
+        index, (signal_at, signal_quote, _, snapshot) = first
+        if index + 1 >= len(series):
+            without_next_scan += 1
+            continue
+        entry_at, entry_quote, _, _ = series[index + 1]
+        delay = (entry_at - signal_at).total_seconds() / 60
+        if not (0 < delay <= FACTOR_NEXT_SCAN_MAX_MIN and entry_quote > signal_quote):
+            without_next_scan += 1
+            continue
+        next_scans += 1
+        for horizon in HORIZONS_MIN:
+            outcome = _followup(series, index + 1, horizon)
+            if outcome is None:
+                continue
+            followed_by_horizon[horizon] += 1
+            for label, field, cutoff in QUALITY_FACTORS:
+                bucket = grouped[(asset, label, horizon)]
+                state = _frozen_factor(snapshot, field, cutoff)
+                if state is None:
+                    bucket["unknown"] += 1
+                else:
+                    bucket["present" if state else "absent"].append(outcome["return_pct"])
+
+    cohorts = []
+    for (asset, label, horizon), data in sorted(grouped.items()):
+        yes, no = data["present"], data["absent"]
+        enough = len(yes) >= FACTOR_MIN_PER_SIDE and len(no) >= FACTOR_MIN_PER_SIDE
+        cohorts.append({
+            "asset_type": asset,
+            "factor_at_first_signal": label,
+            "horizon_minutes": horizon,
+            "present_candidates": len(yes),
+            "absent_candidates": len(no),
+            "unknown_feature_candidates": data["unknown"],
+            "positive_gross_followup_pct_present": round(
+                100 * sum(x > 0 for x in yes) / len(yes), 2) if yes else None,
+            "positive_gross_followup_pct_absent": round(
+                100 * sum(x > 0 for x in no) / len(no), 2) if no else None,
+            "median_gross_return_pct_present": _median(yes),
+            "median_gross_return_pct_absent": _median(no),
+            "median_return_difference_pct_points": (
+                round(median(yes) - median(no), 3) if enough else None
+            ),
+            "review_status": (
+                "directional_only_not_proven_edge" if enough
+                else "insufficient_distinct_candidates_do_not_rank"
+            ),
+        })
+    return {
+        "version": FACTOR_QUALITY_VERSION,
+        "mode": "shadow_only_no_trades",
+        "minimum_distinct_candidates_per_side": FACTOR_MIN_PER_SIDE,
+        "next_verified_scan_max_minutes": FACTOR_NEXT_SCAN_MAX_MIN,
+        "horizons_minutes": list(HORIZONS_MIN),
+        "distinct_candidates_with_first_signal": first_signals,
+        "first_signals_with_next_verified_scan": next_scans,
+        "first_signals_without_usable_next_scan": without_next_scan,
+        "excluded_invalid_snapshots": invalid_snapshots,
+        "followed_candidates_by_horizon": followed_by_horizon,
+        "cohorts": cohorts,
+        "limitations": [
+            "Factors are frozen at the first retained research phase, never read from a later outcome scan.",
+            "One candidate per asset/symbol, factor, and horizon. Unknown factors and missing outcomes are excluded rather than called failures.",
+            "Only independently fresh, eligible quote observations are compared, with a subsequent observation as a hypothetical gross entry.",
+            "The 75-minute research window accommodates hourly scans. It is NOT an actionable order-entry or BUY threshold.",
+            "Cohort medians are descriptive; at least 30 distinct candidates on EACH side are required before directional comparison.",
+            "Groups are not matched for regime, market cap, liquidity, or time; even directional status is not a causal claim.",
+            "No modeled fees, slippage, stops, fill guarantees, or win-rate estimate. Do not promote factors without walk-forward evaluation.",
+        ],
+    }
+
+
 def build_entry_timing_lab(records):
     """Compare early-research phase timing; never claim those phases are official BUYs.
 
@@ -219,6 +362,7 @@ def build_entry_timing_lab(records):
         "excluded_invalid_snapshots": excluded,
         "next_scan_samples_by_asset": by_asset,
         "cohorts": rows,
+        "signal_factor_quality": build_signal_factor_quality(records),
         "examples": examples,
         "sampled_path_review_thresholds_pct": {"stop": SAMPLED_STOP_PCT, "rally": SAMPLED_RALLY_PCT},
         "sampled_stop_before_rally_examples": path_examples,
