@@ -113,7 +113,7 @@
       "risk_off_or_unknown_regime": 241
     }
   },
-  "last_updated_at": "2026-11-20T09:47:56.121052+00:00",
+  "last_updated_at": "2026-11-20T10:04:54.810746+00:00",
   "ledger": [
     {
       "allocation_rank": 1,
@@ -245,32 +245,33 @@
   "mode": "PAPER_ONLY",
   "paper_edge_diagnostics": {
     "note": "Paper-only evidence profile, not a measured win probability; no official BUY gates changed",
-    "screened_verified_candidates": 81,
+    "screened_verified_candidates": 77,
     "trend_volatility_confluence_candidates": 0,
     "version": "github-confluence-v1"
   },
   "positions": [],
   "processed_signal_ids": [
-    "risk_off:crypto:GRASSUSDT:2026-11-19",
-    "risk_off:crypto:MEGAUSDT:2026-11-19"
+    "risk_off:crypto:MEGAUSDT:2026-11-19",
+    "risk_off:crypto:GRASSUSDT:2026-11-19"
   ],
   "risk_off_signal_diagnostics": {
     "candidates_total": 241,
     "eligible_signals": 0,
     "rejections": {
       "failed_buy_gate:24h_breakout": 95,
-      "failed_buy_gate:above_24h_average": 85,
-      "failed_buy_gate:breakout_confirmed": 130,
-      "failed_buy_gate:five_bar_intraday_trend_up": 111,
+      "failed_buy_gate:above_24h_average": 89,
+      "failed_buy_gate:breakout_confirmed": 132,
+      "failed_buy_gate:five_bar_intraday_trend_up": 109,
       "failed_buy_gate:fresh_intraday_confirmation": 146,
-      "failed_buy_gate:live_data_quality": 160,
+      "failed_buy_gate:live_data_quality": 164,
       "failed_buy_gate:no_risk_flags": 9,
       "failed_buy_gate:not_chase_risk": 4,
-      "failed_buy_gate:positive_hourly_momentum": 74,
-      "failed_buy_gate:price_verified": 17,
+      "failed_buy_gate:not_extended": 1,
+      "failed_buy_gate:positive_hourly_momentum": 77,
+      "failed_buy_gate:price_verified": 21,
       "failed_buy_gate:score_82": 241,
       "failed_buy_gate:two_technical_confirmations": 84,
-      "failed_buy_gate:volume_1_8x": 87,
+      "failed_buy_gate:volume_1_8x": 86,
       "failed_buy_gate:volume_confirmed": 114
     },
     "risk_off_candidates": 241
