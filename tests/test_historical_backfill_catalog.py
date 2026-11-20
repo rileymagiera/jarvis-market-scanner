@@ -91,9 +91,7 @@ def test_next_offset_uses_actual_processed_count_when_byte_cap_interrupts(tmp_pa
 
 
 def test_corrupt_existing_stock_archive_is_replaced_not_skipped(tmp_path):
-    plan = stock_plan("ticker,rows,first_date,last_date,file_size_kb\\nA,2,2019-01-01,2026-11-18,3\\n")
-    # Use a real newline in the synthetic CSV, not a literal escaped sequence.
-    plan = stock_plan("ticker,rows\\nA,2\\n".replace("\\\\n", "\\n"))
+    plan = stock_plan("ticker,rows\nA,2\n")
     output = tmp_path / "archive"
     old = output / "stocks" / "A.parquet"
     old.parent.mkdir(parents=True)
@@ -111,7 +109,7 @@ def test_corrupt_existing_stock_archive_is_replaced_not_skipped(tmp_path):
 
 
 def test_independent_shard_reports_are_kept(tmp_path):
-    plan = stock_plan("ticker,rows\\nA,2\\nB,2\\n".replace("\\\\n", "\\n"))
+    plan = stock_plan("ticker,rows\nA,2\nB,2\n")
     def fake_fetch(url):
         return b"PAR1valid-parquet-PAR1"
     out = tmp_path / "history"
