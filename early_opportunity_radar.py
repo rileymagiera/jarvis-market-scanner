@@ -177,6 +177,13 @@ def build_candidate_snapshot(item, observed_at, scan_id):
             key: number for key, value in frozen_levels.items()
             if not isinstance(value, bool) and (number := _number(value)) is not None and number > 0
         }
+    stock_quote = item.get("stock_execution_quote")
+    if asset == "stock" and isinstance(stock_quote, dict):
+        snapshot["stock_execution_quote"] = {
+            "feed": stock_quote.get("feed"),
+            "as_of": stock_quote.get("as_of"),
+            **{key: _number(stock_quote.get(key)) for key in ("bid", "ask", "bid_size", "ask_size")},
+        }
     return snapshot
 
 def append_candidate_snapshot(record, item, observed_at, scan_id=None):
