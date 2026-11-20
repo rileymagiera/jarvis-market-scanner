@@ -11,10 +11,11 @@ from typing import Any
 from runner_intelligence import build_runner_intelligence_report
 from signal_lead_time_audit import build_signal_lead_time_audit
 from entry_timing_lab import build_entry_timing_lab
+from gate_combination_shadow import build_gate_combination_shadow
 from runner_case_studies import build_runner_case_studies
 
 
-EXPORT_VERSION = "1.2"
+EXPORT_VERSION = "1.3"
 MAX_MISSED_RUNNERS = 50
 MAX_GATE_EVENTS = 100
 MAX_RADAR_CANDIDATES = 30
@@ -81,6 +82,7 @@ def build_historical_audit_export(
         },
         "signal_lead_time": build_signal_lead_time_audit(values),
         "entry_timing_lab": build_entry_timing_lab(values),
+        "gate_combination_shadow": build_gate_combination_shadow(values),
         "ticker_case_studies": (build_runner_case_studies(values, requested_symbols)
                                 if requested_symbols else None),
         "early_warning_cohorts": {
@@ -104,6 +106,7 @@ def build_historical_audit_export(
             "Lead-time measurements use only retained, verified per-scan observations and cannot establish intrabar timing or trade profitability.",
             "Entry timing is a next-fresh-scan gross-return shadow comparison, not an executable entry signal or win rate.",
             "Stop-before-rally research orders sampled verified quotes only; gaps, intrabar stops and real fills are unknown.",
+            "Gate-combination results reuse existing saved gate failures and observed outcomes, not hypothetical fills or fee-adjusted returns.",
             "This export does not change scoring, eligibility, risk, paper trades, or live trading.",
         ],
     }
