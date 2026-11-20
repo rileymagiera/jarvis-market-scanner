@@ -3249,6 +3249,7 @@ def apply_discovery_baseline_guard(payload: dict) -> dict:
         if not isinstance(record, dict):
             continue
 
+        record.pop("discovery_baseline_conflict", None)
         # The scanner's durable ledger is the source of truth for a captured
         # discovery baseline. Render's local snapshot may recover a MISSING
         # baseline, but must never replace a different scanner-supplied price.
