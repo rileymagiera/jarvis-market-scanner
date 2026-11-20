@@ -2928,7 +2928,7 @@ def data_health_data():
 
 @app.get("/intelligence/audit-export", dependencies=[Depends(require_site_login)])
 @app.get("/research/audit-export", dependencies=[Depends(require_site_login)])
-def historical_audit_export():
+def historical_audit_export(symbols: str | None = None):
     """Bounded read-only JSON export of retained missed-runner and BUY-gate research."""
     state = latest_history_state()
     if not isinstance(state, dict) or not isinstance(state.get("paper_tracker"), dict):
@@ -2941,6 +2941,7 @@ def historical_audit_export():
         scan_run_id=state.get("scan_run_id"),
         synced_at=state.get("synced_at"),
         history_source=state.get("history_source", "unknown"),
+        requested_symbols=symbols,
     )
 
 
