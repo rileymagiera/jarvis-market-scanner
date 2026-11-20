@@ -85,18 +85,51 @@ class EarlyOpportunityRadarTests(unittest.TestCase):
             "asset_type": "crypto", "symbol": "XYZ", "price": 2.0,
             "stage": "EARLY WATCH", "price_validation_status": "verified",
             "price_validation_passed": True, "early_warning_matches": ["Higher lows"],
+            "price_as_of": "2026-11-19T15:00:00+00:00",
             "data_quality": {"data_type": "live"},
         }, "2026-11-19T15:00:00+00:00", "crypto-1")
         append_candidate_snapshot(record, {
             "asset_type": "crypto", "symbol": "XYZ", "price": 2.2,
             "stage": "DEVELOPING SETUP", "price_validation_status": "verified",
             "price_validation_passed": True, "early_warning_matches": ["Higher lows"],
+            "price_as_of": "2026-11-19T15:15:00+00:00",
             "data_quality": {"data_type": "live"},
         }, "2026-11-19T15:15:00+00:00", "crypto-2")
         cohort = build_shadow_opportunity_radar([record])["outcome_cohorts"][0]
         self.assertEqual(cohort["asset_type"], "crypto")
         self.assertEqual(cohort["data_quality_cohort"], "live")
         self.assertEqual(cohort["reached_5pct"], 1)
+
+    def test_prior_session_pass_flag_cannot_mark_snapshot_verified(self):
+        snapshot = build_candidate_snapshot(
+            self.stock(price_validation_status="last_known", price_validation_passed=True),
+            "2026-11-19T15:00:00+00:00", "stale-flag")
+        self.assertFalse(snapshot["price_verified"])
+        self.assertFalse(snapshot["outcome_eligible"])
+
+    def test_stale_retained_flag_cannot_count_as_measured_upside(self):
+        record = {"asset_type": "stock", "symbol": "AAA", "signal_history": [
+            {"observed_at": "2026-11-19T15:00:00+00:00",
+             "price_as_of": "2026-11-19T15:00:00+00:00",
+             "price": 10, "outcome_eligible": True, "price_verified": True,
+             "stage": "EARLY WATCH", "shadow_classification": "EARLY WATCH"},
+            {"observed_at": "2026-11-19T15:15:01+00:00",
+             "price_as_of": "2026-11-19T15:00:00+00:00",
+             "price": 15, "outcome_eligible": True, "price_verified": True,
+             "stage": "DEVELOPING RUNNER", "shadow_classification": "BREAKOUT DEVELOPING"},
+        ]}
+        report = build_shadow_opportunity_radar([record])
+        self.assertEqual(report["outcome_eligible_snapshots"], 1)
+        self.assertEqual(report["candidates"][0]["outcome_sample_count"], 1)
+        self.assertEqual(report["candidates"][0]["max_favorable_since_first_eligible_pct"], 0)
+
+    def test_crypto_requires_quote_timestamp_not_just_provider_flag(self):
+        snapshot = build_candidate_snapshot(
+            {"asset_type": "crypto", "symbol": "XYZ", "price": 2,
+             "stage": "EARLY WATCH", "price_validation_status": "verified",
+             "price_validation_passed": True, "early_warning_matches": ["Higher lows"]},
+            "2026-11-19T15:00:00+00:00", "missing-quote-time")
+        self.assertFalse(snapshot["outcome_eligible"])
 
     def test_snapshot_does_not_mutate_candidate_or_buy_gate(self):
         item = self.stock()

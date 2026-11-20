@@ -6,6 +6,7 @@ scores, BUY eligibility, alerts, paper-trade entries, or execution permissions.
 from __future__ import annotations
 
 import math
+from datetime import datetime
 
 MAX_SIGNAL_SNAPSHOTS_PER_CANDIDATE = 32
 
@@ -28,6 +29,38 @@ def _number(value):
         return number if math.isfinite(number) else None
     except (TypeError, ValueError, OverflowError):
         return None
+
+def _quote_age_seconds(observed_at, quote_at):
+    """Independent quote-age check using timezone-aware timestamps, never scan age alone."""
+    if not observed_at or not quote_at:
+        return None
+    try:
+        observed = datetime.fromisoformat(str(observed_at).replace("Z", "+00:00"))
+        quoted = datetime.fromisoformat(str(quote_at).replace("Z", "+00:00"))
+        if observed.utcoffset() is None or quoted.utcoffset() is None:
+            return None
+        seconds = (observed - quoted).total_seconds()
+        return seconds if math.isfinite(seconds) and seconds >= 0 else None
+    except (TypeError, ValueError, OverflowError):
+        return None
+
+
+def _eligible_snapshot(snapshot):
+    """Revalidate retained snapshots, including legacy observations, before measuring outcomes."""
+    if not isinstance(snapshot, dict) or snapshot.get("outcome_eligible") is not True:
+        return False
+    if snapshot.get("price_verified") is not True:
+        return False
+    if str(snapshot.get("price_validation_status") or "").lower() in {
+        "unverified", "last_known", "stale", "missing", "invalid"
+    }:
+        return False
+    price = _number(snapshot.get("price"))
+    quote_age = _quote_age_seconds(snapshot.get("observed_at"), snapshot.get("price_as_of"))
+    reported_age = _number(snapshot.get("data_age_seconds"))
+    return bool(price is not None and price > 0 and quote_age is not None and
+                quote_age <= 900 and (reported_age is None or 0 <= reported_age <= 900))
+
 
 def _list(value, limit=8):
     if isinstance(value, str):
@@ -89,20 +122,27 @@ def build_candidate_snapshot(item, observed_at, scan_id):
         return None
     asset = str(item.get("asset_type") or "").lower()
     status = str(item.get("price_validation_status") or "unknown").lower()
-    verified = bool(item.get("price_validation_passed")) or status == "verified"
+    # An explicit stale/unverified status takes precedence over a legacy pass flag.
+    verified = (bool(item.get("price_validation_passed")) or status == "verified") and status not in {
+        "unverified", "last_known", "stale", "missing", "invalid"
+    }
     data_quality = item.get("data_quality") if isinstance(item.get("data_quality"), dict) else {}
     data_type = str(data_quality.get("data_type") or "unknown").lower()
     age = _number(data_quality.get("age_seconds"))
     session = str(data_quality.get("session") or "").upper()
-    outcome_eligible = verified and (
-        asset == "crypto" or (
-            data_type == "live" and (age is None or age <= 900)
-            and session in {"REGULAR SESSION", "PRE-MARKET", "AFTER-HOURS"}
+    price = _number(item.get("price") or item.get("latest_price"))
+    quote_age = _quote_age_seconds(observed_at, item.get("price_as_of"))
+    outcome_eligible = bool(
+        verified and price is not None and price > 0 and quote_age is not None and
+        quote_age <= 900 and (age is None or 0 <= age <= 900) and (
+            asset == "crypto" or (
+                data_type == "live" and
+                session in {"REGULAR SESSION", "PRE-MARKET", "AFTER-HOURS"}
+            )
         )
     )
     readiness = item.get("buy_readiness") if isinstance(item.get("buy_readiness"), dict) else {}
     checks = readiness.get("checks") if isinstance(readiness.get("checks"), dict) else {}
-    price = _number(item.get("price") or item.get("latest_price"))
     snapshot = {
         "scan_id": str(scan_id or observed_at),
         "observed_at": str(observed_at),
@@ -121,6 +161,7 @@ def build_candidate_snapshot(item, observed_at, scan_id):
         "outcome_eligible": outcome_eligible,
         "data_type": data_type,
         "data_age_seconds": age,
+        "quote_age_seconds": round(quote_age, 2) if quote_age is not None else None,
         "evidence": evidence,
         "features": {key: item.get(key) for key in FEATURE_FIELDS if item.get(key) is not None},
     }
@@ -156,15 +197,14 @@ def build_shadow_opportunity_radar(records):
         history.sort(key=lambda x: str(x.get("observed_at") or ""))
         total_snapshots += len(history)
         verified_snapshots += sum(bool(x.get("price_verified")) for x in history)
-        eligible_snapshots += sum(bool(x.get("outcome_eligible")) for x in history)
+        eligible_snapshots += sum(_eligible_snapshot(x) for x in history)
         latest = history[-1]
         label = str(latest.get("shadow_classification") or "UNCLASSIFIED")
         asset = str(record.get("asset_type") or latest.get("asset_type") or "unknown")
         class_counts[label] = class_counts.get(label, 0) + 1
         asset_counts[asset] = asset_counts.get(asset, 0) + 1
 
-        eligible = [x for x in history if x.get("outcome_eligible")
-                    and _number(x.get("price")) is not None and _number(x.get("price")) > 0]
+        eligible = [x for x in history if _eligible_snapshot(x)]
         baseline = eligible[0] if eligible else None
         returns = []
         if baseline:
