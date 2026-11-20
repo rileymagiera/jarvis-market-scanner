@@ -2989,14 +2989,14 @@ def inject_mobile_navigation(html: str) -> str:
     """Compact mobile shortcuts without removing any of the desktop's eight pages."""
     if 'id="jarvis-mobile-navigation"' in html:
         return html
-    match = re.search(r"<nav\\b[^>]*>[\\s\\S]*?</nav>", html)
+    match = re.search(r"<nav\b[^>]*>[\s\S]*?</nav>", html)
     if match is None:
         return html
     desktop = match.group(0)
     active = None
-    for anchor in re.findall(r"<a\\b[^>]*>[^<]*</a>", desktop):
+    for anchor in re.findall(r"<a\b[^>]*>[^<]*</a>", desktop):
         href = re.search(r'href="/([^"]+)"', anchor)
-        if href and ('aria-current="page"' in anchor or re.search(r'class="[^"]*\\bactive\\b', anchor)):
+        if href and ('aria-current="page"' in anchor or re.search(r'class="[^"]*\bactive\b', anchor)):
             active = href.group(1)
             break
     primary = [("history", "Market Overview"), ("intelligence", "Intelligence"),
