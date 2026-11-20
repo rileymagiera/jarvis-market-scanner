@@ -106,14 +106,14 @@
   },
   "created_at": "2026-11-19T04:34:15.459868+00:00",
   "early_entry_signal_diagnostics": {
-    "candidates_total": 238,
+    "candidates_total": 239,
     "eligible_signals": 0,
     "enabled": true,
     "rejections": {
-      "risk_off_or_unknown_regime": 238
+      "risk_off_or_unknown_regime": 239
     }
   },
-  "last_updated_at": "2026-11-20T08:17:41.840597+00:00",
+  "last_updated_at": "2026-11-20T08:32:38.687537+00:00",
   "ledger": [
     {
       "allocation_rank": 1,
@@ -245,36 +245,36 @@
   "mode": "PAPER_ONLY",
   "paper_edge_diagnostics": {
     "note": "Paper-only evidence profile, not a measured win probability; no official BUY gates changed",
-    "screened_verified_candidates": 82,
+    "screened_verified_candidates": 81,
     "trend_volatility_confluence_candidates": 0,
     "version": "github-confluence-v1"
   },
   "positions": [],
   "processed_signal_ids": [
-    "risk_off:crypto:MEGAUSDT:2026-11-19",
-    "risk_off:crypto:GRASSUSDT:2026-11-19"
+    "risk_off:crypto:GRASSUSDT:2026-11-19",
+    "risk_off:crypto:MEGAUSDT:2026-11-19"
   ],
   "risk_off_signal_diagnostics": {
-    "candidates_total": 238,
+    "candidates_total": 239,
     "eligible_signals": 0,
     "rejections": {
-      "failed_buy_gate:24h_breakout": 92,
-      "failed_buy_gate:above_24h_average": 81,
-      "failed_buy_gate:breakout_confirmed": 132,
-      "failed_buy_gate:five_bar_intraday_trend_up": 97,
+      "failed_buy_gate:24h_breakout": 93,
+      "failed_buy_gate:above_24h_average": 82,
+      "failed_buy_gate:breakout_confirmed": 133,
+      "failed_buy_gate:five_bar_intraday_trend_up": 98,
       "failed_buy_gate:fresh_intraday_confirmation": 146,
-      "failed_buy_gate:live_data_quality": 156,
-      "failed_buy_gate:no_risk_flags": 9,
+      "failed_buy_gate:live_data_quality": 158,
+      "failed_buy_gate:no_risk_flags": 8,
       "failed_buy_gate:not_chase_risk": 4,
       "failed_buy_gate:not_extended": 1,
-      "failed_buy_gate:positive_hourly_momentum": 57,
-      "failed_buy_gate:price_verified": 13,
-      "failed_buy_gate:score_82": 238,
-      "failed_buy_gate:two_technical_confirmations": 79,
+      "failed_buy_gate:positive_hourly_momentum": 56,
+      "failed_buy_gate:price_verified": 14,
+      "failed_buy_gate:score_82": 239,
+      "failed_buy_gate:two_technical_confirmations": 80,
       "failed_buy_gate:volume_1_8x": 82,
       "failed_buy_gate:volume_confirmed": 113
     },
-    "risk_off_candidates": 238
+    "risk_off_candidates": 239
   },
   "rules": {
     "allocation_method": "Official BUY and existing Risk-Off signals retain their existing shared-account ranking; explicitly enabled early-entry experiments are ranked after them; all use the existing score-scaled 1% risk budget, 25% position cap, four-position limit, fee model and shared cash",
