@@ -121,3 +121,27 @@ def test_independent_shard_reports_are_kept(tmp_path):
     assert (out / "stock_1d_offset_0_manifest.json").is_file()
     assert (out / "stock_1d_offset_1_manifest.json").is_file()
     assert (out / "stock_last_run_manifest.json").is_file()
+
+
+def test_crypto_market_listing_uses_larger_bounded_metadata_limit(monkeypatch):
+    import json
+    from research_data_catalog import backfill
+    requested = []
+    def fake_get(url, max_bytes=6_000_000, timeout=20):
+        requested.append((url, max_bytes))
+        return json.dumps({"symbols": []}).encode()
+    monkeypatch.setattr(backfill, "_get", fake_get)
+    assert backfill.main(["--asset", "crypto", "--dry-run"]) == 0
+    assert requested == [(backfill.BINANCE_PAIRS, backfill.BINANCE_EXCHANGE_INFO_MAX_BYTES)]
+    assert backfill.BINANCE_EXCHANGE_INFO_MAX_BYTES > 6_000_000
+    assert backfill.BINANCE_EXCHANGE_INFO_MAX_BYTES <= 40_000_000
+
+
+def test_historical_workflow_includes_hidden_archive_upload_directory():
+    from pathlib import Path
+    workflow = (Path(__file__).resolve().parents[1] / ".github" / "workflows" /
+                "jarvis-historical-research-archive.yml").read_text()
+    assert "--output .local_history_research" in workflow
+    assert "path: .local_history_research/" in workflow
+    assert "include-hidden-files: true" in workflow
+    assert "retention-days: 3" in workflow

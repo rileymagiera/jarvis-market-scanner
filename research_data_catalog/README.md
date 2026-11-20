@@ -93,6 +93,15 @@ part of the 15-minute market scanner, and never trades. From the repository's
 Actions tab, select **Jarvis Historical Research Archive** and choose
 `stock` or `crypto`, `crypto_interval`, and optional `offset`.
 
+**November 19 workflow fixes:** the stock collector successfully retrieved all
+518 archives (~35 MB) in its first run but the artifact upload skipped
+the dot-prefixed output directory. The workflow now explicitly includes hidden
+files so these archives can be uploaded. The crypto run failed before archive
+collection because Binance's public exchangeInfo JSON exceeded the prior 6 MB
+metadata cap; its separate bounded cap is now 40 MB. Both failed runners'
+temporary downloads are lost and must be rerun; do not count them as archived
+history until a successful artifact upload is verified.
+
 Each manual run caps collection at **550 files, 85 MiB, or 300 seconds**,
 whichever comes first, then uploads a short-lived **3-day GitHub artifact**.
 Its downloaded ZIP/Parquet prices live in that **artifact**, not the repo.

@@ -73,3 +73,5 @@ jobs:
           path: .local_history_research/
           retention-days: 3
           if-no-files-found: error
+          # The archive directory starts with a dot; Actions excludes it by default.
+          include-hidden-files: true

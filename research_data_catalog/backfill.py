@@ -22,6 +22,9 @@ import zipfile
 STOCK_BASE = "https://raw.githubusercontent.com/floyds1995/Auto-Index-Constituents-Tracker/main/us_data/raw_ohlcv"
 CRYPTO_ARCHIVE = "https://data.binance.vision/data/spot/monthly/klines"
 BINANCE_PAIRS = "https://data-api.binance.vision/api/v3/exchangeInfo"
+# Binance exchangeInfo metadata is now larger than 6 MB. Keep a separate
+# bounded cap so individual OHLCV download limits remain unchanged.
+BINANCE_EXCHANGE_INFO_MAX_BYTES = 40_000_000
 TICKER_RE = re.compile(r"^[A-Z0-9][A-Z0-9._-]{0,31}$")
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -38,7 +41,7 @@ def _get(url, max_bytes=6_000_000, timeout=20):
     with urlopen(req, timeout=timeout) as response:
         content = response.read(max_bytes + 1)
     if len(content) > max_bytes:
-        raise ValueError("Archive exceeds per-file size bound")
+        raise ValueError(f"Response exceeds {max_bytes:,}-byte configured size bound")
     return content
 
 
@@ -210,7 +213,7 @@ def main(argv=None):
         manifest = (ROOT / "research_data_catalog/stock_daily_archive_manifest_2026-11.csv").read_text()
         plan = stock_plan(manifest)
     else:
-        raw = json.loads(_get(BINANCE_PAIRS, max_bytes=6_000_000, timeout=25))
+        raw = json.loads(_get(BINANCE_PAIRS, max_bytes=BINANCE_EXCHANGE_INFO_MAX_BYTES, timeout=25))
         plan = crypto_plan(raw, datetime.now(timezone.utc), args.months, args.interval, args.quotes.split(","))
     print(f"Planned {len(plan)} source archives; execution starts at offset {args.offset}.")
     if not args.dry_run:
