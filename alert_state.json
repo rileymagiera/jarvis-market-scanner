@@ -144,13 +144,18 @@
       "status": "PREMARKET VERIFIED"
     },
     "EVH": {
-      "alerted_at": "2026-11-20T14:30:59.465815+00:00",
-      "score": 6,
+      "alerted_at": "2026-11-20T18:01:23.197477+00:00",
+      "score": 26,
       "status": "PREMARKET VERIFIED"
     },
     "FDMT": {
       "alerted_at": "2026-11-20T14:30:59.465815+00:00",
       "score": 11,
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
+    },
+    "FEDU": {
+      "alerted_at": "2026-11-20T18:01:23.197477+00:00",
+      "score": 8,
       "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
     "FLWS": {
@@ -378,6 +383,11 @@
     "alerted_at": "2026-11-20T12:04:40.180328+00:00",
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 67
+  },
+  "stock:FEDU": {
+    "alerted_at": "2026-11-20T18:01:23.197477+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 62
   },
   "stock:GME": {
     "alerted_at": "2026-11-20T12:04:40.180328+00:00",
