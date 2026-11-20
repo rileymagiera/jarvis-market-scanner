@@ -1167,10 +1167,6 @@ def levels(price: float, atr: float, support: float) -> dict:
     }
 
 
-SEC_HEADERS = {
-    "User-Agent": "JarvisMarketScanner/2.0 (rileymagiera51@gmail.com)",
-    "Accept-Encoding": "gzip, deflate",
-}
 SEC_TICKER_MAP = None
 SEC_TICKER_MAP_LOCK = threading.Lock()
 
@@ -1196,6 +1192,13 @@ def sec_wait_for_request_slot() -> None:
 def sec_recent_filings(symbol: str, days: int = 14) -> list[dict]:
     """Fetch recent material SEC filing metadata; filing contents remain for user review."""
     global SEC_TICKER_MAP
+    contact = os.getenv("SEC_CONTACT_EMAIL", "").strip() or os.getenv("JARVIS_GMAIL_USER", "").strip()
+    if not contact:
+        return []
+    headers = {
+        "User-Agent": f"JarvisMarketScanner/2.0 ({contact})",
+        "Accept-Encoding": "gzip, deflate",
+    }
     started = time.monotonic()
     outcome = "failure"
     try:
@@ -1204,7 +1207,7 @@ def sec_recent_filings(symbol: str, days: int = 14) -> list[dict]:
         with SEC_TICKER_MAP_LOCK:
             if SEC_TICKER_MAP is None:
                 sec_wait_for_request_slot()
-                mapping_response = HTTP.get("https://www.sec.gov/files/company_tickers.json", headers=SEC_HEADERS, timeout=5)
+                mapping_response = HTTP.get("https://www.sec.gov/files/company_tickers.json", headers=headers, timeout=5)
                 mapping_response.raise_for_status()
                 mapping = mapping_response.json()
                 SEC_TICKER_MAP = {
@@ -1219,7 +1222,7 @@ def sec_recent_filings(symbol: str, days: int = 14) -> list[dict]:
         sec_wait_for_request_slot()
         response = HTTP.get(
             f"https://data.sec.gov/submissions/CIK{cik}.json",
-            headers=SEC_HEADERS,
+            headers=headers,
             timeout=5,
         )
         response.raise_for_status()
