@@ -151,3 +151,10 @@ def test_crypto_shadow_sampling_rotates_and_is_bounded():
     assert len(first) == len(second) == 20
     assert set(first).isdisjoint(set(second))
     assert set(first + second).issubset(set(symbols))
+
+
+def test_radar_marks_cross_checked_delayed_quotes_as_delayed():
+    body = main.history_dashboard_js().body.decode("utf-8")
+    assert "VERIFIED · DELAYED" in body
+    assert "data_quality.data_type==='delayed'" in body
+    assert "discovery_return_status==='provisional'" in body
