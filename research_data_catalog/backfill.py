@@ -136,9 +136,16 @@ def download(plan, output, max_files=600, max_mib=100, max_runtime=240, offset=0
             break
         path = root / task["relative"]
         if path.is_file():
-            present += 1
-            processed += 1
-            continue
+            try:
+                existing = path.read_bytes()
+                valid_existing = valid_parquet(existing) if task["asset"] == "stock" else valid_kline_zip(existing)
+            except (OSError, ValueError, zipfile.BadZipFile):
+                valid_existing = False
+            if valid_existing:
+                present += 1
+                processed += 1
+                continue
+            # Never silently accept corrupt existing archives. Replace only after validation.
         try:
             data = fetch(task["url"])
             if not (valid_parquet(data) if task["asset"] == "stock" else valid_kline_zip(data)):
@@ -162,8 +169,11 @@ def download(plan, output, max_files=600, max_mib=100, max_runtime=240, offset=0
         processed += 1
         if pause:
             time.sleep(pause)
+    on_disk = sum((root / task["relative"]).is_file() for task in plan)
     report = {
         "research_only": True, "source_plan_count": len(plan), "offset": offset,
+        "archives_on_disk": on_disk, "archives_missing_on_disk": len(plan) - on_disk,
+        "plan_entries_not_yet_attempted": max(0, len(plan) - offset - processed),
         "next_offset": offset + processed,
         "downloaded": downloaded, "already_present": present, "unavailable": failed,
         "downloaded_bytes": size, "run_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -172,7 +182,12 @@ def download(plan, output, max_files=600, max_mib=100, max_runtime=240, offset=0
     }
     file = root / ("stock" if plan and plan[0]["asset"] == "stock" else "crypto")
     file = file.with_name(file.name + "_last_run_manifest.json")
-    file.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    encoded = json.dumps(report, indent=2) + "\n"
+    file.write_text(encoded, encoding="utf-8")
+    # Preserve per-shard evidence when independent Action artifacts are consolidated.
+    interval = plan[0]["interval"] if plan else "none"
+    shard_file = root / f"{file.stem.removesuffix('_last_run_manifest')}_{interval}_offset_{offset}_manifest.json"
+    shard_file.write_text(encoded, encoding="utf-8")
     return report
 
 
@@ -200,7 +215,7 @@ def main(argv=None):
     print(f"Planned {len(plan)} source archives; execution starts at offset {args.offset}.")
     if not args.dry_run:
         summary = download(plan, args.output, args.max_files, args.max_mib, args.max_runtime, args.offset)
-        print(json.dumps({key: summary[key] for key in ("downloaded", "already_present", "unavailable", "downloaded_bytes", "next_offset")}))
+        print(json.dumps({key: summary[key] for key in ("downloaded", "already_present", "unavailable", "downloaded_bytes", "next_offset", "archives_on_disk", "archives_missing_on_disk", "plan_entries_not_yet_attempted")}))
     return 0
 
 
