@@ -10,6 +10,7 @@ from typing import Any
 
 from runner_intelligence import build_runner_intelligence_report
 from signal_lead_time_audit import build_signal_lead_time_audit
+from runner_case_studies import build_runner_case_studies
 
 
 EXPORT_VERSION = "1.1"
@@ -26,6 +27,7 @@ def build_historical_audit_export(
     scan_run_id: str | int | None = None,
     synced_at: str | None = None,
     history_source: str = "unknown",
+    requested_symbols: str | None = None,
 ) -> dict[str, Any]:
     """Return a bounded summary; never mutate inputs or expose raw account state."""
     values = [row for row in (records or []) if isinstance(row, dict)]
@@ -77,6 +79,8 @@ def build_historical_audit_export(
             "truncated": gates.get("event_count", 0) > len(gate_rows[:MAX_GATE_EVENTS]),
         },
         "signal_lead_time": build_signal_lead_time_audit(values),
+        "ticker_case_studies": (build_runner_case_studies(values, requested_symbols)
+                                if requested_symbols else None),
         "early_warning_cohorts": {
             "minimum_observations": cohorts.get("minimum_observations"),
             "cohorts": cohort_rows,
