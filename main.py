@@ -25,7 +25,7 @@ from buy_intelligence import build_buy_intelligence, blend_buy_score
 from paper_trading import load_account as load_paper_account, account_summary as summarize_paper_account
 from fastapi import FastAPI, Query, Header, HTTPException, Depends, Request
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from fastapi.responses import HTMLResponse, Response, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, Response, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
@@ -3216,6 +3216,46 @@ def history_data():
     return {"last_scan_completed_at": meta.get("last_scan_completed_at"), "scan_run_id": meta.get("run_id"),
             "paper_tracker": paper, "lifetime": lifetime, "buy_signals": buys,
             "scan_diagnostics": meta.get("scan_diagnostics") or {}, "history_source": "local_fallback"}
+
+
+# Candidate fields read by static/history_dashboard.js, including its expanded views.
+MARKET_OVERVIEW_FIELDS = (
+    "age_days", "asset_type", "catalyst_labels", "catalysts", "crqs", "crqs_entry_score",
+    "crqs_tier", "currently_surfaced", "daily_change_pct", "data_quality", "dilution_flags",
+    "discovery_baseline_status", "discovery_baseline_timestamp_type", "discovery_initial_price",
+    "discovery_max_drawdown_pct", "discovery_max_gain_pct", "discovery_price_as_of",
+    "discovery_price_checked_at", "discovery_reasons", "discovery_return_pct", "discovery_return_status",
+    "early_runner_research_score", "first_seen", "grade_history", "initial_price", "last_seen",
+    "last_stage", "latest_price", "levels", "market_regime", "max_drawdown_pct", "max_gain_pct",
+    "premarket_gap_pct", "premarket_rvol_same_time", "premarket_volume", "price_as_of",
+    "price_checked_at", "price_freshness", "price_session_date", "price_source", "price_timestamp_type",
+    "price_validation_status", "risk_flags", "score_components", "session_change_pct", "stage_reasons",
+    "stage_signals", "symbol",
+)
+
+
+@app.get("/history/overview-data", dependencies=[Depends(require_site_login)])
+def market_overview_data():
+    history = history_data()
+    candidates = {
+        key: {field: record[field] for field in MARKET_OVERVIEW_FIELDS if field in record}
+        for key, record in history["paper_tracker"].items()
+    }
+    lifetime = history["lifetime"]
+    return JSONResponse(
+        {
+            "last_scan_completed_at": history["last_scan_completed_at"],
+            "scan_run_id": history["scan_run_id"],
+            "history_source": history["history_source"],
+            "paper_tracker": candidates,
+            "lifetime": {
+                "integrity": lifetime.get("integrity", {}),
+                "checkpoints": lifetime.get("checkpoints", {}),
+            },
+            "buy_signals": history["buy_signals"],
+        },
+        headers={"Cache-Control": "no-store"},
+    )
 
 
 def apply_discovery_baseline_guard(payload: dict) -> dict:

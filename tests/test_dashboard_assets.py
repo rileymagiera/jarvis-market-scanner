@@ -158,3 +158,51 @@ def test_radar_marks_cross_checked_delayed_quotes_as_delayed():
     assert "VERIFIED · DELAYED" in body
     assert "data_quality.data_type==='delayed'" in body
     assert "discovery_return_status==='provisional'" in body
+
+
+def test_market_overview_projects_saved_history_without_changing_full_ledger(monkeypatch):
+    import json
+
+    plan = {"target_1": 13, "calculation": {"risk_per_unit": 1}}
+    candidate = {
+        "symbol": "AAA",
+        "asset_type": "stock",
+        "last_stage": "DEVELOPING SETUP",
+        "discovery_return_pct": 0,
+        "discovery_return_status": "provisional",
+        "price_validation_status": "verified",
+        "data_quality": {"data_type": "delayed"},
+        "levels": plan,
+        "grade_history": [{"from": "EARLY WATCH", "to": "DEVELOPING SETUP"}],
+        "signal_history": [{"entry_score": 65}],
+        "buy_gate_history": [{"passed": False}],
+    }
+    state = {
+        "paper_tracker": {
+            "stock:AAA": candidate,
+            "crypto:BBB": {"symbol": "BBB", "asset_type": "crypto", "currently_surfaced": False},
+        },
+        "lifetime": {"integrity": {"retained_stock_baselines": 1}, "checkpoints": {"1": {"wins": 1}}},
+        "buy_signals": [{"symbol": "AAA", "status": "active"}],
+        "last_scan_completed_at": "2026-11-20T19:45:00+00:00",
+        "scan_run_id": "fixture-scan",
+        "history_source": "render_snapshot_fast",
+    }
+    monkeypatch.setattr(main, "latest_history_state", lambda: state)
+
+    response = main.market_overview_data()
+    overview = json.loads(response.body)
+    full = main.history_data()
+    assert response.headers["cache-control"] == "no-store"
+    assert overview["scan_run_id"] == full["scan_run_id"]
+    assert overview["last_scan_completed_at"] == full["last_scan_completed_at"]
+    assert overview["history_source"] == full["history_source"]
+    assert overview["buy_signals"] == full["buy_signals"]
+    assert overview["lifetime"] == full["lifetime"]
+    assert list(overview["paper_tracker"]) == list(full["paper_tracker"])
+    assert overview["paper_tracker"]["crypto:BBB"] == full["paper_tracker"]["crypto:BBB"]
+    assert overview["paper_tracker"]["stock:AAA"] == {
+        key: value for key, value in candidate.items() if key not in {"signal_history", "buy_gate_history"}
+    }
+    assert full["paper_tracker"]["stock:AAA"]["signal_history"] == [{"entry_score": 65}]
+    assert full["paper_tracker"]["stock:AAA"]["buy_gate_history"] == [{"passed": False}]
