@@ -103,6 +103,7 @@ def build_historical_audit_export(
             "Asset breakdowns describe included candidate samples, not full-universe totals.",
             "Lead-time measurements use only retained, verified per-scan observations and cannot establish intrabar timing or trade profitability.",
             "Entry timing is a next-fresh-scan gross-return shadow comparison, not an executable entry signal or win rate.",
+            "Stop-before-rally research orders sampled verified quotes only; gaps, intrabar stops and real fills are unknown.",
             "This export does not change scoring, eligibility, risk, paper trades, or live trading.",
         ],
     }
