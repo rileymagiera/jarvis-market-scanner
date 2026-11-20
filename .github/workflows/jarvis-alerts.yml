@@ -71,6 +71,8 @@ jobs:
           JARVIS_ALERT_TO: ${{ secrets.JARVIS_ALERT_TO }}
           JARVIS_HISTORY_SYNC_TOKEN: ${{ secrets.JARVIS_HISTORY_SYNC_TOKEN }}
           JARVIS_SCANNER_URL: https://jarvis-market-scanner.onrender.com
+          # Set repository variable to 'false' to restore fully serialized Kraken REST requests.
+          JARVIS_KRAKEN_PAIR_SCOPED_PACING: ${{ vars.JARVIS_KRAKEN_PAIR_SCOPED_PACING || 'true' }}
           ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
           ALPACA_API_SECRET: ${{ secrets.ALPACA_API_SECRET }}
           ALPACA_STOCK_DATA_FEED: ${{ vars.ALPACA_STOCK_DATA_FEED || 'iex' }}
