@@ -19,7 +19,7 @@ Jarvis is a research-focused stock and cryptocurrency scanner with a web dashboa
 - Candidate lifecycle and discovery-performance tracking.
 - Strict BUY-readiness gates and separate Risk-Off paper diagnostics.
 - $250 paper-trading account with fee-aware simulated accounting.
-- Dashboard pages for history, paper trading, discovery/performance, momentum evidence, market breadth, and intelligence.
+- A dedicated Home landing page plus Market Overview, Signal Lab, Market Pulse, Momentum Tracker, Signal Performance, Data Quality, Paper Trading, and Settings. Existing research URLs remain unchanged.
 
 ## Repository guide
 
@@ -34,10 +34,11 @@ Jarvis is a research-focused stock and cryptocurrency scanner with a web dashboa
 | `candidate_lifecycle.py` | Candidate lifecycle and outcome tracking. |
 | `market_calendar.py` | Exchange-session calendar helpers. |
 | `market_data_cache.py` | Persistent hourly candle cache. |
-| `static/history_dashboard.js` | Home/history dashboard browser code served by `/history/dashboard.js`. |
-| `templates/history.html` | Home/history dashboard HTML. |
-| `templates/intelligence.html` | Intelligence dashboard HTML. |
-| `templates/analytics_tab.html` | Shared Discovery Performance, Momentum Evidence, and Market Breadth page template. |
+| `static/history_dashboard.js` | Market Overview browser code served by `/history/dashboard.js`. |
+| `templates/home.html` | Lightweight, read-only Home landing page using saved scan statistics. |
+| `templates/history.html` | Full Market Overview scanner dashboard HTML. |
+| `templates/intelligence.html` | Signal Lab dashboard HTML (`/intelligence`). |
+| `templates/analytics_tab.html` | Shared Signal Performance, Momentum Tracker, and Market Pulse page template (legacy URLs retained). |
 | `templates/settings.html` | Settings page template. |
 | `templates/paper_trading.html` | Paper Trading page template. |
 | `tests/` | Regression tests for scanner components and paper trading. |
