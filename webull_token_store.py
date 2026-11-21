@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 import re
 import tempfile
+import time
 
 
 TOKEN_SECRET_ENV = "WEBULL_OPENAPI_TOKEN_FILE_B64"
@@ -35,8 +36,12 @@ def verified_token_file_bytes(encoded: str) -> bytes:
     token, expires, status = lines
     if not re.fullmatch(r"[A-Za-z0-9._~+/-]{8,2048}", token):
         raise ValueError("Approved Webull token has invalid format")
-    if not expires.isascii() or not expires.isdecimal() or int(expires) <= 0:
+    if not expires.isascii() or not re.fullmatch(r"\d{13}", expires):
         raise ValueError("Approved Webull token expiry has invalid format")
+    # Webull SDK reports Unix epoch milliseconds. Never pass a near-expired
+    # token to the SDK: an invalid token could trigger another 2FA prompt.
+    if int(expires) <= int((time.time() + 60) * 1000):
+        raise ValueError("Approved Webull token is expired or too close to expiry")
     if status != "NORMAL":
         raise ValueError("Webull token is not verified as NORMAL")
     return (token + "\n" + expires + "\n" + status + "\n").encode("utf-8")
