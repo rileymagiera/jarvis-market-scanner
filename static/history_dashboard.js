@@ -65,7 +65,9 @@ function candidateChartUrl(x){
  if(asset==='stock'){
   const exchange=String(x.listing_exchange||x.primary_exchange||x.exchange||'').trim().toUpperCase();
   const prefix={NASDAQ:'NASDAQ',NYSE:'NYSE',AMEX:'AMEX',ARCA:'AMEX',NYSEARCA:'AMEX'}[exchange]||'';
-  return 'https://www.tradingview.com/chart/?symbol='+encodeURIComponent((prefix?prefix+':':'')+symbol);
+  // A symbol page is a stable candidate-specific destination; Android may open
+  // the installed TradingView app, but it decides whether to honor this path.
+  return 'https://www.tradingview.com/symbols/'+(prefix?prefix+'-':'')+encodeURIComponent(symbol)+'/';
  }
  return '';
 }
