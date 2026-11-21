@@ -21,6 +21,7 @@ services:
         - provider_usage_history.json
         - webull_yahoo_comparison.json
         - crypto_shadow_comparison.json
+        - render_dashboard_snapshot.json
         - README.md
         - docs/**
     
