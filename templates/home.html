@@ -74,6 +74,30 @@ main:has(> .overview-deck){border-top:0}
 @media(max-width:760px){.home-stats,.home-links{grid-template-columns:1fr 1fr}.home-link:last-child{grid-column:1/-1}.home-section-head{display:block}.home-section-head p{margin-top:6px}}
 @media(max-width:500px){.home-stats,.home-links{grid-template-columns:1fr}.home-link:last-child{grid-column:auto}.home-link{min-height:152px}.home-stat{padding:17px}.overview-deck h1{font-size:clamp(60px,15vw,75px)}}
 @media(prefers-reduced-motion:reduce){.home-link{transition:none}.home-link:hover{transform:none}}
+
+/* Signal Radar: authentic saved-scan data; no decorative price line. */
+.signal-radar{transform:none;padding:17px 20px 15px}
+.signal-radar:before{inset:-5px}
+.signal-radar-grid{display:grid;grid-template-columns:minmax(112px,.86fr) minmax(157px,1.14fr);gap:12px;align-items:center;margin:10px 0 11px}
+.signal-radar-gauge{position:relative;aspect-ratio:1;min-width:0}
+.signal-radar-gauge svg{display:block;width:100%;height:100%;filter:drop-shadow(0 0 13px #9d8bff1b)}
+.signal-radar-gauge-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px}
+.signal-radar-gauge-center strong{font:850 clamp(21px,2.5vw,32px)/1 Inter,system-ui,sans-serif;letter-spacing:-.055em;color:#f1eeff;font-variant-numeric:tabular-nums}
+.signal-radar-gauge-center small{font-size:8px;letter-spacing:.16em;color:#aea8d8;font-weight:900}
+.signal-radar-bars{min-width:0;display:grid;gap:10px}
+.signal-radar-row-heading{display:flex;align-items:center;justify-content:space-between;gap:5px;color:#cfcee8;font-size:10px;font-weight:750;line-height:1.25}
+.signal-radar-row-heading span{overflow-wrap:anywhere}
+.signal-radar-row-heading b{color:#f5f4ff;font-size:11px;font-variant-numeric:tabular-nums}
+.signal-radar-track{height:6px;overflow:hidden;border-radius:100px;background:#353653;margin-top:5px}
+.signal-radar-track span{display:block;height:100%;width:0%;min-width:0;border-radius:inherit;background:linear-gradient(90deg,#786df1,#b3a2ff);transition:width .4s ease}
+.signal-radar-row[data-stage="developing"] .signal-radar-track span{background:linear-gradient(90deg,#657deb,#85b9f8)}
+.signal-radar-row[data-stage="actionable"] .signal-radar-track span{background:linear-gradient(90deg,#72c1cf,#93ead7)}
+.signal-radar-row[data-stage="buy"] .signal-radar-track span{background:linear-gradient(90deg,#42bba1,#8af2d2)}
+.signal-radar-row[data-stage="other"] .signal-radar-track span{background:linear-gradient(90deg,#6c7397,#9ca3ba)}
+.signal-radar .deck-viz-foot{margin-top:13px;padding-top:10px;letter-spacing:.09em;font-size:8px}
+.signal-radar-note{font-size:9px;line-height:1.5;color:#919cba;margin:9px 0 0}
+@media(max-width:420px){.signal-radar{padding:14px}.signal-radar-grid{grid-template-columns:minmax(94px,.75fr) minmax(133px,1.25fr);gap:9px}.signal-radar-bars{gap:7px}.signal-radar-row-heading{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.signal-radar-track span{transition:none}}
 </style><link rel="stylesheet" href="/assets/workspace.css"></head>
 <body><main><header class="overview-deck" aria-label="Jarvis Home command center">
   <div class="deck-topline">
@@ -93,19 +117,30 @@ main:has(> .overview-deck){border-top:0}
         <a class="deck-secondary" href="/paper-trading"><span>Paper trading</span><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M9 5h10v10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
       </div>
     </div>
-    <div class="deck-viz" aria-label="Illustrative research workflow, not a live market chart">
-      <div class="deck-viz-top"><span><span class="deck-viz-star" aria-hidden="true">✳</span> SIGNAL / FLOW</span><span>FIG. 001</span></div>
-      <svg class="deck-viz-graphic" aria-hidden="true" focusable="false" viewBox="0 0 480 240" preserveAspectRatio="xMidYMid meet">
-        <defs><linearGradient id="deck-flow-gradient" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#7978ff"/><stop offset=".52" stop-color="#a38aff"/><stop offset="1" stop-color="#75f6d1"/></linearGradient><linearGradient id="deck-flow-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#837cff" stop-opacity=".27"/><stop offset="1" stop-color="#837cff" stop-opacity="0"/></linearGradient></defs>
-        <g stroke="#8296bf" stroke-opacity=".14" stroke-width="1"><path d="M22 40H458M22 80H458M22 120H458M22 160H458M22 200H458"/><path d="M60 18V220M120 18V220M180 18V220M240 18V220M300 18V220M360 18V220M420 18V220"/></g>
-        <path d="M22 188 C70 192 86 152 120 161 S172 183 208 127 S266 148 306 102 S375 132 411 56 S445 68 458 34 L458 220 L22 220 Z" fill="url(#deck-flow-fill)"/>
-        <path d="M22 188 C70 192 86 152 120 161 S172 183 208 127 S266 148 306 102 S375 132 411 56 S445 68 458 34" fill="none" stroke="#181d45" stroke-width="13" stroke-linecap="round" opacity=".65"/>
-        <path d="M22 188 C70 192 86 152 120 161 S172 183 208 127 S266 148 306 102 S375 132 411 56 S445 68 458 34" fill="none" stroke="url(#deck-flow-gradient)" stroke-width="3.5" stroke-linecap="round"/>
-        <g fill="#c4c3ff" stroke="#111631" stroke-width="5"><circle cx="120" cy="161" r="7"/><circle cx="208" cy="127" r="7"/></g><circle cx="411" cy="56" r="9" fill="#7cf5d3" stroke="#111631" stroke-width="5"/><circle cx="411" cy="56" r="19" stroke="#7cf5d3" stroke-opacity=".4" fill="none"/>
-        <g fill="#859abf" font-family="system-ui,sans-serif" font-size="9" letter-spacing="2"><text x="27" y="25">RESEARCH</text><text x="355" y="229">NOT A PRICE CHART</text></g>
-      </svg>
-      <div class="deck-flow-steps"><span><b>01</b> DISCOVER</span><span><b>02</b> VALIDATE</span><span><b>03</b> DECIDE</span></div>
-      <div class="deck-viz-foot"><span>IDEAS → EVIDENCE → DECISIONS</span><span aria-hidden="true">◈ &nbsp; ◈ &nbsp; ◈</span></div>
+    <div class="deck-viz signal-radar" role="group" aria-label="Signal Radar: candidate stages and verified price share from the latest completed Jarvis scan">
+      <div class="deck-viz-top"><span><span class="deck-viz-star" aria-hidden="true">✳</span> SIGNAL RADAR</span><span>LAST SAVED SCAN</span></div>
+      <div class="signal-radar-grid">
+        <div class="signal-radar-gauge" aria-hidden="true">
+          <svg viewBox="0 0 180 180" focusable="false">
+            <defs><linearGradient id="radar-ring-gradient" x1="0" x2="1" y1="1" y2="0"><stop offset="0" stop-color="#897cff"/><stop offset=".58" stop-color="#b4a8ff"/><stop offset="1" stop-color="#77ead6"/></linearGradient></defs>
+            <circle cx="90" cy="90" r="79" fill="none" stroke="#a9a4e3" stroke-width="1" stroke-dasharray="2 10" opacity=".24"/>
+            <circle cx="90" cy="90" r="65" fill="none" stroke="#3d416b" stroke-width="15"/>
+            <circle id="radar-gauge-progress" cx="90" cy="90" r="65" fill="none" stroke="url(#radar-ring-gradient)" stroke-width="15" stroke-linecap="round" stroke-dasharray="0 408.4" transform="rotate(-90 90 90)"/>
+            <circle cx="90" cy="90" r="45" fill="#181a30" stroke="#7e7bba" stroke-opacity=".22"/>
+            <path d="M90 27V37 M90 143V153 M27 90H37 M143 90H153" stroke="#d2cfff" stroke-opacity=".6" stroke-width="2"/>
+          </svg>
+          <div class="signal-radar-gauge-center"><strong id="radar-verified-pct">—</strong><small>VERIFIED</small></div>
+        </div>
+        <div class="signal-radar-bars" aria-label="Candidate stage counts from saved scan">
+          <div class="signal-radar-row" data-stage="early"><div class="signal-radar-row-heading"><span>Early watch / setup</span><b id="radar-count-early">—</b></div><div class="signal-radar-track"><span id="radar-bar-early"></span></div></div>
+          <div class="signal-radar-row" data-stage="developing"><div class="signal-radar-row-heading"><span>Developing</span><b id="radar-count-developing">—</b></div><div class="signal-radar-track"><span id="radar-bar-developing"></span></div></div>
+          <div class="signal-radar-row" data-stage="actionable"><div class="signal-radar-row-heading"><span>Actionable setup</span><b id="radar-count-actionable">—</b></div><div class="signal-radar-track"><span id="radar-bar-actionable"></span></div></div>
+          <div class="signal-radar-row" data-stage="buy"><div class="signal-radar-row-heading"><span>BUY stage</span><b id="radar-count-buy">—</b></div><div class="signal-radar-track"><span id="radar-bar-buy"></span></div></div>
+          <div class="signal-radar-row" data-stage="other"><div class="signal-radar-row-heading"><span>Other / late</span><b id="radar-count-other">—</b></div><div class="signal-radar-track"><span id="radar-bar-other"></span></div></div>
+        </div>
+      </div>
+      <div class="deck-viz-foot"><span id="radar-chart-status" role="status" aria-live="polite">AWAITING SAVED SCAN</span><span>◈ &nbsp; JARVIS / RESEARCH</span></div>
+      <p class="signal-radar-note">Ring = verified-price share. Bars = current stage counts, scaled to the largest group. Stages are not a conversion funnel or live trading signals.</p>
     </div>
   </div>
   <div class="deck-footer">
@@ -146,6 +181,49 @@ main:has(> .overview-deck){border-top:0}
    if(label)label.textContent=({fresh:'SAVED SCAN · RECENT',old:'SAVED SCAN · AGED',error:'SAVED SCAN · UNAVAILABLE'})[level]||'SAVED SCAN · CONNECTING';
    if(status)status.textContent=text;
  }
+ const radarKeys=['early','developing','actionable','buy','other'];
+ function radarUnavailable(message){
+   const statusText=document.getElementById('radar-chart-status');
+   if(statusText)statusText.textContent=message;
+   const pct=document.getElementById('radar-verified-pct');
+   if(pct)pct.textContent='—';
+   const circle=document.getElementById('radar-gauge-progress');
+   if(circle)circle.style.strokeDasharray='0 408.4';
+   for(const key of radarKeys){
+     const count=document.getElementById('radar-count-'+key);
+     const bar=document.getElementById('radar-bar-'+key);
+     if(count)count.textContent='—';
+     if(bar)bar.style.width='0%';
+   }
+ }
+ function renderRadar(data){
+   const counts=data.stage_counts;
+   const total=data.radar_candidates,verified=data.verified_candidates;
+   if(!counts || !Number.isSafeInteger(total) || total<0 ||
+      !Number.isSafeInteger(verified) || verified<0 || verified>total ||
+      !radarKeys.every(key=>Number.isSafeInteger(counts[key]) && counts[key]>=0) ||
+      radarKeys.reduce((sum,key)=>sum+counts[key],0)!==total){
+     radarUnavailable('STAGE DATA UNAVAILABLE');
+     return;
+   }
+   const share=total>0?Math.round(verified*100/total):0;
+   const pct=document.getElementById('radar-verified-pct');
+   if(pct)pct.textContent=total>0?share+'%':'0%';
+   const circle=document.getElementById('radar-gauge-progress');
+   if(circle){
+     const length=2*Math.PI*65;
+     circle.style.strokeDasharray=(length*(total>0?verified/total:0)).toFixed(2)+' '+length.toFixed(2);
+   }
+   const largest=Math.max(1,...radarKeys.map(key=>counts[key]));
+   for(const key of radarKeys){
+     const count=document.getElementById('radar-count-'+key);
+     const bar=document.getElementById('radar-bar-'+key);
+     if(count)count.textContent=counts[key].toLocaleString('en-US');
+     if(bar)bar.style.width=(100*counts[key]/largest).toFixed(1)+'%';
+   }
+   const receipt=document.getElementById('radar-chart-status');
+   if(receipt)receipt.textContent=total>0?(verified+' / '+total+' PRICE VERIFIED'):'NO SURFACED CANDIDATES';
+ }
  const controller=new AbortController();
  const timeout=setTimeout(()=>controller.abort(),12000);
  fetch('/home/brief',{signal:controller.signal,cache:'no-store'}).then(r=>{
@@ -156,10 +234,12 @@ main:has(> .overview-deck){border-top:0}
    if(!data.snapshot_available||!Number.isFinite(scanned)){
      setState('error','Saved scan unavailable. Open Market Overview for details.');
      if(when)when.textContent='Unavailable';
+     radarUnavailable('SAVED SCAN UNAVAILABLE');
      return;
    }
    const recent=scanned<=Date.now()&&Date.now()-scanned<=45*60*1000;
    setState(recent?'fresh':'old',recent?'Saved scan available · not a live quote feed':'Saved scan available · timestamp may be old');
+   renderRadar(data);
    if(when)when.textContent=new Intl.DateTimeFormat('en-US',{timeZone:'America/Detroit',year:'numeric',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'}).format(new Date(scanned));
    for(const [id,key] of [['home-tracked','tracked_assets'],['home-radar','radar_candidates'],['home-verified','verified_candidates']]){
      const el=document.getElementById(id);
@@ -168,6 +248,7 @@ main:has(> .overview-deck){border-top:0}
  }).catch(()=>{
    setState('error','Could not load saved scan. Market Overview may provide additional details.');
    if(when)when.textContent='Unavailable';
+   radarUnavailable('SAVED SCAN UNAVAILABLE');
  }).finally(()=>clearTimeout(timeout));
 })();
 </script><script src="/assets/help_panels.js" defer></script></body></html>
