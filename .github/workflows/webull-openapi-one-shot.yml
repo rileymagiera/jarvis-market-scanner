@@ -1,0 +1,86 @@
+name: Webull OpenAPI One-Time Authorization Probe
+
+on:
+  push:
+    branches: [probe/webull-openapi-once-20261120]
+    paths: [.github/workflows/webull-openapi-one-shot.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  verify-webull-market-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install read-only Webull SDK
+        run: python -m pip install --disable-pip-version-check webull-openapi-python-sdk==3.1.0
+      - name: Attempt one bounded read-only OpenAPI quote
+        env:
+          WEBULL_APP_KEY: ${{ secrets.WEBULL_APP_KEY }}
+          WEBULL_APP_SECRET: ${{ secrets.WEBULL_APP_SECRET }}
+        run: |
+          python - <<'PY'
+          import os
+          import re
+          import subprocess
+          import sys
+
+          if not os.getenv("WEBULL_APP_KEY") or not os.getenv("WEBULL_APP_SECRET"):
+              sys.exit("Webull GitHub Actions credentials missing.")
+
+          # Subprocess log is captured, not echoed: the SDK can log token values
+          # and request internals that do not belong in public Actions logs.
+          child = r"""
+          import logging
+          import os
+          logging.disable(logging.CRITICAL)
+          from webull.core.client import ApiClient
+          from webull.data.data_client import DataClient
+          try:
+              api = ApiClient(os.environ["WEBULL_APP_KEY"], os.environ["WEBULL_APP_SECRET"], "us")
+              api.add_endpoint("us", "api.webull.com")
+              result = DataClient(api).market_data.get_history_bar("AAPL", "US_STOCK", "M15")
+              print("JARVIS_WEBULL_HTTP_STATUS=" + str(getattr(result, "status_code", "unknown")))
+          except Exception as exc:
+              print("JARVIS_WEBULL_EXCEPTION=" + type(exc).__name__)
+              raise SystemExit(1)
+          """
+          try:
+              run = subprocess.run([sys.executable, "-c", child], capture_output=True, text=True, timeout=80, check=False)
+              raw = (run.stdout or "") + "\n" + (run.stderr or "")
+          except subprocess.TimeoutExpired as exc:
+              captured = exc.stdout or b""
+              if isinstance(captured, bytes):
+                  captured = captured.decode("utf-8", errors="replace")
+              captured_err = exc.stderr or b""
+              if isinstance(captured_err, bytes):
+                  captured_err = captured_err.decode("utf-8", errors="replace")
+              raw = captured + "\n" + captured_err
+              print("Webull authorization result: timeout after 80 seconds (no repeated attempts).")
+              if "VERIFY_FAILURE_EXCEED_LIMIT" in raw:
+                  print("Webull verification failure limit is still active; contact Webull OpenAPI support.")
+              elif "status:PENDING" in raw:
+                  print("Webull app verification remained pending during the one-time test.")
+              raise SystemExit(1)
+          if "JARVIS_WEBULL_HTTP_STATUS=200" in raw:
+              print("Webull authorization result: market-data API HTTP 200 on a read-only AAPL bar request.")
+              raise SystemExit(0)
+          if "VERIFY_FAILURE_EXCEED_LIMIT" in raw:
+              print("Webull authorization result: verification failure limit active; automatic retries remain disabled.")
+          elif "status:EXPIRED" in raw:
+              print("Webull authorization result: app verification token expired.")
+          elif "status:PENDING" in raw:
+              print("Webull authorization result: verification pending in the Webull app.")
+          elif "HTTP Status: 403" in raw or "JARVIS_WEBULL_HTTP_STATUS=403" in raw:
+              print("Webull authorization result: market-data API rejected request with HTTP 403 (check entitlement).")
+          elif "JARVIS_WEBULL_EXCEPTION=" in raw:
+              match = re.search(r"JARVIS_WEBULL_EXCEPTION=([A-Za-z_]+)", raw)
+              print("Webull authorization result: SDK exception " + (match.group(1) if match else "unknown"))
+          else:
+              print("Webull authorization result: no usable market-data quote response.")
+          raise SystemExit(1)
+          PY
