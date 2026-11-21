@@ -1,69 +1,197 @@
-/* Shared presentation for the scanner, research, ledger, and settings pages. */
-:root {
-  --bg: #121416;
-  --panel: #202326;
-  --surface: #202326;
-  --surface2: #292c2f;
-  --line: #434647;
-  --text: #f5f1e7;
-  --muted: #b7b9b5;
-  --accent: #edc48c;
+/* Jarvis unified interface: presentation only. Workspace rules are page-scoped;
+   Home retains its own dedicated cinematic deck. All data, status and trade classes survive. */
+:root{--accent:#aba0ff}
+body.jarvis-workspace-page{
+  --bg:#0b101a;--panel:#171d31;--surface:#171d31;--surface2:#242743;
+  --line:#394160;--text:#f0f1ff;--muted:#acb4ce;
+  background:radial-gradient(ellipse at 46% -15%,#222346 0,#12172b 32%,#0b101a 67%)!important;
+  color:var(--text);font-family:Inter,"Segoe UI",system-ui,sans-serif;
+  font-variant-numeric:tabular-nums
 }
-body {
-  background: linear-gradient(180deg, #282a29 0, var(--bg) 26rem);
-  font-family: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
-  font-variant-numeric: tabular-nums;
+body.jarvis-workspace-page main{border-top:0;isolation:isolate}
+body.jarvis-workspace-page main h1,body.jarvis-workspace-page main h2{
+  font-family:Inter,"Segoe UI",system-ui,sans-serif;text-shadow:none
 }
-main { border-top: 3px solid var(--accent); }
-main h1, .command-header h1 {
-  font-family: Georgia, "Times New Roman", serif;
-  font-weight: 500;
-  font-size: clamp(2.2rem, 5vw, 3.65rem);
-  line-height: 1.06;
-  letter-spacing: -.045em;
-  text-shadow: none;
+body.jarvis-workspace-page main h2{letter-spacing:-.035em;font-weight:770}
+body.jarvis-workspace-page .jarvis-page-hero,
+body.jarvis-workspace-page .command-header{
+  display:block;position:relative;overflow:hidden;isolation:isolate;padding:0;
+  border:1px solid #424167;border-radius:24px;
+  background:radial-gradient(ellipse at 79% 26%,#32306270,transparent 43%),
+             radial-gradient(ellipse at 15% 89%,#29245565,transparent 46%),
+             linear-gradient(125deg,#121522 0%,#191c31 57%,#101523 100%);
+  color:#f5f4ff;box-shadow:0 20px 64px #0007,inset 0 1px #bdc2ff1b
 }
-main h2 { font-weight: 650; letter-spacing: -.025em; }
-main .command-header, main .hero {
-  background-color: #272a29;
-  background-image: repeating-linear-gradient(120deg, transparent 0 22px, #ffffff05 22px 23px),
-                    linear-gradient(115deg, #272a29 40%, #37372d);
-  border: 1px solid #57574e;
-  border-radius: 10px;
-  box-shadow: none;
-  padding: clamp(18px, 3vw, 36px);
+body.jarvis-workspace-page .command-header::before,
+body.jarvis-workspace-page .command-header::after{display:none}
+body.jarvis-workspace-page .jarvis-page-hero::before,
+body.jarvis-workspace-page .command-header .jarvis-hero-graphic::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(#b1baff08 1px,transparent 1px),
+                   linear-gradient(90deg,#b1baff08 1px,transparent 1px);
+  background-size:44px 44px;mask-image:linear-gradient(90deg,transparent 10%,#000 100%)
 }
-.command-header::before, .command-header::after { background: none; }
-.command-header .brand-mark {
-  background: var(--accent); color: #25221d; border: 0; border-radius: 6px;
-  box-shadow: none; font: italic 700 2rem Georgia, serif;
+body.jarvis-workspace-page .jarvis-hero-topline{
+  position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;padding:19px 27px 17px;border-bottom:1px solid #a7a7e027
 }
-.command-header .title-dot, main .eyebrow { color: var(--accent); }
-main :is(.tabs,.top-tabs) { gap: 4px; border-bottom: 1px solid var(--line); }
-main :is(.tabs,.top-tabs) a {
-  background: transparent; color: var(--muted); border: 1px solid transparent;
-  border-radius: 5px; text-shadow: none; box-shadow: none;
+body.jarvis-workspace-page .jarvis-hero-brand{
+  display:flex;align-items:center;gap:11px;text-decoration:none;color:#f4f4ff;
+  font-size:14px;font-weight:900;letter-spacing:.15em;line-height:1.15
 }
-main :is(.tabs,.top-tabs) a:hover { color: var(--text); background: #303332; }
-main :is(.tabs,.top-tabs) a:is(.active,[aria-current="page"]) {
-  color: var(--text); background: #333530; box-shadow: inset 0 -2px var(--accent);
+body.jarvis-workspace-page .jarvis-hero-brand:hover{color:#fff;text-decoration:none}
+body.jarvis-workspace-page .jarvis-hero-brand small{
+  display:block;margin-top:5px;font-size:8px;font-weight:720;letter-spacing:.2em;color:#a7aed0
 }
-main :is(.panel,.card,.metric,.command-metric,.guide,.reading-guide,.scan-summary-item) {
-  background: var(--surface); border-color: var(--line); border-radius: 8px;
-  box-shadow: none;
+body.jarvis-workspace-page .jarvis-hero-mark{
+  display:grid;place-items:center;width:37px;height:37px;flex:0 0 37px;
+  border-radius:12px 4px 12px 4px;background:#a49cff;color:#13132b;
+  font:italic 900 26px/1 Georgia,serif;transform:rotate(-7deg);box-shadow:0 5px 21px #a69bff44
 }
-main :is(.command-metric,.metric) { border-top: 2px solid #77776b; }
-main :is(.command-metric,.metric) .value { letter-spacing: -.04em; }
-main th { background-color: #2a2d2e; color: #e1dccc; }
-main tbody tr:hover td { background-color: #ffffff09; }
-:where(a,button,input,select,summary):focus-visible {
-  outline: 2px solid var(--accent); outline-offset: 2px;
+body.jarvis-workspace-page .jarvis-hero-mode{
+  display:inline-flex;align-items:center;gap:10px;color:#bfc2e3;
+  font-size:9px;letter-spacing:.14em;font-weight:830;text-transform:uppercase
 }
-@media (max-width: 700px) {
-  main h1, .command-header h1 { font-size: 2.15rem; }
-  main .command-header, main .hero { padding: 16px; }
+body.jarvis-workspace-page .jarvis-hero-mode::before{
+  content:"";width:7px;height:7px;border-radius:50%;background:#9ae8d8;box-shadow:0 0 0 5px #9ae8d818
 }
-
+body.jarvis-workspace-page .jarvis-hero-mode strong{color:#e8e2ff}
+body.jarvis-workspace-page .jarvis-hero-content,
+body.jarvis-workspace-page .command-header .jarvis-hero-content{
+  position:relative;z-index:2;padding:31px 36px 35px;min-height:180px;max-width:min(780px,82%)
+}
+body.jarvis-workspace-page .jarvis-hero-content::before{
+  content:"";display:block;width:37px;height:3px;border-radius:5px;background:linear-gradient(90deg,#ad9dff,#75d8d2);margin-bottom:15px
+}
+body.jarvis-workspace-page .jarvis-hero-content .eyebrow,
+body.jarvis-workspace-page .jarvis-hero-content .jarvis-eyebrow{
+  color:#b4a6ff!important;font-size:10px;letter-spacing:.19em;font-weight:820;text-transform:uppercase
+}
+body.jarvis-workspace-page .jarvis-hero-content h1{
+  margin:8px 0 12px!important;font-size:clamp(40px,5.4vw,66px)!important;
+  line-height:1.03!important;font-weight:880!important;letter-spacing:-.067em!important;
+  color:#f5f4ff;
+  background:linear-gradient(110deg,#fff 10%,#d6d0ff 66%,#9ddad8 100%);
+  background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent
+}
+body.jarvis-workspace-page .jarvis-hero-content .sub,
+body.jarvis-workspace-page .jarvis-hero-content .muted,
+body.jarvis-workspace-page .jarvis-hero-content .brand-sub{
+  display:block;margin:0;color:#aeb9d4;font-size:13px;line-height:1.65;max-width:610px
+}
+body.jarvis-workspace-page .jarvis-hero-content :is(#updated,#status){
+  display:inline-flex;align-items:center;max-width:100%;white-space:normal;
+  margin:13px 0 0;padding:6px 11px;border:1px solid #494667;border-radius:999px;
+  background:#151a2e;color:#aebfda;font-size:11px;line-height:1.45;
+  box-shadow:none
+}
+body.jarvis-workspace-page .jarvis-hero-content :is(#updated,#status)::before{
+  content:"";display:inline-block;flex:0 0 6px;width:6px;height:6px;
+  border-radius:50%;background:#9ae8d8;box-shadow:0 0 11px #9ae8d888
+}
+body.jarvis-workspace-page .jarvis-hero-graphic{
+  position:absolute;z-index:1;inset:0 0 0 auto;width:min(39%,440px);overflow:hidden;
+  pointer-events:none;opacity:.82
+}
+body.jarvis-workspace-page .jarvis-hero-graphic::after{
+  content:"";position:absolute;inset:10% 0 0 0;
+  background:radial-gradient(circle at 58% 55%,#9088f744 0 2%,transparent 3%),
+             repeating-radial-gradient(circle at 58% 55%,transparent 0 29px,#9e99ef33 30px 31px,transparent 32px 53px),
+             linear-gradient(25deg,transparent 41%,#8783d92f 41.3%,transparent 41.9%),
+             linear-gradient(125deg,transparent 55%,#6bbdc72b 55.2%,transparent 55.8%);
+  mask-image:radial-gradient(ellipse at 58% 55%,#000 23%,transparent 79%)
+}
+body.jarvis-workspace-page .jarvis-hero-graphic span{
+  position:absolute;left:56%;top:53%;width:11px;height:11px;border:2px solid #a7fff0;
+  background:#a49cff;border-radius:50%;box-shadow:0 0 29px #9e94ffaa
+}
+body.jarvis-workspace-page main :is(.tabs,.top-tabs){
+  display:flex;gap:7px;flex-wrap:wrap;margin:17px 0 23px;padding:0 0 16px;
+  border-bottom:1px solid #3c3d60
+}
+body.jarvis-workspace-page main :is(.tabs,.top-tabs) a{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:40px;padding:9px 12px;border:1px solid #41445e;border-radius:10px;
+  background:#1a1d34;color:#bfc5df;box-shadow:none;text-shadow:none;
+  font-size:11px;font-weight:780;white-space:normal;text-align:center;
+  transition:background .16s,border-color .16s
+}
+body.jarvis-workspace-page main :is(.tabs,.top-tabs) a:hover{
+  background:#292746;border-color:#a49bff;color:#fff
+}
+body.jarvis-workspace-page main :is(.tabs,.top-tabs) a:is(.active,[aria-current="page"]){
+  color:#fff;background:#3a345e;border-color:var(--accent);
+  box-shadow:inset 0 0 0 1px #a89dff24
+}
+body.jarvis-workspace-page main :is(.panel,.card,.metric,.command-metric,.feature,.guide,.reading-guide,.scan-summary-item){
+  background:linear-gradient(145deg,#202440 0,#171d30 70%);border-color:#3a4163;
+  border-radius:15px;box-shadow:0 7px 24px #0002
+}
+body.jarvis-workspace-page main :is(.panel,.card,.metric,.command-metric,.feature,.guide,.scan-summary-item) strong,
+body.jarvis-workspace-page main :is(.metric,.card) .value{font-variant-numeric:tabular-nums}
+body.jarvis-workspace-page main :is(.metric,.command-metric,.scan-summary-item){
+  border-top:2px solid #8679c8
+}
+body.jarvis-workspace-page main .hero{
+  border:1px solid #44446c;border-radius:18px;
+  background:radial-gradient(ellipse at 80% -10%,#43406a66,transparent 55%),
+             linear-gradient(145deg,#252441,#171d2f);
+  box-shadow:0 9px 32px #0003
+}
+body.jarvis-workspace-page main :is(.paper-chart-panel,.paper-extra-metrics){
+  border-color:#454563;border-radius:15px;background:linear-gradient(140deg,#1e2339,#141c2f)
+}
+body.jarvis-workspace-page main :is(.scroll,.wide-table){
+  border-color:#393d60;border-radius:12px;background:#121929
+}
+body.jarvis-workspace-page main th{background:#272b43;color:#cbcdea;border-bottom-color:#41435f}
+body.jarvis-workspace-page main td{border-bottom-color:#303951}
+body.jarvis-workspace-page main tbody tr:hover td{background:#a294ff0b}
+body.jarvis-workspace-page main :is(input,select,textarea){
+  border-color:#4a4c70;background:#11192b;color:#f3f3ff;border-radius:9px
+}
+body.jarvis-workspace-page main .jarvis-help{
+  background:linear-gradient(130deg,#1c243d,#161d30);border-color:#48436b;border-radius:14px
+}
+body.jarvis-workspace-page main .jarvis-help>summary{color:#eeeaff}
+body.jarvis-workspace-page main :is(a,button,input,select,summary):focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px
+}
+@media(max-width:760px){
+  body.jarvis-workspace-page .jarvis-page-hero,
+  body.jarvis-workspace-page .command-header{border-radius:18px}
+  body.jarvis-workspace-page .jarvis-hero-topline{padding:15px 17px;gap:10px}
+  body.jarvis-workspace-page .jarvis-hero-content,
+  body.jarvis-workspace-page .command-header .jarvis-hero-content{max-width:100%;padding:26px 19px 29px;min-height:0}
+  body.jarvis-workspace-page .jarvis-hero-content h1{font-size:clamp(37px,9vw,54px)!important}
+  body.jarvis-workspace-page .jarvis-hero-graphic{width:45%;opacity:.22}
+  body.jarvis-workspace-page .jarvis-hero-mode{font-size:8px;letter-spacing:.06em}
+}
+@media(max-width:420px){
+  body.jarvis-workspace-page .jarvis-hero-brand{font-size:12px}
+  body.jarvis-workspace-page .jarvis-hero-brand small{font-size:7px}
+  body.jarvis-workspace-page .jarvis-hero-mode{max-width:130px;line-height:1.4;text-align:right}
+}
+/* Shared mobile navigation is injected after the main stylesheet; higher specificity
+   keeps its active colors consistent on Home and every other page. */
+@media(max-width:700px){
+  body nav.jarvis-mobile-nav>a,
+  body nav.jarvis-mobile-nav .jarvis-mobile-more>summary{
+    background:#1a1d32;border-color:#4a466d;color:#dedcf7;border-radius:10px
+  }
+  body nav.jarvis-mobile-nav a[aria-current="page"],
+  body nav.jarvis-mobile-nav .jarvis-mobile-more[open]>summary{
+    color:#fff;background:#3a345e;border-color:#a99bff
+  }
+  body nav.jarvis-mobile-nav .jarvis-mobile-more-links{
+    background:#14192e;border-color:#534d76
+  }
+  body nav.jarvis-mobile-nav .jarvis-mobile-more-links a:hover,
+  body nav.jarvis-mobile-nav .jarvis-mobile-more-links a[aria-current="page"]{background:#393358}
+}
+@media(prefers-reduced-motion:reduce){
+  body.jarvis-workspace-page main :is(.tabs,.top-tabs) a{transition:none}
+}
 
 /* Shared collapsible instructional guide: native <details> remains keyboard accessible. */
 .jarvis-help {
