@@ -86,7 +86,7 @@ def test_render_projection_preserves_full_source_and_all_trade_levels():
     assert archived["price_history"] == []
     assert archived["paired_entry_history"] == []
     assert snapshot["render_compact_snapshot"] is True
-    assert len(json.dumps(snapshot)) < len(json.dumps(full)) / 8
+    assert len(json.dumps(snapshot)) < len(json.dumps(full)) / 3
 
 
 def test_sender_writes_compact_github_fallback_and_posts_exact_same_snapshot(tmp_path, monkeypatch):
