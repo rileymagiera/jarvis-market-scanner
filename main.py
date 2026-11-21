@@ -3477,12 +3477,18 @@ def apply_discovery_baseline_guard(payload: dict) -> dict:
         return payload
 
     previous = {}
-    try:
-        snapshot = json.loads(HISTORY_SNAPSHOT.read_text(encoding="utf-8"))
-        if isinstance(snapshot.get("paper_tracker"), dict):
-            previous = snapshot["paper_tracker"]
-    except (OSError, json.JSONDecodeError):
-        previous = {}
+    # Compact dashboard snapshots originate in GitHub Actions, where the full
+    # authoritative discovery baselines are already retained. Avoid parsing a
+    # second, potentially 37 MB historical Render snapshot during each sync:
+    # retaining both full object graphs temporarily can exhaust free-tier RAM.
+    # Legacy JSON callers still receive the original fallback repair behavior.
+    if payload.get("render_compact_snapshot") is not True:
+        try:
+            snapshot = json.loads(HISTORY_SNAPSHOT.read_text(encoding="utf-8"))
+            if isinstance(snapshot.get("paper_tracker"), dict):
+                previous = snapshot["paper_tracker"]
+        except (OSError, json.JSONDecodeError):
+            previous = {}
 
     baseline_fields = (
         "discovery_initial_price",
