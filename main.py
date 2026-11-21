@@ -3029,6 +3029,37 @@ PAPER_LIFETIME_STATE = APP_DIR / "paper_tracker_lifetime.json"
 BUY_SIGNAL_STATE = APP_DIR / "buy_signal_history.json"
 HISTORY_SNAPSHOT = APP_DIR / "history_snapshot.json"
 HISTORY_LOCAL_COMPACT = APP_DIR / "render_dashboard_snapshot.json"
+# Reuse the parsed Render replica across dashboard requests. The scanner's
+# authoritative history is kept in GitHub; only the lightweight replica is cached.
+HISTORY_SNAPSHOT_CACHE = {"signature": None, "snapshot": None}
+HISTORY_SNAPSHOT_CACHE_LOCK = threading.Lock()
+
+
+def cached_render_history_snapshot() -> dict:
+    """Parse a saved dashboard snapshot once per file revision, not per HTTP view.
+
+    The lock prevents concurrent dashboard requests from materializing duplicate
+    copies of the JSON history. On every sync the cache is explicitly invalidated.
+    """
+    try:
+        stat = HISTORY_SNAPSHOT.stat()
+    except OSError:
+        return {}
+    signature = (str(HISTORY_SNAPSHOT), stat.st_mtime_ns, stat.st_size)
+    with HISTORY_SNAPSHOT_CACHE_LOCK:
+        if HISTORY_SNAPSHOT_CACHE["signature"] == signature:
+            return HISTORY_SNAPSHOT_CACHE["snapshot"] or {}
+        try:
+            snapshot = json.loads(HISTORY_SNAPSHOT.read_text(encoding="utf-8"))
+            if not isinstance(snapshot, dict):
+                snapshot = {}
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+            snapshot = {}
+        HISTORY_SNAPSHOT_CACHE["signature"] = signature
+        HISTORY_SNAPSHOT_CACHE["snapshot"] = snapshot
+        return snapshot
+
+
 GITHUB_HISTORY_CACHE = {"at": 0.0, "data": None}
 GITHUB_HISTORY_CACHE_LOCK = threading.Lock()
 
@@ -3093,10 +3124,7 @@ def github_history_state() -> dict:
 
 def latest_history_state() -> dict:
     """Serve the lightweight Render snapshot first; use compact GitHub replica as fallback."""
-    try:
-        snapshot = json.loads(HISTORY_SNAPSHOT.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        snapshot = {}
+    snapshot = cached_render_history_snapshot()
     snapshot_valid = (
         isinstance(snapshot.get("paper_tracker"), dict)
         and isinstance(snapshot.get("lifetime"), dict)
@@ -3597,6 +3625,10 @@ def history_sync(payload: dict, x_jarvis_history_token: Optional[str] = Header(N
     if not isinstance(payload.get("paper_tracker"),dict) or not isinstance(payload.get("lifetime"),dict):
         raise HTTPException(status_code=400,detail="Invalid history payload")
     payload = apply_discovery_baseline_guard(payload)
+    # Release the previous parsed snapshot before the new version is persisted.
+    with HISTORY_SNAPSHOT_CACHE_LOCK:
+        HISTORY_SNAPSHOT_CACHE["signature"] = None
+        HISTORY_SNAPSHOT_CACHE["snapshot"] = None
     HISTORY_SNAPSHOT.write_text(json.dumps(payload,separators=(",",":")),encoding="utf-8")
     with GITHUB_HISTORY_CACHE_LOCK:
         GITHUB_HISTORY_CACHE["data"]=None; GITHUB_HISTORY_CACHE["at"]=0.0
