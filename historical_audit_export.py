@@ -47,6 +47,11 @@ def build_historical_audit_export(
     radar_rows = radar.get("candidates", [])
     cohort_rows = cohorts.get("cohorts", [])
     ticker_cases = build_runner_case_studies(values, requested_symbols) if requested_symbols else None
+    # Reuse the existing on-demand case-study engine for the top three verified
+    # missed runners. It reads the complete GitHub ledger before Render trimming.
+    missed_symbols = [str(row.get("symbol") or "").upper() for row in missed_rows[:3]
+                      if row.get("symbol")]
+    missed_runner_cases = build_runner_case_studies(values, missed_symbols) if missed_symbols else None
 
     return {
         "export_type": "jarvis_historical_opportunity_audit",
@@ -92,6 +97,7 @@ def build_historical_audit_export(
         ),
         "gate_combination_shadow": build_gate_combination_shadow(values),
         "ticker_case_studies": ticker_cases,
+        "missed_runner_case_studies": missed_runner_cases,
         "early_warning_cohorts": {
             "minimum_observations": cohorts.get("minimum_observations"),
             "cohorts": cohort_rows,
