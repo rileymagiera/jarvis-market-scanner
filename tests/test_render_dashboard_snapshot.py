@@ -15,6 +15,7 @@ os.environ.setdefault("JARVIS_ALERT_TO", "jarvis-test@example.com")
 import main
 import send_alerts
 from dashboard_snapshot import build_render_snapshot, compact_paper_tracker
+from runner_intelligence import build_runner_intelligence_report
 
 
 def _tracker():
@@ -30,7 +31,11 @@ def _tracker():
                                for i in range(168)],
             "price_history": [{"price": i} for i in range(168)],
             "paired_entry_history": [{"entry": i} for i in range(100)],
-            "buy_gate_history": [{"reason": "momentum confirmed"}],
+            "buy_gate_history": [{"at": f"2026-11-20T00:{i:02d}:00Z", "score": 50,
+                                  "failed_gate_keys": ["freshness"], "follow_up_observations": 1,
+                                  "max_favorable_since_pct": 6.0,
+                                  "max_adverse_since_pct": -3.0}
+                                 for i in range(40)],
             "grade_history": [{"from": "EARLY WATCH", "to": "BUY", "at": "2026-11-20"}],
         },
         "stock:ARCHIVE": {
@@ -67,7 +72,11 @@ def test_render_projection_preserves_full_source_and_all_trade_levels():
     assert snapshot["lifetime"] == {"recommendations": 17}
     assert current["levels"] == original["crypto:SOLUSDT"]["levels"]
     assert current["latest_price"] == 112.0
-    assert current["buy_gate_history"] == original["crypto:SOLUSDT"]["buy_gate_history"]
+    assert len(current["buy_gate_history"]) == 5
+    assert current["buy_gate_history"] == original["crypto:SOLUSDT"]["buy_gate_history"][-5:]
+    assert snapshot["full_runner_intelligence"] == build_runner_intelligence_report(
+        list(full.values()), signals)
+    assert snapshot["full_runner_intelligence"]["buy_gate_failure_tracker"]["event_count"] == 40
     assert current["grade_history"] == original["crypto:SOLUSDT"]["grade_history"]
     assert len(current["signal_history"]) == 3
     assert current["signal_history"][-1]["scan_id"] == "167"
@@ -108,6 +117,7 @@ def test_sender_writes_compact_github_fallback_and_posts_exact_same_snapshot(tmp
     saved_snapshot = json.loads(saved.read_text(encoding="utf-8"))
     assert received == [saved_snapshot]
     assert saved_snapshot["paper_trading"] == account
+    assert saved_snapshot["full_runner_intelligence"]["buy_gate_failure_tracker"]["event_count"] == 40
     assert len(saved_snapshot["paper_tracker"]["crypto:SOLUSDT"]["signal_history"]) == 3
     assert source == original
 
