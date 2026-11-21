@@ -131,7 +131,7 @@ jobs:
           else
             echo "Webull credentials are missing; shadow sampling is idle."
           fi
-          python -m py_compile main.py send_alerts.py early_runner.py paper_trading.py
+          python -m py_compile main.py send_alerts.py dashboard_snapshot.py early_runner.py paper_trading.py
           # Full regression tests run in CI on code PRs and pushes, not on every market scan.
           if [ "$SEND_TEST_EMAIL" = "true" ]; then
             python send_alerts.py --test
@@ -461,6 +461,11 @@ jobs:
           # This also prevents an ignored/untracked local state file from blocking
           # a later rebase with "would be overwritten" errors.
           git add -f alert_state.json paper_tracker.json paper_tracker_lifetime.json buy_signal_history.json paper_trading_state.json scan_diagnostics.json scan_metadata.json provider_usage_history.json webull_yahoo_comparison.json crypto_shadow_comparison.json
+          # Render uses this small display replica; complete research files above
+          # remain unchanged and authoritative in GitHub.
+          if [ -f render_dashboard_snapshot.json ]; then
+            git add -f render_dashboard_snapshot.json
+          fi
           if git diff --cached --quiet; then
             echo "No Jarvis state changes to persist."
             exit 0
@@ -494,7 +499,7 @@ jobs:
 
             while IFS= read -r path; do
               case "$path" in
-                alert_state.json|paper_tracker.json|paper_tracker_lifetime.json|buy_signal_history.json|paper_trading_state.json|scan_diagnostics.json|scan_metadata.json|provider_usage_history.json|webull_yahoo_comparison.json|crypto_shadow_comparison.json)
+                alert_state.json|paper_tracker.json|paper_tracker_lifetime.json|buy_signal_history.json|paper_trading_state.json|scan_diagnostics.json|scan_metadata.json|provider_usage_history.json|webull_yahoo_comparison.json|crypto_shadow_comparison.json|render_dashboard_snapshot.json)
                   echo "Resolving generated state conflict with this run's completed scan: $path"
                   git checkout --theirs -- "$path"
                   git add -f "$path"
