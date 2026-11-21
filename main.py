@@ -3028,6 +3028,7 @@ PAPER_STATE = APP_DIR / "paper_tracker.json"
 PAPER_LIFETIME_STATE = APP_DIR / "paper_tracker_lifetime.json"
 BUY_SIGNAL_STATE = APP_DIR / "buy_signal_history.json"
 HISTORY_SNAPSHOT = APP_DIR / "history_snapshot.json"
+HISTORY_LOCAL_COMPACT = APP_DIR / "render_dashboard_snapshot.json"
 GITHUB_HISTORY_CACHE = {"at": 0.0, "data": None}
 GITHUB_HISTORY_CACHE_LOCK = threading.Lock()
 
@@ -3113,8 +3114,21 @@ def latest_history_state() -> dict:
             "history_source": "render_snapshot_fast",
             "render_compact_snapshot": snapshot.get("render_compact_snapshot") is True,
         }
-    return github_history_state()
-
+    github = github_history_state()
+    if github:
+        return github
+    # An older bundled compact state can keep the UI available during a
+    # provider outage without loading paper_tracker.json into Render memory.
+    try:
+        local = json.loads(HISTORY_LOCAL_COMPACT.read_text(encoding="utf-8"))
+        if (isinstance(local, dict) and local.get("render_compact_snapshot") is True
+                and isinstance(local.get("paper_tracker"), dict)
+                and isinstance(local.get("lifetime"), dict)):
+            local["history_source"] = "local_compact_snapshot"
+            return local
+    except (OSError, json.JSONDecodeError):
+        pass
+    return {}
 
 
 @app.get("/data-health", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
@@ -3397,14 +3411,12 @@ def history_data():
                 "lifetime": state.get("lifetime", {}), "buy_signals": state.get("buy_signals", []),
                 "scan_diagnostics": state.get("scan_diagnostics", {}),
                 "history_source": state.get("history_source", "github")}
-    def read_state(path):
-        try: return json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError): return {}
-    paper=read_state(PAPER_STATE); lifetime=read_state(PAPER_LIFETIME_STATE)
-    buys=read_state(BUY_SIGNAL_STATE).get("signals", []); meta=read_state(APP_DIR/"scan_metadata.json")
-    return {"last_scan_completed_at": meta.get("last_scan_completed_at"), "scan_run_id": meta.get("run_id"),
-            "paper_tracker": paper, "lifetime": lifetime, "buy_signals": buys,
-            "scan_diagnostics": meta.get("scan_diagnostics") or {}, "history_source": "local_fallback"}
+    # Never parse GitHub's multi-megabyte paper tracker in the Render process.
+    # GitHub Actions retains the full ledger; the next scan republishes a
+    # compact dashboard snapshot if no valid replica is available yet.
+    return {"last_scan_completed_at": None, "scan_run_id": None,
+            "paper_tracker": {}, "lifetime": {}, "buy_signals": [],
+            "scan_diagnostics": {}, "history_source": "compact_snapshot_pending"}
 
 
 # Candidate fields read by static/history_dashboard.js, including its expanded views.
@@ -4025,20 +4037,9 @@ def research_data():
         synced=durable.get("synced_at"); completed=durable.get("last_scan_completed_at")
         run_id=durable.get("scan_run_id"); source=durable.get("history_source", "github")
     else:
-        def read_state(path):
-            try: return json.loads(path.read_text(encoding="utf-8"))
-            except (OSError,json.JSONDecodeError): return {}
-        snapshot=read_state(HISTORY_SNAPSHOT)
-        if isinstance(snapshot.get("paper_tracker"),dict) and isinstance(snapshot.get("lifetime"),dict):
-            paper=snapshot["paper_tracker"]; lifetime=snapshot["lifetime"]; buys=snapshot.get("buy_signals",[])
-            synced=snapshot.get("synced_at") or now_iso(); completed=snapshot.get("last_scan_completed_at")
-            run_id=snapshot.get("scan_run_id"); source="temporary_render_snapshot"
-        else:
-            paper=read_state(PAPER_STATE); lifetime=read_state(PAPER_LIFETIME_STATE)
-            buys=read_state(BUY_SIGNAL_STATE).get("signals",[])
-            meta=read_state(APP_DIR/"scan_metadata.json"); synced=None
-            completed=meta.get("last_scan_completed_at"); run_id=meta.get("run_id")
-            source="temporary_render_fallback"
+        paper = {}; lifetime = {}; buys = []
+        synced = None; completed = None; run_id = None
+        source = "compact_snapshot_pending"
     records=list(paper.values()) if isinstance(paper,dict) else []
     # Exclude stock outcomes sampled from EOD, historical, stale, or unknown price data.
     outcome_records=[r for r in records if has_session_aware_early_runner_baseline(r)]
