@@ -98,7 +98,7 @@ jobs:
           WEBULL_APP_KEY: ${{ secrets.WEBULL_APP_KEY }}
           WEBULL_APP_SECRET: ${{ secrets.WEBULL_APP_SECRET }}
           WEBULL_SHADOW_MODE: 'true'
-          WEBULL_SHADOW_MAX_SYMBOLS_PER_SCAN: '30'
+          WEBULL_SHADOW_MAX_SYMBOLS_PER_SCAN: '3'
           CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN: '50'
           # Restore original per-symbol Binance.US shadow requests with repository variable 'false'.
           JARVIS_BINANCE_US_SHADOW_BATCH_ENABLED: ${{ vars.JARVIS_BINANCE_US_SHADOW_BATCH_ENABLED || 'true' }}
