@@ -3033,73 +3033,65 @@ GITHUB_HISTORY_CACHE_LOCK = threading.Lock()
 
 
 def github_history_state() -> dict:
-    token = os.getenv("JARVIS_GITHUB_READ_TOKEN", "").strip()
-    if not token:
-        print("JARVIS_HISTORY_DIAGNOSTIC source=fallback reason=github_read_token_missing", flush=True)
-        return {}
+    """Fetch only the compact dashboard snapshot, never the full GitHub ledger.
+
+    The scanner's paper_tracker.json is authoritative, but requesting that
+    multi-megabyte research ledger from the Render web process can exhaust the
+    free instance memory. The GitHub Actions scanner creates the bounded replica.
+    """
     with GITHUB_HISTORY_CACHE_LOCK:
         cached = GITHUB_HISTORY_CACHE.get("data")
         if cached and time.monotonic() - GITHUB_HISTORY_CACHE.get("at", 0.0) < 30:
             return cached
-    headers = {"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json",
+    token = os.getenv("JARVIS_GITHUB_READ_TOKEN", "").strip()
+    headers = {"Accept": "application/vnd.github+json",
                "X-GitHub-Api-Version": "2022-11-28"}
-    base = "https://api.github.com/repos/rileymagiera/jarvis-market-scanner/contents/"
-    paths = {"paper_tracker":"paper_tracker.json","lifetime":"paper_tracker_lifetime.json",
-             "buy_state":"buy_signal_history.json","metadata":"scan_metadata.json",
-             "paper_trading":"paper_trading_state.json"}
-    state = {}
-    import base64
-    for key, path in paths.items():
-        try:
-            response = HTTP.get(base + path, headers=headers, params={"ref":"main"}, timeout=(3,12))
-            response.raise_for_status()
-            file_meta = response.json()
-            encoded = file_meta.get("content") or ""
-            if file_meta.get("encoding") == "base64" and encoded.strip():
-                raw_text = base64.b64decode(encoded).decode("utf-8")
-            else:
-                # GitHub Contents API omits content for larger files. Fetch the blob
-                # directly by SHA so the research dashboard can read large histories.
-                blob_url = f"https://api.github.com/repos/rileymagiera/jarvis-market-scanner/git/blobs/{file_meta['sha']}"
-                blob_response = HTTP.get(blob_url, headers=headers, timeout=(3,20))
-                blob_response.raise_for_status()
-                blob_meta = blob_response.json()
-                if blob_meta.get("encoding") != "base64" or not blob_meta.get("content"):
-                    raise ValueError("GitHub blob returned no base64 content")
-                raw_text = base64.b64decode(blob_meta["content"]).decode("utf-8")
-            state[key] = json.loads(raw_text)
-        except Exception as exc:
-            status = getattr(getattr(exc, "response", None), "status_code", None)
-            print(f"JARVIS_HISTORY_DIAGNOSTIC source=fallback reason=github_read_failed file={path} status={status or 'unknown'} error_type={type(exc).__name__}", flush=True)
-            return {}
-    if not isinstance(state.get("paper_tracker"), dict) or not isinstance(state.get("lifetime"), dict):
-        raise RuntimeError("GitHub history files returned invalid structure")
-    meta = state.get("metadata") or {}
-    result = {"paper_tracker":state["paper_tracker"],"lifetime":state["lifetime"],
-              "buy_signals":(state.get("buy_state") or {}).get("signals",[]),
-              "last_scan_completed_at":meta.get("last_scan_completed_at"),
-              "scan_run_id":meta.get("run_id"),"synced_at":meta.get("last_scan_completed_at"),
-              "paper_trading":state.get("paper_trading") or {},
-              "scan_diagnostics":meta.get("scan_diagnostics") or {}, "history_source":"github"}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    base = "https://api.github.com/repos/rileymagiera/jarvis-market-scanner"
+    try:
+        import base64
+        response = HTTP.get(
+            base + "/contents/render_dashboard_snapshot.json",
+            headers=headers, params={"ref": "main"}, timeout=(3, 12),
+        )
+        response.raise_for_status()
+        file_meta = response.json()
+        encoded = file_meta.get("content") or ""
+        if file_meta.get("encoding") == "base64" and encoded.strip():
+            raw_text = base64.b64decode(encoded).decode("utf-8")
+        else:
+            blob_response = HTTP.get(
+                base + f"/git/blobs/{file_meta['sha']}",
+                headers=headers, timeout=(3, 20),
+            )
+            blob_response.raise_for_status()
+            blob_meta = blob_response.json()
+            if blob_meta.get("encoding") != "base64" or not blob_meta.get("content"):
+                raise ValueError("Compact dashboard blob is unavailable")
+            raw_text = base64.b64decode(blob_meta["content"]).decode("utf-8")
+        result = json.loads(raw_text)
+        if not isinstance(result, dict) or not isinstance(result.get("paper_tracker"), dict) or not isinstance(result.get("lifetime"), dict):
+            raise ValueError("Compact dashboard snapshot has invalid structure")
+        if result.get("render_compact_snapshot") is not True:
+            raise ValueError("GitHub fallback is not a compact dashboard snapshot")
+        result["history_source"] = "github_compact_snapshot"
+    except Exception as exc:
+        status = getattr(getattr(exc, "response", None), "status_code", None)
+        print(f"JARVIS_HISTORY_DIAGNOSTIC source=github_compact reason=read_failed "
+              f"status={status or 'unknown'} error_type={type(exc).__name__}", flush=True)
+        # Never fall back to fetching the full research tracker in the Render
+        # web process. A pending GitHub scan will refresh the compact snapshot.
+        return {}
     with GITHUB_HISTORY_CACHE_LOCK:
         GITHUB_HISTORY_CACHE["data"] = result
         GITHUB_HISTORY_CACHE["at"] = time.monotonic()
-    print("JARVIS_HISTORY_DIAGNOSTIC source=github "
-          f"candidates={len(result['paper_tracker'])} "
-          f"lifetime_recommendations={result['lifetime'].get('recommendations', 0) if isinstance(result['lifetime'], dict) else 0} "
-          f"buy_signals={len(result['buy_signals'])} "
-          f"last_scan={result.get('last_scan_completed_at')} run_id={result.get('scan_run_id')}", flush=True)
     return result
 
 
 
 def latest_history_state() -> dict:
-    """Serve the latest complete Render snapshot immediately; use GitHub only when needed.
-
-    The history page is read frequently. Calling GitHub's Contents API for four files
-    before every cold page load made the dashboard wait on several sequential network
-    requests even when the cron job had already synced a complete snapshot to Render.
-    """
+    """Serve the lightweight Render snapshot first; use compact GitHub replica as fallback."""
     try:
         snapshot = json.loads(HISTORY_SNAPSHOT.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
@@ -3119,6 +3111,7 @@ def latest_history_state() -> dict:
             "paper_trading": snapshot.get("paper_trading") or {},
             "scan_diagnostics": snapshot.get("scan_diagnostics") or {},
             "history_source": "render_snapshot_fast",
+            "render_compact_snapshot": snapshot.get("render_compact_snapshot") is True,
         }
     return github_history_state()
 
