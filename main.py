@@ -3231,7 +3231,7 @@ def historical_audit_export(symbols: str | None = None):
         raise HTTPException(status_code=503, detail="Historical candidate data is not currently available")
     records = [row for row in state["paper_tracker"].values() if isinstance(row, dict)]
     try:
-        return build_historical_audit_export(
+        export = build_historical_audit_export(
             records,
             state.get("buy_signals") if isinstance(state.get("buy_signals"), list) else [],
             last_scan_completed_at=state.get("last_scan_completed_at"),
@@ -3242,6 +3242,12 @@ def historical_audit_export(symbols: str | None = None):
             paper_account=state.get("paper_trading") if isinstance(state.get("paper_trading"), dict) else None,
             paper_position_watch=(state.get("scan_diagnostics") or {}).get("paper_position_watch"),
         )
+        if state.get("render_compact_snapshot") is True:
+            export["render_research_sample_scope"] = (
+                "Display-only recent scan observations; full research history "
+                "is retained by GitHub Actions in paper_tracker.json and audit artifacts."
+            )
+        return export
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
