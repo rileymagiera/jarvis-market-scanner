@@ -3174,11 +3174,27 @@ def home_brief():
     records = state.get("paper_tracker") if isinstance(state, dict) else None
     records = records if isinstance(records, dict) else {}
     surfaced = [r for r in records.values() if isinstance(r, dict) and r.get("currently_surfaced") is not False]
+    # Mutually exclusive current stage counts, using labels already produced by the
+    # scanner. This is NOT a conversion funnel, forecast, or live quote.
+    stage_counts = {"early": 0, "developing": 0, "actionable": 0, "buy": 0, "other": 0}
+    for record in surfaced:
+        stage = str(record.get("last_stage") or "").strip().upper()
+        if stage in ("EARLY WATCH", "EARLY SETUP"):
+            stage_counts["early"] += 1
+        elif stage in ("DEVELOPING SETUP", "DEVELOPING RUNNER"):
+            stage_counts["developing"] += 1
+        elif stage == "ACTIONABLE SETUP":
+            stage_counts["actionable"] += 1
+        elif stage == "BUY":
+            stage_counts["buy"] += 1
+        else:
+            stage_counts["other"] += 1
     return JSONResponse({
         "last_scan_completed_at": state.get("last_scan_completed_at") if isinstance(state, dict) else None,
         "tracked_assets": len(records),
         "radar_candidates": len(surfaced),
         "verified_candidates": sum(str(r.get("price_validation_status", "")).lower() == "verified" for r in surfaced),
+        "stage_counts": stage_counts,
         "snapshot_available": bool(state and state.get("last_scan_completed_at")),
     }, headers={"Cache-Control": "no-store"})
 
