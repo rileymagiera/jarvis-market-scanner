@@ -359,7 +359,7 @@
       "risk_off_or_unknown_regime": 230
     }
   },
-  "last_updated_at": "2026-11-21T10:11:10.808081+00:00",
+  "last_updated_at": "2026-11-21T10:21:05.219250+00:00",
   "ledger": [
     {
       "allocation_rank": 1,
@@ -731,7 +731,7 @@
   "mode": "PAPER_ONLY",
   "paper_edge_diagnostics": {
     "note": "Paper-only evidence profile, not a measured win probability; no official BUY gates changed",
-    "screened_verified_candidates": 75,
+    "screened_verified_candidates": 72,
     "trend_volatility_confluence_candidates": 0,
     "version": "github-confluence-v1"
   },
@@ -798,7 +798,7 @@
         "status": "modeled"
       },
       "price_source": "Kraken Spot public API",
-      "price_update_checked_at": "2026-11-21T10:11:10.808081+00:00",
+      "price_update_checked_at": "2026-11-21T10:21:05.219250+00:00",
       "price_update_status": "latest_scan_price_unverified",
       "quality_risk_multiplier": 0.88,
       "quantity": 3.2845301665,
@@ -817,17 +817,17 @@
     }
   ],
   "processed_signal_ids": [
-    "risk_off:crypto:BLURUSDT:2026-11-20",
-    "risk_off:crypto:DRVUSDT:2026-11-21",
-    "risk_off:crypto:GRASSUSDT:2026-11-19",
     "risk_off:crypto:MEGAUSDT:2026-11-19",
     "risk_off:crypto:EVAAUSDT:2026-11-20",
+    "risk_off:crypto:BLURUSDT:2026-11-20",
+    "risk_off:crypto:GRASSUSDT:2026-11-19",
+    "risk_off:crypto:DRVUSDT:2026-11-21",
     "risk_off:crypto:QCADUSDT:2026-11-20"
   ],
   "risk_off_comparison": {
     "carried_positions": 0,
-    "last_scan_id": "44893030137",
-    "scan_count": 89,
+    "last_scan_id": "44893843289",
+    "scan_count": 90,
     "shadow_account": {
       "allocation_review": [],
       "cash": 245.2690803,
@@ -844,11 +844,11 @@
           "risk_off_or_unknown_regime": 230
         }
       },
-      "last_updated_at": "2026-11-21T10:11:10.808081+00:00",
+      "last_updated_at": "2026-11-21T10:21:05.219250+00:00",
       "ledger": [],
       "paper_edge_diagnostics": {
         "note": "Paper-only evidence profile, not a measured win probability; no official BUY gates changed",
-        "screened_verified_candidates": 75,
+        "screened_verified_candidates": 72,
         "trend_volatility_confluence_candidates": 0,
         "version": "github-confluence-v1"
       },
@@ -866,12 +866,12 @@
           "failed_buy_gate:breakout_confirmed": 130,
           "failed_buy_gate:five_bar_intraday_trend_up": 75,
           "failed_buy_gate:fresh_intraday_confirmation": 148,
-          "failed_buy_gate:live_data_quality": 155,
+          "failed_buy_gate:live_data_quality": 158,
           "failed_buy_gate:no_risk_flags": 7,
           "failed_buy_gate:not_chase_risk": 2,
           "failed_buy_gate:not_extended": 1,
-          "failed_buy_gate:positive_hourly_momentum": 6,
-          "failed_buy_gate:price_verified": 10,
+          "failed_buy_gate:positive_hourly_momentum": 5,
+          "failed_buy_gate:price_verified": 13,
           "failed_buy_gate:score_82": 230,
           "failed_buy_gate:two_technical_confirmations": 100,
           "failed_buy_gate:volume_1_8x": 79,
@@ -959,9 +959,9 @@
         "peak_equity": 304.5711175378528
       },
       "drawdown_basis": "Modeled net liquidation equity sampled after each completed scan.",
-      "last_scan_at": "2026-11-21T10:11:10.808081+00:00",
-      "last_scan_id": "44893030137",
-      "scan_count": 89,
+      "last_scan_at": "2026-11-21T10:21:05.219250+00:00",
+      "last_scan_id": "44893843289",
+      "scan_count": 90,
       "skip_new_risk_off": {
         "by_strategy_asset": [],
         "by_strategy_regime": [],
@@ -1004,12 +1004,12 @@
       "failed_buy_gate:breakout_confirmed": 130,
       "failed_buy_gate:five_bar_intraday_trend_up": 75,
       "failed_buy_gate:fresh_intraday_confirmation": 148,
-      "failed_buy_gate:live_data_quality": 155,
+      "failed_buy_gate:live_data_quality": 158,
       "failed_buy_gate:no_risk_flags": 7,
       "failed_buy_gate:not_chase_risk": 2,
       "failed_buy_gate:not_extended": 1,
-      "failed_buy_gate:positive_hourly_momentum": 6,
-      "failed_buy_gate:price_verified": 10,
+      "failed_buy_gate:positive_hourly_momentum": 5,
+      "failed_buy_gate:price_verified": 13,
       "failed_buy_gate:score_82": 230,
       "failed_buy_gate:two_technical_confirmations": 100,
       "failed_buy_gate:volume_1_8x": 79,
