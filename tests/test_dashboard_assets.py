@@ -206,3 +206,26 @@ def test_market_overview_projects_saved_history_without_changing_full_ledger(mon
     }
     assert full["paper_tracker"]["stock:AAA"]["signal_history"] == [{"entry_score": 65}]
     assert full["paper_tracker"]["stock:AAA"]["buy_gate_history"] == [{"passed": False}]
+
+
+def test_receipt_tracks_two_distinct_completed_runs(monkeypatch):
+    import json
+    for name in ("JARVIS_GMAIL_USER", "JARVIS_GMAIL_APP_PASSWORD", "JARVIS_ALERT_TO"):
+        monkeypatch.setenv(name, "fixture")
+    from send_alerts import completed_scan_pair
+
+    candidate = {"symbol": "ABC", "asset_type": "stock", "stage": "EARLY WATCH",
+                 "price_validation_status": "verified"}
+    first = completed_scan_pair([], [candidate], "10", "2026-11-21T00:00:00Z")
+    second = completed_scan_pair(first, [], "11", "2026-11-21T00:10:00Z")
+    retry = completed_scan_pair(second, [candidate], "11", "2026-11-21T00:11:00Z")
+    assert [scan["run_id"] for scan in retry] == ["10", "11"]
+    assert second[-1]["members"] == {}
+    history = {"paper_tracker": {"stock:ABC": candidate}, "lifetime": {}, "buy_signals": [],
+               "scan_run_id": "11", "last_scan_completed_at": retry[-1]["completed_at"],
+               "history_source": "render_snapshot_fast", "scan_diagnostics": {"completed_scan_pair": retry}}
+    monkeypatch.setattr(main, "history_data", lambda: history)
+    receipt = json.loads(main.market_overview_data().body)
+    assert receipt["completed_scan_pair"][-1]["run_id"] == receipt["scan_run_id"]
+    assert list(receipt["completed_scan_pair"][-1]["members"]) == list(receipt["paper_tracker"])
+    assert completed_scan_pair(retry, [], "12", "2026-11-21T00:20:00Z")[0] == retry[-1]

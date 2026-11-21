@@ -3443,6 +3443,7 @@ def market_overview_data():
             "last_scan_completed_at": history["last_scan_completed_at"],
             "scan_run_id": history["scan_run_id"],
             "history_source": history["history_source"],
+            "completed_scan_pair": (history.get("scan_diagnostics") or {}).get("completed_scan_pair", []),
             "paper_tracker": candidates,
             "lifetime": {
                 "integrity": lifetime.get("integrity", {}),

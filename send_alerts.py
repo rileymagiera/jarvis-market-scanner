@@ -1047,6 +1047,23 @@ def select_premarket_alerts(candidates, state, now):
     return selected[:10]
 
 
+def completed_scan_pair(saved, candidates, run_id, completed_at):
+    """Keep two distinct completed scans for the overview's read-only comparison."""
+    current = {
+        "run_id": str(run_id or completed_at),
+        "completed_at": completed_at,
+        "members": {
+            f"{row['asset_type']}:{row['symbol']}": [
+                row.get("stage") or row.get("signal"), row.get("price_validation_status")
+            ]
+            for row in candidates if row.get("asset_type") and row.get("symbol")
+        },
+    }
+    earlier = [scan for scan in (saved or []) if isinstance(scan, dict)
+               and scan.get("run_id") != current["run_id"]]
+    return earlier[-1:] + [current]
+
+
 def save_scan_diagnostics(payload, metadata, metadata_path):
     metadata["scan_diagnostics"] = payload.get("diagnostics") or {}
     metadata_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
@@ -1096,6 +1113,10 @@ def main():
         raise RuntimeError("Scanner response did not contain candidates.")
     completed_at = datetime.now(timezone.utc).isoformat()
     previous_scan_at = metadata.get("last_scan_completed_at")
+    prior_pair = (metadata.get("scan_diagnostics") or {}).get("completed_scan_pair")
+    payload.setdefault("diagnostics", {})["completed_scan_pair"] = completed_scan_pair(
+        prior_pair, payload["candidates"], metadata.get("run_id"), completed_at
+    )
     metadata.update({
         "last_scan_completed_at": completed_at,
         "last_attempt_status": "completed",

@@ -19,6 +19,7 @@ const bootStatus=document.getElementById('updated');if(bootStatus)bootStatus.tex
   await new Promise(resolve=>requestAnimationFrame(()=>resolve()));
   try{
    render(data);
+   renderScanReceipt(data);
    const snapshotMs=Date.parse(data.last_scan_completed_at||'');
    setSnapshotIndicator(Number.isFinite(snapshotMs)&&snapshotMs<=Date.now()&&Date.now()-snapshotMs<=45*60*1000?'fresh':'old');
    const snapshotTime=data.last_scan_completed_at?new Intl.DateTimeFormat('en-US',{timeZone:'America/Detroit',year:'numeric',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit',timeZoneName:'short'}).format(new Date(data.last_scan_completed_at)):'timestamp unavailable';
@@ -224,4 +225,63 @@ const cps=l.checkpoints||{};document.getElementById('checks').innerHTML=Object.e
 const moves=[];all.forEach(x=>(x.grade_history||[]).forEach(m=>moves.push({...m,symbol:x.symbol,asset:x.asset_type})));moves.sort((a,b)=>new Date(b.at)-new Date(a.at));document.getElementById('moves').innerHTML=moves.slice(0,50).map(m=>'<tr><td>'+e((m.asset||'').toUpperCase()+' '+m.symbol)+'</td><td>'+e(m.from||'—')+'</td><td>'+e(m.to||'—')+'</td><td>'+date(m.at)+'</td></tr>').join('')||'<tr><td colspan="4">Grade history starts recording from this upgrade onward.</td></tr>';
 document.getElementById('catalysts').innerHTML=all.filter(x=>(x.discovery_reasons||[]).length||(x.catalysts||[]).length||(x.risk_flags||[]).length).slice(0,40).map(x=>'<tr><td>'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'</td><td>'+e((x.discovery_reasons||[]).join(' · ')||'—')+'</td><td>'+((x.catalysts||[]).slice(0,2).map(c=>c.url?'<a target="_blank" rel="noopener" href="'+e(c.url)+'">'+e(c.title)+'</a>':e(c.title)).join('<br>')||'—')+'</td><td class="neg">'+e((x.risk_flags||[]).join(' · ')||'—')+'</td></tr>').join('')||'<tr><td colspan="4">Discovery details will populate on the next scan.</td></tr>';
 const faded=all.filter(x=>x.currently_surfaced===false).sort((a,b)=>(b.last_seen||'').localeCompare(a.last_seen||''));document.getElementById('faded').innerHTML=faded.slice(0,40).map(x=>'<tr><td>'+e((x.asset_type||'').toUpperCase()+' '+x.symbol)+'</td><td>'+date(x.last_seen)+'</td><td class="'+cl(x.discovery_return_pct)+'">'+pct(x.discovery_return_pct)+'</td><td class="pos">'+pct(x.discovery_max_gain_pct??x.max_gain_pct)+'</td><td>'+e(x.last_stage||'—')+'</td></tr>').join('')||'<tr><td colspan="5">No candidates currently absent from the latest scan.</td></tr>';
+}
+function renderScanReceipt(data) {
+ const receipt = document.getElementById('scan-receipt');
+ const changes = document.getElementById('scan-changes');
+ const run = String(data.scan_run_id || '');
+ const rows = Object.values(data.paper_tracker);
+ const pair = data.completed_scan_pair || [];
+ const current = pair.at(-1);
+ const matched = current && current.completed_at === data.last_scan_completed_at &&
+   (!run || current.run_id === run);
+ const members = matched ? Object.keys(current.members) :
+   rows.filter(row => row.currently_surfaced === true).map(row => row.asset_type + ':' + row.symbol);
+ const count = asset => members.filter(key => key.startsWith(asset + ':')).length;
+ const runLabel = /^\d+$/.test(run)
+   ? '<a href="https://github.com/rileymagiera/jarvis-market-scanner/actions/runs/' + run + '">Run ' + run + '</a>'
+   : 'Run ID unavailable';
+ receipt.innerHTML = runLabel + ' · ' + e(etStamp(data.last_scan_completed_at)) +
+   ' · ' + count('stock') + ' stocks · ' + count('crypto') + ' crypto · ' + rows.length + ' retained records';
+ checkPublishedScan(data.last_scan_completed_at);
+ if (!matched || pair.length < 2) {
+   changes.textContent = 'A comparison needs two consecutive saved scans.';
+   return;
+ }
+ const previous = pair.at(-2);
+ const changesHtml = [];
+ for (const key of [...new Set([...Object.keys(previous.members), ...members])].sort()) {
+   const before = previous.members[key], after = current.members[key];
+   const reasons = [];
+   if (!before) reasons.push('Entered scan');
+   else if (!after) reasons.push('Left scan');
+   else {
+     if (rank[after[0]] > rank[before[0]]) reasons.push('Stage advanced');
+     if (before[1] === 'verified' && after[1] !== 'verified') reasons.push('Lost verification');
+   }
+   if (!reasons.length) continue;
+   const describe = value => value ? value.map(part => part || 'Unknown').join(' · ') : 'Absent';
+   changesHtml.push('<tr>' + [key, reasons.join(' · '), describe(before), describe(after)]
+     .map(value => '<td>' + e(value) + '</td>').join('') + '</tr>');
+ }
+ changes.innerHTML = '<p>Compared with ' + e(etStamp(previous.completed_at)) + '</p>' +
+   (changesHtml.length ? '<table><thead><tr><th>Candidate</th><th>Change</th><th>Previous</th><th>Current</th></tr></thead><tbody>' +
+   changesHtml.join('') + '</tbody></table>' : '<p>No entries, departures, advances, or verification losses.</p>');
+}
+
+async function checkPublishedScan(displayedAt) {
+ const label = document.getElementById('receipt-freshness');
+ label.textContent = 'Checking latest published scan…';
+ try {
+   const response = await fetch('https://raw.githubusercontent.com/rileymagiera/jarvis-market-scanner/main/scan_metadata.json',
+     {cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer', signal: AbortSignal.timeout(6000)});
+   if (!response.ok) throw Error();
+   const published = Date.parse((await response.json()).last_scan_completed_at);
+   const displayed = Date.parse(displayedAt);
+   if (!Number.isFinite(published) || !Number.isFinite(displayed)) throw Error();
+   label.textContent = published > displayed ? 'A newer scan is published on GitHub.' :
+     published === displayed ? 'Matches the latest published scan.' : 'This snapshot is ahead of the published scan.';
+ } catch {
+   label.textContent = 'Latest published scan could not be checked.';
+ }
 }
