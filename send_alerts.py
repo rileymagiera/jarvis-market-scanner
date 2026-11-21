@@ -16,6 +16,7 @@ from notification_format import (
     format_premarket_watch, format_daily_status, format_market_digest,
 )
 from candidate_lifecycle import update_candidate_lifecycle
+from entry_timing_lab import retain_paired_entry_observations
 from early_opportunity_radar import append_candidate_snapshot
 from early_runner import has_session_aware_early_runner_baseline
 from urllib.request import Request, urlopen
@@ -165,7 +166,7 @@ def update_universe_rs_rank_history(record, item, now):
     )
 
 
-def update_paper_tracker(candidates, now, scan_id=None):
+def update_paper_tracker(candidates, now, scan_id=None, paper_account=None):
     """Track recommendations with 365-day detail and cumulative lifetime checkpoint stats."""
     try:
         tracker = json.loads(PAPER_STATE.read_text(encoding="utf-8"))
@@ -771,6 +772,7 @@ def update_paper_tracker(candidates, now, scan_id=None):
         key: value for key, value in tracker.items()
         if datetime.fromisoformat(value.get("last_seen", value.get("first_seen"))) >= cutoff
     }
+    retain_paired_entry_observations(tracker, paper_account or {})
     PAPER_STATE.write_text(json.dumps(tracker, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
     PAPER_LIFETIME_STATE.write_text(json.dumps(lifetime, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
     # The live dashboard needs the complete retained ledger, including unverified
@@ -1111,10 +1113,10 @@ def main():
     now = datetime.now(timezone.utc)
     local_now = now.astimezone(ZoneInfo("America/Detroit"))
     scan_id = os.getenv("GITHUB_RUN_ID") or metadata.get("run_id") or now.isoformat()
-    paper, paper_lifetime = update_paper_tracker(payload["candidates"], now, scan_id=scan_id)
+    previous_account = load_account()
+    paper, paper_lifetime = update_paper_tracker(payload["candidates"], now, scan_id=scan_id, paper_account=previous_account)
     apply_history_runner_learning(payload["candidates"], paper)
     buy_signals = update_buy_signal_history(payload["candidates"], now, payload.get("errors") or [])
-    previous_account = load_account()
     watched_positions = {row.get("signal_id"): row for row in previous_account["positions"]}
     comparison_positions = ((previous_account.get("risk_off_comparison") or {}).get("shadow_account") or {}).get("positions", [])
     scanned_crypto = {row["symbol"] for row in payload["candidates"] if row.get("asset_type") == "crypto"}

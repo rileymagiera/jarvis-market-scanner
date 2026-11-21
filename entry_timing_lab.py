@@ -345,6 +345,32 @@ def _in_plan(price, plan):
     return low <= price <= high and stop < price < target_1
 
 
+def retain_paired_entry_observations(tracker, account):
+    """Keep the existing replay's first paper-entry window when scan history rolls over."""
+    trades = [trade for key in ("closed_trades", "positions") for trade in account.get(key, [])
+              if isinstance(trade, dict) and _time(trade.get("opened_at"))]
+    seen = set()
+    for trade in sorted(trades, key=lambda row: _time(row["opened_at"])):
+        key = f"{trade.get('asset_type')}:{trade.get('symbol')}"
+        record = tracker.get(key)
+        if record is None or key in seen:
+            continue
+        seen.add(key)
+        opened = _time(trade["opened_at"])
+        start = opened - timedelta(minutes=max(HORIZONS_MIN))
+        end = opened + timedelta(minutes=max(HORIZONS_MIN) + MAX_OUTCOME_DELAY_MIN)
+        retained = record.get("paired_entry_history") or []
+        rows = {row["scan_id"]: row for row in retained if isinstance(row, dict) and row.get("scan_id")}
+        for row in record.get("signal_history") or []:
+            if not _eligible_snapshot(row) or not row.get("scan_id"):
+                continue
+            observed = _time(row.get("observed_at"))
+            if observed and start <= observed <= end:
+                rows.setdefault(row["scan_id"], row)
+        if rows:
+            record["paired_entry_history"] = list(rows.values())
+
+
 def _paired_paper_entries(records, paper_account):
     """Compare earlier entries with recorded paper entries on a shared price path."""
     histories = {(str(row.get("asset_type") or "").lower(), str(row.get("symbol") or "").upper()): row
@@ -374,7 +400,9 @@ def _paired_paper_entries(records, paper_account):
                 and exits[0] < price < exits[1] <= exits[2]):
             coverage["unusable_paper_entry"] += 1
             continue
-        history, _ = _valid_observations(histories.get((asset, symbol), {}))
+        record = histories.get((asset, symbol), {})
+        snapshots = [*(record.get("paired_entry_history") or []), *(record.get("signal_history") or [])]
+        history, _ = _valid_observations({**record, "signal_history": snapshots})
         history = [point for point in history if _eligible_snapshot(point[3])]
         lookback_start = opened - timedelta(minutes=max(HORIZONS_MIN))
         pre_entry = [point for point in history if lookback_start <= point[0] < opened]
