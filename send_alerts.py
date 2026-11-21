@@ -15,6 +15,8 @@ from notification_format import (
     current_paper_events, mark_paper_events_notified, format_paper_trades,
     format_premarket_watch, format_daily_status, format_market_digest,
 )
+from email_digest import (queue_research_digest, queue_paper_digest_events,
+    queue_buy_digest_signals, digest_due, format_daily_digest, mark_digest_sent)
 from candidate_lifecycle import update_candidate_lifecycle
 from entry_timing_lab import retain_paired_entry_observations
 from early_opportunity_radar import append_candidate_snapshot
@@ -1206,71 +1208,59 @@ def main():
             selected.append(item)
             updates[key] = {"score": score, "alerted_at": now.isoformat(), "alerted_stage": item.get("stage")}
 
-    # Continue scanning and updating paper performance around the clock, but
-    # send email only during the preferred Eastern Time notification windows.
+    # Only routine research email delivery changes; scanning and paper execution
+    # remain untouched. Queue selected watch candidates until the evening digest.
+    premarket_selected = select_premarket_alerts(payload["candidates"], state, now)
+    research_only = [item for item in selected if item.get("stage") != "BUY"]
+    new_buys = [item for item in selected if item.get("stage") == "BUY"]
+    queue_research_digest(state, research_only, premarket_selected)
+    state.update({key: value for key, value in updates.items()
+                  if value.get("alerted_stage") != "BUY"})
+
     weekday = local_now.weekday()  # Monday=0, Sunday=6
     local_hour = local_now.hour
-    notification_window = ((weekday <= 4 and 7 <= local_hour < 21) or (weekday == 6 and 9 <= local_hour < 20))
-    if not notification_window:
-        # Preserve paper-event deduplication initialization and any other state
-        # while respecting the existing notification quiet hours.
-        STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        print(f"Outside notification window ({local_now.isoformat()}); scan and paper tracking saved without email.")
-        return
+    notification_window = ((weekday <= 4 and 7 <= local_hour < 21)
+                           or (weekday == 6 and 9 <= local_hour < 20))
+    if notification_window:
+        notice = format_paper_trades(pending_paper_email_events, paper_account)
+        if notice:
+            email(*notice)
+            mark_paper_events_notified(state, pending_paper_email_events)
+            queue_paper_digest_events(state, pending_paper_email_events)
+            # Save before later optional emails to avoid duplicate paper events.
+            STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            print(f"Paper trade notification sent: {len(pending_paper_email_events)} event(s).")
 
-    premarket_selected = select_premarket_alerts(payload["candidates"], state, now)
-    paper_notice_sent = False
-    notice = format_paper_trades(pending_paper_email_events, paper_account)
-    if notice:
-        email(*notice)
-        mark_paper_events_notified(state, pending_paper_email_events)
-        # Save immediately so a later optional watchlist-email error cannot
-        # cause a paper transaction to be emailed again next scan.
-        STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        paper_notice_sent = True
-        print(f"Paper trade notification sent: {len(pending_paper_email_events)} event(s).")
-
-
-    if not selected:
-        if premarket_selected:
-            subject, body = format_premarket_watch(premarket_selected, payload.get("timestamp", now.isoformat()))
+        if new_buys:
+            # A BUY signal is an actionable recommendation, never an executed trade.
+            subject, body = format_market_digest(
+                new_buys, [], market,
+                payload.get("candidates_found", len(payload["candidates"])),
+                len(payload.get("errors") or []), payload.get("timestamp", now.isoformat()),
+            )
             email(subject, body)
+            state.update({key: value for key, value in updates.items()
+                          if value.get("alerted_stage") == "BUY"})
+            queue_buy_digest_signals(state, new_buys)
             STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-            print(f"Premarket watch email sent: {len(premarket_selected)} research candidate(s).")
-            return
+            print(f"Immediate BUY recommendation sent: {len(new_buys)}.")
 
-        daily_key = local_now.date().isoformat()
-        if paper_notice_sent:
-            # The paper BUY/SELL message is the useful status update today.
-            # Avoid a second 'nothing to report' email in the same scan.
-            state["daily_status_date"] = daily_key
-            STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-            return
-        if state.get("daily_status_date") == daily_key:
-            print("No new qualifying setups; daily status email already sent today.")
-            return
-        subject = "Jarvis DAILY STATUS: no new BUY signals"
-        body = format_daily_status(
-            market, payload.get("candidates_found", len(payload["candidates"])),
+    # At most one digest per day during the 8 PM Eastern hour, including
+    # weekends. Does not widen urgent-notification quiet hours or alter scans.
+    if digest_due(local_now, state):
+        subject, body = format_daily_digest(
+            state, local_now, market,
+            payload.get("candidates_found", len(payload["candidates"])),
             len(payload.get("errors") or []), payload.get("timestamp", now.isoformat()),
+            paper_account_summary(paper_account),
         )
         email(subject, body)
-        state["daily_status_date"] = daily_key
-        STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        print("Daily status email sent.")
-        return
+        mark_digest_sent(state, local_now)
+        print("Evening consolidated digest sent.")
 
-    subject, body = format_market_digest(
-        selected, premarket_selected, market,
-        payload.get("candidates_found", len(payload["candidates"])),
-        len(payload.get("errors") or []), payload.get("timestamp", now.isoformat()),
-    )
-    email(subject, body)
-    for runner in premarket_selected:
-        state.setdefault("premarket_alert_history", {})[runner.get("symbol", "").upper()] = {"score": runner.get("premarket_alert_score", 0), "alerted_at": now.isoformat(), "status": runner.get("premarket_alert_status")}
-    state.update(updates)
     STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(f"Sent {len(selected)} alert(s).")
+    if not notification_window:
+        print(f"Outside urgent notification window ({local_now.isoformat()}); digest queue saved.")
 
 
 if __name__ == "__main__":
