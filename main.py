@@ -1,4 +1,6 @@
 import os
+import sys
+import subprocess
 import gzip
 import json
 import hmac
@@ -1344,6 +1346,9 @@ def stock_fundamental_snapshot(ticker) -> dict:
 WEBULL_QUOTE_CACHE = {}
 WEBULL_QUOTE_CACHE_LOCK = threading.Lock()
 WEBULL_QUOTE_SEMAPHORE = threading.BoundedSemaphore(2)
+# The Webull SDK can poll for 2FA approval for up to five minutes. Keep that
+# optional read-only provider strictly bounded in a killable child process.
+WEBULL_QUOTE_TIMEOUT_SECONDS = max(5, min(30, int(os.getenv("WEBULL_QUOTE_TIMEOUT_SECONDS", "12") or 12)))
 # Webull OpenAPI token verification was observed remaining PENDING for ~200s.
 # Keep this optional provider off by default so it cannot hold up a complete scan.
 # Enable only after the Webull app's market-data authorization is confirmed.
@@ -1455,7 +1460,7 @@ def persist_webull_yahoo_history(records: list[dict], timestamp: str, run_id=Non
     return result
 
 
-def webull_latest_bar(symbol: str, interval: str = "M1", max_age_minutes: int = 10) -> dict:
+def _webull_latest_bar_direct(symbol: str, interval: str = "M1", max_age_minutes: int = 10) -> dict:
     """Optional read-only Webull OpenAPI 1-minute bar for independent quote checking."""
     app_key = os.getenv("WEBULL_APP_KEY", "").strip()
     app_secret = os.getenv("WEBULL_APP_SECRET", "").strip()
@@ -1475,8 +1480,11 @@ def webull_latest_bar(symbol: str, interval: str = "M1", max_age_minutes: int = 
     data_client = DataClient(api_client)
     with WEBULL_QUOTE_SEMAPHORE:
         response = data_client.market_data.get_history_bar(symbol, "US_STOCK", interval)
-    if getattr(response, "status_code", None) != 200:
-        raise RuntimeError("Webull Market Data API did not return HTTP 200")
+    webull_http_status = getattr(response, "status_code", None)
+    if webull_http_status == 403:
+        raise PermissionError("Webull OpenAPI market-data permission denied (HTTP 403)")
+    if webull_http_status != 200:
+        raise RuntimeError(f"Webull Market Data API returned HTTP {webull_http_status}")
     payload = response.json()
 
     candidates = []
@@ -1519,6 +1527,45 @@ def webull_latest_bar(symbol: str, interval: str = "M1", max_age_minutes: int = 
     quote = {"price": price, "as_of": stamp.isoformat(), "age_minutes": round(age_minutes, 1)}
     with WEBULL_QUOTE_CACHE_LOCK:
         WEBULL_QUOTE_CACHE[symbol] = {"quote": quote, "fetched_at": datetime.now(timezone.utc)}
+    return quote
+
+
+def webull_latest_bar(symbol: str, interval: str = "M1", max_age_minutes: int = 10) -> dict:
+    """Fetch a read-only Webull quote without letting SDK 2FA block the stock scan.
+
+    The subprocess is killed at the deadline, rather than leaving an SDK thread
+    polling for token verification after the parent has given up. Credentials are
+    inherited privately from the environment, never passed on the command line.
+    """
+    if not (os.getenv("WEBULL_APP_KEY", "").strip() and os.getenv("WEBULL_APP_SECRET", "").strip()):
+        raise RuntimeError("Webull OpenAPI credentials are not configured")
+    command = [sys.executable, "-m", "webull_quote_worker", symbol, interval, str(max_age_minutes)]
+    try:
+        with WEBULL_QUOTE_SEMAPHORE:
+            completed = subprocess.run(
+                command, capture_output=True, text=True, check=False,
+                timeout=WEBULL_QUOTE_TIMEOUT_SECONDS,
+            )
+    except subprocess.TimeoutExpired as exc:
+        raise TimeoutError(
+            f"Webull OpenAPI authentication or quote exceeded {WEBULL_QUOTE_TIMEOUT_SECONDS}s; "
+            "verify the OpenAPI request in the Webull app"
+        ) from exc
+
+    try:
+        result = json.loads(completed.stdout.strip().splitlines()[-1])
+    except (IndexError, ValueError, TypeError, AttributeError):
+        raise RuntimeError("Webull quote worker returned no valid response") from None
+    if not isinstance(result, dict):
+        raise RuntimeError("Webull quote worker returned an invalid response")
+    if completed.returncode != 0 or "error" in result:
+        reason = str(result.get("error") or "Webull quote worker failed")
+        if "permission denied" in reason.lower():
+            raise PermissionError(reason)
+        raise RuntimeError(reason)
+    quote = result.get("quote")
+    if not isinstance(quote, dict) or safe_float(quote.get("price")) <= 0:
+        raise RuntimeError("Webull quote worker returned no valid price")
     return quote
 
 
