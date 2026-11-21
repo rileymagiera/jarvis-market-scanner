@@ -3017,8 +3017,8 @@ def response_payload(asset: str, symbols: list[str], results: list, errors: list
 
 @app.get("/", dependencies=[Depends(require_site_login)])
 def home():
-    """Open the dashboard on Market Overview by default."""
-    return RedirectResponse(url="/history", status_code=302)
+    """Make the dedicated Jarvis Home page the default landing page."""
+    return RedirectResponse(url="/home", status_code=302)
 
 
 
@@ -3160,6 +3160,29 @@ def latest_history_state() -> dict:
     return {}
 
 
+@app.get("/home", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
+def home_page():
+    """Lightweight navigation-first landing page. Scanner stays under /history."""
+    html = (TEMPLATE_DIR / "home.html").read_text(encoding="utf-8")
+    return apply_workspace_preferences(HTMLResponse(html, headers={"Cache-Control": "no-store"}))
+
+
+@app.get("/home/brief", dependencies=[Depends(require_site_login)])
+def home_brief():
+    """Tiny read-only summary of the existing cached saved scan, no new market calls."""
+    state = latest_history_state()
+    records = state.get("paper_tracker") if isinstance(state, dict) else None
+    records = records if isinstance(records, dict) else {}
+    surfaced = [r for r in records.values() if isinstance(r, dict) and r.get("currently_surfaced") is not False]
+    return JSONResponse({
+        "last_scan_completed_at": state.get("last_scan_completed_at") if isinstance(state, dict) else None,
+        "tracked_assets": len(records),
+        "radar_candidates": len(surfaced),
+        "verified_candidates": sum(str(r.get("price_validation_status", "")).lower() == "verified" for r in surfaced),
+        "snapshot_available": bool(state and state.get("last_scan_completed_at")),
+    }, headers={"Cache-Control": "no-store"})
+
+
 @app.get("/data-health", response_class=HTMLResponse, dependencies=[Depends(require_site_login)])
 def data_health_page():
     html = (TEMPLATE_DIR / "data_health.html").read_text(encoding="utf-8")
@@ -3287,25 +3310,26 @@ def history_page():
     return HTMLResponse(html, headers={"Cache-Control":"no-store, no-cache, must-revalidate, max-age=0","Pragma":"no-cache","Expires":"0"})
 def analytics_tab_page(active: str) -> str:
     tabs = [
-        ("data-health", "Data Health"),
-        ("discovery-performance", "Discovery Performance"),
-        ("intelligence", "Intelligence"),
-        ("market-breadth", "Market Breadth"),
+        ("home", "Home"),
+        ("data-health", "Data Quality"),
         ("history", "Market Overview"),
-        ("momentum-evidence", "Momentum Evidence"),
+        ("market-breadth", "Market Pulse"),
+        ("momentum-evidence", "Momentum Tracker"),
         ("paper-trading", "Paper Trading"),
         ("settings", "Settings"),
+        ("intelligence", "Signal Lab"),
+        ("discovery-performance", "Signal Performance"),
     ]
     nav = "".join(
         f'<a class="{"active" if slug == active else ""}" href="/{slug}">{label}</a>'
         for slug, label in tabs
     )
     titles = {
-        "discovery-performance": ("DISCOVERY PERFORMANCE", "Discovery Performance",
+        "discovery-performance": ("SIGNAL PERFORMANCE", "Signal Performance",
             "Track what happened after Jarvis first discovered each candidate."),
-        "momentum-evidence": ("MOMENTUM EVIDENCE", "Momentum Evidence",
+        "momentum-evidence": ("MOMENTUM TRACKER", "Momentum Tracker",
             "Compare current price momentum, volume participation, relative strength and trend evidence."),
-        "market-breadth": ("MARKET BREADTH", "Market Breadth",
+        "market-breadth": ("MARKET PULSE", "Market Pulse",
             "See whether the currently scanned stock cohort is broadly participating. This is not full-exchange breadth."),
     }
     eyebrow, title, subtitle = titles[active]
@@ -3323,7 +3347,7 @@ def customize_page() -> str:
 
 
 def inject_mobile_navigation(html: str) -> str:
-    """Compact mobile shortcuts without removing any of the desktop's eight pages."""
+    """Compact mobile shortcuts without removing any of the desktop's nine pages."""
     if 'id="jarvis-mobile-navigation"' in html:
         return html
     match = re.search(r"<nav\b[^>]*>[\s\S]*?</nav>", html)
@@ -3336,12 +3360,11 @@ def inject_mobile_navigation(html: str) -> str:
         if href and ('aria-current="page"' in anchor or re.search(r'class="[^"]*\bactive\b', anchor)):
             active = href.group(1)
             break
-    primary = [("history", "Market Overview"), ("intelligence", "Intelligence"),
+    primary = [("home", "Home"), ("history", "Market Overview"),
                ("paper-trading", "Paper Trading")]
-    secondary = [("data-health", "Data Health"),
-                 ("discovery-performance", "Discovery Performance"),
-                 ("market-breadth", "Market Breadth"),
-                 ("momentum-evidence", "Momentum Evidence"), ("settings", "Settings")]
+    secondary = [("data-health", "Data Quality"), ("market-breadth", "Market Pulse"),
+                 ("momentum-evidence", "Momentum Tracker"), ("settings", "Settings"),
+                 ("intelligence", "Signal Lab"), ("discovery-performance", "Signal Performance")]
 
     def link(slug: str, label: str) -> str:
         current = ' aria-current="page"' if active == slug else ""

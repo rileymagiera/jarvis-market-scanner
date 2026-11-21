@@ -32,7 +32,7 @@ def test_shared_analytics_template_replaces_navigation_and_page_labels():
 
     assert "__TITLE__" not in html
     assert "__NAV__" not in html
-    assert "Market Breadth" in html
+    assert "Market Pulse" in html
     assert 'href="/market-breadth"' in html
 
 
@@ -73,7 +73,7 @@ def test_data_health_page_and_api_are_read_only_and_descriptive(monkeypatch):
     })
     html = main.data_health_page().body.decode("utf-8")
     data = main.data_health_data()
-    assert "Data Health" in html
+    assert "Data Quality" in html
     assert 'href="/data-health"' in html
     assert data["candidate_count"] == 2
     assert data["price_status"]["all"]["verified"] == 1

@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Jarvis · Home</title>
+<style>
+:root{color-scheme:dark;--bg:#0b101a;--line:#313753;--text:#f0f2ff;--muted:#a6acc8;--accent:#a89aff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(ellipse at 45% -15%,#1c1d3c 0%,#0b101a 58%);color:var(--text);font:14px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+main{width:min(100% - 32px,1320px);margin:0 auto;padding:30px 0 70px}
+a{color:inherit;text-decoration:none}a:hover{text-decoration:none}
+.top-tabs{display:flex;flex-wrap:wrap;gap:7px;margin:18px 0 22px;padding:0 0 15px;border-bottom:1px solid #373b56}
+.top-tabs a{display:inline-flex;align-items:center;justify-content:center;min-height:39px;padding:9px 12px;border:1px solid #414661;border-radius:10px;color:#c2c6df;background:#181d30;font-size:11px;font-weight:750}
+.top-tabs a:hover{border-color:#a99cf5;color:#fff}.top-tabs a[aria-current="page"]{border-color:#b4a1ff;background:#3a345c;color:#fff}
+@media(max-width:700px){main{width:calc(100% - 24px);padding:14px 0 45px}}
+
+/* Market Overview / Signal Operations: isolated visual layer; no scanner behavior. */
+main:has(> .overview-deck){border-top:0}
+.overview-deck{position:relative;isolation:isolate;overflow:hidden;border:1px solid #35375b;border-radius:25px;background:radial-gradient(ellipse at 78% 20%,#282759 0,transparent 43%),radial-gradient(ellipse at 7% 96%,#202552 0,transparent 41%),linear-gradient(120deg,#10121e 0%,#111728 62%,#10121e 100%);color:#f3f4ff;box-shadow:0 22px 80px #0006,inset 0 1px #d4daff19}
+.overview-deck:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(#b2bdff06 1px,transparent 1px),linear-gradient(90deg,#b2bdff06 1px,transparent 1px);background-size:44px 44px;mask-image:linear-gradient(90deg,transparent 12%,#000 100%)}
+.overview-deck:after{content:"";position:absolute;width:330px;height:330px;right:-190px;top:-180px;border:1px solid #8c82f338;border-radius:50%;pointer-events:none;box-shadow:0 0 0 45px #8683e90a,0 0 0 100px #8683e907}
+.deck-topline{position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:21px 30px 18px;border-bottom:1px solid #a2a7e31c}
+.deck-identity{display:flex;align-items:center;gap:12px;min-width:0;color:#f5f4ff;text-decoration:none}
+.deck-identity:hover{text-decoration:none;color:#fff}
+.deck-monogram{position:relative;display:grid;place-items:center;width:39px;height:39px;flex:0 0 39px;background:#9b94ff;border-radius:12px 4px 12px 4px;transform:rotate(-7deg);box-shadow:0 5px 25px #a69aff40}
+.deck-monogram>span{color:#12132a;font:italic 900 27px/1 Georgia,serif;transform:rotate(7deg)}
+.deck-monogram i{position:absolute;width:8px;height:8px;right:-3px;top:-3px;border:2px solid #13152b;border-radius:50%;background:#8cffe1}
+.deck-identity-word{font-size:15px;font-weight:900;letter-spacing:.17em;line-height:1.1}.deck-identity-word small{display:block;margin-top:5px;font-size:8px;letter-spacing:.21em;color:#abb5d2;font-weight:700}
+.deck-mode{display:flex;align-items:center;gap:10px;font-size:9px;font-weight:800;letter-spacing:.17em;color:#b6bddc;white-space:nowrap}
+.deck-mode strong{color:#9df1d7;font-size:9px;font-weight:800}.deck-mode-dot{width:7px;height:7px;border-radius:50%;background:#ad9cff;box-shadow:0 0 0 4px #ac9aff20,0 0 15px #a697ff88}.deck-mode-slash{color:#545b83}
+.deck-stage{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);align-items:center;gap:36px;padding:48px 42px 48px 45px}
+.deck-copy{position:relative;z-index:1;min-width:0}.deck-index{display:flex;align-items:center;gap:10px;color:#a4a2fa;font-size:10px;font-weight:850;letter-spacing:.23em}.deck-index-bar{width:27px;height:2px;background:#9a91ff;box-shadow:0 0 12px #998bff}
+.overview-deck h1{font-family:Inter,"Arial",system-ui,sans-serif;font-weight:880;font-size:clamp(62px,7vw,106px);line-height:.94;letter-spacing:-.085em;margin:22px 0 25px;text-shadow:none;color:#f3f2ff}
+.deck-title-dot{color:#9d95ff}.deck-title-second{display:block;background:linear-gradient(100deg,#c8c3ff 2%,#938df5 49%,#81e8d7 98%);background-clip:text;-webkit-background-clip:text;color:transparent;padding-right:.08em}
+.deck-lede{max-width:440px;margin:0;color:#b7c0d8;font-size:14px;line-height:1.7;letter-spacing:.005em}
+.deck-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:31px}.deck-actions a{display:inline-flex;align-items:center;justify-content:space-between;gap:16px;min-height:47px;padding:12px 17px;border-radius:11px;font-size:12px;font-weight:800;text-decoration:none;transition:transform .16s,border-color .16s,background .16s}.deck-actions a:hover{transform:translateY(-2px);text-decoration:none}.deck-actions a:focus-visible,.deck-data-link:focus-visible,.deck-identity:focus-visible{outline:2px solid #c6bbff;outline-offset:4px}
+.deck-primary{background:#a29aff;border:1px solid #bcb5ff;color:#16142f;box-shadow:0 9px 24px #9181ff24}.deck-primary:hover{background:#c0baff;color:#16142f}.deck-secondary{color:#d2d5f1;border:1px solid #65678c;background:#21243c}.deck-secondary:hover{border-color:#b6aaff;color:#fff}
+.deck-viz{position:relative;min-width:0;border:1px solid #6b6da13b;border-radius:19px;padding:17px 19px 16px;background:linear-gradient(155deg,#1d213bdb,#151828e8);box-shadow:0 18px 48px #05071167,inset 0 1px #d9d8ff19;transform:rotate(1deg)}
+.deck-viz:before{content:"";position:absolute;inset:-7px;z-index:-1;border:1px dashed #746fbb44;border-radius:24px;pointer-events:none}
+.deck-viz-top,.deck-viz-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;color:#9b9fc3;font-size:9px;font-weight:800;letter-spacing:.15em}.deck-viz-top{color:#e4defe}.deck-viz-star{font-size:15px;color:#b4a9ff;margin-right:7px}.deck-viz-graphic{display:block;width:100%;height:auto;margin:7px 0 0}.deck-flow-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:-7px 1px 15px}.deck-flow-steps span{font-size:9px;letter-spacing:.11em;font-weight:800;color:#c9ccea;white-space:nowrap}.deck-flow-steps b{display:block;margin-bottom:4px;color:#8881e8;font-size:10px}.deck-viz-foot{border-top:1px solid #9f9fc325;padding-top:12px;font-size:8px;color:#9498b8}
+.deck-footer{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr) auto;align-items:center;gap:20px;padding:20px 29px;background:#0b0d1cb5;border-top:1px solid #c8c0ff20}
+.deck-status-block{display:flex;align-items:center;gap:13px;min-width:0}.deck-status-orb{display:block;flex:0 0 12px;width:12px;height:12px;border-radius:50%;border:2px solid #777ba5;background:#414461;box-shadow:0 0 0 5px #76739d1b}.deck-status-orb[data-snapshot-state="fresh"]{background:#85f0cc;border-color:#b7ffe7;box-shadow:0 0 0 5px #83f0cc1b,0 0 21px #7ef2ca55}.deck-status-orb[data-snapshot-state="old"]{background:#f1c585;border-color:#ffe2b1;box-shadow:0 0 0 5px #f0c3851b}.deck-status-orb[data-snapshot-state="error"]{background:#ff919f;border-color:#ffc5cc;box-shadow:0 0 0 5px #fc89991b}
+.deck-status-copy,.deck-stamp{min-width:0}.deck-foot-label{display:block;color:#969bbf;font-size:9px;font-weight:800;letter-spacing:.16em}.deck-status-copy #updated{display:block;max-width:100%;margin:5px 0 0;padding:0;background:none;border:0;border-radius:0;box-shadow:none;font-size:11px;font-weight:600;letter-spacing:0;line-height:1.5;color:#d8dbec;overflow-wrap:anywhere}.deck-status-copy #updated:before{content:none;display:none}
+.deck-stamp{padding-left:20px;border-left:1px solid #9298b834}.deck-stamp strong{display:block;margin-top:6px;font-size:11px;font-weight:700;line-height:1.45;color:#e3e5ff;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.deck-data-link{display:inline-flex;align-items:center;gap:7px;justify-content:center;min-height:43px;padding:9px 13px;border:1px solid #61658b;border-radius:10px;background:#1d213a;color:#d8dbff;font-size:11px;font-weight:800;text-decoration:none;white-space:nowrap}.deck-data-link:hover{border-color:#9d91ff;color:#fff;text-decoration:none}
+#action-center{scroll-margin-top:20px}
+@media(max-width:1060px){.deck-stage{gap:24px;padding:38px 30px}.overview-deck h1{font-size:clamp(54px,7vw,79px)}.deck-viz{padding:12px}.deck-footer{grid-template-columns:1.2fr .9fr}.deck-data-link{grid-column:1/-1;justify-self:start}}
+@media(max-width:760px){.overview-deck{border-radius:19px}.deck-topline{padding:17px 20px}.deck-mode{gap:7px;font-size:8px;letter-spacing:.07em}.deck-mode-slash{display:none}.deck-mode>span:nth-child(2){display:none}.deck-stage{grid-template-columns:minmax(0,1fr);gap:28px;padding:33px 23px 32px}.overview-deck h1{font-size:clamp(57px,11vw,88px);margin:19px 0}.deck-viz{max-width:530px;width:100%;justify-self:center;transform:none}.deck-footer{grid-template-columns:1fr;gap:14px;padding:17px 21px}.deck-stamp{padding:0 0 0 25px;border-left:0}.deck-data-link{grid-column:auto;justify-self:stretch}}
+@media(max-width:420px){.deck-identity-word{font-size:13px}.deck-identity-word small{font-size:7px}.deck-topline{padding:14px 17px}.deck-monogram{width:33px;height:33px;flex-basis:33px}.deck-stage{padding:30px 17px 25px}.overview-deck h1{font-size:clamp(53px,13vw,65px)}.deck-actions{display:grid;grid-template-columns:1fr}.deck-actions a{width:100%}.deck-mode strong{font-size:8px}.deck-flow-steps span{font-size:8px}.deck-viz-foot{font-size:7px}}
+@media(prefers-reduced-motion:reduce){.deck-actions a{transition:none}.deck-actions a:hover{transform:none}}
+
+
+.overview-deck h1{font-size:clamp(62px,7vw,100px)}
+.overview-deck .deck-title-second{font-size:.8em}
+.home-section-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-end;margin:32px 0 14px}
+.home-eyebrow{font-size:10px;font-weight:850;letter-spacing:.22em;color:#aea5ff;margin:0 0 7px}
+.home-section-head h2{font-size:clamp(21px,3vw,28px);font-weight:800;letter-spacing:-.045em;margin:0}
+.home-section-head p{margin:0;color:#a5afc4;font-size:12px;max-width:440px}
+.home-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.home-stat{background:linear-gradient(145deg,#20243b,#131a2c);border:1px solid #373f61;border-radius:15px;padding:21px 22px;min-width:0;box-shadow:0 8px 20px #0002}
+.home-stat span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.13em;color:#a7acc8;font-weight:800}
+.home-stat strong{display:block;font-size:clamp(27px,3.4vw,42px);font-weight:850;line-height:1.2;margin:12px 0 3px;font-variant-numeric:tabular-nums}
+.home-stat small{font-size:11px;line-height:1.5;color:#939cb7}
+.home-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:13px}
+.home-link{position:relative;overflow:hidden;display:flex;flex-direction:column;min-height:192px;padding:23px;border:1px solid #3f446a;border-radius:16px;background:linear-gradient(145deg,#232540,#12182b);transition:border-color .2s,transform .2s}
+.home-link:hover{border-color:#a698ff;transform:translateY(-3px)}
+.home-link-index{font-size:10px;font-weight:800;letter-spacing:.18em;color:#9f9ade}
+.home-link h3{font-size:21px;letter-spacing:-.04em;margin:17px 0 5px;font-weight:800}
+.home-link p{color:#a7b1c9;margin:0 0 18px;font-size:12px;line-height:1.6}
+.home-link-arrow{display:block;margin-top:auto;font-size:22px;color:#b0a3ff}
+.home-link.highlight{background:linear-gradient(145deg,#383068,#1e223f);border-color:#7768c2}
+.home-instructions{margin-top:24px;background:#171d30;border:1px solid #353f61;border-radius:14px;overflow:hidden}
+.home-instructions>summary{cursor:pointer;min-height:50px;display:flex;align-items:center;padding:14px 16px;font-size:12px;font-weight:800;color:#c6c9e4}
+.home-instructions>summary:after{content:"+";margin-left:auto;font-size:20px;color:#b6a5fc}
+.home-instructions[open]>summary:after{content:"−"}
+.home-instructions p{font-size:12px;color:#afb6d0;line-height:1.6;margin:0;padding:0 17px 18px}
+.home-legal{font-size:11px;color:#818aa8;margin-top:20px}
+@media(max-width:760px){.home-stats,.home-links{grid-template-columns:1fr 1fr}.home-link:last-child{grid-column:1/-1}.home-section-head{display:block}.home-section-head p{margin-top:6px}}
+@media(max-width:500px){.home-stats,.home-links{grid-template-columns:1fr}.home-link:last-child{grid-column:auto}.home-link{min-height:152px}.home-stat{padding:17px}.overview-deck h1{font-size:clamp(60px,15vw,75px)}}
+@media(prefers-reduced-motion:reduce){.home-link{transition:none}.home-link:hover{transform:none}}
+</style><link rel="stylesheet" href="/assets/workspace.css"></head>
+<body><main><header class="overview-deck" aria-label="Jarvis Home command center">
+  <div class="deck-topline">
+    <a class="deck-identity" href="/home" aria-label="Jarvis Home">
+      <span class="deck-monogram" aria-hidden="true"><span>J</span><i></i></span>
+      <span class="deck-identity-word">JARVIS <small>MARKET INTELLIGENCE</small></span>
+    </a>
+    <div class="deck-mode"><span class="deck-mode-dot" aria-hidden="true"></span><span>RESEARCH TERMINAL</span><span class="deck-mode-slash" aria-hidden="true">/</span><strong>PAPER MODE</strong></div>
+  </div>
+  <div class="deck-stage">
+    <div class="deck-copy">
+      <div class="deck-index"><span class="deck-index-bar" aria-hidden="true"></span> 01 &nbsp;/&nbsp; JARVIS HOME</div>
+      <h1>JARVIS<span class="deck-title-dot">.</span><span class="deck-title-second">The edge</span></h1>
+      <p class="deck-lede">Find promising moves earlier. See the evidence, then explore every signal in the scanner.</p>
+      <div class="deck-actions">
+        <a class="deck-primary" href="/history#action-center"><span>Open Market Overview</span><svg aria-hidden="true" width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M4 12h15m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <a class="deck-secondary" href="/paper-trading"><span>Paper trading</span><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M9 5h10v10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+    </div>
+    <div class="deck-viz" aria-label="Illustrative research workflow, not a live market chart">
+      <div class="deck-viz-top"><span><span class="deck-viz-star" aria-hidden="true">✳</span> SIGNAL / FLOW</span><span>FIG. 001</span></div>
+      <svg class="deck-viz-graphic" aria-hidden="true" focusable="false" viewBox="0 0 480 240" preserveAspectRatio="xMidYMid meet">
+        <defs><linearGradient id="deck-flow-gradient" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#7978ff"/><stop offset=".52" stop-color="#a38aff"/><stop offset="1" stop-color="#75f6d1"/></linearGradient><linearGradient id="deck-flow-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#837cff" stop-opacity=".27"/><stop offset="1" stop-color="#837cff" stop-opacity="0"/></linearGradient></defs>
+        <g stroke="#8296bf" stroke-opacity=".14" stroke-width="1"><path d="M22 40H458M22 80H458M22 120H458M22 160H458M22 200H458"/><path d="M60 18V220M120 18V220M180 18V220M240 18V220M300 18V220M360 18V220M420 18V220"/></g>
+        <path d="M22 188 C70 192 86 152 120 161 S172 183 208 127 S266 148 306 102 S375 132 411 56 S445 68 458 34 L458 220 L22 220 Z" fill="url(#deck-flow-fill)"/>
+        <path d="M22 188 C70 192 86 152 120 161 S172 183 208 127 S266 148 306 102 S375 132 411 56 S445 68 458 34" fill="none" stroke="#181d45" stroke-width="13" stroke-linecap="round" opacity=".65"/>
+        <path d="M22 188 C70 192 86 152 120 161 S172 183 208 127 S266 148 306 102 S375 132 411 56 S445 68 458 34" fill="none" stroke="url(#deck-flow-gradient)" stroke-width="3.5" stroke-linecap="round"/>
+        <g fill="#c4c3ff" stroke="#111631" stroke-width="5"><circle cx="120" cy="161" r="7"/><circle cx="208" cy="127" r="7"/></g><circle cx="411" cy="56" r="9" fill="#7cf5d3" stroke="#111631" stroke-width="5"/><circle cx="411" cy="56" r="19" stroke="#7cf5d3" stroke-opacity=".4" fill="none"/>
+        <g fill="#859abf" font-family="system-ui,sans-serif" font-size="9" letter-spacing="2"><text x="27" y="25">RESEARCH</text><text x="355" y="229">NOT A PRICE CHART</text></g>
+      </svg>
+      <div class="deck-flow-steps"><span><b>01</b> DISCOVER</span><span><b>02</b> VALIDATE</span><span><b>03</b> DECIDE</span></div>
+      <div class="deck-viz-foot"><span>IDEAS → EVIDENCE → DECISIONS</span><span aria-hidden="true">◈ &nbsp; ◈ &nbsp; ◈</span></div>
+    </div>
+  </div>
+  <div class="deck-footer">
+    <div class="deck-status-block">
+      <span class="deck-status-orb" id="deck-status-orb" data-snapshot-state="loading" aria-hidden="true"></span>
+      <div class="deck-status-copy"><span class="deck-foot-label" id="deck-health-label">SAVED SCAN · CONNECTING</span><div id="updated" role="status" aria-live="polite">Connecting to saved history…</div></div>
+    </div>
+    <div class="deck-stamp"><span class="deck-foot-label">LAST COMPLETED SCAN · ET</span><strong id="deck-snapshot-at">Loading saved scan…</strong></div>
+    <a class="deck-data-link" href="/data-health">Data Quality <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="m8 5 7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+  </div>
+</header>
+<nav class="top-tabs" aria-label="Jarvis dashboard navigation"><a href="/home" aria-current="page">Home</a><a href="/data-health">Data Quality</a><a href="/history">Market Overview</a><a href="/market-breadth">Market Pulse</a><a href="/momentum-evidence">Momentum Tracker</a><a href="/paper-trading">Paper Trading</a><a href="/settings">Settings</a><a href="/intelligence">Signal Lab</a><a href="/discovery-performance">Signal Performance</a></nav>
+<section aria-labelledby="home-brief-heading">
+ <div class="home-section-head"><div><p class="home-eyebrow">LATEST SAVED SNAPSHOT</p><h2 id="home-brief-heading">At a glance</h2></div><p>Read-only research measurements from the last completed scan, not continuously streaming prices.</p></div>
+ <div class="home-stats">
+  <div class="home-stat"><span>Tracked assets</span><strong id="home-tracked">—</strong><small>Records retained in the research ledger</small></div>
+  <div class="home-stat"><span>On the radar</span><strong id="home-radar">—</strong><small>Currently surfaced research candidates</small></div>
+  <div class="home-stat"><span>Verified prices</span><strong id="home-verified">—</strong><small>Latest saved validation; not necessarily BUY-eligible</small></div>
+ </div>
+</section>
+<section aria-labelledby="home-workspaces-heading"><div class="home-section-head"><div><p class="home-eyebrow">YOUR WORKSPACES</p><h2 id="home-workspaces-heading">Where to next?</h2></div><p>Jump into the work, or inspect the evidence behind it.</p></div>
+ <div class="home-links">
+  <a class="home-link highlight" href="/history#action-center"><span class="home-link-index">01 / DISCOVER</span><h3>Market Overview</h3><p>Current radar, official BUY records, entry research, and tracked candidates.</p><span class="home-link-arrow" aria-hidden="true">↗</span></a>
+  <a class="home-link" href="/paper-trading"><span class="home-link-index">02 / SIMULATE</span><h3>Paper Trading</h3><p>Practice account positions, simulated fills, results, and strategy review.</p><span class="home-link-arrow" aria-hidden="true">↗</span></a>
+  <a class="home-link" href="/intelligence"><span class="home-link-index">03 / IMPROVE</span><h3>Signal Lab</h3><p>BUY-gate evidence, missed opportunities, and what the research is teaching us.</p><span class="home-link-arrow" aria-hidden="true">↗</span></a>
+ </div>
+</section>
+<details class="home-instructions jarvis-help" data-jarvis-help="home-instructions" open><summary>How to use Jarvis Home</summary><p>Home provides a quick summary and shortcuts. Market Overview is the full scanner. Signal Lab explains the research. Paper Trading is virtual only. The illustrated chart above is decorative, not market data. Signal research is not a trade authorization.</p></details>
+<p class="home-legal">Jarvis is a research system. Snapshot metrics can be delayed. No live brokerage orders are placed here.</p>
+</main><script>
+(function(){
+ const status=document.getElementById('updated');
+ const label=document.getElementById('deck-health-label');
+ const orb=document.getElementById('deck-status-orb');
+ const when=document.getElementById('deck-snapshot-at');
+ function setState(level,text){
+   if(orb)orb.dataset.snapshotState=level;
+   if(label)label.textContent=({fresh:'SAVED SCAN · RECENT',old:'SAVED SCAN · AGED',error:'SAVED SCAN · UNAVAILABLE'})[level]||'SAVED SCAN · CONNECTING';
+   if(status)status.textContent=text;
+ }
+ const controller=new AbortController();
+ const timeout=setTimeout(()=>controller.abort(),12000);
+ fetch('/home/brief',{signal:controller.signal,cache:'no-store'}).then(r=>{
+   if(!r.ok)throw Error('HTTP '+r.status);
+   return r.json();
+ }).then(data=>{
+   const scanned=Date.parse(data.last_scan_completed_at||'');
+   if(!data.snapshot_available||!Number.isFinite(scanned)){
+     setState('error','Saved scan unavailable. Open Market Overview for details.');
+     if(when)when.textContent='Unavailable';
+     return;
+   }
+   const recent=scanned<=Date.now()&&Date.now()-scanned<=45*60*1000;
+   setState(recent?'fresh':'old',recent?'Saved scan available · not a live quote feed':'Saved scan available · timestamp may be old');
+   if(when)when.textContent=new Intl.DateTimeFormat('en-US',{timeZone:'America/Detroit',year:'numeric',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'}).format(new Date(scanned));
+   for(const [id,key] of [['home-tracked','tracked_assets'],['home-radar','radar_candidates'],['home-verified','verified_candidates']]){
+     const el=document.getElementById(id);
+     if(el&&Number.isSafeInteger(data[key])&&data[key]>=0)el.textContent=data[key].toLocaleString('en-US');
+   }
+ }).catch(()=>{
+   setState('error','Could not load saved scan. Market Overview may provide additional details.');
+   if(when)when.textContent='Unavailable';
+ }).finally(()=>clearTimeout(timeout));
+})();
+</script><script src="/assets/help_panels.js" defer></script></body></html>

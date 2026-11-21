@@ -7,7 +7,7 @@ import main
 
 
 PATHS = [
-    "/history", "/intelligence", "/paper-trading", "/data-health",
+    "/home", "/history", "/intelligence", "/paper-trading", "/data-health",
     "/discovery-performance", "/market-breadth", "/momentum-evidence",
     "/settings",
 ]
@@ -17,8 +17,9 @@ def page_body(response):
     return response.body.decode("utf-8")
 
 
-def test_mobile_navigation_keeps_all_eight_pages_and_three_shortcuts():
+def test_mobile_navigation_keeps_all_nine_pages_and_three_shortcuts():
     pages = [
+        page_body(main.home_page()),
         page_body(main.history_page()),
         page_body(main.paper_trading_page()),
         page_body(main.research_page()),
@@ -40,13 +41,15 @@ def test_mobile_navigation_keeps_all_eight_pages_and_three_shortcuts():
 
 
 def test_current_mobile_tab_is_identified_on_primary_and_more_pages():
-    home = page_body(main.history_page())
+    landing = page_body(main.home_page())
+    overview = page_body(main.history_page())
     intelligence = page_body(main.research_page())
     breadth = page_body(main.market_breadth_page())
-    assert '<a href="/history" aria-current="page">Market Overview</a>' in home
-    assert '<a href="/intelligence" aria-current="page">Intelligence</a>' in intelligence
-    assert "More · Market Breadth" in breadth
-    assert '<a href="/market-breadth" aria-current="page">Market Breadth</a>' in breadth
+    assert '<a href="/home" aria-current="page">Home</a>' in landing
+    assert '<a href="/history" aria-current="page">Market Overview</a>' in overview
+    assert '<a href="/intelligence" aria-current="page">Signal Lab</a>' in intelligence
+    assert "More · Market Pulse" in breadth
+    assert '<a href="/market-breadth" aria-current="page">Market Pulse</a>' in breadth
 
 
 def test_status_cards_separate_official_buy_from_research_and_show_age():
