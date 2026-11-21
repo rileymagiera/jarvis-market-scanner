@@ -3429,6 +3429,14 @@ def workspace_stylesheet():
     return Response(content=css, media_type="text/css", headers={"Cache-Control": "no-cache"})
 
 
+@app.get("/assets/help_panels.js")
+def help_panel_preferences_script():
+    """Shared, browser-local collapse preference for instructions on every tab."""
+    source = (Path(__file__).resolve().parent / "static" / "help_panels.js").read_text(encoding="utf-8")
+    return Response(content=source, media_type="application/javascript",
+                    headers={"Cache-Control": "no-cache"})
+
+
 @app.get("/history/dashboard.js", dependencies=[Depends(require_site_login)])
 def history_dashboard_js():
     # Serve the dashboard code separately so browser parse/load failures are visible
