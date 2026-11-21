@@ -53,3 +53,50 @@ def test_worker_does_not_contact_webull_without_secret(monkeypatch, capsys):
     assert webull_quote_worker.main() == 1
     output = capsys.readouterr().out
     assert "approved token" in output.lower()
+
+
+def test_worker_uses_private_temp_token_without_exposing_it(monkeypatch, capsys):
+    import json
+    import sys
+    import main
+    import webull_quote_worker
+
+    seen = []
+
+    def fake_direct(symbol, interval, age):
+        token_dir = Path(os.environ["WEBULL_OPENAPI_TOKEN_DIR"])
+        secret_file = token_dir / "token.txt"
+        assert secret_file.read_text() == TOKEN + "\n4102444800000\nNORMAL\n"
+        seen.append(str(token_dir))
+        return {"price": 200.0, "as_of": "2026-11-20T20:00:00Z", "age_minutes": 0}
+
+    monkeypatch.setenv("WEBULL_OPENAPI_TOKEN_FILE_B64", NORMAL)
+    monkeypatch.setattr(main, "_webull_latest_bar_direct", fake_direct)
+    monkeypatch.setattr(sys, "argv", ["worker", "AAPL", "M15", "45"])
+    assert webull_quote_worker.main() == 0
+    assert json.loads(capsys.readouterr().out)["quote"]["price"] == 200
+    assert len(seen) == 1
+    assert not Path(seen[0]).exists()
+
+
+def test_local_bootstrap_sends_secret_using_stdin_only(tmp_path, monkeypatch):
+    from scripts.webull_authorize_local import save_approved_token_with_gh
+    from types import SimpleNamespace
+    import subprocess
+    token_file = tmp_path / "token.txt"
+    token_file.write_text(TOKEN + "\n4102444800000\nNORMAL\n")
+    seen = []
+
+    def fake_run(cmd, **kwargs):
+        seen.append((cmd, kwargs))
+        return SimpleNamespace(returncode=0)
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+    save_approved_token_with_gh(token_file)
+    assert len(seen) == 1
+    args, kwargs = seen[0]
+    assert args[:3] == ["gh", "secret", "set"]
+    assert TOKEN not in " ".join(args)
+    assert kwargs["input"].strip() == NORMAL
+    assert kwargs["stdout"] == subprocess.PIPE
+    assert kwargs["stderr"] == subprocess.PIPE
