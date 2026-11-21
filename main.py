@@ -3731,9 +3731,12 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
     discovery_seconds = time.monotonic() - discovery_started
     global WEBULL_SHADOW_SYMBOLS
     webull_credentials_configured = bool(os.getenv("WEBULL_APP_KEY", "").strip() and os.getenv("WEBULL_APP_SECRET", "").strip())
+    # Never trigger a new SDK token approval on scheduled GitHub runners. Restore
+    # a verified token only from a repository secret in the read-only worker.
+    webull_token_secret_configured = bool(os.getenv("WEBULL_OPENAPI_TOKEN_FILE_B64", "").strip())
     WEBULL_SHADOW_SYMBOLS = set(
         select_webull_shadow_symbols(stock_symbols, os.getenv("GITHUB_RUN_NUMBER"))
-        if WEBULL_SHADOW_MODE and webull_credentials_configured else []
+        if WEBULL_SHADOW_MODE and webull_credentials_configured and webull_token_secret_configured else []
     )
     stock_results, stock_errors = ([], [])
     crypto_results, crypto_errors = ([], [])
@@ -3952,6 +3955,7 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
             "webull_shadow_sample": {
                 "enabled": WEBULL_SHADOW_MODE,
                 "credentials_configured": webull_credentials_configured,
+                "approved_token_secret_configured": webull_token_secret_configured,
                 "sample_limit_per_scan": WEBULL_SHADOW_MAX_SYMBOLS_PER_SCAN,
                 "symbols_selected": len(WEBULL_SHADOW_SYMBOLS),
             },
