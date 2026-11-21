@@ -121,6 +121,15 @@ Compatibility aliases currently remain for `/customize` and `/research`, and for
 - Optional provider credentials: `MASSIVE_API_KEY`; Webull credentials are read by the optional Webull integration.
 - Optional variable: `ALPACA_STOCK_DATA_FEED` (workflow default: `iex`).
 
+#### Read-only Webull OpenAPI shadow sampling
+
+- GitHub Actions reads `WEBULL_APP_KEY` and `WEBULL_APP_SECRET` **repository secrets**, not Render environment variables.
+- `WEBULL_SHADOW_MODE` is a repository **variable** and defaults to `false` after Webull OpenAPI returned `VERIFY_FAILURE_EXCEED_LIMIT` and a five-minute unverified token loop. Do **not** enable repeated unattended token creation.
+- Once a secure, durable OpenAPI token verification/reuse solution is established, explicitly set `WEBULL_SHADOW_MODE=true` to resume comparisons; the initial limit is **3 stocks per scan** and each quote attempt is isolated in a killable subprocess with a 12-second deadline.
+- OpenAPI app approval/2FA and separately entitled OpenAPI market data must be verified first; merely having keys is insufficient. The SDK normally saves a token in `conf/token.txt` on a runner, but GitHub-hosted runners are ephemeral. **Do not commit, upload, print, or cache a token or secret in a public repository.**
+- Webull is not a decision source while in shadow mode. Its failures must not change stock or crypto discovery, the BUY gates, paper trading, or scan cadence.
+
+
 ### Render environment
 
 - Required for protected dashboard access: `JARVIS_SITE_USERNAME`, `JARVIS_SITE_PASSWORD`.

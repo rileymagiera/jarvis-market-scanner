@@ -97,8 +97,11 @@ jobs:
           ALPACA_STOCK_DATA_FEED: ${{ vars.ALPACA_STOCK_DATA_FEED || 'iex' }}
           WEBULL_APP_KEY: ${{ secrets.WEBULL_APP_KEY }}
           WEBULL_APP_SECRET: ${{ secrets.WEBULL_APP_SECRET }}
-          WEBULL_SHADOW_MODE: 'true'
-          WEBULL_SHADOW_MAX_SYMBOLS_PER_SCAN: '30'
+          # Webull OpenAPI returned verification-failure-limit errors in production.
+          # Prevent repeated unattended token creation until authorization/token
+          # reuse is configured. Restore comparisons only with explicit opt-in.
+          WEBULL_SHADOW_MODE: ${{ vars.WEBULL_SHADOW_MODE || 'false' }}
+          WEBULL_SHADOW_MAX_SYMBOLS_PER_SCAN: '3'
           CRYPTO_SHADOW_MAX_SYMBOLS_PER_SCAN: '50'
           # Restore original per-symbol Binance.US shadow requests with repository variable 'false'.
           JARVIS_BINANCE_US_SHADOW_BATCH_ENABLED: ${{ vars.JARVIS_BINANCE_US_SHADOW_BATCH_ENABLED || 'true' }}
@@ -115,9 +118,13 @@ jobs:
             echo "Alpaca credentials are missing; scan will report Alpaca as not configured."
           fi
           if [ -n "$WEBULL_APP_KEY" ] && [ -n "$WEBULL_APP_SECRET" ]; then
-            echo "Webull credentials are configured; read-only shadow sampling is enabled."
+            if [ "$WEBULL_SHADOW_MODE" = "true" ]; then
+              echo "Webull credentials configured; read-only shadow sampling is enabled."
+            else
+              echo "Webull credentials configured; shadow sampling paused pending OpenAPI token verification."
+            fi
           else
-            echo "Webull credentials are missing; shadow sampling will remain idle until GitHub Actions secrets are added."
+            echo "Webull credentials are missing; shadow sampling is idle."
           fi
           python -m py_compile main.py send_alerts.py early_runner.py paper_trading.py
           # Full regression tests run in CI on code PRs and pushes, not on every market scan.
