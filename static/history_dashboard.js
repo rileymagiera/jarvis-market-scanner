@@ -2,7 +2,13 @@
 
 window.addEventListener('error',function(ev){const el=document.getElementById('updated');if(el)el.textContent='Overview JavaScript error: '+(ev.message||'script error');});
 window.addEventListener('unhandledrejection',function(ev){const el=document.getElementById('updated');if(el)el.textContent='Overview promise error: '+(ev.reason&&ev.reason.message||ev.reason||'unknown');});
-function setSnapshotIndicator(state){const el=document.getElementById('updated');if(el)el.dataset.snapshotState=state;}
+function setSnapshotIndicator(state){
+ const el=document.getElementById('updated');if(el)el.dataset.snapshotState=state;
+ const orb=document.getElementById('deck-status-orb');if(orb)orb.dataset.snapshotState=state;
+ const label=document.getElementById('deck-health-label');
+ if(label)label.textContent=({fresh:'SAVED SCAN · RECENT',old:'SAVED SCAN · AGED',error:'SAVED SCAN · UNAVAILABLE'})[state]||'SAVED SCAN · CONNECTING';
+ if(state==='error'){const stamp=document.getElementById('deck-snapshot-at');if(stamp)stamp.textContent='Unavailable';}
+}
 const bootStatus=document.getElementById('updated');if(bootStatus)bootStatus.textContent='Dashboard script started · loading saved history…';
 (async function loadHistoryDashboard(){
  const status=document.getElementById('updated');
@@ -24,6 +30,7 @@ const bootStatus=document.getElementById('updated');if(bootStatus)bootStatus.tex
    setSnapshotIndicator(Number.isFinite(snapshotMs)&&snapshotMs<=Date.now()&&Date.now()-snapshotMs<=45*60*1000?'fresh':'old');
    const snapshotTime=data.last_scan_completed_at?new Intl.DateTimeFormat('en-US',{timeZone:'America/Detroit',year:'numeric',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit',timeZoneName:'short'}).format(new Date(data.last_scan_completed_at)):'timestamp unavailable';
    if(status)status.textContent='Dashboard loaded · '+recordCount+' tracked records · Data snapshot: '+snapshotTime;
+    const deckStamp=document.getElementById('deck-snapshot-at');if(deckStamp)deckStamp.textContent=snapshotTime;
   }catch(err){
    console.error('Jarvis history render error:',err);
    setSnapshotIndicator('error');
