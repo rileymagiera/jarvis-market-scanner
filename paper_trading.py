@@ -7,6 +7,7 @@ from pathlib import Path
 from early_opportunity_radar import build_candidate_snapshot
 from paper_edge_research import paper_edge_profile, PAPER_EDGE_MODEL_VERSION
 from paper_trade_validation import build_paper_trade_validation
+from opening_strength import opening_summary
 
 STATE_PATH = Path("paper_trading_state.json")
 STARTING_CASH = 250.0
@@ -403,9 +404,11 @@ def _comparison_metrics(account, comparison, previous):
 
 
 def update_account(candidates, buy_signals, now, enable_early_entry_experimental=False, scan_id=None,
-                   *, enable_risk_off_comparison=False, crypto_exit_quotes=None):
+                   *, enable_risk_off_comparison=False, crypto_exit_quotes=None, opening_strength_book=None):
     """Process one scan and optionally advance a separate paper-only comparison."""
     account = load_account()
+    if opening_strength_book is not None:
+        account["opening_strength"] = opening_strength_book
     comparison = account.get("risk_off_comparison")
     if enable_risk_off_comparison and comparison is None:
         comparison = {
@@ -889,4 +892,5 @@ def account_summary(account, now=None):
         "early_entry_realized_pnl": round(early_realized, 4),
         "early_entry_signal_diagnostics": account.get("early_entry_signal_diagnostics") or {},
         "strategy_performance": strategy_performance,
+        "opening_strength": opening_summary(account.get("opening_strength") or {}),
     }
