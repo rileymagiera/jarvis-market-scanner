@@ -12,13 +12,13 @@ def encoded(value):
 
 
 TOKEN = "validSecretTokenForReadOnlyWebullSDK.1234"
-NORMAL = encoded(TOKEN + "\n1795229999999\nNORMAL\n")
+NORMAL = encoded(TOKEN + "\n4102444800000\nNORMAL\n")
 
 
 def test_restore_normal_token_in_private_temporary_directory():
     with verified_token_directory(NORMAL) as directory:
         path = Path(directory) / "token.txt"
-        assert path.read_text() == TOKEN + "\n1795229999999\nNORMAL\n"
+        assert path.read_text() == TOKEN + "\n4102444800000\nNORMAL\n"
         if os.name == "posix":
             assert path.stat().st_mode & 0o077 == 0
             assert Path(directory).stat().st_mode & 0o077 == 0
@@ -28,6 +28,7 @@ def test_restore_normal_token_in_private_temporary_directory():
 @pytest.mark.parametrize("data", [
     "", "!!!", encoded("not-an-sdk-token"), encoded(TOKEN + "\n100\nPENDING\n"),
     encoded(TOKEN + "\n100\nEXPIRED\n"), encoded(TOKEN + "\nnot-a-date\nNORMAL\n"),
+    encoded(TOKEN + "\n1600000000000\nNORMAL\n"), encoded(TOKEN + "\n1\nNORMAL\n"),
     encoded("short\n100\nNORMAL\n"), encoded(TOKEN + "\n100\nNORMAL\nINJECTED\n"),
 ])
 def test_invalid_or_unapproved_tokens_fail_closed(data):
