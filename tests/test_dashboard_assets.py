@@ -229,3 +229,17 @@ def test_receipt_tracks_two_distinct_completed_runs(monkeypatch):
     assert receipt["completed_scan_pair"][-1]["run_id"] == receipt["scan_run_id"]
     assert list(receipt["completed_scan_pair"][-1]["members"]) == list(receipt["paper_tracker"])
     assert completed_scan_pair(retry, [], "12", "2026-11-21T00:20:00Z")[0] == retry[-1]
+
+
+def test_market_overview_retains_action_center_and_removes_redundant_archive_tables():
+    html = main.history_page().body.decode('utf-8')
+    js = main.history_dashboard_js().body.decode('utf-8')
+    for required in ('id="opportunities"', 'id="performance-archive"',
+                     'id="candidate-ledger"', 'id="radar-timeline"',
+                     'Price Target 1 / Price Target 2 scorecard'):
+        assert required in html
+    assert 'Grade movement history' not in html
+    assert 'Not in latest scan' not in html
+    assert "getElementById('moves')" not in js
+    assert "getElementById('faded')" not in js
+    assert 'candidateChartUrl' in js
