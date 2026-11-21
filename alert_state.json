@@ -147,6 +147,41 @@
         "signal": "EARLY WATCH",
         "stage": "EARLY WATCH",
         "symbol": "GAP"
+      },
+      "MERC": {
+        "asset_type": "stock",
+        "data_quality": {
+          "data_type": "eod"
+        },
+        "data_source": "Yahoo Finance daily; live quote unverified",
+        "levels": {
+          "invalidation_level": 0.216,
+          "stop_loss": 0.216,
+          "target_1": 0.337821,
+          "target_2": 0.378429,
+          "watch_entry_high": 0.256607,
+          "watch_entry_low": 0.24
+        },
+        "news": [
+          {
+            "title": "BC-Most Active Stocks"
+          },
+          {
+            "title": "Giant toilet paper supplier files Chapter 11 bankruptcy"
+          }
+        ],
+        "premarket_alert_score": 35,
+        "premarket_alert_status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED",
+        "price": 0.24,
+        "price_as_of": "2026-11-20T00:00:00-05:00",
+        "price_validation_status": "unverified",
+        "risk_flags": [
+          "Price not independently verified; actionable alerts blocked"
+        ],
+        "score": 37,
+        "signal": "EARLY SETUP",
+        "stage": "EARLY SETUP",
+        "symbol": "MERC"
       }
     },
     "watch": {
@@ -418,9 +453,9 @@
       "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
     "MERC": {
-      "alerted_at": "2026-11-20T23:21:07.002490+00:00",
+      "alerted_at": "2026-11-21T07:21:11.531831+00:00",
       "score": 35,
-      "status": "PREMARKET VERIFIED"
+      "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
     "NTSK": {
       "alerted_at": "2026-11-20T01:04:26.466664+00:00",
