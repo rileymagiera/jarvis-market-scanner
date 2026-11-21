@@ -127,6 +127,13 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 .op-price-status.last-known{border-color:#94704d;background:#36291d;color:#ffd09e}
 .op-price-status.unverified{border-color:#9a6269;background:#36262a;color:#ffb9bd}
 .op-card-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.op-card-actions .op-chart-link{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border:1px solid #49748a;background:#18384a;border-radius:9px;color:#eaf7ff;padding:9px 12px;font:750 12px/1.35 system-ui,sans-serif;text-decoration:none;white-space:nowrap}
+.op-card-actions .op-chart-link svg{width:22px;height:22px;flex:none}
+.op-card-actions .op-chart-link.coinbase{border-color:#4079dc;background:#163a79;color:#fff}
+.op-card-actions .op-chart-link.tradingview{border-color:#6a7d95;background:#202e3f;color:#fff}
+.op-card-actions .op-chart-link:hover{filter:brightness(1.17)}
+.op-card-actions .op-chart-link:focus-visible{outline:2px solid #93e1fb;outline-offset:2px}
+@media(max-width:700px){.op-card-actions .op-chart-link{flex:1 1 115px}}
 .op-card-actions button,.op-card-back-button{appearance:none;cursor:pointer;min-height:44px;border:1px solid #49748a;background:#18384a;border-radius:9px;color:#eaf7ff;padding:10px 13px;font:750 12px/1.35 system-ui,sans-serif}
 .op-card-actions button[data-card-action="targets"]{background:#18504a;border-color:#58a99b}
 .op-card-actions button:hover,.op-card-back-button:hover{background:#24536a}
