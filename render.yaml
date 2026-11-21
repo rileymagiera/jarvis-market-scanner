@@ -22,6 +22,7 @@ services:
         - webull_yahoo_comparison.json
         - crypto_shadow_comparison.json
         - render_dashboard_snapshot.json
+        - jarvis_research_review.json
         - README.md
         - docs/**
     
