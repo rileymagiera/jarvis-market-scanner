@@ -131,6 +131,7 @@ Compatibility aliases currently remain for `/customize` and `/research`, and for
 - An approved SDK token may expire, rotate, or be revoked; this integration does **not** automatically rewrite GitHub Secrets with refreshed tokens. Re-authorization may be required. Do not turn on recurring probes without examining rotation and authentication outcomes.
 - GitHub Actions secrets are not publicly browsable, but a compromised privileged workflow or collaborator can still misuse them; prefer a **market-data-only** Webull credential with no trading authority if supported. Jarvis uses only read-only SDK market-data methods. No live trading is enabled.
 - The SDK normally saves a token to `conf/token.txt` if no custom token directory is configured. In Jarvis the restored token is held only in a private ephemeral directory; the public repository's `.gitignore` also excludes the SDK file. **Never commit, upload, print, or cache a token or secret in a public repository.**
+- Webull shadow samples now call the read-only **US-stock snapshot** endpoint rather than the historical-bars endpoint. The parser selects the most recent timestamped regular- or extended-hours trade, never uses snapshot `quote_time` as proof of price freshness, and rejects missing/stale/future trades. Existing Yahoo comparison and 12-second worker cutoff remain unchanged.
 - Webull is not a decision source while in shadow mode. Its failures must not change stock or crypto discovery, the BUY gates, paper trading, or scan cadence.
 
 

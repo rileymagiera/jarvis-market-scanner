@@ -1460,71 +1460,100 @@ def persist_webull_yahoo_history(records: list[dict], timestamp: str, run_id=Non
     return result
 
 
+def _webull_stock_snapshot_quote(payload: object, symbol: str, max_age_minutes: int, now: datetime = None) -> dict:
+    """Select the freshest *traded* US-stock price from a Webull snapshot.
+
+    The snapshot's quote_time reflects when a quote was requested, not when a
+    trade occurred. Do not treat it as evidence that a stale trade price is
+    live. The regular and extended-hours prices have separate trade clocks.
+    """
+    now = now or datetime.now(timezone.utc)
+    if isinstance(payload, list):
+        rows = payload
+    elif isinstance(payload, dict):
+        data = payload.get("data")
+        if isinstance(data, list):
+            rows = data
+        elif isinstance(data, dict):
+            rows = [data]
+        elif "symbol" in payload:
+            rows = [payload]
+        else:
+            rows = []
+    else:
+        rows = []
+
+    candidates = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        # Fail closed rather than cross-assign another instrument's quote.
+        if str(row.get("symbol", "")).upper() != str(symbol).upper():
+            continue
+        for price_field, trade_time_field in (
+            ("price", "last_trade_time"),
+            ("extend_hour_last_price", "extend_hour_last_trade_time"),
+        ):
+            price = safe_float(row.get(price_field))
+            raw_trade_time = row.get(trade_time_field)
+            if price <= 0 or raw_trade_time is None:
+                continue
+            try:
+                trade_timestamp = float(raw_trade_time)
+                if not (1_000_000_000 <= trade_timestamp < 100_000_000_000_000):
+                    continue
+                stamp = datetime.fromtimestamp(
+                    trade_timestamp / 1000 if trade_timestamp >= 1_000_000_000_000 else trade_timestamp,
+                    tz=timezone.utc,
+                )
+                candidates.append((stamp, price))
+            except (TypeError, ValueError, OverflowError, OSError):
+                continue
+
+    if not candidates:
+        raise RuntimeError("Webull snapshot contained no matching timestamped stock trades")
+    stamp, price = max(candidates, key=lambda item: item[0])
+    age_minutes = (now - stamp).total_seconds() / 60
+    if age_minutes < -5 or age_minutes > max_age_minutes:
+        raise RuntimeError("Webull latest stock trade is stale or future-dated")
+    return {"price": price, "as_of": stamp.isoformat(), "age_minutes": round(age_minutes, 1)}
+
+
 def _webull_latest_bar_direct(symbol: str, interval: str = "M1", max_age_minutes: int = 10) -> dict:
-    """Optional read-only Webull OpenAPI 1-minute bar for independent quote checking."""
+    """Read-only stock snapshot for Webull-vs-Yahoo shadow quote comparison.
+
+    Keep the existing function signature for compatibility. Unlike the older
+    historical-bars endpoint, snapshots can include a current extended-hours
+    trade timestamp. The SDK token must already be approved in the worker.
+    """
     app_key = os.getenv("WEBULL_APP_KEY", "").strip()
     app_secret = os.getenv("WEBULL_APP_SECRET", "").strip()
     if not app_key or not app_secret:
         raise RuntimeError("Webull OpenAPI credentials are not configured")
-    cached = None
     with WEBULL_QUOTE_CACHE_LOCK:
         cached = WEBULL_QUOTE_CACHE.get(symbol)
         if cached and (datetime.now(timezone.utc) - cached["fetched_at"]).total_seconds() < 30:
             return cached["quote"]
 
-    # SDK handles Webull's request-signature authentication. This client is    # read-only in Jarvis: only the Market Data API is instantiated/called.
+    # Only Webull's read-only market-data client is used. The child process
+    # restores an approved token from encrypted GitHub Actions secrets before
+    # this function is invoked; no orders or account operations are involved.
     from webull.core.client import ApiClient
     from webull.data.data_client import DataClient
     api_client = ApiClient(app_key, app_secret, "us")
     api_client.add_endpoint("us", "api.webull.com")
     data_client = DataClient(api_client)
     with WEBULL_QUOTE_SEMAPHORE:
-        response = data_client.market_data.get_history_bar(symbol, "US_STOCK", interval)
+        response = data_client.market_data.get_snapshot(
+            symbol, "US_STOCK", extend_hour_required=True, overnight_required=False,
+        )
     webull_http_status = getattr(response, "status_code", None)
     if webull_http_status == 403:
         raise PermissionError("Webull OpenAPI market-data permission denied (HTTP 403)")
     if webull_http_status != 200:
         raise RuntimeError(f"Webull Market Data API returned HTTP {webull_http_status}")
-    payload = response.json()
 
-    candidates = []
-    def collect(node):
-        if isinstance(node, dict):
-            close_value = next((node.get(k) for k in ("close", "c", "last_price", "price") if node.get(k) is not None), None)
-            time_value = next((node.get(k) for k in ("time", "timestamp", "bar_time", "trade_time") if node.get(k) is not None), None)
-            if close_value is not None and time_value is not None:
-                try:
-                    try:
-                        stamp_value = float(time_value)
-                    except (TypeError, ValueError):
-                        stamp_value = None
-                    if stamp_value is not None and stamp_value > 1e12:
-                        stamp = datetime.fromtimestamp(stamp_value / 1000, timezone.utc)
-                    elif stamp_value is not None and stamp_value > 1e9:
-                        stamp = datetime.fromtimestamp(stamp_value, timezone.utc)
-                    else:
-                        stamp = pd.Timestamp(str(time_value)).to_pydatetime()
-                        if stamp.tzinfo is None:
-                            stamp = stamp.replace(tzinfo=timezone.utc)
-                        stamp = stamp.astimezone(timezone.utc)
-                    close = safe_float(close_value)
-                    if close > 0:
-                        candidates.append((stamp, close))
-                except (TypeError, ValueError, OverflowError):
-                    pass
-            for value in node.values():
-                collect(value)
-        elif isinstance(node, list):
-            for value in node:
-                collect(value)
-    collect(payload)
-    if not candidates:
-        raise RuntimeError("Webull response contained no parseable OHLCV bars")
-    stamp, price = max(candidates, key=lambda item: item[0])
-    age_minutes = (datetime.now(timezone.utc) - stamp).total_seconds() / 60
-    if age_minutes < -5 or age_minutes > max_age_minutes:
-        raise RuntimeError("Webull latest bar is stale or future-dated")
-    quote = {"price": price, "as_of": stamp.isoformat(), "age_minutes": round(age_minutes, 1)}
+    quote = _webull_stock_snapshot_quote(response.json(), symbol, max_age_minutes)
     with WEBULL_QUOTE_CACHE_LOCK:
         WEBULL_QUOTE_CACHE[symbol] = {"quote": quote, "fetched_at": datetime.now(timezone.utc)}
     return quote
