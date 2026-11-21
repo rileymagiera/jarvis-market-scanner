@@ -9,6 +9,8 @@ import main
 
 
 def _html_for_tab(tab):
+    if tab == "home":
+        return main.home_page().body.decode("utf-8")
     if tab == "history":
         return main.history_page().body.decode("utf-8")
     if tab == "intelligence":
@@ -24,7 +26,7 @@ def _html_for_tab(tab):
 
 def test_help_panels_cover_every_tab_independently():
     tabs = (
-        "history", "intelligence", "paper-trading", "data-health",
+        "home", "history", "intelligence", "paper-trading", "data-health",
         "settings", "discovery-performance", "momentum-evidence",
         "market-breadth",
     )
@@ -39,6 +41,7 @@ def test_help_panels_cover_every_tab_independently():
         keys.add(key)
         assert "<summary>" in html, tab
     assert len(keys) == len(tabs)
+    assert "home-instructions" in keys
 
 
 def test_paper_rules_and_analytics_can_close_without_hiding_trades():
