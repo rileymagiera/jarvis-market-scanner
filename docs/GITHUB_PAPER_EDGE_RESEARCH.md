@@ -180,3 +180,11 @@ subscription, workflow, production score, or paper-trade entry path.
   execution fees, slippage, trade-entry uncertainty, and absent untouched
   holdout data still limit all results. Promotion requires walk-forward
   validation and explicit approval; no official BUY or risk rule changes here.
+
+### Forward opening-strength paper test
+
+On the first completed exchange-session scan between 09:38 and 10:00 Eastern, Jarvis ranks the requested stock universe by the change from first open to last close during 09:33–09:37. A stock needs three distinct traded minutes. The strongest tenth (rounded up, ties resolved by ticker) forms the selected group. Each ranked session stores its actual internal signal time after data collection. Other requested stocks, including those with insufficient ranking data, form the missed-runner comparison.
+
+On subsequent scans the simulator retrieves the first two-sided quote with displayed size in the 30 seconds after the signal. Each symbol is modeled independently for one share at the ask on the recorded Alpaca IEX or SIP feed. The dashboard shows the spread and how far the ask is from a target 8% above the final ranking close. A missing quote leaves the entry unknown. The first full minute after entry starts a 60-minute observation window. Completed traded bars determine the first observed +8% or −3% touch from the ask. A simultaneous touch counts stop-first. The first available bid in the 30 seconds after the trigger bar closes or the horizon ends supplies the modeled exit, with the existing stock fees on both sides. Consequently a target touch can still lose money. Gaps between prints and the partial entry minute are unobserved. Missing exits are excluded from mean net return; incomplete paths are shown separately from scored paths. IEX data reflects that venue's coverage.
+
+The Paper Trading page reports results over the latest 90 recorded sessions. This study has no shared-capital allocation and records its own paper signals internally. The workflow enables it by default; set the repository variable `JARVIS_OPENING_STRENGTH_PAPER=false` to pause it. A scan that first arrives after the entry window records a missed session. Provider errors can be retried on later scans using the original timestamps. The existing external schedule governs observation times.

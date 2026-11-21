@@ -19,7 +19,7 @@ import pandas as pd
 import requests
 from io import BytesIO, StringIO
 import yfinance as yf
-from early_runner import compute_early_runner_metrics, compute_early_warning_metrics, compute_stock_market_breadth, rank_stock_universe_strength, summarize_crypto_cross_section, set_crypto_relative_strength_coverage, build_data_quality_record, apply_entry_quality_gate, has_session_aware_early_runner_baseline
+from early_runner import has_current_premarket_evidence, compute_early_runner_metrics, compute_early_warning_metrics, compute_stock_market_breadth, rank_stock_universe_strength, summarize_crypto_cross_section, set_crypto_relative_strength_coverage, build_data_quality_record, apply_entry_quality_gate, has_session_aware_early_runner_baseline
 from market_calendar import market_session_status as exchange_market_session_status
 from market_data_cache import HourlyCandleCache
 from runner_intelligence import build_runner_intelligence_report
@@ -3676,7 +3676,8 @@ def scan_premarket(limit: int = Query(150, ge=20, le=200)):
     universe = stock_universe()[:limit]
     prefetch_alpaca_snapshots(universe)
     results, errors = run_parallel(universe, scan_stock, workers=6)
-    session = market_session_status()
+    checked_at = datetime.now(timezone.utc)
+    session = exchange_market_session_status(checked_at)
     ranked = []
     for item in results:
         gap = safe_float(item.get("premarket_gap_pct"), 0.0)
@@ -3697,7 +3698,7 @@ def scan_premarket(limit: int = Query(150, ge=20, le=200)):
         )))
         item["premarket_rank_score"] = score
         item["premarket_alert_status"] = (
-            "PREMARKET VERIFIED" if item.get("price_validation_passed") and item.get("data_quality", {}).get("verification_status") == "verified"
+            "PREMARKET VERIFIED" if has_current_premarket_evidence(item, checked_at, session)
             else "PREMARKET PROVISIONAL — SINGLE / UNCONFIRMED SOURCE"
         )
         item["premarket_provider_checks"] = premarket_provider_audit(item)
@@ -3942,6 +3943,7 @@ def scan(asset: str = Query("all", pattern="^(all|stocks|crypto)$")):
         "market_conditions": regime,
         "stock_market_breadth": stock_market_breadth,
         "stock_universe_strength": stock_universe_strength,
+        "stock_symbols_requested": stock_symbols,
         "stock_candidates": len(stock_results),
         "crypto_candidates": len(crypto_results),
         "diagnostics": {

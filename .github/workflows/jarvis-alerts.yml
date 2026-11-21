@@ -110,6 +110,7 @@ jobs:
           JARVIS_BINANCE_US_SHADOW_BATCH_ENABLED: ${{ vars.JARVIS_BINANCE_US_SHADOW_BATCH_ENABLED || 'true' }}
           # Experimental entries remain paper-only in the existing shared paper account.
           JARVIS_ENABLE_EARLY_ENTRY_EXPERIMENTAL: 'true'
+          JARVIS_OPENING_STRENGTH_PAPER: "${{ vars.JARVIS_OPENING_STRENGTH_PAPER || 'true' }}"
           SEND_TEST_EMAIL: ${{ inputs.send_test_email }}
         run: |
           test -n "$JARVIS_GMAIL_USER" || (echo "Missing JARVIS_GMAIL_USER" && exit 1)

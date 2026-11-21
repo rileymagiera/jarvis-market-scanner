@@ -18,7 +18,9 @@ from notification_format import (
 from candidate_lifecycle import update_candidate_lifecycle
 from entry_timing_lab import retain_paired_entry_observations
 from early_opportunity_radar import append_candidate_snapshot
-from early_runner import has_session_aware_early_runner_baseline
+from early_runner import has_session_aware_early_runner_baseline, has_current_premarket_evidence
+from market_calendar import market_session_status
+from opening_strength import advance_opening_test
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
 
@@ -999,10 +1001,13 @@ def apply_history_runner_learning(candidates, tracker):
 
 def select_premarket_alerts(candidates, state, now):
     """Select notable premarket research candidates without changing BUY gates."""
+    session = market_session_status(now)
     history = state.setdefault("premarket_alert_history", {})
     selected = []
     for item in candidates:
         if item.get("asset_type") != "stock":
+            continue
+        if not has_current_premarket_evidence(item, now, session):
             continue
         gap = safe_float(item.get("premarket_gap_pct"), 0.0)
         pre_volume = safe_float(item.get("premarket_volume"), 0.0)
@@ -1038,7 +1043,7 @@ def select_premarket_alerts(candidates, state, now):
                 pass
         if elapsed_hours < 8 and rank < previous_score + 10:
             continue
-        status = "PREMARKET VERIFIED" if item.get("price_validation_passed") else "PREMARKET PROVISIONAL — NOT INDEPENDENTLY VERIFIED"
+        status = "PREMARKET VERIFIED"
         item["premarket_alert_score"] = rank
         item["premarket_alert_status"] = status
         selected.append(item)
@@ -1153,12 +1158,19 @@ def main():
         crypto_exit_quotes = {row["symbol"]: row for row in exit_rows}
         for error in exit_errors:
             print(f"Paper crypto exit quote unavailable for {error['symbol']}: {error['error']}", flush=True)
+    opening_book = previous_account.get("opening_strength") or {}
+    if os.getenv("JARVIS_OPENING_STRENGTH_PAPER", "").lower() == "true":
+        try:
+            advance_opening_test(opening_book, payload.get("stock_symbols_requested", []),
+                                 datetime.now(timezone.utc), scanner.HTTP)
+        except (OSError, ValueError, TypeError, KeyError) as exc:
+            opening_book["last_status"] = f"Opening market data unavailable ({type(exc).__name__})"
     paper_account = update_paper_trading_account(
         payload["candidates"], buy_signals, now,
         enable_early_entry_experimental=os.getenv("JARVIS_ENABLE_EARLY_ENTRY_EXPERIMENTAL", "false").lower() == "true",
         scan_id=scan_id,
         enable_risk_off_comparison=True,
-        crypto_exit_quotes=crypto_exit_quotes,
+        crypto_exit_quotes=crypto_exit_quotes, opening_strength_book=opening_book,
     )
     diagnostics = payload.get("diagnostics") or {}
     try:

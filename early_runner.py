@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import Any
+from market_calendar import EASTERN
+from signal_lead_time_audit import _time
 import math
 import pandas as pd
 import numpy as np
@@ -95,6 +97,20 @@ def rank_stock_universe_strength(items):
     }
 
 
+def has_current_premarket_evidence(item, now, session):
+    """Both the displayed quote and observed trading volume belong to this premarket."""
+    if not session.get("calendar_verified") or session.get("phase") != "PRE-MARKET":
+        return False
+    start = now.astimezone(EASTERN).replace(hour=4, minute=0, second=0, microsecond=0)
+    quote = _time(item.get("price_as_of"))
+    volume = _time(item.get("premarket_volume_as_of"))
+    return bool(item.get("price_validation_passed") is True
+                and (item.get("data_quality") or {}).get("verification_status") == "verified"
+                and _num(item.get("price"), 0) > 0 and _num(item.get("premarket_volume"), 0) > 0
+                and volume and start <= volume <= now
+                and quote and start <= quote <= now and (now - quote).total_seconds() <= 900)
+
+
 def _local_index(frame):
     idx = frame.index
     return idx.tz_convert("America/New_York") if getattr(idx, "tz", None) is not None else idx
@@ -182,11 +198,14 @@ def compute_early_runner_metrics(daily, intraday, price, fundamentals=None, news
         if not session.empty:
             local_times = [x for x in idx[bars.index.get_indexer(session.index)]]
             pre_mask = [x.time() < datetime.strptime("09:30", "%H:%M").time() for x in local_times]
-            pre = session.loc[pre_mask]
+            pre = session.loc[[flag and at.hour >= 4 for flag, at in zip(pre_mask, local_times)]]
             regular = session.loc[[not x for x in pre_mask]]
             if not pre.empty:
                 pre_volume = _num(pre["Volume"].fillna(0).sum(), 0.0)
                 result["premarket_volume"] = round(pre_volume, 0)
+                traded = pre[pre["Volume"] > 0]
+                if not traded.empty:
+                    result["premarket_volume_as_of"] = _local_index(traded).max().isoformat()
                 result["premarket_high"] = round(_num(pre["High"].max(), 0), 6)
                 result["premarket_low"] = round(_num(pre["Low"].min(), 0), 6)
                 first_open = _num(pre["Open"].iloc[0]) if "Open" in pre.columns else None
