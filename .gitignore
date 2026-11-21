@@ -12,3 +12,7 @@ __pycache__/
 .pytest_cache/
 .env
 .env.*
+
+# Local/phone setup environments and SDK diagnostic files
+.venv/
+webull_data_sdk.log
