@@ -1,0 +1,65 @@
+/* Shared presentation for the scanner, research, ledger, and settings pages. */
+:root {
+  --bg: #121416;
+  --panel: #202326;
+  --surface: #202326;
+  --surface2: #292c2f;
+  --line: #434647;
+  --text: #f5f1e7;
+  --muted: #b7b9b5;
+  --accent: #edc48c;
+}
+body {
+  background: linear-gradient(180deg, #282a29 0, var(--bg) 26rem);
+  font-family: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+main { border-top: 3px solid var(--accent); }
+main h1, .command-header h1 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  font-size: clamp(2.2rem, 5vw, 3.65rem);
+  line-height: 1.06;
+  letter-spacing: -.045em;
+  text-shadow: none;
+}
+main h2 { font-weight: 650; letter-spacing: -.025em; }
+main .command-header, main .hero {
+  background-color: #272a29;
+  background-image: repeating-linear-gradient(120deg, transparent 0 22px, #ffffff05 22px 23px),
+                    linear-gradient(115deg, #272a29 40%, #37372d);
+  border: 1px solid #57574e;
+  border-radius: 10px;
+  box-shadow: none;
+  padding: clamp(18px, 3vw, 36px);
+}
+.command-header::before, .command-header::after { background: none; }
+.command-header .brand-mark {
+  background: var(--accent); color: #25221d; border: 0; border-radius: 6px;
+  box-shadow: none; font: italic 700 2rem Georgia, serif;
+}
+.command-header .title-dot, main .eyebrow { color: var(--accent); }
+main :is(.tabs,.top-tabs) { gap: 4px; border-bottom: 1px solid var(--line); }
+main :is(.tabs,.top-tabs) a {
+  background: transparent; color: var(--muted); border: 1px solid transparent;
+  border-radius: 5px; text-shadow: none; box-shadow: none;
+}
+main :is(.tabs,.top-tabs) a:hover { color: var(--text); background: #303332; }
+main :is(.tabs,.top-tabs) a:is(.active,[aria-current="page"]) {
+  color: var(--text); background: #333530; box-shadow: inset 0 -2px var(--accent);
+}
+main :is(.panel,.card,.metric,.command-metric,.guide,.reading-guide,.scan-summary-item) {
+  background: var(--surface); border-color: var(--line); border-radius: 8px;
+  box-shadow: none;
+}
+main :is(.command-metric,.metric) { border-top: 2px solid #77776b; }
+main :is(.command-metric,.metric) .value { letter-spacing: -.04em; }
+main th { background-color: #2a2d2e; color: #e1dccc; }
+main tbody tr:hover td { background-color: #ffffff09; }
+:where(a,button,input,select,summary):focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+@media (max-width: 700px) {
+  main h1, .command-header h1 { font-size: 2.15rem; }
+  main .command-header, main .hero { padding: 16px; }
+}

@@ -3305,6 +3305,12 @@ def market_breadth_page():
     return apply_workspace_preferences(HTMLResponse(analytics_tab_page("market-breadth")))
 
 
+@app.get("/assets/workspace.css")
+def workspace_stylesheet():
+    css = (TEMPLATE_DIR.parent / "static" / "workspace.css").read_text(encoding="utf-8")
+    return Response(content=css, media_type="text/css", headers={"Cache-Control": "no-cache"})
+
+
 @app.get("/history/dashboard.js", dependencies=[Depends(require_site_login)])
 def history_dashboard_js():
     # Serve the dashboard code separately so browser parse/load failures are visible
