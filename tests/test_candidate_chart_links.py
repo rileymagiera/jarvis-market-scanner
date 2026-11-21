@@ -32,7 +32,7 @@ assert.match(coin, /class="op-chart-link coinbase"/);
 assert.match(coin, /<svg/);
 assert.match(coin, /BTC-USD/);
 assert.match(stock, /class="op-chart-link tradingview"/);
-assert.match(stock, /\\/symbols\\/LVWR\\//);
+assert.ok(stock.includes('/symbols/LVWR/'));
 assert.match(stock, /target="_blank"/);
 assert.match(stock, /rel="noopener noreferrer"/);
 assert.equal(sandbox.candidateChartLogo({asset_type:'stock',symbol:'<invalid>'}), '');
