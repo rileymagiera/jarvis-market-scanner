@@ -5,14 +5,15 @@ import main
 
 
 EXPECTED_NAV = [
-    ("data-health", "Data Health"),
-    ("discovery-performance", "Discovery Performance"),
-    ("intelligence", "Intelligence"),
-    ("market-breadth", "Market Breadth"),
+    ("home", "Home"),
+    ("data-health", "Data Quality"),
     ("history", "Market Overview"),
-    ("momentum-evidence", "Momentum Evidence"),
+    ("market-breadth", "Market Pulse"),
+    ("momentum-evidence", "Momentum Tracker"),
     ("paper-trading", "Paper Trading"),
     ("settings", "Settings"),
+    ("intelligence", "Signal Lab"),
+    ("discovery-performance", "Signal Performance"),
 ]
 
 
@@ -22,8 +23,9 @@ def nav_links(html):
     return re.findall(r'<a\b[^>]*href="/([^"]+)"[^>]*>([^<]+)</a>', match.group(1))
 
 
-def test_navigation_is_consistent_and_alphabetical_across_dashboard_pages():
+def test_navigation_is_home_first_then_alphabetical_across_dashboard_pages():
     pages = [
+        main.home_page().body.decode("utf-8"),
         main.history_page().body.decode("utf-8"),
         main.paper_trading_page().body.decode("utf-8"),
         main.research_page().body.decode("utf-8"),
