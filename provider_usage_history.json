@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-21T02:11:23.183611+00:00",
+  "updated_at": "2026-11-21T02:21:24.758737+00:00",
   "retention_days": 90,
   "records": [
     {
@@ -21207,6 +21207,164 @@
           "total_seconds": 58.76
         }
       }
+    },
+    {
+      "timestamp": "2026-11-21T02:21:12.940219+00:00",
+      "run_id": "44855312328",
+      "scan_duration_seconds": 40.32,
+      "http_status_counts": {
+        "alpaca:200": 3,
+        "api_binance_us:200": 1,
+        "coinbase_exchange:200": 75,
+        "data_sec_gov:200": 148,
+        "kraken:200": 85,
+        "stooq:200": 1,
+        "www_sec_gov:200": 1
+      },
+      "http_429": 0,
+      "http_5xx": 0,
+      "instrumentation_calls_by_operation": {
+        "alpaca_snapshot_batch": {
+          "calls": 3,
+          "failures": 0,
+          "total_seconds": 0.42
+        },
+        "coinbase_exchange_request_pacing": {
+          "calls": 67,
+          "failures": 0,
+          "total_seconds": 12.64
+        },
+        "crypto_coinbase_fallback_market_data": {
+          "calls": 8,
+          "failures": 1,
+          "total_seconds": 5.03
+        },
+        "crypto_shadow_binance_us": {
+          "calls": 50,
+          "failures": 28,
+          "total_seconds": 0.0
+        },
+        "crypto_shadow_binance_us_bulk_fetch": {
+          "calls": 1,
+          "failures": 0,
+          "total_seconds": 0.62
+        },
+        "crypto_shadow_coinbase": {
+          "calls": 50,
+          "failures": 1,
+          "total_seconds": 73.23
+        },
+        "crypto_shadow_comparison_wall": {
+          "calls": 1,
+          "failures": 0,
+          "total_seconds": 10.65
+        },
+        "http_alpaca_status_200": {
+          "calls": 3,
+          "failures": 0,
+          "total_seconds": 0.35
+        },
+        "http_api_binance_us_status_200": {
+          "calls": 1,
+          "failures": 0,
+          "total_seconds": 0.51
+        },
+        "http_coinbase_exchange_status_200": {
+          "calls": 75,
+          "failures": 0,
+          "total_seconds": 4.35
+        },
+        "http_data_sec_gov_status_200": {
+          "calls": 148,
+          "failures": 0,
+          "total_seconds": 11.9
+        },
+        "http_kraken_status_200": {
+          "calls": 85,
+          "failures": 0,
+          "total_seconds": 14.76
+        },
+        "http_stooq_status_200": {
+          "calls": 1,
+          "failures": 0,
+          "total_seconds": 0.67
+        },
+        "http_www_sec_gov_status_200": {
+          "calls": 1,
+          "failures": 0,
+          "total_seconds": 0.06
+        },
+        "kraken_ohlc_cache_hit": {
+          "calls": 82,
+          "failures": 0,
+          "total_seconds": 0.0
+        },
+        "kraken_request_pacing": {
+          "calls": 1,
+          "failures": 0,
+          "total_seconds": 1.04
+        },
+        "kraken_ticker_cache_hit": {
+          "calls": 82,
+          "failures": 0,
+          "total_seconds": 0.0
+        },
+        "market_conditions": {
+          "calls": 1,
+          "failures": 0,
+          "total_seconds": 0.56
+        },
+        "massive_daily_fallback": {
+          "calls": 1,
+          "failures": 1,
+          "total_seconds": 0.0
+        },
+        "scan_crypto_parallel_wall": {
+          "calls": 1,
+          "failures": 0,
+          "total_seconds": 9.72
+        },
+        "scan_stock_parallel_wall": {
+          "calls": 1,
+          "failures": 1,
+          "total_seconds": 27.2
+        },
+        "sec_recent_filings": {
+          "calls": 148,
+          "failures": 0,
+          "total_seconds": 27.21
+        },
+        "stooq_daily_fallback": {
+          "calls": 1,
+          "failures": 1,
+          "total_seconds": 0.68
+        },
+        "yahoo_daily_history": {
+          "calls": 149,
+          "failures": 1,
+          "total_seconds": 25.41
+        },
+        "yahoo_discovery_screen": {
+          "calls": 6,
+          "failures": 0,
+          "total_seconds": 1.05
+        },
+        "yahoo_fundamentals": {
+          "calls": 31,
+          "failures": 0,
+          "total_seconds": 6.07
+        },
+        "yahoo_intraday_history": {
+          "calls": 148,
+          "failures": 0,
+          "total_seconds": 12.55
+        },
+        "yahoo_stock_news": {
+          "calls": 148,
+          "failures": 0,
+          "total_seconds": 57.42
+        }
+      }
     }
   ],
   "summary": {
@@ -21216,13 +21374,13 @@
       "http_5xx": 0,
       "http_status_counts": {
         "alpaca:200": 273,
-        "api_binance_us:200": 890,
-        "api_binance_us:400": 1155,
-        "coinbase_exchange:200": 5235,
-        "coinbase_exchange:400": 84,
-        "coinbase_exchange:404": 904,
-        "data_sec_gov:200": 12505,
-        "kraken:200": 10765,
+        "api_binance_us:200": 875,
+        "api_binance_us:400": 1121,
+        "coinbase_exchange:200": 5267,
+        "coinbase_exchange:400": 83,
+        "coinbase_exchange:404": 890,
+        "data_sec_gov:200": 12507,
+        "kraken:200": 10753,
         "stooq:200": 69,
         "www_sec_gov:200": 85,
         "coinbase_exchange:429": 182,
@@ -21232,97 +21390,92 @@
         "alpaca_snapshot_batch": {
           "calls": 277,
           "failures": 4,
-          "total_seconds": 26.53
+          "total_seconds": 26.17
         },
         "crypto_coinbase_fallback_market_data": {
-          "calls": 920,
-          "failures": 368,
-          "total_seconds": 228.4
+          "calls": 924,
+          "failures": 367,
+          "total_seconds": 232.35
         },
         "crypto_shadow_binance_us": {
           "calls": 4250,
-          "failures": 2751,
-          "total_seconds": 470.58
+          "failures": 2744,
+          "total_seconds": 461.05
         },
         "crypto_shadow_coinbase": {
           "calls": 4250,
-          "failures": 938,
-          "total_seconds": 1893.41
+          "failures": 926,
+          "total_seconds": 1961.48
         },
         "http_alpaca_status_200": {
           "calls": 273,
           "failures": 0,
-          "total_seconds": 23.27
+          "total_seconds": 22.9
         },
         "http_api_binance_us_status_200": {
-          "calls": 890,
+          "calls": 875,
           "failures": 0,
-          "total_seconds": 225.35
+          "total_seconds": 223.27
         },
         "http_api_binance_us_status_400": {
-          "calls": 1155,
-          "failures": 1155,
-          "total_seconds": 273.27
+          "calls": 1121,
+          "failures": 1121,
+          "total_seconds": 266.36
         },
         "http_coinbase_exchange_status_200": {
-          "calls": 5235,
+          "calls": 5267,
           "failures": 0,
-          "total_seconds": 277.29
+          "total_seconds": 278.0
         },
         "http_coinbase_exchange_status_400": {
-          "calls": 84,
-          "failures": 84,
-          "total_seconds": 10.8
+          "calls": 83,
+          "failures": 83,
+          "total_seconds": 10.64
         },
         "http_coinbase_exchange_status_404": {
-          "calls": 904,
-          "failures": 904,
-          "total_seconds": 82.88
+          "calls": 890,
+          "failures": 890,
+          "total_seconds": 80.49
         },
         "http_data_sec_gov_status_200": {
-          "calls": 12505,
+          "calls": 12507,
           "failures": 0,
-          "total_seconds": 785.02
+          "total_seconds": 786.0
         },
         "http_kraken_status_200": {
-          "calls": 10765,
+          "calls": 10753,
           "failures": 0,
-          "total_seconds": 1559.58
+          "total_seconds": 1555.83
         },
         "http_stooq_status_200": {
           "calls": 69,
           "failures": 0,
-          "total_seconds": 37.19
+          "total_seconds": 37.27
         },
         "http_www_sec_gov_status_200": {
           "calls": 85,
           "failures": 0,
-          "total_seconds": 10.8
+          "total_seconds": 10.7
         },
         "kraken_ohlc_cache_hit": {
-          "calls": 5808,
-          "failures": 0,
-          "total_seconds": 0.0
-        },
-        "kraken_ohlc_cache_miss": {
-          "calls": 2351,
+          "calls": 5798,
           "failures": 0,
           "total_seconds": 0.0
         },
         "kraken_request_pacing": {
-          "calls": 4785,
+          "calls": 4691,
           "failures": 0,
-          "total_seconds": 4962.49
+          "total_seconds": 4865.04
         },
         "kraken_ticker_cache_hit": {
-          "calls": 8159,
+          "calls": 8148,
           "failures": 0,
           "total_seconds": 0.0
         },
         "market_conditions": {
           "calls": 85,
           "failures": 0,
-          "total_seconds": 62.34
+          "total_seconds": 61.99
         },
         "massive_daily_fallback": {
           "calls": 73,
@@ -21332,47 +21485,52 @@
         "scan_crypto_parallel_wall": {
           "calls": 85,
           "failures": 0,
-          "total_seconds": 6480.9
+          "total_seconds": 6373.79
         },
         "scan_stock_parallel_wall": {
           "calls": 85,
           "failures": 67,
-          "total_seconds": 3112.7
+          "total_seconds": 3108.71
         },
         "sec_recent_filings": {
-          "calls": 12505,
+          "calls": 12507,
           "failures": 0,
-          "total_seconds": 2122.3
+          "total_seconds": 2126.14
         },
         "stooq_daily_fallback": {
           "calls": 73,
           "failures": 73,
-          "total_seconds": 198.16
+          "total_seconds": 198.25
         },
         "yahoo_daily_history": {
-          "calls": 12578,
+          "calls": 12580,
           "failures": 73,
-          "total_seconds": 2468.46
+          "total_seconds": 2460.01
         },
         "yahoo_discovery_screen": {
           "calls": 510,
           "failures": 0,
-          "total_seconds": 116.18
+          "total_seconds": 115.11
         },
         "yahoo_fundamentals": {
-          "calls": 3887,
+          "calls": 3889,
           "failures": 0,
-          "total_seconds": 872.15
+          "total_seconds": 870.41
         },
         "yahoo_intraday_history": {
-          "calls": 12505,
+          "calls": 12507,
           "failures": 0,
-          "total_seconds": 1169.48
+          "total_seconds": 1166.72
         },
         "yahoo_stock_news": {
-          "calls": 12505,
+          "calls": 12507,
           "failures": 0,
-          "total_seconds": 4709.51
+          "total_seconds": 4704.82
+        },
+        "kraken_ohlc_cache_miss": {
+          "calls": 2350,
+          "failures": 0,
+          "total_seconds": 0.0
         },
         "http_coinbase_exchange_status_429": {
           "calls": 182,
@@ -21380,9 +21538,9 @@
           "total_seconds": 20.89
         },
         "crypto_shadow_binance_us_bulk_fetch": {
-          "calls": 45,
+          "calls": 46,
           "failures": 0,
-          "total_seconds": 37.39
+          "total_seconds": 38.01
         },
         "kraken_pair_request_pacing": {
           "calls": 1411,
@@ -21400,136 +21558,136 @@
           "total_seconds": 0.81
         },
         "coinbase_exchange_request_pacing": {
-          "calls": 1577,
+          "calls": 1644,
           "failures": 0,
-          "total_seconds": 295.77
+          "total_seconds": 308.41
         },
         "crypto_shadow_comparison_wall": {
-          "calls": 16,
+          "calls": 17,
           "failures": 0,
-          "total_seconds": 173.17
+          "total_seconds": 183.82
         }
       },
-      "scan_duration_seconds_total": 8253.56
+      "scan_duration_seconds_total": 8171.62
     },
     "last_7_days": {
-      "scan_count": 143,
+      "scan_count": 144,
       "http_429": 184,
       "http_5xx": 0,
       "http_status_counts": {
-        "alpaca:200": 447,
-        "data_sec_gov:200": 21012,
-        "kraken:200": 18543,
-        "www_sec_gov:200": 186,
-        "stooq:200": 95,
-        "coinbase_exchange:200": 7038,
+        "alpaca:200": 450,
+        "data_sec_gov:200": 21160,
+        "kraken:200": 18628,
+        "www_sec_gov:200": 187,
+        "stooq:200": 96,
+        "coinbase_exchange:200": 7113,
         "coinbase_exchange:400": 118,
         "coinbase_exchange:404": 1261,
-        "api_binance_us:200": 1455,
+        "api_binance_us:200": 1456,
         "api_binance_us:400": 1840,
         "coinbase_exchange:429": 184,
         "alpaca:400": 26
       },
       "instrumentation_calls_by_operation": {
         "alpaca_snapshot_batch": {
-          "calls": 451,
+          "calls": 454,
           "failures": 4,
-          "total_seconds": 41.18
+          "total_seconds": 41.6
         },
         "http_alpaca_status_200": {
-          "calls": 447,
+          "calls": 450,
           "failures": 0,
-          "total_seconds": 36.14
+          "total_seconds": 36.49
         },
         "http_data_sec_gov_status_200": {
-          "calls": 21012,
+          "calls": 21160,
           "failures": 0,
-          "total_seconds": 1253.4
+          "total_seconds": 1265.3
         },
         "http_kraken_status_200": {
-          "calls": 18543,
+          "calls": 18628,
           "failures": 0,
-          "total_seconds": 2582.74
+          "total_seconds": 2597.5
         },
         "http_www_sec_gov_status_200": {
-          "calls": 186,
+          "calls": 187,
           "failures": 0,
-          "total_seconds": 26.88
+          "total_seconds": 26.94
         },
         "kraken_request_pacing": {
-          "calls": 12492,
+          "calls": 12493,
           "failures": 0,
-          "total_seconds": 12968.44
+          "total_seconds": 12969.48
         },
         "kraken_ticker_cache_hit": {
-          "calls": 13465,
+          "calls": 13547,
           "failures": 0,
           "total_seconds": 0.0
         },
         "market_conditions": {
-          "calls": 143,
+          "calls": 144,
           "failures": 0,
-          "total_seconds": 105.7
+          "total_seconds": 106.26
         },
         "scan_crypto_parallel_wall": {
-          "calls": 143,
+          "calls": 144,
           "failures": 2,
-          "total_seconds": 15485.69
+          "total_seconds": 15495.41
         },
         "scan_stock_parallel_wall": {
-          "calls": 143,
-          "failures": 94,
-          "total_seconds": 4790.98
+          "calls": 144,
+          "failures": 95,
+          "total_seconds": 4818.18
         },
         "sec_recent_filings": {
-          "calls": 21012,
+          "calls": 21160,
           "failures": 0,
-          "total_seconds": 3171.15
+          "total_seconds": 3198.36
         },
         "yahoo_daily_history": {
-          "calls": 21115,
-          "failures": 103,
-          "total_seconds": 4140.55
+          "calls": 21264,
+          "failures": 104,
+          "total_seconds": 4165.96
         },
         "yahoo_discovery_screen": {
-          "calls": 858,
+          "calls": 864,
           "failures": 0,
-          "total_seconds": 202.22
+          "total_seconds": 203.27
         },
         "yahoo_fundamentals": {
-          "calls": 7076,
+          "calls": 7107,
           "failures": 0,
-          "total_seconds": 1574.7
+          "total_seconds": 1580.77
         },
         "yahoo_intraday_history": {
-          "calls": 21012,
+          "calls": 21160,
           "failures": 0,
-          "total_seconds": 1972.28
+          "total_seconds": 1984.83
         },
         "yahoo_stock_news": {
-          "calls": 21012,
+          "calls": 21160,
           "failures": 0,
-          "total_seconds": 7438.64
+          "total_seconds": 7496.06
         },
         "http_stooq_status_200": {
-          "calls": 95,
+          "calls": 96,
           "failures": 0,
-          "total_seconds": 51.19
+          "total_seconds": 51.86
         },
         "massive_daily_fallback": {
-          "calls": 103,
-          "failures": 103,
+          "calls": 104,
+          "failures": 104,
           "total_seconds": 0.0
         },
         "stooq_daily_fallback": {
-          "calls": 103,
-          "failures": 103,
-          "total_seconds": 373.21
+          "calls": 104,
+          "failures": 104,
+          "total_seconds": 373.89
         },
         "http_coinbase_exchange_status_200": {
-          "calls": 7038,
+          "calls": 7113,
           "failures": 0,
-          "total_seconds": 359.03
+          "total_seconds": 363.38
         },
         "http_coinbase_exchange_status_400": {
           "calls": 118,
@@ -21547,24 +21705,24 @@
           "total_seconds": 0.0
         },
         "kraken_ohlc_cache_hit": {
-          "calls": 8632,
+          "calls": 8714,
           "failures": 0,
           "total_seconds": 0.0
         },
         "crypto_shadow_binance_us": {
-          "calls": 5500,
-          "failures": 3535,
+          "calls": 5550,
+          "failures": 3563,
           "total_seconds": 788.81
         },
         "crypto_shadow_coinbase": {
-          "calls": 5500,
-          "failures": 1218,
-          "total_seconds": 1966.16
+          "calls": 5550,
+          "failures": 1219,
+          "total_seconds": 2039.39
         },
         "http_api_binance_us_status_200": {
-          "calls": 1455,
+          "calls": 1456,
           "failures": 0,
-          "total_seconds": 366.18
+          "total_seconds": 366.69
         },
         "http_api_binance_us_status_400": {
           "calls": 1840,
@@ -21577,9 +21735,9 @@
           "total_seconds": 9.62
         },
         "crypto_coinbase_fallback_market_data": {
-          "calls": 1066,
-          "failures": 417,
-          "total_seconds": 251.74
+          "calls": 1074,
+          "failures": 418,
+          "total_seconds": 256.77
         },
         "http_coinbase_exchange_status_429": {
           "calls": 184,
@@ -21587,9 +21745,9 @@
           "total_seconds": 21.11
         },
         "crypto_shadow_binance_us_bulk_fetch": {
-          "calls": 45,
+          "calls": 46,
           "failures": 0,
-          "total_seconds": 37.39
+          "total_seconds": 38.01
         },
         "kraken_pair_request_pacing": {
           "calls": 1411,
@@ -21607,17 +21765,17 @@
           "total_seconds": 0.81
         },
         "coinbase_exchange_request_pacing": {
-          "calls": 1577,
+          "calls": 1644,
           "failures": 0,
-          "total_seconds": 295.77
+          "total_seconds": 308.41
         },
         "crypto_shadow_comparison_wall": {
-          "calls": 16,
+          "calls": 17,
           "failures": 0,
-          "total_seconds": 173.17
+          "total_seconds": 183.82
         }
       },
-      "scan_duration_seconds_total": 17476.14
+      "scan_duration_seconds_total": 17516.46
     }
   },
   "measurement_note": "HTTP status counts reflect instrumented HTTP responses. Operation call counts are function-level telemetry where available; they are not guaranteed billing or quota request totals."
