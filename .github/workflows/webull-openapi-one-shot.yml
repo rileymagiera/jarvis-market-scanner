@@ -37,6 +37,7 @@ jobs:
           child = r"""
           import logging
           import os
+          import re
           logging.disable(logging.CRITICAL)
           from webull.core.client import ApiClient
           from webull.data.data_client import DataClient
@@ -46,7 +47,23 @@ jobs:
               result = DataClient(api).market_data.get_history_bar("AAPL", "US_STOCK", "M15")
               print("JARVIS_WEBULL_HTTP_STATUS=" + str(getattr(result, "status_code", "unknown")))
           except Exception as exc:
+              # Never print the raw exception: the Webull SDK can include
+              # request metadata and token material in error details.
+              message = str(exc)
+              status = re.search(r"HTTP Status:\\s*(\\d{3})", message)
+              code = re.search(r"\\bCode:\\s*([A-Z][A-Z0-9_]{1,64})", message)
+              safe_codes = {
+                  "VERIFY_FAILURE_EXCEED_LIMIT", "UNAUTHORIZED", "FORBIDDEN",
+                  "INVALID_SIGNATURE", "INVALID_APP_KEY", "INVALID_TOKEN",
+                  "TOKEN_EXPIRED", "VERIFY_FAILURE", "INSUFFICIENT_PERMISSION",
+                  "PERMISSION_DENIED", "NOT_ENTITLED", "NOT_AUTHORIZED",
+                  "INVALID_CREDENTIALS",
+              }
               print("JARVIS_WEBULL_EXCEPTION=" + type(exc).__name__)
+              print("JARVIS_WEBULL_ERROR_HTTP=" + (status.group(1) if status else "unknown"))
+              print("JARVIS_WEBULL_ERROR_CODE=" + (
+                  code.group(1) if code and code.group(1) in safe_codes else "unclassified"
+              ))
               raise SystemExit(1)
           """
           try:
@@ -69,18 +86,23 @@ jobs:
           if "JARVIS_WEBULL_HTTP_STATUS=200" in raw:
               print("Webull authorization result: market-data API HTTP 200 on a read-only AAPL bar request.")
               raise SystemExit(0)
-          if "VERIFY_FAILURE_EXCEED_LIMIT" in raw:
-              print("Webull authorization result: verification failure limit active; automatic retries remain disabled.")
+          # Report only allowlisted diagnostic fields, never raw SDK logs.
+          code_match = re.search(r"JARVIS_WEBULL_ERROR_CODE=([A-Z_]+|unclassified)", raw)
+          status_match = re.search(r"JARVIS_WEBULL_ERROR_HTTP=(\\d{3}|unknown)", raw)
+          code = code_match.group(1) if code_match else "unclassified"
+          status = status_match.group(1) if status_match else "unknown"
+          print("Webull OpenAPI diagnostic: HTTP=" + status + ", code=" + code)
+          if code == "VERIFY_FAILURE_EXCEED_LIMIT":
+              print("Webull verification limit remains active; further retries are paused.")
+          elif code in ("UNAUTHORIZED", "INVALID_SIGNATURE", "INVALID_APP_KEY", "INVALID_CREDENTIALS"):
+              print("Webull API credentials or requested authentication environment were rejected.")
+          elif status == "403" or code in ("PERMISSION_DENIED", "NOT_ENTITLED", "INSUFFICIENT_PERMISSION"):
+              print("Webull market data may not be entitled or application permission may be missing.")
           elif "status:EXPIRED" in raw:
-              print("Webull authorization result: app verification token expired.")
+              print("Webull app verification token expired.")
           elif "status:PENDING" in raw:
-              print("Webull authorization result: verification pending in the Webull app.")
-          elif "HTTP Status: 403" in raw or "JARVIS_WEBULL_HTTP_STATUS=403" in raw:
-              print("Webull authorization result: market-data API rejected request with HTTP 403 (check entitlement).")
-          elif "JARVIS_WEBULL_EXCEPTION=" in raw:
-              match = re.search(r"JARVIS_WEBULL_EXCEPTION=([A-Za-z_]+)", raw)
-              print("Webull authorization result: SDK exception " + (match.group(1) if match else "unknown"))
+              print("Webull app verification remained pending during the attempt.")
           else:
-              print("Webull authorization result: no usable market-data quote response.")
+              print("Webull did not return a usable read-only market-data quote.")
           raise SystemExit(1)
           PY
