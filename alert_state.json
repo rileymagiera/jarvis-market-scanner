@@ -4,6 +4,11 @@
     "alerted_stage": "DEVELOPING SETUP",
     "score": 87
   },
+  "crypto:DRVUSDT": {
+    "alerted_at": "2026-11-21T08:01:22.629384+00:00",
+    "alerted_stage": "DEVELOPING SETUP",
+    "score": 85
+  },
   "crypto:EVAAUSDT": {
     "alerted_at": "2026-11-20T16:01:18.707303+00:00",
     "alerted_stage": "DEVELOPING SETUP",
@@ -185,6 +190,29 @@
       }
     },
     "watch": {
+      "crypto:DRVUSDT": {
+        "asset_type": "crypto",
+        "data_quality": {
+          "data_type": "live"
+        },
+        "data_source": "Kraken Spot public API + Yahoo Finance headlines",
+        "levels": {
+          "invalidation_level": 0.268383,
+          "stop_loss": 0.268383,
+          "target_1": 0.309847,
+          "target_2": 0.323668,
+          "watch_entry_high": 0.282204,
+          "watch_entry_low": 0.28023
+        },
+        "news": [],
+        "price": 0.28023,
+        "price_as_of": "2026-11-21T08:00:43.919966+00:00",
+        "risk_flags": [],
+        "score": 85,
+        "signal": "DEVELOPING SETUP",
+        "stage": "DEVELOPING SETUP",
+        "symbol": "DRVUSDT"
+      },
       "crypto:VVVUSDT": {
         "asset_type": "crypto",
         "data_quality": {
