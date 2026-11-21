@@ -63,3 +63,41 @@ main tbody tr:hover td { background-color: #ffffff09; }
   main h1, .command-header h1 { font-size: 2.15rem; }
   main .command-header, main .hero { padding: 16px; }
 }
+
+
+/* Shared collapsible instructional guide: native <details> remains keyboard accessible. */
+.jarvis-help {
+  border: 1px solid #465667;
+  border-radius: 12px;
+  background: #182735;
+  padding: 0;
+  overflow: hidden;
+}
+.jarvis-help > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 13px 15px;
+  cursor: pointer;
+  list-style: none;
+  color: var(--text, #edf3fa);
+  font-size: 15px;
+  line-height: 1.4;
+  font-weight: 750;
+}
+.jarvis-help > summary::-webkit-details-marker { display: none; }
+.jarvis-help > summary::after {
+  content: "+";
+  margin-left: auto;
+  color: var(--accent, #9ae5c3);
+  font-size: 19px;
+}
+.jarvis-help[open] > summary::after { content: "−"; }
+.jarvis-help > summary:focus-visible { outline: 2px solid var(--accent, #90d7f5); outline-offset: -3px; }
+.jarvis-help[open] > :not(summary) { margin-left: 14px; margin-right: 14px; }
+.jarvis-help[open] > :last-child { margin-bottom: 14px; }
+.jarvis-help > summary + .reading-guide-intro { margin-top: 0; }
+@media (max-width: 700px) {
+  .jarvis-help > summary { padding: 14px 12px; font-size: 14px; }
+}
