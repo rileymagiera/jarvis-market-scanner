@@ -3466,12 +3466,17 @@ def apply_discovery_baseline_guard(payload: dict) -> dict:
         return payload
 
     previous = {}
-    try:
-        snapshot = json.loads(HISTORY_SNAPSHOT.read_text(encoding="utf-8"))
-        if isinstance(snapshot.get("paper_tracker"), dict):
-            previous = snapshot["paper_tracker"]
-    except (OSError, json.JSONDecodeError):
-        previous = {}
+    # The scanner's GitHub tracker is authoritative for compact dashboard syncs.
+    # Avoid parsing the previous full-size Render snapshot on each incoming scan:
+    # doing so can temporarily double memory during a sync and trigger restarts.
+    # Legacy/other sync clients keep their original fallback repair behavior.
+    if payload.get("render_projection_version") != 1:
+        try:
+            snapshot = json.loads(HISTORY_SNAPSHOT.read_text(encoding="utf-8"))
+            if isinstance(snapshot.get("paper_tracker"), dict):
+                previous = snapshot["paper_tracker"]
+        except (OSError, json.JSONDecodeError):
+            previous = {}
 
     baseline_fields = (
         "discovery_initial_price",
