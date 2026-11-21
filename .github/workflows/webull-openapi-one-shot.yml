@@ -50,8 +50,8 @@ jobs:
               # Never print the raw exception: the Webull SDK can include
               # request metadata and token material in error details.
               message = str(exc)
-              status = re.search(r"HTTP Status:\\s*(\\d{3})", message)
-              code = re.search(r"\\bCode:\\s*([A-Z][A-Z0-9_]{1,64})", message)
+              status = re.search(r"HTTP Status:\s*(\d{3})", message)
+              code = re.search(r"\bCode:\s*([A-Z][A-Z0-9_]{1,64})", message)
               safe_codes = {
                   "VERIFY_FAILURE_EXCEED_LIMIT", "UNAUTHORIZED", "FORBIDDEN",
                   "INVALID_SIGNATURE", "INVALID_APP_KEY", "INVALID_TOKEN",
@@ -88,7 +88,7 @@ jobs:
               raise SystemExit(0)
           # Report only allowlisted diagnostic fields, never raw SDK logs.
           code_match = re.search(r"JARVIS_WEBULL_ERROR_CODE=([A-Z_]+|unclassified)", raw)
-          status_match = re.search(r"JARVIS_WEBULL_ERROR_HTTP=(\\d{3}|unknown)", raw)
+          status_match = re.search(r"JARVIS_WEBULL_ERROR_HTTP=(\d{3}|unknown)", raw)
           code = code_match.group(1) if code_match else "unclassified"
           status = status_match.group(1) if status_match else "unknown"
           print("Webull OpenAPI diagnostic: HTTP=" + status + ", code=" + code)
