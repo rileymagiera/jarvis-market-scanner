@@ -45,29 +45,37 @@ def main() -> int:
     try:
         with tempfile.TemporaryDirectory(prefix="jarvis-webull-authorize-") as tmpdir:
             Path(tmpdir).chmod(0o700)
-            os.environ["WEBULL_OPENAPI_TOKEN_DIR"] = tmpdir
-            from webull.core.client import ApiClient
-            from webull.data.data_client import DataClient
+            # Webull's DataClient creates webull_data_sdk.log in the current
+            # directory. Keep that log and the token inside the private temp
+            # directory, never in the public repository checkout / Codespace.
+            original_cwd = Path.cwd()
+            try:
+                os.chdir(tmpdir)
+                os.environ["WEBULL_OPENAPI_TOKEN_DIR"] = tmpdir
+                from webull.core.client import ApiClient
+                from webull.data.data_client import DataClient
 
-            print("A Webull app approval may appear. Approve only this expected OpenAPI request.")
-            api = ApiClient(app_key, app_secret, "us", token_check_duration_seconds=300)
-            api.add_endpoint("us", "api.webull.com")
-            try:
-                # DataClient is read-only. An entitlement error may occur AFTER
-                # token verification; still validate the NORMAL token below.
-                DataClient(api).market_data.get_history_bar("AAPL", "US_STOCK", "M15")
-            except Exception:
-                pass
-            path = Path(tmpdir) / "token.txt"
-            if not path.is_file():
-                print("No approved token file was produced. Check Webull's OpenAPI authorization.")
-                return 1
-            try:
-                save_approved_token_with_gh(path)
-            except (RuntimeError, ValueError) as exc:
-                # A safe message is shown; the credential and SDK error are not.
-                print(type(exc).__name__ + ": " + str(exc))
-                return 1
+                print("A Webull app approval may appear. Approve only this expected OpenAPI request.")
+                api = ApiClient(app_key, app_secret, "us", token_check_duration_seconds=300)
+                api.add_endpoint("us", "api.webull.com")
+                # Client initialization itself verifies and persists the 2FA
+                # token. No quote, history, account or trading endpoint needed.
+                try:
+                    DataClient(api)
+                except Exception:
+                    pass
+                path = Path(tmpdir) / "token.txt"
+                if not path.is_file():
+                    print("No approved token file was produced. Check Webull's OpenAPI authorization.")
+                    return 1
+                try:
+                    save_approved_token_with_gh(path)
+                except (RuntimeError, ValueError) as exc:
+                    # SDK and credential contents are never included.
+                    print(type(exc).__name__ + ": " + str(exc))
+                    return 1
+            finally:
+                os.chdir(original_cwd)
     except Exception as exc:
         print("Webull authorization did not complete (" + type(exc).__name__ + ").")
         return 1
