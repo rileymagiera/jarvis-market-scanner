@@ -44,6 +44,33 @@ def email(subject, body):
         smtp.send_message(msg)
 
 
+
+def compact_tracker_for_render(tracker):
+    """Keep dashboard-ready records while full evidence remains in GitHub.
+
+    The GitHub Actions scanner and paper trader operate on the original tracker.
+    Only copies of the two largest, per-scan historical arrays are bounded for
+    transfer to the Render web service; all other candidate fields remain intact.
+    """
+    if not isinstance(tracker, dict):
+        return tracker
+    compact = {}
+    for key, row in tracker.items():
+        if not isinstance(row, dict):
+            compact[key] = row
+            continue
+        projected = dict(row)
+        # Active candidates need a little more recent context in Intelligence.
+        # Older observations are still retained unchanged in paper_tracker.json.
+        limit = 4 if row.get("currently_surfaced") is True else 1
+        for field in ("signal_history", "buy_gate_history"):
+            history = row.get(field)
+            if isinstance(history, list):
+                projected[field] = history[-limit:]
+        compact[key] = projected
+    return compact
+
+
 def sync_history_to_site(paper, lifetime, now, buy_signals=None, scan_metadata=None, paper_account=None):
     """Losslessly compress large dashboard sync payloads; retain legacy JSON fallback."""
     token = os.getenv("JARVIS_HISTORY_SYNC_TOKEN", "")
@@ -52,10 +79,11 @@ def sync_history_to_site(paper, lifetime, now, buy_signals=None, scan_metadata=N
         return
     scan_metadata = scan_metadata or {}
     body = json.dumps({
+        "render_projection_version": 1,
         "synced_at": now.isoformat(),
         "last_scan_completed_at": scan_metadata.get("last_scan_completed_at"),
         "scan_run_id": scan_metadata.get("run_id"),
-        "paper_tracker": paper,
+        "paper_tracker": compact_tracker_for_render(paper),
         "lifetime": lifetime,
         "buy_signals": buy_signals or [],
         "paper_trading": paper_account or {},
