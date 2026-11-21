@@ -1,0 +1,14 @@
+# Webull OpenAPI SDK can create a verified account token in this directory.
+# Never commit or upload it to the public repository.
+conf/token.txt
+**/conf/token.txt
+.webull-token/
+.webull-token-*
+webull-token.txt
+
+# Python and local tools
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.env
+.env.*

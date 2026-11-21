@@ -97,6 +97,9 @@ jobs:
           ALPACA_STOCK_DATA_FEED: ${{ vars.ALPACA_STOCK_DATA_FEED || 'iex' }}
           WEBULL_APP_KEY: ${{ secrets.WEBULL_APP_KEY }}
           WEBULL_APP_SECRET: ${{ secrets.WEBULL_APP_SECRET }}
+          # Secret contains base64 of the approved three-line SDK token.txt.
+          # Never log or persist this value in the public repository.
+          WEBULL_OPENAPI_TOKEN_FILE_B64: ${{ secrets.WEBULL_OPENAPI_TOKEN_FILE_B64 }}
           # Webull OpenAPI returned verification-failure-limit errors in production.
           # Prevent repeated unattended token creation until authorization/token
           # reuse is configured. Restore comparisons only with explicit opt-in.
@@ -118,8 +121,10 @@ jobs:
             echo "Alpaca credentials are missing; scan will report Alpaca as not configured."
           fi
           if [ -n "$WEBULL_APP_KEY" ] && [ -n "$WEBULL_APP_SECRET" ]; then
-            if [ "$WEBULL_SHADOW_MODE" = "true" ]; then
-              echo "Webull credentials configured; read-only shadow sampling is enabled."
+            if [ "$WEBULL_SHADOW_MODE" = "true" ] && [ -n "$WEBULL_OPENAPI_TOKEN_FILE_B64" ]; then
+              echo "Webull credentials and approved token configured; read-only shadow sampling enabled."
+            elif [ "$WEBULL_SHADOW_MODE" = "true" ]; then
+              echo "Webull credentials configured but approved token secret absent; all Webull SDK calls remain disabled."
             else
               echo "Webull credentials configured; shadow sampling paused pending OpenAPI token verification."
             fi
