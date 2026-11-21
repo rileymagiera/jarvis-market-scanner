@@ -13,6 +13,8 @@ RECENT_SIGNAL_SNAPSHOTS_CURRENT = 3
 RECENT_SIGNAL_SNAPSHOTS_ARCHIVED = 1
 RECENT_ENTRY_OBSERVATIONS = 4
 RECENT_PRICE_OBSERVATIONS = 2
+RECENT_BUY_GATE_EVENTS_CURRENT = 5
+RECENT_BUY_GATE_EVENTS_ARCHIVED = 1
 
 
 def compact_paper_tracker(paper: dict) -> dict:
@@ -30,6 +32,7 @@ def compact_paper_tracker(paper: dict) -> dict:
             ("signal_history", RECENT_SIGNAL_SNAPSHOTS_CURRENT if current else RECENT_SIGNAL_SNAPSHOTS_ARCHIVED),
             ("paired_entry_history", RECENT_ENTRY_OBSERVATIONS if current else 0),
             ("price_history", RECENT_PRICE_OBSERVATIONS if current else 0),
+            ("buy_gate_history", RECENT_BUY_GATE_EVENTS_CURRENT if current else RECENT_BUY_GATE_EVENTS_ARCHIVED),
         ):
             history = record.get(field)
             if isinstance(history, list):
@@ -42,6 +45,11 @@ def build_render_snapshot(paper, lifetime, now, *, buy_signals=None,
                           scan_metadata=None, paper_account=None):
     """Project only the Render replica; preserve exact trading account/state."""
     scan_metadata = scan_metadata or {}
+    # Compute full-fidelity signal and BUY-gate summaries in GitHub Actions
+    # before projecting the historical per-candidate arrays. Render displays
+    # these authoritative aggregates without holding the full event ledger.
+    from runner_intelligence import build_runner_intelligence_report
+    full_intelligence = build_runner_intelligence_report(list(paper.values()), buy_signals or [])
     return {
         "synced_at": now.isoformat(),
         "last_scan_completed_at": scan_metadata.get("last_scan_completed_at"),
@@ -50,6 +58,7 @@ def build_render_snapshot(paper, lifetime, now, *, buy_signals=None,
         "lifetime": lifetime,
         "buy_signals": buy_signals or [],
         "paper_trading": paper_account or {},
+        "full_runner_intelligence": full_intelligence,
         "scan_diagnostics": scan_metadata.get("scan_diagnostics") or {},
         "render_compact_snapshot": True,
         "full_research_location": "GitHub: paper_tracker.json / GitHub Actions audit artifacts",
