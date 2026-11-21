@@ -18,6 +18,7 @@ from notification_format import (
 from email_digest import (queue_research_digest, queue_paper_digest_events,
     queue_buy_digest_signals, digest_due, format_daily_digest, mark_digest_sent)
 from candidate_lifecycle import update_candidate_lifecycle
+from dashboard_snapshot import build_render_snapshot
 from entry_timing_lab import retain_paired_entry_observations
 from early_opportunity_radar import append_candidate_snapshot
 from early_runner import has_session_aware_early_runner_baseline
@@ -29,6 +30,7 @@ PAPER_STATE = Path("paper_tracker.json")
 PAPER_LIFETIME_STATE = Path("paper_tracker_lifetime.json")
 BUY_SIGNAL_STATE = Path("buy_signal_history.json")
 DIAGNOSTICS_STATE = Path("scan_diagnostics.json")
+RENDER_SNAPSHOT_STATE = Path("render_dashboard_snapshot.json")
 BASE_URL = os.getenv("JARVIS_SCANNER_URL", "https://jarvis-market-scanner.onrender.com").rstrip("/")
 SENDER = os.environ["JARVIS_GMAIL_USER"]
 PASSWORD = os.environ["JARVIS_GMAIL_APP_PASSWORD"].replace(" ", "")
@@ -45,25 +47,24 @@ def email(subject, body):
 
 
 def sync_history_to_site(paper, lifetime, now, buy_signals=None, scan_metadata=None, paper_account=None):
-    """Losslessly compress large dashboard sync payloads; retain legacy JSON fallback."""
+    """Save a bounded Render replica; GitHub retains full per-scan research history."""
+    # This creates a lightweight GitHub fallback even when the Render sync token
+    # is missing, or Render temporarily refuses the POST. The paper tracker,
+    # paper account and scan decision logic are never modified by this projection.
+    snapshot = build_render_snapshot(
+        paper, lifetime, now,
+        buy_signals=buy_signals, scan_metadata=scan_metadata,
+        paper_account=paper_account,
+    )
+    body = json.dumps(snapshot, separators=(",", ":")).encode("utf-8")
+    RENDER_SNAPSHOT_STATE.write_bytes(body + b"\n")
     token = os.getenv("JARVIS_HISTORY_SYNC_TOKEN", "")
     if not token:
         print("History sync skipped: JARVIS_HISTORY_SYNC_TOKEN is not configured.")
         return
-    scan_metadata = scan_metadata or {}
-    body = json.dumps({
-        "synced_at": now.isoformat(),
-        "last_scan_completed_at": scan_metadata.get("last_scan_completed_at"),
-        "scan_run_id": scan_metadata.get("run_id"),
-        "paper_tracker": paper,
-        "lifetime": lifetime,
-        "buy_signals": buy_signals or [],
-        "paper_trading": paper_account or {},
-        "scan_diagnostics": scan_metadata.get("scan_diagnostics") or {},
-    }).encode("utf-8")
 
-    # No field removal, sampling, or history truncation. Use the original
-    # JSON for small messages and when the receiver does not support gzip.
+    # gzip is still enabled for transfer efficiency; the bounded snapshot also
+    # lowers Render's uncompressed memory cost instead of merely the wire size.
     use_gzip = (
         len(body) >= 128 * 1024
         and os.getenv("JARVIS_HISTORY_SYNC_GZIP_ENABLED", "true").strip().lower()
@@ -87,7 +88,7 @@ def sync_history_to_site(paper, lifetime, now, buy_signals=None, scan_metadata=N
                 result, transport_size = transmit(use_gzip)
             except HTTPError as exc:
                 # A prior Render deployment may still only accept plain JSON.
-                # Never change the original payload: immediately retry it intact.
+                # Retry the same compact JSON representation without gzip.
                 if use_gzip and exc.code in (400, 415, 422):
                     print("History sync receiver rejected gzip; retrying original JSON payload.")
                     use_gzip = False
