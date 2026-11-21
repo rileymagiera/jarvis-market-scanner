@@ -144,7 +144,7 @@ def test_home_inline_script_parses_with_node_if_available():
     import re
     if not shutil.which("node"):
         return
-    inline = re.findall(r"<script>([\\s\\S]*?)</script>", _home())
+    inline = re.findall(r"<script>(.*?)</script>", _home(), flags=re.DOTALL)
     assert len(inline) == 1
     result = subprocess.run(["node", "--check", "-"], input=inline[0],
                             capture_output=True, text=True, timeout=20)
