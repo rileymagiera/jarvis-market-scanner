@@ -298,6 +298,9 @@ jobs:
               f"{export['buy_gate_failures']['total_events']} BUY-gate events."
           )
           PY
+      - name: Publish daily full-history research review
+        if: ${{ steps.jarvis.outcome == 'success' && inputs.send_test_email != true }}
+        run: python daily_research_digest.py
       - name: Upload compact historical opportunity audit
         if: ${{ steps.jarvis.outcome == 'success' && inputs.send_test_email != true }}
         uses: actions/upload-artifact@v7
@@ -465,6 +468,11 @@ jobs:
           # remain unchanged and authoritative in GitHub.
           if [ -f render_dashboard_snapshot.json ]; then
             git add -f render_dashboard_snapshot.json
+          fi
+          # Daily evidence summary comes from the complete Actions audit, not Render.
+          # Retain its last 14 calendar-day snapshots without redeploying the site.
+          if [ -f jarvis_research_review.json ]; then
+            git add -f jarvis_research_review.json
           fi
           if git diff --cached --quiet; then
             echo "No Jarvis state changes to persist."
