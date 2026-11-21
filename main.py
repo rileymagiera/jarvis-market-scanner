@@ -3113,6 +3113,7 @@ def latest_history_state() -> dict:
             "scan_diagnostics": snapshot.get("scan_diagnostics") or {},
             "history_source": "render_snapshot_fast",
             "render_compact_snapshot": snapshot.get("render_compact_snapshot") is True,
+            "full_runner_intelligence": snapshot.get("full_runner_intelligence"),
         }
     github = github_history_state()
     if github:
@@ -4098,7 +4099,13 @@ def research_data():
             "average_5d_return_pct": round(sum(returns) / len(returns), 2) if returns else None,
             "definition": "5-day sampled return >=20%; only completed, verified observations",
         }
-    runner_intelligence = build_runner_intelligence_report(records, buys)
+    # Full BUY-gate statistics were calculated against the complete GitHub
+    # research ledger before it was projected into this lightweight replica.
+    complete_report = durable.get("full_runner_intelligence") if durable else None
+    runner_intelligence = (
+        complete_report if isinstance(complete_report, dict)
+        else build_runner_intelligence_report(records, buys)
+    )
     massive_key=bool(os.getenv("MASSIVE_API_KEY","").strip())
     webull_keys=bool(os.getenv("WEBULL_APP_KEY","").strip() and os.getenv("WEBULL_APP_SECRET","").strip())
     return {"synced_at":synced,"last_scan_completed_at":completed,"scan_run_id":run_id,
