@@ -21,7 +21,8 @@ def test_futuristic_header_lives_on_home_and_market_overview_remains_full_scanne
     assert 'href="/paper-trading"' in header
     assert 'href="/data-health"' in header
     assert "<h1>JARVIS" in header
-    assert "The edge" in header
+    assert "The edge" not in header
+    assert '<h1>JARVIS<span class="deck-title-dot">.</span></h1>' in header
     assert '<header class="overview-deck"' not in overview
     assert '<header class="command-header"' in overview
     assert 'id="updated"' in overview
