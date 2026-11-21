@@ -3174,11 +3174,45 @@ def home_brief():
     records = state.get("paper_tracker") if isinstance(state, dict) else None
     records = records if isinstance(records, dict) else {}
     surfaced = [r for r in records.values() if isinstance(r, dict) and r.get("currently_surfaced") is not False]
+    # The featured verified-runner leaderboard is a small read-only projection
+    # of already-saved, observation-eligible research performance. It does not
+    # backtest, execute orders, or synthesize market prices in the web process.
+    leaders = []
+    for record in surfaced:
+        if str(record.get("asset_type") or "").lower() not in ("stock", "crypto"):
+            continue
+        if str(record.get("price_validation_status") or "").lower() != "verified":
+            continue
+        if str(record.get("discovery_baseline_status") or "").lower() != "live_verified":
+            continue
+        if record.get("asset_type") == "stock" and record.get("session_aware_tracking") is not True:
+            continue
+        try:
+            baseline = float(record.get("initial_price"))
+            peak = float(record.get("max_gain_pct"))
+            latest = float(record.get("return_pct"))
+        except (TypeError, ValueError):
+            continue
+        if not (np.isfinite(baseline) and baseline > 0 and
+                np.isfinite(peak) and peak > 0 and
+                np.isfinite(latest) and latest <= peak + 0.02):
+            continue
+        symbol = str(record.get("symbol") or "").strip().upper()
+        if not symbol or len(symbol) > 25:
+            continue
+        leaders.append({
+            "symbol": symbol,
+            "asset_type": record["asset_type"],
+            "peak_gain_pct": round(peak, 2),
+            "latest_return_pct": round(latest, 2),
+        })
+    leaders.sort(key=lambda record: (-record["peak_gain_pct"], record["symbol"]))
     return JSONResponse({
         "last_scan_completed_at": state.get("last_scan_completed_at") if isinstance(state, dict) else None,
         "tracked_assets": len(records),
         "radar_candidates": len(surfaced),
         "verified_candidates": sum(str(r.get("price_validation_status", "")).lower() == "verified" for r in surfaced),
+        "runner_highlights": leaders[:4],
         "snapshot_available": bool(state and state.get("last_scan_completed_at")),
     }, headers={"Cache-Control": "no-store"})
 
