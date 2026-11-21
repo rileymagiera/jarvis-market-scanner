@@ -15,7 +15,7 @@ const start = source.indexOf('function candidateChartUrl(');
 const end = source.indexOf('function priceTiming(', start);
 assert.ok(start >= 0 && end > start, 'chart helpers exist');
 const sandbox = {};
-vm.runInNewContext("const e=v=>String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('\\"','&quot;').replaceAll(\"'\",'&#39;');\n" + source.slice(start,end), sandbox);
+vm.runInNewContext("const e=v=>String(v??'');\\n" + source.slice(start,end), sandbox);
 const link = sandbox.candidateChartUrl;
 assert.equal(link({asset_type:'crypto',symbol:'BTCUSDT'}), 'https://www.coinbase.com/advanced-trade/spot/BTC-USD');
 assert.equal(link({asset_type:'crypto',symbol:'SOL'}), 'https://www.coinbase.com/advanced-trade/spot/SOL-USD');
