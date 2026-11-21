@@ -3470,11 +3470,37 @@ MARKET_OVERVIEW_FIELDS = (
 )
 
 
+def market_overview_candidate(record: dict) -> dict:
+    """Preserve a small, authoritative BUY-readiness summary for Setup Quality.
+
+    The dashboard previously invented its quality verdict from technical data
+    without receiving BUY gates. Do not send bulky audit histories, full missing
+    reasons, or calculate a new trading signal in the Render process.
+    """
+    projected = {field: record[field] for field in MARKET_OVERVIEW_FIELDS if field in record}
+    if record.get("asset_type") != "stock":
+        return projected
+    readiness = record.get("buy_readiness")
+    if not isinstance(readiness, dict):
+        return projected
+    checks = readiness.get("checks")
+    if not isinstance(checks, dict) or not checks:
+        return projected
+    projected["buy_readiness"] = {
+        "passed": sum(value is True for value in checks.values()),
+        "total": len(checks),
+        "all_gates_passed": readiness.get("all_gates_passed") is True,
+        "failed_gate_keys": [str(key)[:60] for key, value in checks.items()
+                             if value is not True][:16],
+    }
+    return projected
+
+
 @app.get("/history/overview-data", dependencies=[Depends(require_site_login)])
 def market_overview_data():
     history = history_data()
     candidates = {
-        key: {field: record[field] for field in MARKET_OVERVIEW_FIELDS if field in record}
+        key: market_overview_candidate(record)
         for key, record in history["paper_tracker"].items()
     }
     lifetime = history["lifetime"]
