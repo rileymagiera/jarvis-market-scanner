@@ -35,6 +35,112 @@
     "score": 60
   },
   "daily_status_date": "2026-11-20",
+  "email_digest_pending": {
+    "premarket": {
+      "EVH": {
+        "asset_type": "stock",
+        "data_quality": {
+          "data_type": "eod"
+        },
+        "data_source": "Yahoo + Alpaca prior-session daily close cross-check",
+        "levels": {
+          "invalidation_level": 3.51,
+          "stop_loss": 3.51,
+          "target_1": 5.015197,
+          "target_2": 5.516929,
+          "watch_entry_high": 4.011732,
+          "watch_entry_low": 3.9
+        },
+        "news": [
+          {
+            "title": "Evolent Health\u2019s (EVH) Explosive Q2 Surge and Contract Repricing Signal a Major Turnaround in Specialty Care Management"
+          },
+          {
+            "title": "Do You Like Cash? Consider DaVita Stock"
+          }
+        ],
+        "premarket_alert_score": 24,
+        "premarket_alert_status": "PREMARKET VERIFIED",
+        "price": 3.9,
+        "price_as_of": "2026-11-20T05:00:00+00:00",
+        "price_validation_status": "last_known",
+        "risk_flags": [],
+        "score": 32,
+        "signal": "LOW-CONVICTION WATCH",
+        "stage": "LOW-CONVICTION WATCH",
+        "symbol": "EVH"
+      },
+      "FEDU": {
+        "asset_type": "stock",
+        "data_quality": {
+          "data_type": "eod"
+        },
+        "data_source": "Yahoo Finance daily; live quote unverified",
+        "levels": {
+          "invalidation_level": 9.459,
+          "stop_loss": 9.459,
+          "target_1": 13.408982,
+          "target_2": 14.725643,
+          "watch_entry_high": 10.775661,
+          "watch_entry_low": 10.51
+        },
+        "news": [
+          {
+            "title": "Asian Equities Traded in the US as American Depositary Receipts Rise Sharply in Thursday Trading"
+          },
+          {
+            "title": "With EPS Growth And More, Four Seasons Education (Cayman) (NYSE:FEDU) Makes An Interesting Case"
+          }
+        ],
+        "premarket_alert_score": 11,
+        "premarket_alert_status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED",
+        "price": 10.51,
+        "price_as_of": "2026-11-20T00:00:00-05:00",
+        "price_validation_status": "unverified",
+        "risk_flags": [
+          "Price not independently verified; actionable alerts blocked"
+        ],
+        "score": 47,
+        "signal": "EARLY SETUP",
+        "stage": "EARLY SETUP",
+        "symbol": "FEDU"
+      },
+      "GAP": {
+        "asset_type": "stock",
+        "data_quality": {
+          "data_type": "eod"
+        },
+        "data_source": "Yahoo + Alpaca prior-session daily close cross-check",
+        "levels": {
+          "invalidation_level": 19.180715,
+          "stop_loss": 19.180715,
+          "target_1": 25.338214,
+          "target_2": 27.390714,
+          "watch_entry_high": 21.233215,
+          "watch_entry_low": 20.940001
+        },
+        "news": [
+          {
+            "title": "Sozzi: Anthropic\u2019s IPO Surges; Is AMD\u2019s Pullback a Buy?"
+          },
+          {
+            "title": "Gap CEO: 'Consumer is resilient but discerning'"
+          }
+        ],
+        "premarket_alert_score": 14,
+        "premarket_alert_status": "PREMARKET VERIFIED",
+        "price": 20.94,
+        "price_as_of": "2026-11-20T05:00:00+00:00",
+        "price_validation_status": "last_known",
+        "risk_flags": [],
+        "score": 38,
+        "signal": "EARLY WATCH",
+        "stage": "EARLY WATCH",
+        "symbol": "GAP"
+      }
+    },
+    "watch": {}
+  },
   "paper_email_seen_events": [
     "22d11dd56f6a96e07ee3ab16",
     "20c20c7a349e6dda4599a7fd",
@@ -173,8 +279,8 @@
       "status": "PREMARKET VERIFIED"
     },
     "EVH": {
-      "alerted_at": "2026-11-20T18:01:23.197477+00:00",
-      "score": 26,
+      "alerted_at": "2026-11-21T04:01:20.842466+00:00",
+      "score": 24,
       "status": "PREMARKET VERIFIED"
     },
     "FDMT": {
@@ -183,8 +289,8 @@
       "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
     "FEDU": {
-      "alerted_at": "2026-11-20T18:01:23.197477+00:00",
-      "score": 8,
+      "alerted_at": "2026-11-21T04:01:20.842466+00:00",
+      "score": 11,
       "status": "PREMARKET PROVISIONAL \u2014 NOT INDEPENDENTLY VERIFIED"
     },
     "FLWS": {
@@ -193,8 +299,8 @@
       "status": "PREMARKET VERIFIED"
     },
     "GAP": {
-      "alerted_at": "2026-11-20T20:01:17.334155+00:00",
-      "score": 20,
+      "alerted_at": "2026-11-21T04:01:20.842466+00:00",
+      "score": 14,
       "status": "PREMARKET VERIFIED"
     },
     "GME": {
