@@ -528,6 +528,11 @@
     "alerted_stage": "DEVELOPING RUNNER",
     "score": 79
   },
+  "stock:TRIB": {
+    "alerted_at": "2026-11-21T00:55:56.946093+00:00",
+    "alerted_stage": "DEVELOPING RUNNER",
+    "score": 75
+  },
   "stock:TU": {
     "alerted_at": "2026-11-20T12:04:40.180328+00:00",
     "alerted_stage": "LATE RUNNER \u2014 CHASE RISK",
